@@ -4,14 +4,14 @@
         <div class="container">
           <div class="hero-grid">
             <div class="hero-text">
-              <p class="eyebrow">Small steps, real change.</p>
+              <p class="eyebrow">Nurturing healthy kids, one tiny win at a time.</p>
               <h1>
-                Your family,<br />
-                <span>your pace.</span>
+                Practical support for<br />
+                <span>parents and children.</span>
               </h1>
               <p class="hero-subtext">
-                Supporting Australian families with practical, judgment-free tools to build healthier
-                habits together.
+                HealthySteps helps families with children aged 5-12 build better nutrition, movement,
+                sleep, and routine habits with step-by-step guidance.
               </p>
             </div>
   
@@ -31,27 +31,40 @@
                 <RouterLink to="/parent-quiz" class="btn btn-coral full link-btn">
                   Start as a Parent
                 </RouterLink>
+                <RouterLink to="/parent-dashboard" class="btn btn-outline-neutral full link-btn">
+                  View Parent Dashboard
+                </RouterLink>
               </article>
   
               <article class="choice-card teen-card">
                 <div class="choice-icon blue">🚀</div>
-                <h3>I'm a young person</h3>
+                <h3>I'm a child</h3>
                 <p>
-                  Your body, your pace. Level up your health with tools designed for you—private,
-                  fun, and zero lectures.
+                  Your journey, your pace. Complete fun daily missions, earn badges, and build healthy
+                  habits with support from home.
                 </p>
                 <ul>
                   <li>Earn XP and badges for trying</li>
-                  <li>Fully private food and energy tracking</li>
-                  <li>Control what you share with parents</li>
+                  <li>Fun mission board with rewards</li>
+                  <li>Progress that celebrates effort</li>
                 </ul>
                 <RouterLink to="/young-person-dashboard" class="btn btn-blue full link-btn">
-                  Start Your Journey
+                  Start as a Child
                 </RouterLink>
               </article>
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="container journey-strip">
+        <div class="journey-pill">Home</div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-pill">Choose Parent or Child</div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-pill">Parent Quiz</div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-pill">Personalized Dashboard</div>
       </section>
   
       <section class="container stats-banner">
@@ -122,7 +135,7 @@
         </div>
       </section>
   
-      <section class="container section-gap">
+      <section id="parent-child-paths" class="container section-gap">
         <SectionTitle
           title="Get your personalized starting point"
           description="60-second quiz. No sign-up. Instant action plan tailored to your family."
@@ -143,15 +156,15 @@
           </article>
   
           <article class="quiz-card teen-quiz">
-            <h3>Teen Quiz</h3>
+            <h3>Child Missions</h3>
             <ul>
-              <li>What you want to feel different about</li>
-              <li>What's hardest to change</li>
-              <li>How independent you want to be</li>
-              <li>Your biggest win this week</li>
+              <li>Fun missions for energy and movement</li>
+              <li>Badges for trying new healthy habits</li>
+              <li>Simple wins children can complete daily</li>
+              <li>Colorful progress moments</li>
             </ul>
             <RouterLink to="/young-person-dashboard" class="btn btn-blue full link-btn">
-              Start Teen Quiz
+              Open Child Dashboard
             </RouterLink>
           </article>
         </div>
@@ -234,6 +247,9 @@
             approach.
           </p>
           <div class="cta-actions">
+            <RouterLink to="/parent-dashboard" class="btn btn-light link-btn">
+              Open Parent Dashboard
+            </RouterLink>
             <RouterLink to="/parent-quiz" class="btn btn-light link-btn">
               Get Started Free
             </RouterLink>
