@@ -177,23 +177,42 @@
     return value.trim().toLowerCase().replace(/\s+/g, '')
   }
   
-  function startNewUser() {
+  async function startNewUser() {
     newUserError.value = ''
-  
+
     if (!newUsername.value) {
-      newUserError.value = 'Please choose a username before continuing.'
-      return
+        newUserError.value = 'Please choose a username before continuing.'
+        return
     }
-  
+
     const username = normalizeUsername(newUsername.value)
-  
-    savePlan({
-      ...state,
-      username,
-    })
-  
-    router.push('/parent-quiz')
-  }
+
+    try {
+        const response = await fetch(
+        `${import.meta.env.VITE_PARENT_PROFILE_CHECK_API_BASE_URL}/test/check-username?username=${encodeURIComponent(username)}`
+        )
+
+        if (!response.ok) {
+        throw new Error('Username check failed')
+        }
+
+        const data = await response.json()
+
+        if (!data.available) {
+        newUserError.value = 'That username is already taken. Please choose another one.'
+        return
+        }
+
+        savePlan({
+        ...state,
+        username,
+        })
+
+        router.push('/parent-quiz')
+    } catch (error) {
+        newUserError.value = 'Unable to check username right now. Please try again.'
+    }
+    }
   
   async function continueReturningUser() {
     returningUserError.value = ''
