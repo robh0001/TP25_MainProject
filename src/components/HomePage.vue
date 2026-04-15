@@ -248,10 +248,10 @@ import { RouterLink } from 'vue-router'
 
 :global(body) {
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #ece7df;
-  color: #3B312B;
+  font-family: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
+  color: #2f2a26;
 }
 
 .home-page {
@@ -387,7 +387,7 @@ import { RouterLink } from 'vue-router'
   margin: 0;
   font-size: clamp(3rem, 6vw, 5.2rem);
   line-height: 0.92;
-  letter-spacing: -0.08em;
+  /* letter-spacing: -0.08em; */
   font-weight: 800;
   color: #b2805c;
 }
@@ -487,7 +487,7 @@ import { RouterLink } from 'vue-router'
 }
 
 .section-heading h2 {
-  font-size: clamp(2.6rem, 4vw, 4.6rem);
+  /* font-size: clamp(2.6rem, 4vw, 4.6rem); */
   max-width: none;
 }
 
@@ -540,7 +540,7 @@ import { RouterLink } from 'vue-router'
 }
 
 .feature-copy h2 {
-  font-size: clamp(2.5rem, 4.6vw, 4.6rem);
+  /* font-size: clamp(2.5rem, 4.6vw, 4.6rem); */
   max-width: 10ch;
 }
 
@@ -645,7 +645,7 @@ import { RouterLink } from 'vue-router'
 
 .final-cta-box h2 {
   color: #fff;
-  font-size: clamp(2.2rem, 4vw, 4rem);
+  /* font-size: clamp(2.2rem, 4vw, 4rem); */
   max-width: 11ch;
 }
 
@@ -723,10 +723,6 @@ import { RouterLink } from 'vue-router'
     top: 18px;
     width: auto;
     padding: 24px;
-  }
-
-  .hero-panel h1 {
-    font-size: clamp(2.7rem, 12vw, 4.2rem);
   }
 
   .hero-meta {

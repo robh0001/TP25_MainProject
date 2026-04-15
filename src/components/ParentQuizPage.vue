@@ -697,10 +697,10 @@ async function submitQuiz() {
 
 :global(body) {
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #ece7df;
-  color: #2f2a26;
+  font-family: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
+  color: #2f2a26;
 }
 
 .quiz-page {
@@ -733,9 +733,8 @@ async function submitQuiz() {
 .brand {
   text-decoration: none;
   color: #2f2a26;
-  font-size: 1.75rem;
+  /* font-size: 1.75rem; */
   font-weight: 900;
-  letter-spacing: -0.05em;
 }
 
 .nav {
@@ -781,9 +780,7 @@ async function submitQuiz() {
 .intro-copy h1,
 .form-head h2 {
   margin: 0;
-  font-size: clamp(2.1rem, 4vw, 3.2rem);
   line-height: 0.96;
-  letter-spacing: -0.06em;
   font-weight: 800;
   color: #2f2a26;
 }
@@ -795,7 +792,6 @@ async function submitQuiz() {
   margin: 0 0 12px;
   font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
   font-weight: 800;
   color: #6c6258;
 }
@@ -1052,11 +1048,6 @@ async function submitQuiz() {
 
   .container {
     width: calc(100% - 24px);
-  }
-
-  .intro-copy h1,
-  .form-head h2 {
-    font-size: clamp(2rem, 10vw, 3rem);
   }
 
   .form-shell,

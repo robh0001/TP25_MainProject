@@ -225,13 +225,12 @@
   }
   
   :global(body) {
-    margin: 0;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #ece7df;
-    color: #2f2a26;
-    -webkit-font-smoothing: antialiased;
-  }
-  
+  margin: 0;
+  background: #ece7df;
+  font-family: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #2f2a26;
+}
   .entry-page {
     min-height: 100vh;
     background: #ece7df;
@@ -319,10 +318,9 @@
   .section-eyebrow,
   .card-kicker {
     margin: 0 0 12px;
-    font-size: 0.78rem;
+    /* font-size: 0.78rem; */
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-weight: 800;
+    /* font-weight: 800; */
     color: #6c6258;
   }
   
@@ -330,9 +328,7 @@
   .flow-copy h2,
   .support-note-box h2 {
     margin: 0;
-    font-size: clamp(2.7rem, 5vw, 4.6rem);
     line-height: 0.95;
-    letter-spacing: -0.08em;
     font-weight: 800;
     color: #2f2a26;
   }
@@ -596,7 +592,6 @@
   
   .support-note-box h2 {
     color: #fff;
-    font-size: clamp(2.2rem, 4vw, 3.8rem);
     max-width: 12ch;
   }
   
@@ -641,10 +636,6 @@
   
     .container {
       width: calc(100% - 24px);
-    }
-  
-    .intro-copy h1 {
-      font-size: clamp(2.4rem, 12vw, 4rem);
     }
   
     .path-card,
