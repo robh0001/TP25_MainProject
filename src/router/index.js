@@ -3,6 +3,7 @@ import HomePage from '../components/HomePage.vue'
 import ParentQuizPage from '../components/ParentQuizPage.vue'
 import ParentDashboardPage from '../components/ParentDashboardPage.vue'
 import YoungPersonDashboardPage from '../components/YoungPersonDashboardPage.vue'
+import ParentEntry from '../components/ParentEntry.vue'
 
 const routes = [
   {
@@ -17,7 +18,7 @@ const routes = [
   },
   {
     path: '/parent-dashboard',
-    name: 'parent-dashboard',
+    name: 'ParentDashboard',
     component: ParentDashboardPage,
   },
   {

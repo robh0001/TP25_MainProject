@@ -1,10 +1,8 @@
 <script setup>
-import TheHeader from './components/TheHeader.vue'
 </script>
 
 <template>
   <div class="page-shell">
-    <TheHeader />
     <router-view />
   </div>
 </template>
