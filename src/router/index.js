@@ -17,6 +17,16 @@ const routes = [
     component: ParentQuizPage,
   },
   {
+    path: '/parent-entry',
+    name: 'ParentEntry',
+    component: ParentEntry,
+  },
+  {
+    path: '/parent-quiz',
+    name: 'ParentQuiz',
+    component: ParentQuizPage,
+  },
+  {
     path: '/parent-dashboard',
     name: 'ParentDashboard',
     component: ParentDashboardPage,
