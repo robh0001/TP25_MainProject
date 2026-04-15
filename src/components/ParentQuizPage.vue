@@ -682,10 +682,31 @@ async function submitQuiz() {
   }
 
   try {
+    const response = await fetch(
+      `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/test/parent-profiles`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    )
+
+    const data = await response.json()
+
+    if (response.status === 409) {
+      errorMessage.value = 'That username is already taken. Please go back and choose another one.'
+      return
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Save failed')
+    }
+
     savePlan(payload)
     router.push('/parent-dashboard')
   } catch (error) {
     errorMessage.value = 'Something went wrong while saving your plan. Please try again.'
+    console.error(error)
   }
 }
 </script>

@@ -214,28 +214,41 @@
     }
     }
   
-  async function continueReturningUser() {
-    returningUserError.value = ''
-  
+    async function continueReturningUser() {
+    
+        returningUserError.value = ''
+
     if (!returningUsername.value) {
-      returningUserError.value = 'Please enter your username.'
-      return
-    }
-  
-    const username = normalizeUsername(returningUsername.value)
-  
-    try {
-      if (state.username === username && state.childName) {
-        router.push('/parent-dashboard')
+        returningUserError.value = 'Please enter your username.'
         return
-      }
-  
-      throw new Error('Profile not found')
-    } catch (error) {
-      returningUserError.value =
-        'We could not find that profile. Check your username or start a new family plan.'
     }
-  }
+
+    const username = normalizeUsername(returningUsername.value)
+
+    try {
+        const response = await fetch(
+        `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`
+        )
+
+        const data = await response.json()
+
+        if (response.status === 404) {
+        returningUserError.value =
+            'We could not find that profile. Check your username or start a new family plan.'
+        return
+        }
+
+        if (!response.ok) {
+        throw new Error(data.error || 'Load failed')
+        }
+
+        savePlan(data)
+        router.push('/parent-dashboard')
+    } catch (error) {
+        returningUserError.value = 'Unable to load your profile right now. Please try again.'
+        console.error(error)
+    }
+}
   </script>
   
   <style scoped>
