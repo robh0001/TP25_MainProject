@@ -1,0 +1,149 @@
+category,avg_person_g,avg_males_g,avg_females_g
+Non-alcoholic beverages,1622.7,1663.1,1580.45
+Tea,35.6,34.15,37.15
+Coffee and coffee substitutes,13.45,10.15,17
+100% Fruit and vegetable juices,86.05,87.95,84.1
+Fruit and vegetable drinks,6.05,4.8,7.3500000000000005
+Cordials,15.25,22.75,7.25
+"Soft drinks, and flavoured mineral waters",105.35,112.7,97.3
+"Electrolyte, energy and fortified drinks",13.700000000000001,19.599999999999998,7.6
+"Waters, municipal and bottled",1311.75,1334.65,1288
+Other beverage flavourings and prepared beverages,35.5,36.4,34.6
+Cereals and cereal products,144.7,166.25,122.1
+"Flours, rice and other cereal grains and starches",38,46.599999999999994,28.85
+"Regular breads, and bread rolls",35.85,37.05,34.55
+"English-style muffins, flat breads, and savoury and sweet breads",17.05,18.9,15.15
+Pasta and pasta products,24.95,28.45,21.299999999999997
+"Breakfast cereals, ready to eat",22.1,29.2,14.6
+"Breakfast cereals, hot porridge style",6.749999999999998,6,7.550000000000001
+Cereal based products and dishes,266.65,294.3,237.75
+Sweet biscuits,12.95,14.85,11
+Savoury biscuits,6.550000000000001,7.15,5.95
+"Cakes, muffins, scones, cake-type desserts",15.45,15.600000000000001,15.3
+Pastries,23.25,26.450000000000003,19.9
+Mixed dishes where cereal is the major ingredient,199,218.10000000000002,178.89999999999998
+Batter-based products,9.45,12.1,6.699999999999999
+Fats and oils,2.9,3,2.8
+Butters,1.7000000000000002,1.7999999999999998,1.5499999999999998
+Dairy blends,0.1,0.05,0.15000000000000002
+Margarine and table spreads,0.8,0.85,0.75
+Plant oils,0.3,0.3,0.30000000000000004
+Other fats,0,0,0
+Unspecified fats,0,0,0
+Fish and seafood products and dishes,14.85,21.200000000000003,8
+Fin fish,2.65,2.75,2.55
+Crustacea and molluscs,1.15,1.75,0.55
+Other sea and freshwater foods,0.05,0.1,0
+Packed  fish and seafood,1.9,2.3,1.5
+Fish and seafood products,6.65,10.25,2.85
+Mixed dishes with fish or seafood as the major component,2.4000000000000004,4.050000000000001,0.55
+Wild caught fish and seafood,0,0,0
+Fruit products and dishes,134.2,141.4,126.6
+Wild harvested fruits,0,0,0
+Pome fruit,52.3,58.400000000000006,45.85
+Berry fruit,12.55,9.95,15.350000000000001
+Citrus fruit,9.3,10.350000000000001,8.15
+Stone fruit,4.15,4.699999999999999,3.6500000000000004
+Tropical and subtropical fruit,24.200000000000003,26.35,21.9
+Other fruit,28.15,27.9,28.4
+Mixtures of two or more groups of fruit,2.65,2.7,2.5
+"Dried fruit, preserved fruit",0.6,0.6,0.55
+Mixed dishes where fruit is the major component,0.3,0.35,0.25
+Egg products and dishes,12.25,13.55,10.9
+Eggs,6.8,7.699999999999999,5.8
+Dishes where egg is the major ingredient,5.449999999999999,5.85,5.1
+"Meat, poultry and game products and dishes",114.75,133.2,95.4
+Wild harvested meat,0.05,0.05,0
+"Beef, sheep and pork, unprocessed",16,19.049999999999997,12.7
+Mammalian game meats,0.1,0.1,0.15
+Poultry and feathered game,18.95,19.3,18.549999999999997
+Organ meats and offal products and dishes,0,0,0
+"Sausages, frankfurts and saveloys",11.55,13.3,9.7
+Processed meat,8,9.299999999999999,6.6
+"Mixed dishes where beef, sheep, pork or mammalian game is the major component",16.85,21.5,12.1
+"Mixed dishes where sausage, bacon, ham or other processed meat is the major component",0.65,0.7999999999999999,0.55
+Mixed dishes where poultry or feathered game is the major component,42.599999999999994,49.9,35
+Milk products and dishes,222.64999999999998,269.65,173.05
+Dairy milk,135.55,167.2,101.94999999999999
+Yoghurt,22,26.450000000000003,17.45
+Cream,0.35,0.25,0.45
+Cheese,7.7,8,7.35
+Frozen milk products,14.25,17,11.399999999999999
+Custards,0.55,0.8999999999999999,0.15
+Other dishes where milk or a milk product is the major component,1.25,0.8,1.7000000000000002
+Flavoured milks and milkshakes,41,49.05,32.6
+Dairy and meat substitutes,8.7,10.9,6.35
+"Dairy milk substitutes, unflavoured",4.75,5.95,3.5
+"Dairy milk substitutes, flavoured",2.6,3.25,1.9
+Cheese substitute,0.05,0.05,0.05
+"Dairy milk substitute, ice confection",0.05,0.05,0.05
+"Dairy milk substitute, yoghurt",0.5,0.5,0.45
+Meat substitutes,0.75,1,0.4
+Soup,32.8,31.75,34.05
+"Soup, homemade from basic ingredients",19.75,18.85,20.75
+"Soup, prepared from dry soup mix",0.8,0,1.5499999999999998
+Canned condensed soup,0,0,0
+"Soup, commercially sterile or canned, prepared from condensed or sold ready to heat",0.35,0.65,0.05
+"Soup, purchased ready to eat from restaurant or takeaway",12,12.25,11.7
+Seed and nut products and dishes,3.7,3.7,3.75
+Seeds and seed products,0.05,0,0.1
+Nuts and nut products,3.6500000000000004,3.7,3.65
+Wild harvested nuts,0,0,0
+Savoury sauces and condiments,13.2,14.3,12.05
+Gravies and savoury sauces,10,11.350000000000001,8.45
+"Pickles, chutneys and relishes",0.25,0.2,0.30000000000000004
+Salad dressings,1.85,1.55,2.2
+Stuffings,0,0,0
+Dips,1.15,1.15,1.15
+Vegetable products and dishes,111.7,112,111
+Wild harvested vegetables,0,0,0
+"Potatoes, chips and other potato products and dishes",45.75,45.099999999999994,46.2
+"Cabbage, cauliflower, broccoli and similar brassica vegetables",6.1,5.75,6.4
+Carrot and similar root vegetables,8.899999999999999,9.3,8.45
+Leaf and stalk vegetables,2.45,2.55,2.3
+Peas and beans,2.3,2.75,1.9
+Tomato and tomato products,5.449999999999999,5.5,5.35
+Other fruiting vegetables,16.65,16.299999999999997,17
+Other vegetables and vegetable combinations,6.6,8,5.1
+Dishes where vegetable is the major component,17.450000000000003,16.75,18.25
+Legume and pulse products and dishes,7.7,8.25,7.2
+Mature legumes and pulses,1.6,1.3,1.8499999999999999
+Mature legume and pulse products and dishes,6.15,6.949999999999999,5.35
+Snack foods,16.15,16.799999999999997,15.5
+Potato snacks,8.899999999999999,8.5,9.3
+Corn snacks,5.1,6.2,3.9
+Extruded or reformed snacks,1.35,1.5,1.25
+Other snacks,0.8500000000000001,0.6499999999999999,1.05
+Sugar products and dishes,10.9,10.5,11.25
+"Sugar, honey and syrups",2.5,2.7,2.4
+"Jam and lemon spreads, chocolate spreads, sauces",4,4.2,3.8499999999999996
+Dishes and products other than confectionery where sugar is the major component,4.35,3.6,5
+"Confectionery and cereal, nut, fruit and seed bars",16.049999999999997,15.55,16.6
+Chocolate and chocolate-based confectionery,5.75,5.1,6.45
+"Fruit, nut and seed-based confectionery",0.5,0.4,0.65
+"Fruit, nut and cereal bars and balls",6.1,6.9,5.25
+Other confectionery,3.7,3.1,4.25
+Alcoholic beverages,2.15,3.95,0.25
+Beers,0.45,0.9,0
+Wines,0.45,0.9,0
+Spirits,0.1,0.15,0
+Cider and perry,0,0,0
+Other alcoholic beverages,0.55,1.05,0
+De-alcoholised beverages,0.55,0.85,0.25
+Special dietary foods,6.9,9.9,3.7
+Formulated dietary foods,6.9,9.9,3.7
+Miscellaneous,0.8,0.8,0.7
+"Yeast, and yeast vegetable or meat extracts",0.6,0.65,0.6
+Intense sweetening agents,0,0,0
+"Herbs, spices, seasonings and stock cubes",0.15000000000000002,0.15,0.1
+Essences,0,0,0
+Chemical raising agents and cooking ingredients,0,0,0
+Infant formulae and foods,0.15000000000000002,0.2,0.1
+Infant formulae and human breast milk,0,0,0
+Infant cereal products,0.1,0.15,0.05
+Infant foods,0.05,0.05,0
+Reptiles and insects,0,0,0
+Reptiles,0,0,0
+Insects,0,0,0
+Total food and beverages,2766.45,2944.1000000000004,2579.25
+Total persons,2095.25,NA,NA
