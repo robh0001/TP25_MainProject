@@ -58,17 +58,7 @@
             <div v-if="currentStep === 0" class="form-grid">
               <div class="form-group">
                 <label for="username">Username</label>
-                <input id="username" v-model.trim="form.username" placeholder="Your saved username" />
-              </div>
-
-              <div class="form-group">
-                <label for="parent-name">Parent first name</label>
-                <input id="parent-name" v-model.trim="form.parentName" placeholder="e.g. Riya" />
-              </div>
-
-              <div class="form-group">
-                <label for="child-name">Child first name</label>
-                <input id="child-name" v-model.trim="form.childName" placeholder="e.g. Sam" />
+                <input id="username" v-model.trim="form.username" placeholder="Enter your username" />
               </div>
 
               <div class="form-group">
@@ -162,11 +152,10 @@
             <div v-if="currentStep === 3" class="preview-stack">
               <article class="preview-card">
                 <p class="card-kicker">Plan preview</p>
-                <h3>{{ namePreview }}'s family plan</h3>
+                <h3>Your family plan</h3>
 
                 <ul class="preview-list">
                   <li><strong>Username:</strong> {{ form.username }}</li>
-                  <li><strong>Child:</strong> {{ form.childName }}</li>
                   <li><strong>Top habits to support:</strong> {{ form.habits.join(', ') }}</li>
                   <li><strong>Main concerns:</strong> {{ form.concerns.join(', ') }}</li>
                   <li><strong>Support style:</strong> {{ form.supportStyle }}</li>
@@ -227,15 +216,13 @@ const { state, savePlan } = useFamilyPlanStore()
 
 const form = reactive({
   username: state.username || '',
-  parentName: state.parentName || '',
-  childName: state.childName || '',
-  ageRange: state.ageRange || '',
-  routineType: state.routineType || '',
-  habits: state.habits || [],
-  concerns: state.concerns || [],
-  struggle: state.struggle || '',
-  confidence: state.confidence || '',
-  supportStyle: state.supportStyle || '',
+  ageRange: '',
+  routineType: '',
+  habits: [],
+  concerns: [],
+  struggle: '',
+  confidence: '',
+  supportStyle: '',
 })
 
 const steps = [
@@ -282,7 +269,6 @@ const currentStep = ref(0)
 const errorMessage = ref('')
 
 const activeStep = computed(() => steps[currentStep.value])
-const namePreview = computed(() => form.childName || 'your child')
 
 function toggleSelection(list, value) {
   const index = list.indexOf(value)
@@ -297,7 +283,7 @@ function validateStep() {
   errorMessage.value = ''
 
   if (currentStep.value === 0) {
-    if (!form.username || !form.childName || !form.ageRange || !form.routineType) {
+    if (!form.username || !form.ageRange || !form.routineType) {
       errorMessage.value = 'Please complete all family basics fields before continuing.'
       return false
     }
@@ -643,22 +629,22 @@ function createNextAction(taskPool) {
 
 function createMission() {
   if (form.habits.includes('Daily movement')) {
-    return `Complete one short movement activity with ${form.childName} today before screen time.`
+    return 'Complete one short movement activity today before screen time.'
   }
 
   if (form.habits.includes('Healthier snacks')) {
-    return `Prepare one healthy snack choice for ${form.childName} today and make it the easy option.`
+    return 'Prepare one healthy snack choice today and make it the easy option.'
   }
 
   if (form.habits.includes('Sleep routine')) {
-    return `Use one calm bedtime cue with ${form.childName} tonight and keep it consistent.`
+    return 'Use one calm bedtime cue tonight and keep it consistent.'
   }
 
   if (form.habits.includes('Screen time balance')) {
-    return `Keep one short screen-free block today before devices are used.`
+    return 'Keep one short screen-free block today before devices are used.'
   }
 
-  return `Complete one healthy habit win with ${form.childName} today.`
+  return 'Complete one healthy habit win today.'
 }
 
 async function submitQuiz() {
