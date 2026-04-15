@@ -127,6 +127,279 @@
         </div>
       </section>
 
+      <section class="insights-section" id="insights">
+        <div class="container insights-grid">
+          <div class="insights-copy">
+            <p class="section-eyebrow">Why it matters</p>
+              <h2>Simple patterns can reveal where families need the most support.</h2>
+            <p>
+              HealthySteps turns complex health data into clear signals that help parents focus on
+              nutrition, sleep, movement, and everyday routine with more confidence.
+            </p>
+
+            <div class="insight-toggle">
+              <button
+                type="button"
+                class="insight-tab"
+                :class="{ active: activeInsight === 'body' }"
+                @click="activeInsight = 'body'"
+              >
+                Body balance
+              </button>
+
+              <button
+                type="button"
+                class="insight-tab"
+                :class="{ active: activeInsight === 'sleep' }"
+                @click="activeInsight = 'sleep'"
+              >
+                Sleep
+              </button>
+
+              <button
+                type="button"
+                class="insight-tab"
+                :class="{ active: activeInsight === 'activity' }"
+                @click="activeInsight = 'activity'"
+              >
+                Activity
+              </button>
+            </div>
+          </div>
+
+          <div class="insight-panel">
+            <article v-if="loadingInsights" class="hero-insight-card">
+              <span class="insight-overline">Loading</span>
+              <p class="visual-subtitle">Fetching the latest homepage insights...</p>
+            </article>
+
+            <article v-else-if="insightsError" class="hero-insight-card">
+              <span class="insight-overline">Insights unavailable</span>
+              <p class="visual-subtitle">{{ insightsError }}</p>
+            </article>
+
+            <div v-else-if="insights" class="tab-view">
+              <!-- BODY -->
+              <div v-show="activeInsight === 'body'" class="tab-content">
+                <article class="hero-insight-card body-visual-card">
+                  <div class="visual-header">
+                    <span class="insight-overline">Body balance</span>
+                    <h3 class="visual-title">Weight category distribution</h3>
+                    <p class="visual-subtitle">
+                      A simple view of how weight categories are distributed across children aged 5-17.
+                    </p>
+                  </div>
+
+                  <div class="body-visual-layout">
+                    <div class="body-ring-panel">
+                      <div class="body-ring" :style="bodyRingStyle">
+                        <div class="body-ring-inner">
+                          <div class="body-ring-number">{{ insights.bodyBalance.headlinePct }}%</div>
+                          <div class="body-ring-label">Healthy range</div>
+                        </div>
+                      </div>
+
+                      <p class="body-ring-caption">
+                        {{ insights.bodyBalance.headlineText }}
+                      </p>
+                    </div>
+
+                    <div class="body-breakdown-panel">
+                      <div
+                        v-for="segment in insights.bodyBalance.segments"
+                        :key="segment.key"
+                        class="metric-row"
+                      >
+                        <div class="metric-row-top">
+                          <div class="metric-label-wrap">
+                            <span class="metric-dot" :class="segment.key"></span>
+                            <span class="metric-label">{{ segment.label }}</span>
+                          </div>
+                          <strong class="metric-value">{{ segment.value }}%</strong>
+                        </div>
+
+                        <div class="metric-track">
+                          <div
+                            class="metric-fill"
+                            :class="segment.key"
+                            :style="{ width: segment.value + '%' }"
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div class="summary-chip-grid">
+                        <div class="summary-chip">
+                          <span>Main signal</span>
+                          <strong>Most children fall in the healthy range</strong>
+                        </div>
+                        <div class="summary-chip">
+                          <span>Focus area</span>
+                          <strong>Early support still matters</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <div class="insight-mini-grid">
+                  <article class="mini-insight-card">
+                    <span class="mini-insight-label">Main signal</span>
+                    <strong>Healthy range remains the largest group</strong>
+                    <p>
+                      The largest share of children fall within the healthy range, while overweight and
+                      obesity still remain important areas for early support.
+                    </p>
+                  </article>
+
+                  <article class="mini-insight-card">
+                    <span class="mini-insight-label">What parents can do</span>
+                    <strong>Focus on small routine shifts</strong>
+                    <p>
+                      Practical changes in food choices, active play, and consistency often matter more
+                      than dramatic one-off efforts.
+                    </p>
+                  </article>
+                </div>
+              </div>
+
+              <!-- SLEEP -->
+              <div v-show="activeInsight === 'sleep'" class="tab-content">
+                <article class="hero-insight-card polished-visual-card">
+                  <div class="visual-header">
+                    <span class="insight-overline">Sleep</span>
+                    <h3 class="visual-title">Weeknight and weekend sleep patterns</h3>
+                    <p class="visual-subtitle">
+                      {{ insights.sleep.headlineBand }} {{ insights.sleep.headlineText }}
+                    </p>
+                  </div>
+
+                  <div class="sleep-grid">
+                    <section class="comparison-card">
+                      <div class="comparison-card-head">
+                        <span class="comparison-pill">Weeknight</span>
+                        <strong>{{ insights.sleep.headlinePct }}%</strong>
+                      </div>
+
+                      <div
+                        v-for="item in insights.sleep.weeknight"
+                        :key="'weeknight-' + item.label"
+                        class="comparison-row"
+                      >
+                        <span class="comparison-label">{{ item.label }}</span>
+                        <div class="comparison-track">
+                          <div
+                            class="comparison-fill sleep-weeknight"
+                            :style="{ width: item.value + '%' }"
+                          ></div>
+                        </div>
+                        <strong class="comparison-value">{{ item.value }}%</strong>
+                      </div>
+                    </section>
+
+                    <section class="comparison-card">
+                      <div class="comparison-card-head">
+                        <span class="comparison-pill muted">Weekend night</span>
+                        <strong>{{ insights.sleep.weekend[3]?.value || 0 }}%</strong>
+                      </div>
+
+                      <div
+                        v-for="item in insights.sleep.weekend"
+                        :key="'weekend-' + item.label"
+                        class="comparison-row"
+                      >
+                        <span class="comparison-label">{{ item.label }}</span>
+                        <div class="comparison-track">
+                          <div
+                            class="comparison-fill sleep-weekend"
+                            :style="{ width: item.value + '%' }"
+                          ></div>
+                        </div>
+                        <strong class="comparison-value">{{ item.value }}%</strong>
+                      </div>
+                    </section>
+                  </div>
+                </article>
+
+                <div class="insight-mini-grid">
+                  <article class="mini-insight-card">
+                    <span class="mini-insight-label">Weeknights</span>
+                    <strong>8 to less than 9 hours is the strongest band</strong>
+                    <p>
+                      This is the most common weeknight sleep range, closely followed by 9 to less than
+                      10 hours.
+                    </p>
+                  </article>
+
+                  <article class="mini-insight-card">
+                    <span class="mini-insight-label">Weekends</span>
+                    <strong>Sleep patterns widen slightly</strong>
+                    <p>
+                      Weekend nights show a broader spread, which suggests routines can become less
+                      consistent outside school days.
+                    </p>
+                  </article>
+                </div>
+              </div>
+
+            <!-- ACTIVITY -->
+            <div v-show="activeInsight === 'activity'" class="tab-content">
+              <article class="hero-insight-card polished-visual-card">
+                <div class="visual-header">
+                  <span class="insight-overline">Activity</span>
+                  <h3 class="visual-title">Average daily inactivity</h3>
+                  <p class="visual-subtitle">
+                    {{ insights.activity.headlineBand }} {{ insights.activity.headlineText }}
+                  </p>
+                </div>
+
+                <section class="comparison-card activity-card">
+                  <div class="comparison-card-head">
+                    <span class="comparison-pill warm">Daily inactivity</span>
+                    <strong>{{ insights.activity.headlinePct }}%</strong>
+                  </div>
+
+                  <div
+                    v-for="item in insights.activity.bands"
+                    :key="item.label"
+                    class="comparison-row"
+                  >
+                    <span class="comparison-label">{{ item.label }}</span>
+                    <div class="comparison-track">
+                      <div
+                        class="comparison-fill activity-fill"
+                        :style="{ width: item.value + '%' }"
+                      ></div>
+                    </div>
+                    <strong class="comparison-value">{{ item.value }}%</strong>
+                  </div>
+                </section>
+              </article>
+
+              <div class="insight-mini-grid">
+                <article class="mini-insight-card">
+                  <span class="mini-insight-label">Key takeaway</span>
+                  <strong>Inactivity clusters around the 9-12 hour range</strong>
+                  <p>
+                    Several neighbouring inactivity bands are similarly high, which means long sedentary
+                    periods are common rather than isolated.
+                  </p>
+                </article>
+
+                <article class="mini-insight-card">
+                  <span class="mini-insight-label">What helps</span>
+                  <strong>Short movement breaks can make a real difference</strong>
+                  <p>
+                    Small bursts of movement before school, after school, and between screen-heavy
+                    activities can improve daily balance.
+                  </p>
+                </article>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="feature-band">
         <div class="container feature-grid">
           <div class="feature-copy">
@@ -239,6 +512,66 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+
+const activeInsight = ref('body')
+const insights = ref(null)
+const loadingInsights = ref(false)
+const insightsError = ref('')
+
+const API_URL = import.meta.env.VITE_PARENT_DATA_INSIGHTS_API_BASE_URL+'/test/data-insights'
+
+async function fetchHomepageInsights() {
+  loadingInsights.value = true
+  insightsError.value = ''
+
+  try {
+    const res = await fetch(API_URL)
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`)
+    }
+
+    insights.value = await res.json()
+  } catch (err) {
+    console.error('Homepage insights fetch failed:', err)
+    insightsError.value = err.message || 'Unable to load homepage insights right now.'
+  } finally {
+    loadingInsights.value = false
+  }
+}
+
+onMounted(fetchHomepageInsights)
+
+const bodySegments = computed(() => insights.value?.bodyBalance?.segments || [])
+
+const bodyRingStyle = computed(() => {
+  if (!bodySegments.value.length) {
+    return {
+      background: 'conic-gradient(#ddd4c9 0% 100%)'
+    }
+  }
+
+  const underweight = bodySegments.value.find(s => s.key === 'underweight')?.value || 0
+  const normal = bodySegments.value.find(s => s.key === 'normal')?.value || 0
+  const overweight = bodySegments.value.find(s => s.key === 'overweight')?.value || 0
+  const obese = bodySegments.value.find(s => s.key === 'obese')?.value || 0
+
+  const a = underweight
+  const b = underweight + normal
+  const c = underweight + normal + overweight
+  const d = underweight + normal + overweight + obese
+
+  return {
+    background: `conic-gradient(
+      #88b6d7 0% ${a}%,
+      #b9845b ${a}% ${b}%,
+      #db7f27 ${b}% ${c}%,
+      #5f89a3 ${c}% ${d}%,
+      #ddd4c9 ${d}% 100%
+    )`
+  }
+})
 </script>
 
 <style scoped>
@@ -725,6 +1058,7 @@ import { RouterLink } from 'vue-router'
     padding: 24px;
   }
 
+
   .hero-meta {
     grid-template-columns: 1fr;
   }
@@ -744,6 +1078,590 @@ import { RouterLink } from 'vue-router'
   .testimonial-card {
     min-height: 300px;
     padding: 34px 24px;
+  }
+}
+
+.insights-section {
+  padding: 90px 0;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 34px;
+  align-items: start;
+}
+
+.insights-copy h2 {
+  margin: 0;
+  font-size: clamp(2.4rem, 4vw, 4.4rem);
+  line-height: 0.95;
+  font-weight: 800;
+  color: #1f2940;
+  max-width: 11ch;
+}
+
+.insights-copy p {
+  margin: 18px 0 0;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #2d2d2d;
+}
+
+.insight-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.insight-tab {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 41, 64, 0.15);
+  background: #f5efe8;
+  color: #3b312b;
+  font: inherit;
+  font-size: 0.96rem;
+  font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.18s ease;
+}
+
+.insight-tab:hover {
+  transform: translateY(-1px);
+}
+
+.insight-tab.active {
+  background: #1f2940;
+  color: #fff;
+  border-color: #1f2940;
+}
+
+.insight-panel,
+.tab-view,
+.tab-content {
+  display: grid;
+  gap: 18px;
+}
+
+.hero-insight-card,
+.mini-insight-card {
+  background: #efe7df;
+  border: 1px solid rgba(20, 20, 20, 0.08);
+  border-radius: 28px;
+  box-shadow: 0 8px 24px rgba(32, 28, 24, 0.04);
+}
+
+.hero-insight-card {
+  padding: 30px;
+}
+
+.mini-insight-card {
+  padding: 24px;
+}
+
+.insight-overline,
+.mini-insight-label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  color: #7a6d62;
+}
+
+.visual-header {
+  margin-bottom: 24px;
+}
+
+.visual-title {
+  margin: 10px 0 0;
+  font-size: 1.7rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #1d2233;
+}
+
+.visual-subtitle {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #5a5148;
+  max-width: 42rem;
+}
+
+.insight-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.mini-insight-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.22rem;
+  line-height: 1.28;
+  color: #161616;
+}
+
+.mini-insight-card p {
+  margin: 12px 0 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: #3e3a36;
+}
+
+/* BODY */
+.body-visual-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 28px;
+  align-items: center;
+}
+
+.body-ring-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.body-ring {
+  width: 235px;
+  height: 235px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.body-ring-inner {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  background: #f8f3ed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px;
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.05);
+}
+
+.body-ring-number {
+  font-size: 2.8rem;
+  line-height: 1;
+  font-weight: 800;
+  color: #111;
+}
+
+.body-ring-label {
+  margin-top: 8px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #6f6359;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.body-ring-caption {
+  margin: 18px 0 0;
+  max-width: 240px;
+  text-align: center;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: #4a433d;
+}
+
+.body-breakdown-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.metric-row {
+  background: #f6f0e8;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 20px;
+  padding: 16px 18px;
+}
+
+.metric-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.metric-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.metric-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.metric-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2f2a26;
+}
+
+.metric-value {
+  font-size: 1rem;
+  color: #111;
+}
+
+.metric-track,
+.comparison-track {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #ddd4c9;
+  overflow: hidden;
+}
+
+.metric-fill,
+.comparison-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.metric-dot.underweight,
+.metric-fill.underweight {
+  background: #88b6d7;
+}
+
+.metric-dot.normal,
+.metric-fill.normal {
+  background: #b9845b;
+}
+
+.metric-dot.overweight,
+.metric-fill.overweight {
+  background: #db7f27;
+}
+
+.metric-dot.obese,
+.metric-fill.obese {
+  background: #5f89a3;
+}
+
+.summary-chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.summary-chip {
+  background: #f3ece5;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.summary-chip span {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  color: #7a6d62;
+}
+
+.summary-chip strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1rem;
+  line-height: 1.35;
+  color: #161616;
+}
+
+/* SLEEP + ACTIVITY */
+.polished-visual-card {
+  display: grid;
+  gap: 22px;
+}
+
+.sleep-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.comparison-card {
+  background: #f6f0e8;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 24px;
+  padding: 20px;
+}
+
+.comparison-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.comparison-card-head strong {
+  font-size: 1.45rem;
+  color: #1d2233;
+}
+
+.comparison-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #b9845b;
+  color: #fff;
+  font-size: 0.83rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.comparison-pill.muted {
+  background: #8f6f58;
+}
+
+.comparison-pill.warm {
+  background: #db7f27;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: 165px 1fr 58px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.comparison-row:last-child {
+  margin-bottom: 0;
+}
+
+.comparison-label {
+  font-size: 0.93rem;
+  color: #5a5148;
+  line-height: 1.45;
+}
+
+.comparison-value {
+  font-size: 0.95rem;
+  color: #1d2233;
+  text-align: right;
+}
+
+.comparison-fill.sleep-weeknight {
+  background: #b9845b;
+}
+
+.comparison-fill.sleep-weekend {
+  background: #8f6f58;
+}
+
+.comparison-fill.activity-fill {
+  background: #db7f27;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1180px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .body-visual-layout,
+  .sleep-grid,
+  .summary-chip-grid,
+  .insight-mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .body-ring-panel {
+    align-items: flex-start;
+  }
+
+  .body-ring-caption {
+    text-align: left;
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-insight-card,
+  .mini-insight-card {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .body-ring {
+    width: 210px;
+    height: 210px;
+  }
+
+  .body-ring-inner {
+    width: 132px;
+    height: 132px;
+  }
+
+  .body-ring-number {
+    font-size: 2.2rem;
+  }
+
+  .comparison-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .comparison-value {
+    text-align: left;
+  }
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+.insights-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 760px;
+}
+
+.insights-copy h2 {
+  margin: 0;
+  font-size: clamp(3.8rem, 6vw, 6.2rem);
+  line-height: 0.92;
+  font-weight: 800;
+  color: #1f2940;
+  max-width: 8ch;
+}
+
+.insights-copy p {
+  max-width: 30rem;
+}
+
+.insight-panel,
+.tab-view,
+.tab-content {
+  height: 100%;
+}
+
+.tab-content {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 18px;
+}
+
+.hero-insight-card {
+  min-height: 760px;
+}
+
+.insight-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.mini-insight-card {
+  padding: 22px;
+}
+
+.mini-insight-card strong {
+  font-size: 1.12rem;
+  line-height: 1.3;
+}
+
+.mini-insight-card p {
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+/* body card balance */
+.body-visual-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.body-ring {
+  width: 215px;
+  height: 215px;
+}
+
+.body-ring-inner {
+  width: 136px;
+  height: 136px;
+}
+
+.body-ring-number {
+  font-size: 2.45rem;
+}
+
+.summary-chip-grid {
+  gap: 14px;
+}
+
+.summary-chip {
+  padding: 16px;
+}
+
+/* sleep + activity rows slightly tighter */
+.comparison-row {
+  grid-template-columns: 150px 1fr 56px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.comparison-card {
+  padding: 18px;
+}
+
+@media (max-width: 1180px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-copy,
+  .hero-insight-card {
+    min-height: auto;
+  }
+
+  .insights-copy h2 {
+    max-width: 11ch;
+    font-size: clamp(3rem, 8vw, 5rem);
+  }
+}
+
+@media (max-width: 760px) {
+  .insight-mini-grid,
+  .summary-chip-grid,
+  .body-visual-layout,
+  .sleep-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-row {
+    grid-template-columns: 1fr;
   }
 }
 </style>

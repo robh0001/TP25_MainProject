@@ -20,7 +20,7 @@
           <div class="top-shell">
             <div class="top-copy">
               <p class="eyebrow">Parent dashboard</p>
-              <h1>{{ childName }}'s family plan</h1>
+              <h1>Your family plan</h1>
               <p class="top-text">
                 A practical view of what to do today, what is coming next this week, and how your
                 family is progressing over time.
@@ -49,7 +49,7 @@
                 <p>Keep momentum by completing one healthy action today.</p>
 
                 <div class="mission-progress-top">
-                  <span>Family streak</span>
+                  <span>Family streak: </span>
                   <strong>{{ streakDays }} days</strong>
                 </div>
 
