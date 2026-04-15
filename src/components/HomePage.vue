@@ -6,167 +6,231 @@
 
         <nav class="nav" aria-label="Primary">
           <a href="#about">About</a>
-          <a href="#focus">Focus</a>
-          <a href="#how">How it works</a>
+          <a href="#services">Services</a>
+          <a href="#testimonials">Stories</a>
+          <a href="#faq">FAQs</a>
         </nav>
 
-        <RouterLink to="/parent-quiz" class="header-btn">Start quiz</RouterLink>
+        <div class="header-actions">
+          <RouterLink to="/parent-entry" class="header-btn light-btn">Parent entry</RouterLink>
+          <RouterLink to="/parent-entry" class="header-btn dark-btn">Start plan</RouterLink>
+        </div>
       </div>
     </header>
 
     <main>
-      <section class="hero">
-        <div class="container hero-grid">
-          <div class="hero-copy">
-            <p class="eyebrow">Personalised family health support</p>
-            <h1>Health guidance for families, made simple.</h1>
-            <p class="hero-text">
-              HealthySteps helps parents of children aged 5–12 build healthier routines around
-              nutrition, movement, sleep, screen time, and everyday habits.
-            </p>
-            <p class="hero-subtext">
-              Complete a short quiz and receive tailored recommendations designed to fit real
-              family life.
-            </p>
-
-            <div class="hero-actions">
-              <RouterLink to="/parent-quiz" class="btn btn-dark">Start your plan</RouterLink>
-              <RouterLink to="/parent-dashboard" class="btn btn-light">Open dashboard</RouterLink>
-            </div>
+      <section class="hero-section">
+        <div class="container hero-shell">
+          <div class="hero-background">
+            <img
+              src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1600&q=80"
+              alt="Parent and child spending calm family time together"
+            />
           </div>
 
-          <div class="hero-visual" aria-hidden="true">
-            <div class="visual-backdrop"></div>
-            <div class="visual-glow visual-glow-one"></div>
-            <div class="visual-glow visual-glow-two"></div>
+          <div class="hero-panel">
+            <p class="hero-kicker">HealthySteps</p>
+            <h1>Family Health Balance</h1>
 
-            <div class="hero-card">
-              <div class="hero-card-inner">
-                <p class="card-label">Today’s focus</p>
-                <h2>Build a calmer evening routine</h2>
+            <div class="hero-divider"></div>
+
+            <div class="hero-meta">
+              <p>
+                Transforming family wellbeing through practical support for nutrition, movement,
+                sleep, and routine.
+              </p>
+
+              <RouterLink to="/parent-entry" class="hero-cta">Start Your Plan</RouterLink>
+            </div>
+
+            <div class="hero-bottom-image">
+              <img
+                src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=80"
+                alt="Family wellbeing support"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="about-section">
+        <div class="container about-wrap">
+          <p class="section-eyebrow">About</p>
+          <h2>Our mission</h2>
+          <p class="about-copy">
+            HealthySteps helps parents of children aged 5–12 build healthier routines in ways that
+            feel manageable in real family life. Through tailored guidance, small daily actions, and
+            a practical dashboard, the platform supports healthier habits across food, movement,
+            sleep, screen time, and everyday structure.
+          </p>
+
+          <RouterLink to="/parent-entry" class="soft-brown-btn">Discover More</RouterLink>
+        </div>
+      </section>
+
+      <section id="services" class="services-section">
+        <div class="container">
+          <div class="section-heading center">
+            <p class="section-eyebrow">Our services</p>
+            <h2>Support designed for everyday family life</h2>
+          </div>
+
+          <div class="services-grid">
+            <article class="service-card">
+              <div class="service-image">
+                <img
+                  src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80"
+                  alt="Healthy food and nutrition support"
+                />
+              </div>
+              <div class="service-body">
+                <h3>Nutrition support</h3>
                 <p>
-                  Small, realistic steps to improve sleep, reduce friction, and support healthier
-                  family habits.
+                  Help your child build healthier eating and snack habits with practical changes
+                  that fit busy schedules.
                 </p>
+              </div>
+            </article>
 
-                <div class="progress-group">
-                  <div class="progress-item">
-                    <span>Sleep support</span>
-                    <div class="progress-line"><i style="width: 82%"></i></div>
-                  </div>
-                  <div class="progress-item">
-                    <span>Screen balance</span>
-                    <div class="progress-line"><i style="width: 64%"></i></div>
-                  </div>
-                  <div class="progress-item">
-                    <span>Daily routine</span>
-                    <div class="progress-line"><i style="width: 74%"></i></div>
-                  </div>
-                </div>
+            <article class="service-card">
+              <div class="service-image">
+                <img
+                  src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=1200&q=80"
+                  alt="Movement and activity support"
+                />
+              </div>
+              <div class="service-body">
+                <h3>Movement and activity</h3>
+                <p>
+                  Encourage short, realistic movement habits that help reduce sedentary behaviour
+                  and support healthier routines.
+                </p>
+              </div>
+            </article>
+
+            <article class="service-card">
+              <div class="service-image">
+                <img
+                  src="https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=1200&q=80"
+                  alt="Sleep and bedtime routine support"
+                />
+              </div>
+              <div class="service-body">
+                <h3>Sleep and routines</h3>
+                <p>
+                  Create calmer evenings, better sleep consistency, and more structure across the
+                  day.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="feature-band">
+        <div class="container feature-grid">
+          <div class="feature-copy">
+            <p class="section-eyebrow">How it works</p>
+            <h2>One clear path from concern to action</h2>
+            <p>
+              Parents begin with a guided quiz, receive a personalised family plan, and use a
+              dashboard to track daily actions, progress, and weekly priorities.
+            </p>
+
+            <div class="feature-points">
+              <div class="feature-point">
+                <strong>Step 1</strong>
+                <span>Complete the parent quiz</span>
+              </div>
+              <div class="feature-point">
+                <strong>Step 2</strong>
+                <span>Receive tailored recommendations</span>
+              </div>
+              <div class="feature-point">
+                <strong>Step 3</strong>
+                <span>Follow a relevant weekly plan</span>
               </div>
             </div>
+          </div>
 
-            <div class="floating-tag floating-tag-top">Tailored support</div>
-            <div class="floating-tag floating-tag-bottom">For busy families</div>
+          <div class="feature-image-block">
+            <img
+              src="https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?auto=format&fit=crop&w=1200&q=80"
+              alt="Parent and child planning together"
+            />
           </div>
         </div>
       </section>
 
-      <section id="about" class="intro">
-        <div class="container intro-grid">
-          <div>
-            <p class="section-label">About HealthySteps</p>
-            <h2>Practical support for parents who want clear next steps.</h2>
-          </div>
-
-          <div>
-            <p>
-              HealthySteps is designed for busy parents who want to support their child’s health
-              without feeling overwhelmed by conflicting advice or unrealistic expectations.
-            </p>
-            <p>
-              The platform turns quiz responses into clear, tailored recommendations that help
-              families build healthier routines gradually and confidently.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section id="focus" class="focus">
+      <section id="testimonials" class="testimonials-section">
         <div class="container">
-          <div class="section-head">
-            <p class="section-label">Core focus areas</p>
-            <h2>Support across the habits that matter most.</h2>
+          <div class="section-heading center">
+            <p class="section-eyebrow">Client stories</p>
+            <h2>What parents value most</h2>
           </div>
 
-          <div class="focus-grid">
-            <article class="focus-card">
-              <div class="focus-icon">🍎</div>
-              <h3>Nutrition</h3>
+          <div class="testimonials-grid">
+            <article class="testimonial-card">
               <p>
-                Encourage healthier meals and snack habits with practical changes that fit daily
-                family routines.
+                “HealthySteps gave us a clearer way to manage after-school time. The actions felt
+                small enough to follow, and that made a huge difference.”
               </p>
+              <span>Parent of a 7-year-old</span>
             </article>
 
-            <article class="focus-card">
-              <div class="focus-icon">🌙</div>
-              <h3>Movement and sleep</h3>
+            <article class="testimonial-card">
               <p>
-                Support more activity, calmer evenings, and better sleep through small and
-                manageable habit changes.
+                “The dashboard helped me understand exactly what to do each day instead of just
+                reading general advice. That made it feel realistic.”
               </p>
+              <span>Parent of a 9-year-old</span>
             </article>
 
-            <article class="focus-card">
-              <div class="focus-icon">📱</div>
-              <h3>Screen time and routine</h3>
+            <article class="testimonial-card">
               <p>
-                Build more structure around devices, after-school habits, and consistent daily
-                routines.
+                “I liked that it focused on progress, not perfection. It made improving routines
+                feel achievable for our whole family.”
               </p>
+              <span>Parent of an 11-year-old</span>
             </article>
           </div>
         </div>
       </section>
 
-      <section id="how" class="how">
-        <div class="container">
-          <div class="section-head">
-            <p class="section-label">How it works</p>
-            <h2>A simple three-step experience.</h2>
+      <section id="faq" class="faq-section">
+        <div class="container faq-wrap">
+          <div class="section-heading center">
+            <p class="section-eyebrow">FAQs</p>
+            <h2>Common questions</h2>
           </div>
 
-          <div class="steps-grid">
-            <article class="step-card">
-              <span>01</span>
-              <h3>Complete the quiz</h3>
-              <p>Parents answer a few short questions about routines, concerns, and habits.</p>
+          <div class="faq-list">
+            <article class="faq-item">
+              <h3>Who is HealthySteps for?</h3>
+              <p>It is designed for parents of children aged 5–12 who want practical family health support.</p>
             </article>
 
-            <article class="step-card">
-              <span>02</span>
-              <h3>Receive recommendations</h3>
-              <p>The system identifies key focus areas and generates tailored guidance.</p>
+            <article class="faq-item">
+              <h3>How does the plan become personalised?</h3>
+              <p>Your quiz responses shape the recommended actions, daily plan, and progress tracker shown in the dashboard.</p>
             </article>
 
-            <article class="step-card">
-              <span>03</span>
-              <h3>Follow the plan</h3>
-              <p>Parents use the dashboard to take clear and realistic next steps over time.</p>
+            <article class="faq-item">
+              <h3>What kinds of habits does it support?</h3>
+              <p>HealthySteps focuses on nutrition, movement, sleep, screen balance, and consistent daily routines.</p>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="cta">
-        <div class="container cta-box">
+      <section class="final-cta-section">
+        <div class="container final-cta-box">
           <div>
-            <p class="section-label light">Get started</p>
-            <h2>Start building a healthier family routine today.</h2>
+            <p class="section-eyebrow light-eyebrow">Get started</p>
+            <h2>Build a healthier routine for your family.</h2>
           </div>
 
-          <RouterLink to="/parent-quiz" class="btn btn-white">Begin now</RouterLink>
+          <RouterLink to="/parent-entry" class="final-cta-btn">Begin now</RouterLink>
         </div>
       </section>
     </main>
@@ -185,20 +249,18 @@ import { RouterLink } from 'vue-router'
 :global(body) {
   margin: 0;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f6f3ee;
-  color: #171717;
+  background: #ece7df;
+  color: #141414;
   -webkit-font-smoothing: antialiased;
 }
 
 .home-page {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(220, 209, 193, 0.35), transparent 28%),
-    #f6f3ee;
+  background: #ece7df;
 }
 
 .container {
-  width: min(1160px, calc(100% - 48px));
+  width: min(1240px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -206,25 +268,25 @@ import { RouterLink } from 'vue-router'
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(246, 243, 238, 0.9);
+  background: rgba(236, 231, 223, 0.92);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(23, 23, 23, 0.08);
+  border-bottom: 1px solid rgba(20, 20, 20, 0.12);
 }
 
 .header-row {
-  min-height: 78px;
+  min-height: 82px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 18px;
 }
 
 .brand {
   text-decoration: none;
-  color: #171717;
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  color: #111;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
 }
 
 .nav {
@@ -235,46 +297,81 @@ import { RouterLink } from 'vue-router'
 
 .nav a {
   text-decoration: none;
-  color: #363636;
+  color: #1d1d1d;
   font-size: 0.96rem;
   font-weight: 500;
 }
 
 .nav a:hover {
-  color: #000;
+  opacity: 0.72;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .header-btn {
   text-decoration: none;
-  background: #171717;
-  color: #fff;
-  padding: 12px 18px;
+  min-height: 46px;
+  padding: 0 18px;
   border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.hero {
-  padding: 72px 0 64px;
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 34px;
+  display: inline-flex;
   align-items: center;
-}
-
-.hero-copy {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  padding-right: 20px;
+  font-size: 0.94rem;
+  font-weight: 700;
+  border: 1px solid #151515;
 }
 
-.eyebrow,
-.section-label {
-  margin: 0 0 14px;
+.light-btn {
+  color: #151515;
+  background: transparent;
+}
+
+.dark-btn {
+  color: #fff;
+  background: #151515;
+}
+
+.hero-section {
+  padding: 28px 0 72px;
+}
+
+.hero-shell {
+  position: relative;
+  min-height: 820px;
+}
+
+.hero-background {
+  width: 100%;
+  min-height: 820px;
+  border-radius: 0;
+  overflow: hidden;
+  background: #d8cec4;
+}
+
+.hero-background img {
+  width: 100%;
+  height: 820px;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-panel {
+  position: absolute;
+  left: 70px;
+  top: 90px;
+  width: min(470px, calc(100% - 40px));
+  background: rgba(241, 236, 231, 0.96);
+  padding: 34px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+.hero-kicker,
+.section-eyebrow {
+  margin: 0 0 12px;
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -282,313 +379,311 @@ import { RouterLink } from 'vue-router'
   color: #6c6258;
 }
 
-.section-label.light {
-  color: rgba(255,255,255,0.72);
-}
-
-.hero-copy h1 {
+.hero-panel h1,
+.about-wrap h2,
+.section-heading h2,
+.feature-copy h2,
+.final-cta-box h2 {
   margin: 0;
-  font-size: clamp(3rem, 6vw, 5.6rem);
-  line-height: 0.95;
-  letter-spacing: -0.07em;
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  line-height: 0.92;
+  letter-spacing: -0.08em;
   font-weight: 800;
-  max-width: 8ch;
+  color: #111;
 }
 
-.hero-text,
-.hero-subtext,
-.intro p,
-.focus-card p,
-.step-card p {
-  font-size: 1.02rem;
-  line-height: 1.75;
-  color: #5e564e;
+.hero-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(20, 20, 20, 0.4);
+  margin: 28px 0;
 }
 
-.hero-text {
-  margin: 24px 0 0;
-  max-width: 35rem;
+.hero-meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
 }
 
-.hero-subtext {
-  margin: 14px 0 0;
-  max-width: 35rem;
+.hero-meta p {
+  margin: 0;
+  color: #272727;
+  font-size: 1rem;
+  line-height: 1.55;
+  max-width: 14rem;
 }
 
-.hero-actions {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 28px;
-}
-
-.btn {
+.hero-cta,
+.soft-brown-btn,
+.final-cta-btn {
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 54px;
-  padding: 0 22px;
+  min-height: 52px;
+  padding: 0 26px;
   border-radius: 999px;
-  text-decoration: none;
+  font-size: 0.98rem;
   font-weight: 700;
-  border: 1px solid #171717;
-  transition: 0.18s ease;
 }
 
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn-dark {
-  background: #171717;
+.hero-cta,
+.soft-brown-btn {
+  background: #b2805c;
   color: #fff;
 }
 
-.btn-light {
-  background: transparent;
-  color: #171717;
+.hero-bottom-image {
+  margin-top: 28px;
+  border-top: 1px solid rgba(20, 20, 20, 0.45);
+  padding-top: 28px;
 }
 
-.btn-white {
-  background: #fff;
-  color: #171717;
-  border-color: #fff;
-}
-
-.hero-visual {
-  position: relative;
-  min-height: 560px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.visual-backdrop {
-  position: absolute;
-  inset: 40px 24px 24px 24px;
-  border-radius: 34px;
-  background: linear-gradient(145deg, #d8cdbf 0%, #b8a895 100%);
-  box-shadow: 0 24px 60px rgba(50, 39, 26, 0.12);
-}
-
-.visual-glow {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(2px);
-}
-
-.visual-glow-one {
-  width: 180px;
-  height: 180px;
-  top: 10px;
-  right: 30px;
-  background: rgba(255, 255, 255, 0.35);
-}
-
-.visual-glow-two {
-  width: 130px;
-  height: 130px;
-  bottom: 40px;
-  left: 12px;
-  background: rgba(255, 214, 166, 0.35);
-}
-
-.hero-card {
-  position: relative;
-  z-index: 2;
-  width: min(430px, 92%);
-  border-radius: 28px;
-  background: rgba(255,255,255,0.84);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.5);
-  box-shadow: 0 20px 50px rgba(23, 23, 23, 0.12);
-}
-
-.hero-card-inner {
-  padding: 28px;
-}
-
-.card-label {
-  margin: 0 0 10px;
-  font-size: 0.76rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 800;
-  color: #6f645a;
-}
-
-.hero-card-inner h2 {
-  margin: 0;
-  font-size: 1.9rem;
-  line-height: 1.05;
-  letter-spacing: -0.05em;
-}
-
-.hero-card-inner p {
-  margin: 14px 0 0;
-  color: #5d544b;
-  line-height: 1.7;
-}
-
-.progress-group {
-  margin-top: 24px;
-  display: grid;
-  gap: 16px;
-}
-
-.progress-item span {
-  display: inline-block;
-  margin-bottom: 8px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #41372f;
-}
-
-.progress-line {
+.hero-bottom-image img {
   width: 100%;
-  height: 10px;
-  border-radius: 999px;
-  background: #ece5dd;
-  overflow: hidden;
-}
-
-.progress-line i {
+  height: 220px;
+  object-fit: cover;
   display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #1d1d1d 0%, #6d7f99 100%);
 }
 
-.floating-tag {
-  position: absolute;
-  z-index: 3;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.82);
-  color: #3d352d;
-  font-size: 0.9rem;
-  font-weight: 700;
-  box-shadow: 0 12px 24px rgba(23, 23, 23, 0.08);
+.about-section,
+.services-section,
+.feature-band,
+.testimonials-section,
+.faq-section {
+  padding: 90px 0;
 }
 
-.floating-tag-top {
-  top: 70px;
-  left: 30px;
+.about-wrap {
+  text-align: center;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
-.floating-tag-bottom {
-  right: 20px;
-  bottom: 40px;
+.about-wrap h2 {
+  font-size: clamp(2.8rem, 5vw, 4.8rem);
+  max-width: none;
 }
 
-.intro,
-.focus,
-.how {
-  padding: 72px 0;
+.about-copy {
+  max-width: 62rem;
+  margin: 28px auto 0;
+  font-size: 1.18rem;
+  line-height: 1.8;
+  color: #242424;
 }
 
-.intro-grid {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 28px;
-  align-items: start;
+.about-wrap .soft-brown-btn {
+  margin-top: 28px;
 }
 
-.intro h2,
-.section-head h2,
-.cta-box h2 {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3.4rem);
-  line-height: 1.05;
-  letter-spacing: -0.05em;
-  max-width: 12ch;
+.section-heading {
+  margin-bottom: 40px;
 }
 
-.intro p {
-  margin: 0 0 16px;
+.section-heading.center {
+  text-align: center;
 }
 
-.section-head {
-  margin-bottom: 28px;
+.section-heading h2 {
+  font-size: clamp(2.6rem, 4vw, 4.6rem);
+  max-width: none;
 }
 
-.focus-grid,
-.steps-grid {
+.services-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+.service-card {
+  background: #efeae3;
+  border: 1px solid rgba(20, 20, 20, 0.14);
+}
+
+.service-image img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.service-body {
+  padding: 22px 24px 28px;
+  border-top: 1px solid rgba(20, 20, 20, 0.14);
+}
+
+.service-body h3,
+.faq-item h3 {
+  margin: 0 0 10px;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  color: #111;
+}
+
+.service-body p,
+.feature-copy p,
+.testimonial-card p,
+.faq-item p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #2d2d2d;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.feature-copy h2 {
+  font-size: clamp(2.5rem, 4.6vw, 4.6rem);
+  max-width: 10ch;
+}
+
+.feature-copy p {
+  margin-top: 18px;
+  max-width: 38rem;
+}
+
+.feature-points {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.feature-point {
+  padding-top: 16px;
+  border-top: 1px solid rgba(20, 20, 20, 0.18);
+  display: grid;
+  gap: 6px;
+}
+
+.feature-point strong {
+  font-size: 1rem;
+  color: #111;
+}
+
+.feature-point span {
+  color: #4d4d4d;
+  line-height: 1.6;
+}
+
+.feature-image-block img {
+  width: 100%;
+  height: 620px;
+  object-fit: cover;
+  display: block;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid rgba(20, 20, 20, 0.18);
+}
+
+.testimonial-card {
+  min-height: 420px;
+  padding: 54px 42px 36px;
+  background: #ece7df;
+  border-right: 1px solid rgba(20, 20, 20, 0.18);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.testimonial-card:last-child {
+  border-right: none;
+}
+
+.testimonial-card p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.testimonial-card span {
+  display: block;
+  margin-top: 28px;
+  font-size: 0.98rem;
+  color: #3f3f3f;
+}
+
+.faq-wrap {
+  max-width: 1020px;
+  margin: 0 auto;
+}
+
+.faq-list {
+  display: grid;
   gap: 18px;
 }
 
-.focus-card,
-.step-card {
-  background: #fbf9f6;
-  border: 1px solid rgba(23, 23, 23, 0.08);
-  border-radius: 22px;
-  padding: 24px;
-  box-shadow: 0 10px 24px rgba(23, 23, 23, 0.03);
+.faq-item {
+  background: #efeae3;
+  padding: 24px 26px;
+  border: 1px solid rgba(20, 20, 20, 0.12);
 }
 
-.focus-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 18px;
-  background: #efe9e1;
-  font-size: 1.4rem;
+.final-cta-section {
+  padding: 0 0 80px;
 }
 
-.focus-card h3,
-.step-card h3 {
-  margin: 0 0 12px;
-  font-size: 1.18rem;
-  line-height: 1.25;
-}
-
-.step-card span {
-  display: inline-block;
-  margin-bottom: 16px;
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: #7a6d61;
-}
-
-.cta {
-  padding: 0 0 72px;
-}
-
-.cta-box {
-  background: linear-gradient(135deg, #171717 0%, #292929 100%);
+.final-cta-box {
+  background: #181818;
   color: #fff;
-  border-radius: 28px;
-  padding: 34px;
+  padding: 38px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
 }
 
-@media (max-width: 980px) {
-  .hero-grid,
-  .intro-grid,
-  .focus-grid,
-  .steps-grid,
-  .cta-box {
+.final-cta-box h2 {
+  color: #fff;
+  font-size: clamp(2.2rem, 4vw, 4rem);
+  max-width: 11ch;
+}
+
+.light-eyebrow {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.final-cta-btn {
+  background: #fff;
+  color: #111;
+  min-width: 160px;
+}
+
+@media (max-width: 1100px) {
+  .services-grid,
+  .feature-grid,
+  .testimonials-grid,
+  .final-cta-box {
     grid-template-columns: 1fr;
   }
 
-  .hero-copy {
-    padding-right: 0;
+  .feature-grid,
+  .final-cta-box {
+    display: grid;
   }
 
-  .hero-copy h1 {
-    max-width: none;
+  .hero-panel {
+    left: 34px;
+    top: 34px;
   }
 
-  .hero-visual {
-    min-height: 460px;
+  .testimonial-card {
+    border-right: none;
+    border-bottom: 1px solid rgba(20, 20, 20, 0.18);
+  }
+
+  .testimonial-card:last-child {
+    border-bottom: none;
   }
 }
 
@@ -602,28 +697,57 @@ import { RouterLink } from 'vue-router'
     padding: 14px 0;
   }
 
-  .header-btn,
-  .hero-actions .btn,
-  .cta-box .btn {
+  .header-actions {
     width: 100%;
   }
 
-  .hero {
-    padding-top: 42px;
+  .header-btn {
+    flex: 1;
   }
 
   .container {
     width: calc(100% - 24px);
   }
 
-  .hero-copy h1 {
-    font-size: clamp(2.6rem, 13vw, 4.2rem);
+  .hero-shell,
+  .hero-background,
+  .hero-background img {
+    min-height: 720px;
+    height: 720px;
   }
 
-  .floating-tag {
-    display: none;
+  .hero-panel {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 18px;
+    width: auto;
+    padding: 24px;
+  }
+
+  .hero-panel h1 {
+    font-size: clamp(2.7rem, 12vw, 4.2rem);
+  }
+
+  .hero-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-bottom-image img {
+    height: 160px;
+  }
+
+  .service-image img {
+    height: 300px;
+  }
+
+  .feature-image-block img {
+    height: 360px;
+  }
+
+  .testimonial-card {
+    min-height: 300px;
+    padding: 34px 24px;
   }
 }
-
-
 </style>
