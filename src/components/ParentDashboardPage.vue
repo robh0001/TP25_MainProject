@@ -461,7 +461,7 @@ const confettiPieces = computed(() =>
   }))
 )
 
-function toggleTodayTask(taskId) {
+async function toggleTodayTask(taskId) {
   const updatedDailyPlan = {
     ...resolvedDailyPlan.value,
     [todayName.value]: resolvedDailyPlan.value[todayName.value].map(task =>
@@ -469,24 +469,40 @@ function toggleTodayTask(taskId) {
     ),
   }
 
-  savePlan({
+  const updatedState = {
     ...state,
     dailyPlan: updatedDailyPlan,
-  })
+  }
+
+  savePlan(updatedState)
+
+  try {
+    await persistDashboardUpdate(updatedState)
+  } catch (error) {
+    console.error('Failed to persist today task update', error)
+  }
 }
 
-function toggleProgressItem(itemId) {
+async function toggleProgressItem(itemId) {
   const updatedItems = resolvedProgressItems.value.map(item =>
     item.id === itemId ? { ...item, done: !item.done } : item
   )
 
-  savePlan({
+  const updatedState = {
     ...state,
     progressItems: updatedItems,
-  })
+  }
+
+  savePlan(updatedState)
+
+  try {
+    await persistDashboardUpdate(updatedState)
+  } catch (error) {
+    console.error('Failed to persist progress item update', error)
+  }
 }
 
-function addProgressItem() {
+async function addProgressItem() {
   const value = newProgressItem.value.trim()
   if (!value) return
 
@@ -497,25 +513,73 @@ function addProgressItem() {
     custom: true,
   }
 
-  savePlan({
+  const updatedState = {
     ...state,
     progressItems: [...resolvedProgressItems.value, newItem],
-  })
+  }
 
+  savePlan(updatedState)
   newProgressItem.value = ''
+
+  try {
+    const result = await persistDashboardUpdate(updatedState)
+    console.log('Custom progress item persisted:', result)
+  } catch (error) {
+    console.error('Failed to persist custom progress item', error)
+    alert(`Failed to save custom item to database: ${error.message}`)
+  }
 }
 
-function completeMission() {
-  savePlan({
+async function completeMission() {
+  const updatedState = {
     ...state,
     streakDays: (state.streakDays || 0) + 1,
-  })
+  }
+
+  savePlan(updatedState)
+
+  try {
+    await persistDashboardUpdate(updatedState)
+  } catch (error) {
+    console.error('Failed to persist mission completion', error)
+  }
 
   showCelebration.value = true
   window.setTimeout(() => {
     showCelebration.value = false
   }, 1800)
 }
+
+async function persistDashboardUpdate(updatedState) {
+  const username = updatedState.username || state.username
+  if (!username) {
+    throw new Error('Missing username for dashboard persistence')
+  }
+
+  const response = await fetch(
+    `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dailyPlan: updatedState.dailyPlan ?? state.dailyPlan,
+        progressItems: updatedState.progressItems ?? state.progressItems,
+        streakDays: updatedState.streakDays ?? state.streakDays ?? 0,
+        nextAction: updatedState.nextAction ?? state.nextAction,
+        mission: updatedState.mission ?? state.mission,
+      }),
+    }
+  )
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.error || `Dashboard update failed with status ${response.status}`)
+  }
+
+  return data
+}
+
 </script>
 
 <style scoped>
