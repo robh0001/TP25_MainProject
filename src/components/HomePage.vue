@@ -58,7 +58,7 @@
           <p class="section-eyebrow">About</p>
           <h2>Our mission</h2>
           <p class="about-copy">
-            HealthySteps helps parents of children aged 5–12 build healthier routines in ways that
+            HealthySteps helps parents of children aged 5-12 build healthier routines in ways that
             feel manageable in real family life. Through tailored guidance, small daily actions, and
             a practical dashboard, the platform supports healthier habits across food, movement,
             sleep, screen time, and everyday structure.
@@ -172,24 +172,24 @@
           <div class="testimonials-grid">
             <article class="testimonial-card">
               <p>
-                “HealthySteps gave us a clearer way to manage after-school time. The actions felt
-                small enough to follow, and that made a huge difference.”
+                "HealthySteps gave us a clearer way to manage after-school time. The actions felt
+                small enough to follow, and that made a huge difference."
               </p>
               <span>Parent of a 7-year-old</span>
             </article>
 
             <article class="testimonial-card">
               <p>
-                “The dashboard helped me understand exactly what to do each day instead of just
-                reading general advice. That made it feel realistic.”
+                "The dashboard helped me understand exactly what to do each day instead of just
+                reading general advice. That made it feel realistic."
               </p>
               <span>Parent of a 9-year-old</span>
             </article>
 
             <article class="testimonial-card">
               <p>
-                “I liked that it focused on progress, not perfection. It made improving routines
-                feel achievable for our whole family.”
+                "I liked that it focused on progress, not perfection. It made improving routines
+                feel achievable for our whole family."
               </p>
               <span>Parent of an 11-year-old</span>
             </article>
@@ -207,7 +207,7 @@
           <div class="faq-list">
             <article class="faq-item">
               <h3>Who is HealthySteps for?</h3>
-              <p>It is designed for parents of children aged 5–12 who want practical family health support.</p>
+              <p>It is designed for parents of children aged 5-12 who want practical family health support.</p>
             </article>
 
             <article class="faq-item">
@@ -250,7 +250,7 @@ import { RouterLink } from 'vue-router'
   margin: 0;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #ece7df;
-  color: #141414;
+  color: #3B312B;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -389,7 +389,7 @@ import { RouterLink } from 'vue-router'
   line-height: 0.92;
   letter-spacing: -0.08em;
   font-weight: 800;
-  color: #111;
+  color: #b2805c;
 }
 
 .hero-divider {
