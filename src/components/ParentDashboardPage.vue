@@ -586,23 +586,38 @@ async function persistDashboardUpdate(updatedState) {
   box-sizing: border-box;
 }
 
+:global(:root) {
+  --c-text: #2f281f;
+  --c-muted: #6d6256;
+  --c-border: rgba(120, 102, 84, 0.14);
+  --c-surface: rgba(255, 251, 246, 0.84);
+  --c-surface-strong: rgba(255, 252, 248, 0.94);
+  --c-accent: #8a6f58;
+  --c-accent-dark: #5f4a3a;
+  --c-accent-soft: #efe5da;
+  --c-accent-warm: #b68052;
+  --c-accent-muted: #9c8774;
+  --r-card: 20px;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 :global(body) {
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f6f3ee;
+  font-family: var(--font-sans);
+  background: #f7f3ee;
   color: #171717;
   -webkit-font-smoothing: antialiased;
 }
 
 .dashboard-page {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 14% 18%, rgba(109, 195, 216, 0.18), transparent 34%),
-    radial-gradient(circle at 84% 14%, rgba(116, 130, 255, 0.16), transparent 34%),
-    radial-gradient(circle at 86% 78%, rgba(255, 176, 132, 0.16), transparent 36%),
-    linear-gradient(145deg, #eef4ff 0%, #f7f1ff 46%, #fff5ee 100%);
   position: relative;
   overflow-x: clip;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(214, 194, 174, 0.18), transparent 34%),
+    radial-gradient(circle at 84% 14%, rgba(235, 223, 210, 0.16), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(224, 198, 170, 0.12), transparent 36%),
+    linear-gradient(145deg, #f7f3ee 0%, #f9f5f0 46%, #fcf9f5 100%);
 }
 
 .dashboard-page::before,
@@ -613,7 +628,7 @@ async function persistDashboardUpdate(updatedState) {
   pointer-events: none;
   border-radius: 999px;
   filter: blur(56px);
-  opacity: 0.42;
+  opacity: 0.26;
 }
 
 .dashboard-page::before {
@@ -621,7 +636,7 @@ async function persistDashboardUpdate(updatedState) {
   height: 420px;
   top: -120px;
   left: -150px;
-  background: radial-gradient(circle, rgba(116, 203, 225, 0.46), rgba(116, 203, 225, 0));
+  background: radial-gradient(circle, rgba(213, 191, 169, 0.34), rgba(213, 191, 169, 0));
 }
 
 .dashboard-page::after {
@@ -629,7 +644,7 @@ async function persistDashboardUpdate(updatedState) {
   height: 460px;
   top: 40vh;
   right: -180px;
-  background: radial-gradient(circle, rgba(147, 146, 255, 0.34), rgba(147, 146, 255, 0));
+  background: radial-gradient(circle, rgba(234, 217, 199, 0.30), rgba(234, 217, 199, 0));
 }
 
 .container {
@@ -643,9 +658,9 @@ async function persistDashboardUpdate(updatedState) {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(246, 243, 238, 0.88);
+  background: rgba(250, 247, 243, 0.94);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(88, 109, 166, 0.12);
+  border-bottom: 1px solid var(--c-border);
 }
 
 .header-row {
@@ -658,9 +673,10 @@ async function persistDashboardUpdate(updatedState) {
 
 .brand {
   text-decoration: none;
-  color: #18233b;
+  color: var(--c-text);
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
 }
 
@@ -673,14 +689,15 @@ async function persistDashboardUpdate(updatedState) {
 .nav-link,
 .nav a {
   text-decoration: none;
-  color: #4b556f;
+  color: var(--c-muted);
   font-size: 0.95rem;
   font-weight: 500;
+  transition: color 0.15s;
 }
 
 .nav-link:hover,
 .nav a:hover {
-  color: #18233b;
+  color: var(--c-text);
 }
 
 .header-btn {
@@ -693,13 +710,14 @@ async function persistDashboardUpdate(updatedState) {
   justify-content: center;
   font-size: 0.92rem;
   font-weight: 700;
-  border: 1px solid rgba(88, 109, 166, 0.16);
-  color: #18233b;
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(120, 102, 84, 0.18);
+  color: var(--c-text);
+  background: rgba(255, 252, 248, 0.82);
+  transition: background 0.15s, transform 0.15s;
 }
 
 .header-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(244, 237, 229, 0.82);
 }
 
 .dashboard-top {
@@ -718,13 +736,14 @@ async function persistDashboardUpdate(updatedState) {
 .eyebrow,
 .section-label,
 .card-kicker,
-.chart-label {
+.chart-label,
+.today-focus-label {
   margin: 0 0 12px;
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-weight: 800;
-  color: #6f6a86;
+  color: var(--c-muted);
 }
 
 .top-copy h1,
@@ -738,7 +757,7 @@ async function persistDashboardUpdate(updatedState) {
   line-height: 0.96;
   letter-spacing: -0.05em;
   font-weight: 700;
-  color: #18233b;
+  color: var(--c-text);
 }
 
 .top-copy h1 {
@@ -765,8 +784,11 @@ async function persistDashboardUpdate(updatedState) {
 .task-item span,
 .weekday-list,
 .chart-summary,
-.chart-detail-text {
-  color: #5f5a74;
+.chart-detail-text,
+.bar-value,
+.bar-label,
+.chart-detail-list {
+  color: var(--c-muted);
   line-height: 1.68;
 }
 
@@ -786,11 +808,11 @@ async function persistDashboardUpdate(updatedState) {
 .top-pills span {
   padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid rgba(88, 109, 166, 0.12);
+  background: rgba(255, 250, 245, 0.82);
+  border: 1px solid rgba(120, 102, 84, 0.14);
   font-size: 0.9rem;
   font-weight: 700;
-  color: #4f4a66;
+  color: #5f4c3d;
 }
 
 .top-side {
@@ -798,20 +820,25 @@ async function persistDashboardUpdate(updatedState) {
   gap: 14px;
 }
 
-.summary-card {
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(88, 109, 166, 0.12);
-  border-radius: 28px;
+.summary-card,
+.glass-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 26px;
   padding: 22px;
-  position: relative;
   backdrop-filter: blur(8px);
-  box-shadow: 0 16px 34px rgba(57, 73, 114, 0.08);
+  box-shadow: 0 14px 30px rgba(98, 79, 61, 0.08);
+}
+
+.summary-card {
+  position: relative;
+  border-radius: 28px;
 }
 
 .mission-card {
   background:
-    radial-gradient(circle at top right, rgba(124, 58, 237, 0.12), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(246, 242, 255, 0.92));
+    radial-gradient(circle at top right, rgba(198, 166, 132, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(255, 252, 248, 0.9), rgba(247, 239, 229, 0.96));
 }
 
 .summary-card p {
@@ -825,14 +852,14 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .mission-progress-top strong {
-  color: #18233b;
+  color: var(--c-text);
 }
 
 .progress-track {
   width: 100%;
   height: 10px;
   border-radius: 999px;
-  background: #ddd7ef;
+  background: #e7ddd1;
   overflow: hidden;
   margin-top: 14px;
 }
@@ -845,7 +872,7 @@ async function persistDashboardUpdate(updatedState) {
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #3649f4 0%, #7c3aed 100%);
+  background: linear-gradient(90deg, #b08a67 0%, #8f6b4f 100%);
 }
 
 .pill-btn {
@@ -856,13 +883,14 @@ async function persistDashboardUpdate(updatedState) {
   border-radius: 999px;
   font-weight: 700;
   font-size: 0.95rem;
+  transition: transform 0.15s, opacity 0.15s;
 }
 
 .pill-btn.dark {
   margin-top: 16px;
-  background: linear-gradient(135deg, #171717 0%, #3649f4 100%);
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(58, 73, 170, 0.18);
+  background: linear-gradient(135deg, #5c4636 0%, #8f6b4f 100%);
+  color: #fffaf5;
+  box-shadow: 0 12px 24px rgba(111, 86, 63, 0.18);
 }
 
 .pill-btn.dark:hover {
@@ -909,24 +937,6 @@ async function persistDashboardUpdate(updatedState) {
   gap: 14px;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(88, 109, 166, 0.12);
-  border-radius: 26px;
-  padding: 22px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 14px 30px rgba(57, 73, 114, 0.08);
-}
-
-.today-focus-label {
-  margin: 0 0 8px;
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #6f6a86;
-}
-
 .task-list {
   display: grid;
   gap: 10px;
@@ -938,14 +948,14 @@ async function persistDashboardUpdate(updatedState) {
   gap: 12px;
   padding: 12px 14px;
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 242, 255, 0.95));
-  border: 1px solid rgba(88, 109, 166, 0.08);
+  background: linear-gradient(180deg, rgba(255, 252, 248, 0.9), rgba(245, 237, 228, 0.96));
+  border: 1px solid rgba(120, 102, 84, 0.08);
 }
 
 .task-item input {
   width: 18px;
   height: 18px;
-  accent-color: #5d6df5;
+  accent-color: #9c7657;
   flex-shrink: 0;
 }
 
@@ -971,8 +981,8 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .weekday-card.active {
-  border: 2px solid rgba(93, 109, 245, 0.48);
-  box-shadow: 0 18px 32px rgba(93, 109, 245, 0.14);
+  border: 2px solid rgba(156, 118, 87, 0.36);
+  box-shadow: 0 18px 32px rgba(156, 118, 87, 0.12);
 }
 
 .weekday-card h3 {
@@ -996,10 +1006,10 @@ async function persistDashboardUpdate(updatedState) {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #3649f4 0%, #7c3aed 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #b08a67 0%, #8f6b4f 100%);
+  color: #fffaf5;
   font-weight: 800;
-  box-shadow: 0 10px 24px rgba(80, 74, 220, 0.22);
+  box-shadow: 0 10px 24px rgba(143, 107, 79, 0.22);
 }
 
 .custom-item-form {
@@ -1011,16 +1021,16 @@ async function persistDashboardUpdate(updatedState) {
   width: 100%;
   min-height: 52px;
   border-radius: 16px;
-  border: 1px solid rgba(88, 109, 166, 0.14);
+  border: 1px solid rgba(120, 102, 84, 0.14);
   padding: 0 16px;
   font: inherit;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 252, 248, 0.95);
   outline: none;
 }
 
 .custom-input:focus {
-  border-color: #5d6df5;
-  box-shadow: 0 0 0 4px rgba(93, 109, 245, 0.12);
+  border-color: #9c7657;
+  box-shadow: 0 0 0 4px rgba(156, 118, 87, 0.12);
 }
 
 .chart-card {
@@ -1039,8 +1049,8 @@ async function persistDashboardUpdate(updatedState) {
 .chart-summary {
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(88, 109, 166, 0.1);
+  background: rgba(255, 251, 246, 0.8);
+  border: 1px solid rgba(120, 102, 84, 0.1);
   font-size: 0.9rem;
   font-weight: 800;
 }
@@ -1073,7 +1083,7 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .interactive-bar.active .bar-track {
-  box-shadow: 0 0 0 2px rgba(93, 109, 245, 0.3);
+  box-shadow: 0 0 0 2px rgba(156, 118, 87, 0.24);
 }
 
 .interactive-bar.active .bar-fill {
@@ -1091,7 +1101,6 @@ async function persistDashboardUpdate(updatedState) {
 .bar-label {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #5f5a74;
 }
 
 .bar-track {
@@ -1099,7 +1108,7 @@ async function persistDashboardUpdate(updatedState) {
   max-width: 44px;
   height: 180px;
   border-radius: 999px;
-  background: #ddd7ef;
+  background: #e7ddd1;
   overflow: hidden;
   display: flex;
   align-items: end;
@@ -1109,13 +1118,13 @@ async function persistDashboardUpdate(updatedState) {
 .bar-fill {
   width: 100%;
   border-radius: 999px;
-  background: linear-gradient(180deg, #8ea2ff 0%, #5d6df5 48%, #7c3aed 100%);
+  background: linear-gradient(180deg, #d8b89a 0%, #b08a67 48%, #8f6b4f 100%);
   transition: height 0.3s ease;
 }
 
 .chart-detail-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 242, 255, 0.95));
-  border: 1px solid rgba(88, 109, 166, 0.08);
+  background: linear-gradient(180deg, rgba(255, 252, 248, 0.88), rgba(245, 237, 228, 0.96));
+  border: 1px solid rgba(120, 102, 84, 0.08);
   padding: 18px;
   border-radius: 20px;
 }
@@ -1129,7 +1138,7 @@ async function persistDashboardUpdate(updatedState) {
   margin: 10px 0 0;
   font-size: 1.35rem;
   font-weight: 800;
-  color: #5d6df5;
+  color: #8f6b4f;
 }
 
 .chart-detail-text {
@@ -1139,7 +1148,6 @@ async function persistDashboardUpdate(updatedState) {
 .chart-detail-list {
   margin: 14px 0 0;
   padding-left: 18px;
-  color: #5f5a74;
   line-height: 1.6;
 }
 
@@ -1155,7 +1163,7 @@ async function persistDashboardUpdate(updatedState) {
 .empty-state {
   margin: 0;
   font-style: italic;
-  color: #6f6a86;
+  color: var(--c-muted);
 }
 
 .confetti-layer {
@@ -1171,7 +1179,7 @@ async function persistDashboardUpdate(updatedState) {
   width: 10px;
   height: 18px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #8ea2ff 0%, #f0c98d 100%);
+  background: linear-gradient(180deg, #d7b089 0%, #f0c98d 100%);
   animation: confettiDrop 1.2s ease forwards;
 }
 

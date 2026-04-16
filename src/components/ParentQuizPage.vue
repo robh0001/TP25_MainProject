@@ -706,21 +706,38 @@ async function submitQuiz() {
   box-sizing: border-box;
 }
 
+:global(:root) {
+  --c-text: #2f281f;
+  --c-muted: #6d6256;
+  --c-border: rgba(120, 102, 84, 0.14);
+  --c-surface: rgba(255, 251, 246, 0.84);
+  --c-surface-strong: rgba(255, 252, 248, 0.94);
+  --c-accent: #8a6f58;
+  --c-accent-dark: #5f4a3a;
+  --c-accent-soft: #efe5da;
+  --c-accent-warm: #b68052;
+  --c-accent-muted: #9c8774;
+  --r-card: 20px;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 :global(body) {
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f6f3ee;
+  font-family: var(--font-sans);
+  background: #f7f3ee;
   color: #171717;
   -webkit-font-smoothing: antialiased;
 }
 
 .quiz-page {
   min-height: 100vh;
+  position: relative;
+  overflow-x: clip;
   background:
-    radial-gradient(circle at 14% 18%, rgba(109, 195, 216, 0.18), transparent 34%),
-    radial-gradient(circle at 84% 14%, rgba(116, 130, 255, 0.16), transparent 34%),
-    radial-gradient(circle at 86% 78%, rgba(255, 176, 132, 0.16), transparent 36%),
-    linear-gradient(145deg, #eef4ff 0%, #f7f1ff 46%, #fff5ee 100%);
+    radial-gradient(circle at 14% 18%, rgba(214, 194, 174, 0.18), transparent 34%),
+    radial-gradient(circle at 84% 14%, rgba(235, 223, 210, 0.16), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(224, 198, 170, 0.12), transparent 36%),
+    linear-gradient(145deg, #f7f3ee 0%, #f9f5f0 46%, #fcf9f5 100%);
   position: relative;
   overflow-x: clip;
 }
@@ -733,7 +750,7 @@ async function submitQuiz() {
   pointer-events: none;
   border-radius: 999px;
   filter: blur(56px);
-  opacity: 0.42;
+  opacity: 0.26;
 }
 
 .quiz-page::before {
@@ -741,7 +758,7 @@ async function submitQuiz() {
   height: 420px;
   top: -120px;
   left: -150px;
-  background: radial-gradient(circle, rgba(116, 203, 225, 0.46), rgba(116, 203, 225, 0));
+  background: radial-gradient(circle, rgba(213, 191, 169, 0.34), rgba(213, 191, 169, 0));
 }
 
 .quiz-page::after {
@@ -749,7 +766,7 @@ async function submitQuiz() {
   height: 460px;
   top: 40vh;
   right: -180px;
-  background: radial-gradient(circle, rgba(147, 146, 255, 0.34), rgba(147, 146, 255, 0));
+  background: radial-gradient(circle, rgba(234, 217, 199, 0.30), rgba(234, 217, 199, 0));
 }
 
 .container {
@@ -763,9 +780,9 @@ async function submitQuiz() {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(246, 243, 238, 0.88);
+  background: rgba(250, 247, 243, 0.94);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(88, 109, 166, 0.12);
+  border-bottom: 1px solid var(--c-border);
 }
 
 .header-row {
@@ -778,9 +795,10 @@ async function submitQuiz() {
 
 .brand {
   text-decoration: none;
-  color: #18233b;
+  color: var(--c-text);
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
 }
 
@@ -793,14 +811,15 @@ async function submitQuiz() {
 .nav a,
 .nav-link {
   text-decoration: none;
-  color: #4b556f;
+  color: var(--c-muted);
   font-size: 0.95rem;
   font-weight: 500;
+  transition: color 0.15s;
 }
 
 .nav a:hover,
 .nav-link:hover {
-  color: #18233b;
+  color: var(--c-text);
 }
 
 .header-btn {
@@ -813,16 +832,14 @@ async function submitQuiz() {
   justify-content: center;
   font-size: 0.92rem;
   font-weight: 700;
-  border: 1px solid rgba(88, 109, 166, 0.16);
+  border: 1px solid rgba(120, 102, 84, 0.18);
+  color: var(--c-text);
+  background: rgba(255, 252, 248, 0.82);
+  transition: background 0.15s, transform 0.15s;
 }
 
-.light-btn {
-  color: #18233b;
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.light-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+.header-btn:hover {
+  background: rgba(244, 237, 229, 0.82);
 }
 
 .quiz-top {
@@ -839,13 +856,14 @@ async function submitQuiz() {
 }
 
 .intro-copy h1,
-.form-head h2 {
+.form-head h2,
+.preview-card h3 {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
   line-height: 0.96;
   letter-spacing: -0.05em;
   font-weight: 700;
-  color: #18233b;
+  color: var(--c-text);
 }
 
 .intro-copy h1 {
@@ -854,6 +872,11 @@ async function submitQuiz() {
 
 .form-head h2 {
   font-size: clamp(2rem, 3vw, 2.8rem);
+}
+
+.preview-card h3 {
+  font-size: 1.4rem;
+  line-height: 1.1;
 }
 
 .step-kicker,
@@ -865,17 +888,18 @@ async function submitQuiz() {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-weight: 800;
-  color: #6f6a86;
+  color: var(--c-muted);
 }
 
 .intro-text,
 .wizard-subtitle,
 .form-group label,
 .preview-note,
-.preview-card li {
+.preview-card li,
+.journey-step small {
   font-size: 0.98rem;
   line-height: 1.68;
-  color: #5f5a74;
+  color: var(--c-muted);
 }
 
 .intro-text {
@@ -884,12 +908,12 @@ async function submitQuiz() {
 }
 
 .journey-card {
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(88, 109, 166, 0.12);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
   border-radius: 24px;
   padding: 20px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 14px 30px rgba(57, 73, 114, 0.08);
+  box-shadow: 0 14px 30px rgba(98, 79, 61, 0.08);
 }
 
 .journey-steps {
@@ -912,28 +936,27 @@ async function submitQuiz() {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: #ebe6ff;
-  color: #4d4a72;
+  background: var(--c-accent-soft);
+  color: var(--c-text);
   font-weight: 800;
 }
 
 .journey-step.complete span,
 .journey-step.active span {
-  background: linear-gradient(135deg, #3649f4 0%, #7c3aed 100%);
+  background: var(--c-accent-dark);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(80, 74, 220, 0.28);
+  box-shadow: 0 10px 24px rgba(95, 74, 58, 0.22);
 }
 
 .journey-step small {
   font-size: 0.78rem;
-  color: #5f5a74;
   font-weight: 700;
 }
 
 .journey-line {
   flex: 1;
   height: 1px;
-  background: rgba(88, 109, 166, 0.18);
+  background: var(--c-border);
 }
 
 .quiz-form-section {
@@ -943,12 +966,12 @@ async function submitQuiz() {
 }
 
 .form-shell {
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(88, 109, 166, 0.12);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
   border-radius: 28px;
   padding: 28px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 16px 34px rgba(57, 73, 114, 0.08);
+  box-shadow: 0 16px 34px rgba(98, 79, 61, 0.08);
 }
 
 .form-head {
@@ -977,7 +1000,7 @@ async function submitQuiz() {
 
 .form-group label {
   font-weight: 700;
-  color: #4f4a66;
+  color: #4f4a42;
 }
 
 .form-group input,
@@ -985,15 +1008,15 @@ async function submitQuiz() {
 .form-group textarea {
   width: 100%;
   border-radius: 18px;
-  border: 1px solid rgba(88, 109, 166, 0.14);
-  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(120, 102, 84, 0.14);
+  background: rgba(255, 252, 248, 0.95);
   padding: 16px 18px;
   font: inherit;
   font-size: 1rem;
-  color: #2f2a26;
+  color: var(--c-text);
   outline: none;
   resize: vertical;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 
 .form-group input,
@@ -1004,8 +1027,8 @@ async function submitQuiz() {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #5d6df5;
-  box-shadow: 0 0 0 4px rgba(93, 109, 245, 0.12);
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 4px rgba(138, 111, 88, 0.12);
 }
 
 .chip-grid {
@@ -1015,9 +1038,9 @@ async function submitQuiz() {
 }
 
 .option-chip {
-  border: 1px solid rgba(88, 109, 166, 0.12);
-  background: rgba(255, 255, 255, 0.72);
-  color: #4f4a66;
+  border: 1px solid rgba(120, 102, 84, 0.12);
+  background: rgba(255, 252, 248, 0.82);
+  color: #5a5147;
   padding: 12px 16px;
   border-radius: 999px;
   font: inherit;
@@ -1029,30 +1052,22 @@ async function submitQuiz() {
 
 .option-chip:hover {
   transform: translateY(-1px);
-  border-color: rgba(88, 109, 166, 0.22);
-  background: rgba(236, 240, 255, 0.85);
+  border-color: rgba(120, 102, 84, 0.22);
+  background: rgba(244, 237, 229, 0.82);
 }
 
 .option-chip.selected {
-  background: linear-gradient(135deg, #171717 0%, #3649f4 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #5c4636 0%, #8f6b4f 100%);
+  color: #fffaf5;
   border-color: transparent;
-  box-shadow: 0 12px 24px rgba(58, 73, 170, 0.18);
+  box-shadow: 0 12px 24px rgba(111, 86, 63, 0.18);
 }
 
 .preview-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 242, 255, 0.95));
-  border: 1px solid rgba(88, 109, 166, 0.1);
+  background: linear-gradient(180deg, rgba(255, 252, 248, 0.88), rgba(245, 237, 228, 0.96));
+  border: 1px solid rgba(120, 102, 84, 0.1);
   border-radius: 22px;
   padding: 24px;
-}
-
-.preview-card h3 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.4rem;
-  line-height: 1.1;
-  color: #18233b;
 }
 
 .preview-list {
@@ -1090,14 +1105,15 @@ async function submitQuiz() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.15s, opacity 0.15s, background 0.15s;
 }
 
 .soft-brown-btn {
-  background: linear-gradient(135deg, #171717 0%, #3649f4 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #5c4636 0%, #8f6b4f 100%);
+  color: #fffaf5;
   border: none;
   cursor: pointer;
-  box-shadow: 0 12px 24px rgba(58, 73, 170, 0.18);
+  box-shadow: 0 12px 24px rgba(111, 86, 63, 0.18);
 }
 
 .soft-brown-btn:hover {
@@ -1106,14 +1122,14 @@ async function submitQuiz() {
 }
 
 .outline-btn {
-  background: rgba(255, 255, 255, 0.72);
-  color: #18233b;
-  border: 1px solid rgba(88, 109, 166, 0.2);
+  background: rgba(255, 252, 248, 0.82);
+  color: var(--c-text);
+  border: 1px solid rgba(120, 102, 84, 0.18);
   cursor: pointer;
 }
 
 .outline-btn:hover {
-  background: rgba(236, 240, 255, 0.85);
+  background: rgba(244, 237, 229, 0.82);
 }
 
 @media (max-width: 900px) {
