@@ -21,6 +21,10 @@
             <div class="intro-copy">
               <p class="step-kicker">Step 2 of 3</p>
               <h1>Build a plan</h1>
+              <p class="intro-text">
+                Answer a few questions so we can shape a more realistic family routine and build
+                your parent dashboard.
+              </p>
             </div>
 
             <div class="journey-card">
@@ -704,33 +708,68 @@ async function submitQuiz() {
 
 :global(body) {
   margin: 0;
-  background: #ece7df;
-  font-family: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f6f3ee;
+  color: #171717;
   -webkit-font-smoothing: antialiased;
-  color: #2f2a26;
 }
 
 .quiz-page {
   min-height: 100vh;
-  background: #ece7df;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(109, 195, 216, 0.18), transparent 34%),
+    radial-gradient(circle at 84% 14%, rgba(116, 130, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(255, 176, 132, 0.16), transparent 36%),
+    linear-gradient(145deg, #eef4ff 0%, #f7f1ff 46%, #fff5ee 100%);
+  position: relative;
+  overflow-x: clip;
+}
+
+.quiz-page::before,
+.quiz-page::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(56px);
+  opacity: 0.42;
+}
+
+.quiz-page::before {
+  width: 420px;
+  height: 420px;
+  top: -120px;
+  left: -150px;
+  background: radial-gradient(circle, rgba(116, 203, 225, 0.46), rgba(116, 203, 225, 0));
+}
+
+.quiz-page::after {
+  width: 460px;
+  height: 460px;
+  top: 40vh;
+  right: -180px;
+  background: radial-gradient(circle, rgba(147, 146, 255, 0.34), rgba(147, 146, 255, 0));
 }
 
 .container {
   width: min(980px, calc(100% - 48px));
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(236, 231, 223, 0.92);
+  background: rgba(246, 243, 238, 0.88);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(47, 42, 38, 0.12);
+  border-bottom: 1px solid rgba(88, 109, 166, 0.12);
 }
 
 .header-row {
-  min-height: 82px;
+  min-height: 78px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -739,9 +778,10 @@ async function submitQuiz() {
 
 .brand {
   text-decoration: none;
-  color: #2f2a26;
-  /* font-size: 1.75rem; */
-  font-weight: 900;
+  color: #18233b;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
 .nav {
@@ -753,43 +793,67 @@ async function submitQuiz() {
 .nav a,
 .nav-link {
   text-decoration: none;
-  color: #3e3631;
-  font-size: 0.96rem;
+  color: #4b556f;
+  font-size: 0.95rem;
   font-weight: 500;
+}
+
+.nav a:hover,
+.nav-link:hover {
+  color: #18233b;
 }
 
 .header-btn {
   text-decoration: none;
-  min-height: 46px;
+  min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  border: 1px solid #3b312b;
-  color: #3b312b;
-  background: transparent;
+  border: 1px solid rgba(88, 109, 166, 0.16);
+}
+
+.light-btn {
+  color: #18233b;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.light-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .quiz-top {
-  padding: 24px 0 14px;
+  padding: 42px 0 18px;
+  position: relative;
+  z-index: 1;
 }
 
 .intro-shell {
   display: grid;
   grid-template-columns: 1fr 360px;
-  gap: 20px;
+  gap: 24px;
   align-items: start;
 }
 
 .intro-copy h1,
 .form-head h2 {
   margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
   line-height: 0.96;
-  font-weight: 800;
-  color: #2f2a26;
+  letter-spacing: -0.05em;
+  font-weight: 700;
+  color: #18233b;
+}
+
+.intro-copy h1 {
+  font-size: clamp(2.6rem, 5vw, 4.2rem);
+}
+
+.form-head h2 {
+  font-size: clamp(2rem, 3vw, 2.8rem);
 }
 
 .step-kicker,
@@ -799,8 +863,9 @@ async function submitQuiz() {
   margin: 0 0 12px;
   font-size: 0.78rem;
   text-transform: uppercase;
+  letter-spacing: 0.12em;
   font-weight: 800;
-  color: #6c6258;
+  color: #6f6a86;
 }
 
 .intro-text,
@@ -809,19 +874,22 @@ async function submitQuiz() {
 .preview-note,
 .preview-card li {
   font-size: 0.98rem;
-  line-height: 1.65;
-  color: #5e5248;
+  line-height: 1.68;
+  color: #5f5a74;
 }
 
 .intro-text {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   max-width: 32rem;
 }
 
 .journey-card {
-  background: #f3eee8;
-  border: 1px solid rgba(47, 42, 38, 0.12);
-  padding: 18px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(88, 109, 166, 0.12);
+  border-radius: 24px;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 30px rgba(57, 73, 114, 0.08);
 }
 
 .journey-steps {
@@ -844,41 +912,47 @@ async function submitQuiz() {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: #e5ddd3;
-  color: #3b312b;
+  background: #ebe6ff;
+  color: #4d4a72;
   font-weight: 800;
 }
 
 .journey-step.complete span,
 .journey-step.active span {
-  background: #b2805c;
+  background: linear-gradient(135deg, #3649f4 0%, #7c3aed 100%);
   color: #fff;
+  box-shadow: 0 10px 24px rgba(80, 74, 220, 0.28);
 }
 
 .journey-step small {
   font-size: 0.78rem;
-  color: #5e5248;
+  color: #5f5a74;
   font-weight: 700;
 }
 
 .journey-line {
   flex: 1;
   height: 1px;
-  background: rgba(47, 42, 38, 0.18);
+  background: rgba(88, 109, 166, 0.18);
 }
 
 .quiz-form-section {
-  padding: 6px 0 64px;
+  padding: 10px 0 64px;
+  position: relative;
+  z-index: 1;
 }
 
 .form-shell {
-  background: #f3eee8;
-  border: 1px solid rgba(47, 42, 38, 0.12);
-  padding: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(88, 109, 166, 0.12);
+  border-radius: 28px;
+  padding: 28px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 34px rgba(57, 73, 114, 0.08);
 }
 
 .form-head {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .wizard-subtitle {
@@ -903,7 +977,7 @@ async function submitQuiz() {
 
 .form-group label {
   font-weight: 700;
-  color: #3b312b;
+  color: #4f4a66;
 }
 
 .form-group input,
@@ -911,14 +985,15 @@ async function submitQuiz() {
 .form-group textarea {
   width: 100%;
   border-radius: 18px;
-  border: 1px solid rgba(47, 42, 38, 0.14);
-  background: #fffdf9;
+  border: 1px solid rgba(88, 109, 166, 0.14);
+  background: rgba(255, 255, 255, 0.95);
   padding: 16px 18px;
   font: inherit;
   font-size: 1rem;
   color: #2f2a26;
   outline: none;
   resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .form-group input,
@@ -929,8 +1004,8 @@ async function submitQuiz() {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #b2805c;
-  box-shadow: 0 0 0 4px rgba(178, 128, 92, 0.14);
+  border-color: #5d6df5;
+  box-shadow: 0 0 0 4px rgba(93, 109, 245, 0.12);
 }
 
 .chip-grid {
@@ -940,40 +1015,44 @@ async function submitQuiz() {
 }
 
 .option-chip {
-  border: 1px solid rgba(47, 42, 38, 0.12);
-  background: #fbf7f2;
-  color: #3b312b;
+  border: 1px solid rgba(88, 109, 166, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  color: #4f4a66;
   padding: 12px 16px;
   border-radius: 999px;
   font: inherit;
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
 .option-chip:hover {
   transform: translateY(-1px);
-  border-color: rgba(47, 42, 38, 0.22);
+  border-color: rgba(88, 109, 166, 0.22);
+  background: rgba(236, 240, 255, 0.85);
 }
 
 .option-chip.selected {
-  background: #3b312b;
+  background: linear-gradient(135deg, #171717 0%, #3649f4 100%);
   color: #fff;
-  border-color: #3b312b;
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(58, 73, 170, 0.18);
 }
 
 .preview-card {
-  background: #fbf7f2;
-  border: 1px solid rgba(47, 42, 38, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 242, 255, 0.95));
+  border: 1px solid rgba(88, 109, 166, 0.1);
+  border-radius: 22px;
   padding: 24px;
 }
 
 .preview-card h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
   line-height: 1.1;
-  color: #2f2a26;
+  color: #18233b;
 }
 
 .preview-list {
@@ -1014,17 +1093,27 @@ async function submitQuiz() {
 }
 
 .soft-brown-btn {
-  background: #b2805c;
+  background: linear-gradient(135deg, #171717 0%, #3649f4 100%);
   color: #fff;
   border: none;
   cursor: pointer;
+  box-shadow: 0 12px 24px rgba(58, 73, 170, 0.18);
+}
+
+.soft-brown-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.96;
 }
 
 .outline-btn {
-  background: transparent;
-  color: #3b312b;
-  border: 1px solid #3b312b;
+  background: rgba(255, 255, 255, 0.72);
+  color: #18233b;
+  border: 1px solid rgba(88, 109, 166, 0.2);
   cursor: pointer;
+}
+
+.outline-btn:hover {
+  background: rgba(236, 240, 255, 0.85);
 }
 
 @media (max-width: 900px) {

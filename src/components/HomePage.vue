@@ -1,541 +1,413 @@
 <template>
-  <div class="home-page">
-    <header class="site-header">
-      <div class="container header-row">
-        <RouterLink to="/" class="brand">HealthyKids</RouterLink>
+  <div class="page">
 
-        <nav class="nav" aria-label="Primary">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="wrap header-inner">
+        <RouterLink to="/" class="logo">HealthyKids</RouterLink>
+        <nav class="nav">
           <a href="#about">About</a>
-          <a href="#services">Services</a>
-          <a href="#testimonials">Stories</a>
-          <a href="#faq">FAQs</a>
+          <a href="#focus">Focus</a>
+          <a href="#how">How it works</a>
+          <a href="#kids">Kids</a>
         </nav>
-
-        <div class="header-actions">
-          <RouterLink to="/parent-entry" class="header-btn light-btn">Parent entry</RouterLink>
-          <RouterLink to="/parent-entry" class="header-btn dark-btn">Start plan</RouterLink>
+        <div class="header-cta">
+          <RouterLink to="/parent-entry" class="btn-outline">Parent plan</RouterLink>
+          <RouterLink to="/young-person-dashboard" class="btn-fill">Kids dashboard</RouterLink>
         </div>
       </div>
     </header>
 
     <main>
-      <section class="hero-section">
-        <div class="container hero-shell">
-          <div class="hero-background">
-            <img
-              src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1600&q=80"
-              alt="Parent and child spending calm family time together"
-            />
-          </div>
 
-          <div class="hero-panel">
-            <p class="hero-kicker">HealthySteps</p>
-            <h1>Family Health Balance</h1>
-
-            <div class="hero-divider"></div>
-
-            <div class="hero-meta">
-              <p>
-                Transforming family wellbeing through practical support for nutrition, movement,
-                sleep, and routine.
-              </p>
-
-              <RouterLink to="/parent-entry" class="hero-cta">Start Your Plan</RouterLink>
-            </div>
-
-            <div class="hero-bottom-image">
-              <img
-                src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=80"
-                alt="Family wellbeing support"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="about" class="about-section">
-        <div class="container about-wrap">
-          <p class="section-eyebrow">About</p>
-          <h2>Our mission</h2>
-          <p class="about-copy">
-            HealthySteps helps parents of children aged 5-12 build healthier routines in ways that
-            feel manageable in real family life. Through tailored guidance, small daily actions, and
-            a practical dashboard, the platform supports healthier habits across food, movement,
-            sleep, screen time, and everyday structure.
-          </p>
-
-          <RouterLink to="/parent-entry" class="soft-brown-btn">Discover More</RouterLink>
-        </div>
-      </section>
-
-      <section id="services" class="services-section">
-        <div class="container">
-          <div class="section-heading center">
-            <p class="section-eyebrow">Our services</p>
-            <h2>Support designed for everyday family life</h2>
-          </div>
-
-          <div class="services-grid">
-            <article class="service-card">
-              <div class="service-image">
-                <img
-                  src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80"
-                  alt="Healthy food and nutrition support"
-                />
-              </div>
-              <div class="service-body">
-                <h3>Nutrition support</h3>
-                <p>
-                  Help your child build healthier eating and snack habits with practical changes
-                  that fit busy schedules.
-                </p>
-              </div>
-            </article>
-
-            <article class="service-card">
-              <div class="service-image">
-                <img
-                  src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=1200&q=80"
-                  alt="Movement and activity support"
-                />
-              </div>
-              <div class="service-body">
-                <h3>Movement and activity</h3>
-                <p>
-                  Encourage short, realistic movement habits that help reduce sedentary behaviour
-                  and support healthier routines.
-                </p>
-              </div>
-            </article>
-
-            <article class="service-card">
-              <div class="service-image">
-                <img
-                  src="https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=1200&q=80"
-                  alt="Sleep and bedtime routine support"
-                />
-              </div>
-              <div class="service-body">
-                <h3>Sleep and routines</h3>
-                <p>
-                  Create calmer evenings, better sleep consistency, and more structure across the
-                  day.
-                </p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="insights-section" id="insights">
-        <div class="container insights-grid">
-          <div class="insights-copy">
-            <p class="section-eyebrow">Why it matters</p>
-              <h2>Simple patterns can reveal where families need the most support.</h2>
-            <p>
-              HealthySteps turns complex health data into clear signals that help parents focus on
-              nutrition, sleep, movement, and everyday routine with more confidence.
+      <!-- HERO -->
+      <section class="hero">
+        <div class="wrap hero-inner">
+          <div class="hero-copy">
+            <p class="label">Personalised family health</p>
+            <h1>Health guidance<br>for families,<br>made simple.</h1>
+            <p class="body-text">
+              HealthyKids helps parents of children aged 5-12 build healthier routines around
+              nutrition, movement, sleep, and everyday habits - one small step at a time.
             </p>
+            <div class="hero-actions">
+              <RouterLink to="/parent-entry" class="btn-fill">Start your plan</RouterLink>
+              <RouterLink to="/parent-dashboard" class="btn-ghost">Open dashboard</RouterLink>
+            </div>
+            <ul class="trust-row">
+              <li>3-min onboarding</li>
+              <li>Built for busy parents</li>
+              <li>Weekly actionable goals</li>
+            </ul>
+          </div>
+          <div class="hero-media">
+            <img
+              src="https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&w=1400&q=80"
+              alt="Parent and child doing a healthy home routine together"
+              class="hero-img"
+            />
+            <div class="hero-float-card">
+              <span class="float-label">Today's focus</span>
+              <strong>Build a calmer evening routine</strong>
+              <div class="mini-bars">
+                <div class="mini-bar-row">
+                  <span>Sleep support</span>
+                  <div class="bar"><i style="width:82%"></i></div>
+                </div>
+                <div class="mini-bar-row">
+                  <span>Screen balance</span>
+                  <div class="bar"><i style="width:64%"></i></div>
+                </div>
+                <div class="mini-bar-row">
+                  <span>Daily routine</span>
+                  <div class="bar"><i style="width:74%"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <div class="insight-toggle">
-              <button
-                type="button"
-                class="insight-tab"
-                :class="{ active: activeInsight === 'body' }"
-                @click="activeInsight = 'body'"
-              >
-                Body balance
-              </button>
+      <!-- PATHWAYS -->
+      <section class="pathways">
+        <div class="wrap paths-grid">
+          <article class="path-card path-parent">
+            <p class="label">For parents</p>
+            <h3>Build and manage your family plan</h3>
+            <p>Complete the quiz, set priorities, and track routines across nutrition, movement, sleep, and screen habits.</p>
+            <RouterLink to="/parent-entry" class="btn-fill">Go to parent entry</RouterLink>
+          </article>
+          <article class="path-card path-kids">
+            <p class="label">For kids</p>
+            <h3>Playful healthy habit dashboard</h3>
+            <p>Explore missions, earn progress, and learn healthy habits in a fun way designed just for children.</p>
+            <RouterLink to="/young-person-dashboard" class="btn-kids">Go to kids dashboard</RouterLink>
+          </article>
+        </div>
+      </section>
 
-              <button
-                type="button"
-                class="insight-tab"
-                :class="{ active: activeInsight === 'sleep' }"
-                @click="activeInsight = 'sleep'"
-              >
-                Sleep
-              </button>
+      <!-- ABOUT -->
+      <section id="about" class="about">
+        <div class="wrap about-grid">
+          <div>
+            <p class="label">About</p>
+            <h2>Practical support for parents who want clear next steps.</h2>
+          </div>
+          <div class="about-copy">
+            <p>HealthyKids is designed for busy families who want to support their child's wellbeing without being overwhelmed by conflicting advice or unrealistic expectations.</p>
+            <p>The platform turns quiz responses into clear, tailored recommendations that help families build healthier routines gradually and confidently.</p>
+          </div>
+        </div>
+      </section>
 
+      <!-- FOCUS AREAS -->
+      <section id="focus" class="focus">
+        <div class="wrap focus-shell">
+    <div class="section-head focus-head">
+      <p class="label">Core focus areas</p>
+      <h2>Support across the habits that matter most.</h2>
+    </div>
+
+    <div class="focus-grid">
+      <article class="focus-card">
+        <div class="focus-img-wrap">
+          <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=80" alt="Healthy meal" />
+        </div>
+        <div class="focus-card-body">
+          <h3>Nutrition</h3>
+          <p>Encourage healthier meals and snack habits with practical changes that fit daily family routines.</p>
+        </div>
+      </article>
+
+      <article class="focus-card">
+        <div class="focus-img-wrap">
+          <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=900&q=80" alt="Movement activity" />
+        </div>
+        <div class="focus-card-body">
+          <h3>Movement &amp; Sleep</h3>
+          <p>Support more activity, calmer evenings, and better sleep through small, manageable habit changes.</p>
+        </div>
+      </article>
+
+      <article class="focus-card">
+        <div class="focus-img-wrap">
+          <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=900&q=80" alt="Daily routine" />
+        </div>
+        <div class="focus-card-body">
+          <h3>Daily Routine</h3>
+          <p>Build more structure around devices, after-school habits, and consistent everyday patterns.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+      <!-- INSIGHTS -->
+      <section id="insights" class="insights">
+        <div class="wrap insights-inner">
+          <div class="insights-left">
+            <p class="label">Health insights</p>
+            <h2>Simple visuals that make health data easier to understand.</h2>
+            <p>HealthyKids turns population-level information into clear signals that help parents focus on what matters.</p>
+            <div class="tab-row">
               <button
-                type="button"
-                class="insight-tab"
-                :class="{ active: activeInsight === 'activity' }"
-                @click="activeInsight = 'activity'"
-              >
-                Activity
-              </button>
+                v-for="tab in tabs"
+                :key="tab.key"
+                :class="['tab-btn', { active: activeInsight === tab.key }]"
+                @click="activeInsight = tab.key"
+              >{{ tab.label }}</button>
             </div>
           </div>
 
-          <div class="insight-panel">
-            <article v-if="loadingInsights" class="hero-insight-card">
-              <span class="insight-overline">Loading</span>
-              <p class="visual-subtitle">Fetching the latest homepage insights...</p>
-            </article>
+          <div class="insights-right">
+            <div v-if="loadingInsights" class="insight-card state-card">
+              <p class="label">Loading insights..</p>
+            </div>
+            <div v-else-if="insightsError" class="insight-card state-card">
+              <p class="label">Insights unavailable</p>
+              <p>{{ insightsError }}</p>
+            </div>
+            <template v-else-if="insights">
 
-            <article v-else-if="insightsError" class="hero-insight-card">
-              <span class="insight-overline">Insights unavailable</span>
-              <p class="visual-subtitle">{{ insightsError }}</p>
-            </article>
-
-            <div v-else-if="insights" class="tab-view">
               <!-- BODY -->
-              <div v-show="activeInsight === 'body'" class="tab-content">
-                <article class="hero-insight-card body-visual-card">
-                  <div class="visual-header">
-                    <span class="insight-overline">Body balance</span>
-                    <h3 class="visual-title">Weight category distribution</h3>
-                    <p class="visual-subtitle">
-                      A simple view of how weight categories are distributed across children aged 5-17.
-                    </p>
-                  </div>
-
-                  <div class="body-visual-layout">
-                    <div class="body-ring-panel">
-                      <div class="body-ring" :style="bodyRingStyle">
-                        <div class="body-ring-inner">
-                          <div class="body-ring-number">{{ insights.bodyBalance.headlinePct }}%</div>
-                          <div class="body-ring-label">Healthy range</div>
+              <div v-show="activeInsight === 'body'" class="tab-pane">
+                <div class="insight-card">
+                  <span class="insight-overline">Body balance</span>
+                  <h3>Weight category distribution</h3>
+                  <p class="insight-sub">A clear view of how weight categories are distributed across children aged 5-17.</p>
+                  <div class="body-layout">
+                    <div class="ring-wrap">
+                      <div class="ring" :style="bodyRingStyle">
+                        <div class="ring-inner">
+                          <span class="ring-num">{{ insights.bodyBalance.headlinePct }}%</span>
+                          <span class="ring-lbl">Healthy range</span>
                         </div>
                       </div>
-
-                      <p class="body-ring-caption">
-                        {{ insights.bodyBalance.headlineText }}
-                      </p>
+                      <p class="ring-caption">{{ insights.bodyBalance.headlineText }}</p>
                     </div>
-
-                    <div class="body-breakdown-panel">
-                      <div
-                        v-for="segment in insights.bodyBalance.segments"
-                        :key="segment.key"
-                        class="metric-row"
-                      >
-                        <div class="metric-row-top">
-                          <div class="metric-label-wrap">
-                            <span class="metric-dot" :class="segment.key"></span>
-                            <span class="metric-label">{{ segment.label }}</span>
-                          </div>
-                          <strong class="metric-value">{{ segment.value }}%</strong>
-                        </div>
-
-                        <div class="metric-track">
-                          <div
-                            class="metric-fill"
-                            :class="segment.key"
-                            :style="{ width: segment.value + '%' }"
-                          ></div>
-                        </div>
-                      </div>
-
-                      <div class="summary-chip-grid">
-                        <div class="summary-chip">
-                          <span>Main signal</span>
-                          <strong>Most children fall in the healthy range</strong>
-                        </div>
-                        <div class="summary-chip">
-                          <span>Focus area</span>
-                          <strong>Early support still matters</strong>
-                        </div>
+                    <div class="bars-wrap">
+                      <div v-for="seg in insights.bodyBalance.segments" :key="seg.key" class="bar-row">
+                        <span>{{ seg.label }}</span>
+                        <div class="bar"><i :class="seg.key" :style="{ width: seg.value + '%' }"></i></div>
+                        <strong>{{ seg.value }}%</strong>
                       </div>
                     </div>
                   </div>
-                </article>
-
-                <div class="insight-mini-grid">
-                  <article class="mini-insight-card">
-                    <span class="mini-insight-label">Main signal</span>
+                </div>
+                <div class="subcards">
+                  <div class="subcard">
+                    <span class="sub-label">Main signal</span>
                     <strong>Healthy range remains the largest group</strong>
-                    <p>
-                      The largest share of children fall within the healthy range, while overweight and
-                      obesity still remain important areas for early support.
-                    </p>
-                  </article>
-
-                  <article class="mini-insight-card">
-                    <span class="mini-insight-label">What parents can do</span>
-                    <strong>Focus on small routine shifts</strong>
-                    <p>
-                      Practical changes in food choices, active play, and consistency often matter more
-                      than dramatic one-off efforts.
-                    </p>
-                  </article>
+                    <p>Most children remain in the healthy range, while overweight and obesity are important areas for early support.</p>
+                  </div>
+                  <div class="subcard">
+                    <span class="sub-label">What helps</span>
+                    <strong>Small routine shifts can have real impact</strong>
+                    <p>Practical changes in meals, active play, and daily structure can support healthier outcomes over time.</p>
+                  </div>
                 </div>
               </div>
 
               <!-- SLEEP -->
-              <div v-show="activeInsight === 'sleep'" class="tab-content">
-                <article class="hero-insight-card polished-visual-card">
-                  <div class="visual-header">
-                    <span class="insight-overline">Sleep</span>
-                    <h3 class="visual-title">Weeknight and weekend sleep patterns</h3>
-                    <p class="visual-subtitle">
-                      {{ insights.sleep.headlineBand }} {{ insights.sleep.headlineText }}
-                    </p>
-                  </div>
-
+              <div v-show="activeInsight === 'sleep'" class="tab-pane">
+                <div class="insight-card">
+                  <span class="insight-overline">Sleep</span>
+                  <h3>Weeknight and weekend sleep patterns</h3>
+                  <p class="insight-sub">{{ insights.sleep.headlineBand }} {{ insights.sleep.headlineText }}</p>
                   <div class="sleep-grid">
-                    <section class="comparison-card">
-                      <div class="comparison-card-head">
-                        <span class="comparison-pill">Weeknight</span>
+                    <div class="inner-card">
+                      <div class="inner-head">
+                        <span class="pill">Weeknight</span>
                         <strong>{{ insights.sleep.headlinePct }}%</strong>
                       </div>
-
-                      <div
-                        v-for="item in insights.sleep.weeknight"
-                        :key="'weeknight-' + item.label"
-                        class="comparison-row"
-                      >
-                        <span class="comparison-label">{{ item.label }}</span>
-                        <div class="comparison-track">
-                          <div
-                            class="comparison-fill sleep-weeknight"
-                            :style="{ width: item.value + '%' }"
-                          ></div>
-                        </div>
-                        <strong class="comparison-value">{{ item.value }}%</strong>
+                      <div v-for="item in insights.sleep.weeknight" :key="'wn-'+item.label" class="bar-row">
+                        <span>{{ item.label }}</span>
+                        <div class="bar"><i class="sleep-wn" :style="{ width: item.value + '%' }"></i></div>
+                        <strong>{{ item.value }}%</strong>
                       </div>
-                    </section>
-
-                    <section class="comparison-card">
-                      <div class="comparison-card-head">
-                        <span class="comparison-pill muted">Weekend night</span>
+                    </div>
+                    <div class="inner-card">
+                      <div class="inner-head">
+                        <span class="pill muted">Weekend</span>
                         <strong>{{ insights.sleep.weekend[3]?.value || 0 }}%</strong>
                       </div>
-
-                      <div
-                        v-for="item in insights.sleep.weekend"
-                        :key="'weekend-' + item.label"
-                        class="comparison-row"
-                      >
-                        <span class="comparison-label">{{ item.label }}</span>
-                        <div class="comparison-track">
-                          <div
-                            class="comparison-fill sleep-weekend"
-                            :style="{ width: item.value + '%' }"
-                          ></div>
-                        </div>
-                        <strong class="comparison-value">{{ item.value }}%</strong>
+                      <div v-for="item in insights.sleep.weekend" :key="'we-'+item.label" class="bar-row">
+                        <span>{{ item.label }}</span>
+                        <div class="bar"><i class="sleep-we" :style="{ width: item.value + '%' }"></i></div>
+                        <strong>{{ item.value }}%</strong>
                       </div>
-                    </section>
-                  </div>
-                </article>
-
-                <div class="insight-mini-grid">
-                  <article class="mini-insight-card">
-                    <span class="mini-insight-label">Weeknights</span>
-                    <strong>8 to less than 9 hours is the strongest band</strong>
-                    <p>
-                      This is the most common weeknight sleep range, closely followed by 9 to less than
-                      10 hours.
-                    </p>
-                  </article>
-
-                  <article class="mini-insight-card">
-                    <span class="mini-insight-label">Weekends</span>
-                    <strong>Sleep patterns widen slightly</strong>
-                    <p>
-                      Weekend nights show a broader spread, which suggests routines can become less
-                      consistent outside school days.
-                    </p>
-                  </article>
-                </div>
-              </div>
-
-            <!-- ACTIVITY -->
-            <div v-show="activeInsight === 'activity'" class="tab-content">
-              <article class="hero-insight-card polished-visual-card">
-                <div class="visual-header">
-                  <span class="insight-overline">Activity</span>
-                  <h3 class="visual-title">Average daily inactivity</h3>
-                  <p class="visual-subtitle">
-                    {{ insights.activity.headlineBand }} {{ insights.activity.headlineText }}
-                  </p>
-                </div>
-
-                <section class="comparison-card activity-card">
-                  <div class="comparison-card-head">
-                    <span class="comparison-pill warm">Daily inactivity</span>
-                    <strong>{{ insights.activity.headlinePct }}%</strong>
-                  </div>
-
-                  <div
-                    v-for="item in insights.activity.bands"
-                    :key="item.label"
-                    class="comparison-row"
-                  >
-                    <span class="comparison-label">{{ item.label }}</span>
-                    <div class="comparison-track">
-                      <div
-                        class="comparison-fill activity-fill"
-                        :style="{ width: item.value + '%' }"
-                      ></div>
                     </div>
-                    <strong class="comparison-value">{{ item.value }}%</strong>
                   </div>
-                </section>
-              </article>
-
-              <div class="insight-mini-grid">
-                <article class="mini-insight-card">
-                  <span class="mini-insight-label">Key takeaway</span>
-                  <strong>Inactivity clusters around the 9-12 hour range</strong>
-                  <p>
-                    Several neighbouring inactivity bands are similarly high, which means long sedentary
-                    periods are common rather than isolated.
-                  </p>
-                </article>
-
-                <article class="mini-insight-card">
-                  <span class="mini-insight-label">What helps</span>
-                  <strong>Short movement breaks can make a real difference</strong>
-                  <p>
-                    Small bursts of movement before school, after school, and between screen-heavy
-                    activities can improve daily balance.
-                  </p>
-                </article>
+                </div>
+                <div class="subcards">
+                  <div class="subcard">
+                    <span class="sub-label">Weeknights</span>
+                    <strong>8-9 hours is the strongest band</strong>
+                    <p>The most common weeknight range, where routine improvements can make the biggest difference.</p>
+                  </div>
+                  <div class="subcard">
+                    <span class="sub-label">Weekends</span>
+                    <strong>Sleep patterns widen slightly</strong>
+                    <p>Weekend nights show a broader spread, suggesting routines become less consistent outside school days.</p>
+                  </div>
+                </div>
               </div>
+
+              <!-- ACTIVITY -->
+              <div v-show="activeInsight === 'activity'" class="tab-pane">
+                <div class="insight-card">
+                  <span class="insight-overline">Activity</span>
+                  <h3>Average daily inactivity</h3>
+                  <p class="insight-sub">{{ insights.activity.headlineBand }} {{ insights.activity.headlineText }}</p>
+                  <div class="inner-card">
+                    <div class="inner-head">
+                      <span class="pill warm">Daily inactivity</span>
+                      <strong>{{ insights.activity.headlinePct }}%</strong>
+                    </div>
+                    <div v-for="item in insights.activity.bands" :key="item.label" class="bar-row">
+                      <span>{{ item.label }}</span>
+                      <div class="bar"><i class="activity" :style="{ width: item.value + '%' }"></i></div>
+                      <strong>{{ item.value }}%</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="subcards">
+                  <div class="subcard">
+                    <span class="sub-label">Key takeaway</span>
+                    <strong>Inactivity clusters in the mid-to-high bands</strong>
+                    <p>Sedentary periods are common rather than isolated - widespread across age groups.</p>
+                  </div>
+                  <div class="subcard">
+                    <span class="sub-label">What helps</span>
+                    <strong>Short movement breaks can add up</strong>
+                    <p>Small bursts of movement before school, after school, and between screen activities improve daily balance.</p>
+                  </div>
+                </div>
+              </div>
+
+            </template>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS -->
+      <section id="how" class="how">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="label">How it works</p>
+            <h2>A simple three-step experience.</h2>
+          </div>
+          <div class="steps-grid">
+            <article class="step-card">
+              <span class="step-num">01</span>
+              <h3>Complete the quiz</h3>
+              <p>Parents answer short questions about routines, concerns, and daily habits.</p>
+            </article>
+            <article class="step-card">
+              <span class="step-num">02</span>
+              <h3>Receive recommendations</h3>
+              <p>We identify priority areas and generate tailored guidance for your family.</p>
+            </article>
+            <article class="step-card">
+              <span class="step-num">03</span>
+              <h3>Follow the plan</h3>
+              <p>Use the dashboard to take clear, realistic next steps and track progress over time.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- TESTIMONIALS -->
+      <section class="stories">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="label">What parents say</p>
+            <h2>More clarity, less overwhelm.</h2>
+          </div>
+          <div class="stories-grid">
+            <blockquote class="story-card">
+              <p>"HealthyKids gave us a clearer way to manage after-school time. The actions felt small enough to follow - that made a huge difference."</p>
+              <cite>Parent of a 7-year-old</cite>
+            </blockquote>
+            <blockquote class="story-card">
+              <p>"The dashboard helped me understand exactly what to do each day instead of general advice. Everything felt realistic."</p>
+              <cite>Parent of a 9-year-old</cite>
+            </blockquote>
+            <blockquote class="story-card">
+              <p>"It focused on progress, not perfection. Improving our routines felt achievable for the whole family."</p>
+              <cite>Parent of an 11-year-old</cite>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <!-- KIDS ZONE -->
+      <section id="kids" class="kids-zone">
+        <div class="wrap">
+          <div class="kids-shell">
+            <div class="kids-copy">
+              <p class="kids-label">Kids Zone</p>
+              <h2>Adventure missions for healthy heroes.</h2>
+              <p>Kids have a dedicated dashboard with friendly activities, simple habit goals, and playful missions that connect back to the parent plan.</p>
             </div>
+            <div class="kids-actions">
+              <RouterLink to="/young-person-dashboard" class="btn-white">Open Kids Dashboard</RouterLink>
+              <RouterLink to="/parent-entry" class="btn-ghost-white">Preview parent sync</RouterLink>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="feature-band">
-        <div class="container feature-grid">
-          <div class="feature-copy">
-            <p class="section-eyebrow">How it works</p>
-            <h2>One clear path from concern to action</h2>
-            <p>
-              Parents begin with a guided quiz, receive a personalised family plan, and use a
-              dashboard to track daily actions, progress, and weekly priorities.
-            </p>
-
-            <div class="feature-points">
-              <div class="feature-point">
-                <strong>Step 1</strong>
-                <span>Complete the parent quiz</span>
-              </div>
-              <div class="feature-point">
-                <strong>Step 2</strong>
-                <span>Receive tailored recommendations</span>
-              </div>
-              <div class="feature-point">
-                <strong>Step 3</strong>
-                <span>Follow a relevant weekly plan</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="feature-image-block">
-            <img
-              src="https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?auto=format&fit=crop&w=1200&q=80"
-              alt="Parent and child planning together"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section id="testimonials" class="testimonials-section">
-        <div class="container">
-          <div class="section-heading center">
-            <p class="section-eyebrow">Client stories</p>
-            <h2>What parents value most</h2>
-          </div>
-
-          <div class="testimonials-grid">
-            <article class="testimonial-card">
-              <p>
-                "HealthySteps gave us a clearer way to manage after-school time. The actions felt
-                small enough to follow, and that made a huge difference."
-              </p>
-              <span>Parent of a 7-year-old</span>
-            </article>
-
-            <article class="testimonial-card">
-              <p>
-                "The dashboard helped me understand exactly what to do each day instead of just
-                reading general advice. That made it feel realistic."
-              </p>
-              <span>Parent of a 9-year-old</span>
-            </article>
-
-            <article class="testimonial-card">
-              <p>
-                "I liked that it focused on progress, not perfection. It made improving routines
-                feel achievable for our whole family."
-              </p>
-              <span>Parent of an 11-year-old</span>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section id="faq" class="faq-section">
-        <div class="container faq-wrap">
-          <div class="section-heading center">
-            <p class="section-eyebrow">FAQs</p>
-            <h2>Common questions</h2>
-          </div>
-
-          <div class="faq-list">
-            <article class="faq-item">
-              <h3>Who is HealthySteps for?</h3>
-              <p>It is designed for parents of children aged 5-12 who want practical family health support.</p>
-            </article>
-
-            <article class="faq-item">
-              <h3>How does the plan become personalised?</h3>
-              <p>Your quiz responses shape the recommended actions, daily plan, and progress tracker shown in the dashboard.</p>
-            </article>
-
-            <article class="faq-item">
-              <h3>What kinds of habits does it support?</h3>
-              <p>HealthySteps focuses on nutrition, movement, sleep, screen balance, and consistent daily routines.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="final-cta-section">
-        <div class="container final-cta-box">
+      <!-- CTA -->
+      <section class="cta">
+        <div class="wrap cta-inner">
           <div>
-            <p class="section-eyebrow light-eyebrow">Get started</p>
-            <h2>Build a healthier routine for your family.</h2>
+            <p class="label">Get started</p>
+            <h2>Start building healthier family routines today.</h2>
           </div>
-
-          <RouterLink to="/parent-entry" class="final-cta-btn">Begin now</RouterLink>
+          <RouterLink to="/parent-entry" class="btn-fill-light">Begin now</RouterLink>
         </div>
       </section>
+
     </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <span class="logo">HealthyKids</span>
+        <p>A Monash University SDG 3 project · Team TP25 · 2025</p>
+      </div>
+    </footer>
+
   </div>
 </template>
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const activeInsight = ref('body')
 const insights = ref(null)
 const loadingInsights = ref(false)
 const insightsError = ref('')
 
-const API_URL = import.meta.env.VITE_PARENT_DATA_INSIGHTS_API_BASE_URL+'/test/data-insights'
+const tabs = [
+  { key: 'body', label: 'Body balance' },
+  { key: 'sleep', label: 'Sleep' },
+  { key: 'activity', label: 'Activity' },
+]
+
+const API_BASE_URL = import.meta.env.VITE_PARENT_DATA_INSIGHTS_API_BASE_URL || ''
+const API_URL = API_BASE_URL ? `${API_BASE_URL}/test/data-insights` : '/test/data-insights'
 
 async function fetchHomepageInsights() {
   loadingInsights.value = true
   insightsError.value = ''
-
   try {
     const res = await fetch(API_URL)
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`)
-    }
-
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
     insights.value = await res.json()
   } catch (err) {
-    console.error('Homepage insights fetch failed:', err)
-    insightsError.value = err.message || 'Unable to load homepage insights right now.'
+    insightsError.value = err.message || 'Unable to load insights right now.'
   } finally {
     loadingInsights.value = false
   }
@@ -543,1125 +415,1064 @@ async function fetchHomepageInsights() {
 
 onMounted(fetchHomepageInsights)
 
-const bodySegments = computed(() => insights.value?.bodyBalance?.segments || [])
-
 const bodyRingStyle = computed(() => {
-  if (!bodySegments.value.length) {
-    return {
-      background: 'conic-gradient(#ddd4c9 0% 100%)'
-    }
-  }
-
-  const underweight = bodySegments.value.find(s => s.key === 'underweight')?.value || 0
-  const normal = bodySegments.value.find(s => s.key === 'normal')?.value || 0
-  const overweight = bodySegments.value.find(s => s.key === 'overweight')?.value || 0
-  const obese = bodySegments.value.find(s => s.key === 'obese')?.value || 0
-
-  const a = underweight
-  const b = underweight + normal
-  const c = underweight + normal + overweight
-  const d = underweight + normal + overweight + obese
-
+  const segs = insights.value?.bodyBalance?.segments
+  if (!segs?.length) return { background: 'conic-gradient(#e8e4de 0% 100%)' }
+  const uw = segs.find(s => s.key === 'underweight')?.value || 0
+  const nm = segs.find(s => s.key === 'normal')?.value || 0
+  const ow = segs.find(s => s.key === 'overweight')?.value || 0
+  const ob = segs.find(s => s.key === 'obese')?.value || 0
+  const a = uw, b = uw + nm, c = uw + nm + ow, d = uw + nm + ow + ob
   return {
     background: `conic-gradient(
-      #88b6d7 0% ${a}%,
-      #b9845b ${a}% ${b}%,
-      #db7f27 ${b}% ${c}%,
-      #5f89a3 ${c}% ${d}%,
-      #ddd4c9 ${d}% 100%
+      #a8c5da ${0}% ${a}%,
+      #6aaa8a ${a}% ${b}%,
+      #e8a84c ${b}% ${c}%,
+      #c97158 ${c}% ${d}%,
+      #e8e4de ${d}% 100%
     )`
   }
 })
 </script>
 
 <style scoped>
-:global(*) {
-  box-sizing: border-box;
+:global(:root) {
+  --c-text: #18233b;
+  --c-muted: #5f5a74;
+  --c-border: rgba(88, 109, 166, 0.12);
+  --c-surface: rgba(255, 255, 255, 0.82);
+  --c-surface-strong: rgba(255, 255, 255, 0.92);
+  --c-kids: #2c36b8;
+  --r-card: 20px;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 :global(body) {
   margin: 0;
-  background: #ece7df;
-  font-family: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
+  background: #f6f3ee;
+  color: #171717;
   -webkit-font-smoothing: antialiased;
-  color: #2f2a26;
 }
 
-.home-page {
+.page,
+.entry-page,
+.quiz-page,
+.dashboard-page {
   min-height: 100vh;
-  background: #ece7df;
-}
-
-.container {
-  width: min(1240px, calc(100% - 48px));
-  margin: 0 auto;
-}
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(236, 231, 223, 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(20, 20, 20, 0.12);
-}
-
-.header-row {
-  min-height: 82px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-}
-
-.brand {
-  text-decoration: none;
-  color: #111;
-  font-size: 1.75rem;
-  font-weight: 900;
-  letter-spacing: -0.05em;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-}
-
-.nav a {
-  text-decoration: none;
-  color: #1d1d1d;
-  font-size: 0.96rem;
-  font-weight: 500;
-}
-
-.nav a:hover {
-  opacity: 0.72;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-btn {
-  text-decoration: none;
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.94rem;
-  font-weight: 700;
-  border: 1px solid #151515;
-}
-
-.light-btn {
-  color: #151515;
-  background: transparent;
-}
-
-.dark-btn {
-  color: #fff;
-  background: #151515;
-}
-
-.hero-section {
-  padding: 28px 0 72px;
-}
-
-.hero-shell {
   position: relative;
-  min-height: 820px;
+  overflow-x: clip;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(109, 195, 216, 0.18), transparent 34%),
+    radial-gradient(circle at 84% 14%, rgba(116, 130, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(255, 176, 132, 0.16), transparent 36%),
+    linear-gradient(145deg, #eef4ff 0%, #f7f1ff 46%, #fff5ee 100%);
 }
 
-.hero-background {
-  width: 100%;
-  min-height: 820px;
-  border-radius: 0;
-  overflow: hidden;
-  background: #d8cec4;
-}
-
-.hero-background img {
-  width: 100%;
-  height: 820px;
-  object-fit: cover;
-  display: block;
-}
-
-.hero-panel {
-  position: absolute;
-  left: 70px;
-  top: 90px;
-  width: min(470px, calc(100% - 40px));
-  background: rgba(241, 236, 231, 0.96);
-  padding: 34px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-}
-
-.hero-kicker,
-.section-eyebrow {
-  margin: 0 0 12px;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 800;
-  color: #6c6258;
-}
-
-.hero-panel h1,
-.about-wrap h2,
-.section-heading h2,
-.feature-copy h2,
-.final-cta-box h2 {
-  margin: 0;
-  font-size: clamp(3rem, 6vw, 5.2rem);
-  line-height: 0.92;
-  /* letter-spacing: -0.08em; */
-  font-weight: 800;
-  color: #b2805c;
-}
-
-.hero-divider {
-  width: 100%;
-  height: 1px;
-  background: rgba(20, 20, 20, 0.4);
-  margin: 28px 0;
-}
-
-.hero-meta {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 18px;
-  align-items: center;
-}
-
-.hero-meta p {
-  margin: 0;
-  color: #272727;
-  font-size: 1rem;
-  line-height: 1.55;
-  max-width: 14rem;
-}
-
-.hero-cta,
-.soft-brown-btn,
-.final-cta-btn {
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 0 26px;
+.page::before,
+.entry-page::before,
+.quiz-page::before,
+.dashboard-page::before,
+.page::after,
+.entry-page::after,
+.quiz-page::after,
+.dashboard-page::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
   border-radius: 999px;
-  font-size: 0.98rem;
-  font-weight: 700;
+  filter: blur(56px);
+  opacity: 0.42;
 }
 
-.hero-cta,
-.soft-brown-btn {
-  background: #b2805c;
-  color: #fff;
+.page::before,
+.entry-page::before,
+.quiz-page::before,
+.dashboard-page::before {
+  width: 420px;
+  height: 420px;
+  top: -120px;
+  left: -150px;
+  background: radial-gradient(circle, rgba(116, 203, 225, 0.46), rgba(116, 203, 225, 0));
 }
 
-.hero-bottom-image {
-  margin-top: 28px;
-  border-top: 1px solid rgba(20, 20, 20, 0.45);
-  padding-top: 28px;
+.page::after,
+.entry-page::after,
+.quiz-page::after,
+.dashboard-page::after {
+  width: 460px;
+  height: 460px;
+  top: 40vh;
+  right: -180px;
+  background: radial-gradient(circle, rgba(147, 146, 255, 0.34), rgba(147, 146, 255, 0));
 }
 
-.hero-bottom-image img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  display: block;
-}
-
-.about-section,
-.services-section,
-.feature-band,
-.testimonials-section,
-.faq-section {
-  padding: 90px 0;
-}
-
-.about-wrap {
-  text-align: center;
-  max-width: 980px;
+.wrap {
+  width: min(1100px, calc(100% - 48px));
   margin: 0 auto;
 }
 
-.about-wrap h2 {
-  font-size: clamp(2.8rem, 5vw, 4.8rem);
-  max-width: none;
-}
-
-.about-copy {
-  max-width: 62rem;
-  margin: 28px auto 0;
-  font-size: 1.18rem;
-  line-height: 1.8;
-  color: #242424;
-}
-
-.about-wrap .soft-brown-btn {
-  margin-top: 28px;
-}
-
-.section-heading {
-  margin-bottom: 40px;
-}
-
-.section-heading.center {
-  text-align: center;
-}
-
-.section-heading h2 {
-  /* font-size: clamp(2.6rem, 4vw, 4.6rem); */
-  max-width: none;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 26px;
-}
-
-.service-card {
-  background: #efeae3;
-  border: 1px solid rgba(20, 20, 20, 0.14);
-}
-
-.service-image img {
-  width: 100%;
-  height: 420px;
-  object-fit: cover;
-  display: block;
-}
-
-.service-body {
-  padding: 22px 24px 28px;
-  border-top: 1px solid rgba(20, 20, 20, 0.14);
-}
-
-.service-body h3,
-.faq-item h3 {
-  margin: 0 0 10px;
-  font-size: 1.3rem;
-  line-height: 1.2;
-  color: #111;
-}
-
-.service-body p,
-.feature-copy p,
-.testimonial-card p,
-.faq-item p {
+h1,
+h2,
+h3 {
   margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  color: var(--c-text);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+h1 {
+  font-size: clamp(2.8rem, 5.5vw, 5rem);
+}
+
+h2 {
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+}
+
+h3 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.label {
+  display: block;
+  margin-bottom: 14px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+p,
+.body-text {
+  font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.75;
-  color: #2d2d2d;
+  color: var(--c-muted);
 }
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: 0.95fr 1.05fr;
-  gap: 40px;
+.btn-fill,
+.btn-outline,
+.btn-ghost,
+.btn-kids,
+.btn-white,
+.btn-ghost-white,
+.btn-fill-light {
+  display: inline-flex;
   align-items: center;
-}
-
-.feature-copy h2 {
-  /* font-size: clamp(2.5rem, 4.6vw, 4.6rem); */
-  max-width: 10ch;
-}
-
-.feature-copy p {
-  margin-top: 18px;
-  max-width: 38rem;
-}
-
-.feature-points {
-  display: grid;
-  gap: 18px;
-  margin-top: 28px;
-}
-
-.feature-point {
-  padding-top: 16px;
-  border-top: 1px solid rgba(20, 20, 20, 0.18);
-  display: grid;
-  gap: 6px;
-}
-
-.feature-point strong {
-  font-size: 1rem;
-  color: #111;
-}
-
-.feature-point span {
-  color: #4d4d4d;
-  line-height: 1.6;
-}
-
-.feature-image-block img {
-  width: 100%;
-  height: 620px;
-  object-fit: cover;
-  display: block;
-}
-
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  border: 1px solid rgba(20, 20, 20, 0.18);
-}
-
-.testimonial-card {
-  min-height: 420px;
-  padding: 54px 42px 36px;
-  background: #ece7df;
-  border-right: 1px solid rgba(20, 20, 20, 0.18);
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  text-align: center;
+  min-height: 50px;
+  padding: 0 24px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s, background 0.15s, border-color 0.15s;
 }
 
-.testimonial-card:last-child {
-  border-right: none;
-}
-
-.testimonial-card p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-}
-
-.testimonial-card span {
-  display: block;
-  margin-top: 28px;
-  font-size: 0.98rem;
-  color: #3f3f3f;
-}
-
-.faq-wrap {
-  max-width: 1020px;
-  margin: 0 auto;
-}
-
-.faq-list {
-  display: grid;
-  gap: 18px;
-}
-
-.faq-item {
-  background: #efeae3;
-  padding: 24px 26px;
-  border: 1px solid rgba(20, 20, 20, 0.12);
-}
-
-.final-cta-section {
-  padding: 0 0 80px;
-}
-
-.final-cta-box {
-  background: #181818;
+.btn-fill,
+.btn-fill-light {
+  background: #1a1a1a;
   color: #fff;
-  padding: 38px;
+  border-color: #1a1a1a;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #1a1a1a;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #1a1a1a;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.btn-kids {
+  background: var(--c-kids);
+  color: #fff;
+  border-color: var(--c-kids);
+}
+
+.btn-white {
+  background: #fff;
+  color: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-ghost-white {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-fill:hover,
+.btn-kids:hover,
+.btn-white:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn-outline:hover,
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250, 249, 247, 0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  min-height: 70px;
 }
 
-.final-cta-box h2 {
-  color: #fff;
-  /* font-size: clamp(2.2rem, 4vw, 4rem); */
-  max-width: 11ch;
+.logo {
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--c-text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
 }
 
-.light-eyebrow {
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.final-cta-btn {
-  background: #fff;
-  color: #111;
-  min-width: 160px;
-}
-
-@media (max-width: 1100px) {
-  .services-grid,
-  .feature-grid,
-  .testimonials-grid,
-  .final-cta-box {
-    grid-template-columns: 1fr;
-  }
-
-  .feature-grid,
-  .final-cta-box {
-    display: grid;
-  }
-
-  .hero-panel {
-    left: 34px;
-    top: 34px;
-  }
-
-  .testimonial-card {
-    border-right: none;
-    border-bottom: 1px solid rgba(20, 20, 20, 0.18);
-  }
-
-  .testimonial-card:last-child {
-    border-bottom: none;
-  }
-}
-
-@media (max-width: 760px) {
-  .nav {
-    display: none;
-  }
-
-  .header-row {
-    flex-wrap: wrap;
-    padding: 14px 0;
-  }
-
-  .header-actions {
-    width: 100%;
-  }
-
-  .header-btn {
-    flex: 1;
-  }
-
-  .container {
-    width: calc(100% - 24px);
-  }
-
-  .hero-shell,
-  .hero-background,
-  .hero-background img {
-    min-height: 720px;
-    height: 720px;
-  }
-
-  .hero-panel {
-    position: absolute;
-    left: 18px;
-    right: 18px;
-    top: 18px;
-    width: auto;
-    padding: 24px;
-  }
-
-
-  .hero-meta {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-bottom-image img {
-    height: 160px;
-  }
-
-  .service-image img {
-    height: 300px;
-  }
-
-  .feature-image-block img {
-    height: 360px;
-  }
-
-  .testimonial-card {
-    min-height: 300px;
-    padding: 34px 24px;
-  }
-}
-
-.insights-section {
-  padding: 90px 0;
-}
-
-.insights-grid {
-  display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
-  gap: 34px;
-  align-items: start;
-}
-
-.insights-copy h2 {
-  margin: 0;
-  font-size: clamp(2.4rem, 4vw, 4.4rem);
-  line-height: 0.95;
-  font-weight: 800;
-  color: #1f2940;
-  max-width: 11ch;
-}
-
-.insights-copy p {
-  margin: 18px 0 0;
-  max-width: 34rem;
-  font-size: 1rem;
-  line-height: 1.75;
-  color: #2d2d2d;
-}
-
-.insight-toggle {
+.nav {
   display: flex;
-  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.nav a {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--c-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav a:hover {
+  color: var(--c-text);
+}
+
+.header-cta {
+  display: flex;
+  align-items: center;
   gap: 10px;
-  margin-top: 26px;
 }
 
-.insight-tab {
-  min-height: 46px;
+.header-cta .btn-outline,
+.header-cta .btn-fill {
+  min-height: 42px;
   padding: 0 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(31, 41, 64, 0.15);
-  background: #f5efe8;
-  color: #3b312b;
-  font: inherit;
-  font-size: 0.96rem;
-  font-weight: 700;
-  cursor: pointer;
-  appearance: none;
-  transition: all 0.18s ease;
+  font-size: 0.85rem;
 }
 
-.insight-tab:hover {
-  transform: translateY(-1px);
+.hero {
+  padding: 80px 0 90px;
 }
 
-.insight-tab.active {
-  background: #1f2940;
-  color: #fff;
-  border-color: #1f2940;
-}
-
-.insight-panel,
-.tab-view,
-.tab-content {
+.hero-inner {
   display: grid;
-  gap: 18px;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
 }
 
-.hero-insight-card,
-.mini-insight-card {
-  background: #efe7df;
-  border: 1px solid rgba(20, 20, 20, 0.08);
-  border-radius: 28px;
-  box-shadow: 0 8px 24px rgba(32, 28, 24, 0.04);
+.hero-copy {
+  display: flex;
+  flex-direction: column;
 }
 
-.hero-insight-card {
-  padding: 30px;
-}
-
-.mini-insight-card {
-  padding: 24px;
-}
-
-.insight-overline,
-.mini-insight-label {
-  display: block;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 800;
-  color: #7a6d62;
-}
-
-.visual-header {
+.hero-copy h1 {
   margin-bottom: 24px;
 }
 
-.visual-title {
-  margin: 10px 0 0;
-  font-size: 1.7rem;
-  line-height: 1.15;
-  font-weight: 800;
-  color: #1d2233;
+.hero-copy .body-text {
+  max-width: 32rem;
 }
 
-.visual-subtitle {
-  margin: 12px 0 0;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #5a5148;
-  max-width: 42rem;
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
 }
 
-.insight-mini-grid {
+.trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  list-style: none;
+}
+
+.trust-row li {
+  margin-right: 20px;
+  padding-right: 20px;
+  border-right: 1px solid var(--c-border);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-muted);
+}
+
+.trust-row li:last-child {
+  margin-right: 0;
+  padding-right: 0;
+  border-right: none;
+}
+
+.hero-media {
+  position: relative;
+  min-height: 520px;
+}
+
+.hero-img {
+  display: block;
+  width: 100%;
+  height: 520px;
+  object-fit: cover;
+  border-radius: var(--r-card);
+}
+
+.hero-float-card {
+  position: absolute;
+  right: 20px;
+  bottom: 24px;
+  left: 20px;
+  padding: 22px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+}
+
+.float-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.hero-float-card strong {
+  display: block;
+  margin-bottom: 16px;
+  font-family: Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--c-text);
+}
+
+.mini-bars {
   display: grid;
+  gap: 10px;
+}
+
+.mini-bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.mini-bar-row span {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--c-muted);
+}
+
+.bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #ede9e3;
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #1a1a1a;
+}
+
+.pathways,
+.about,
+.focus,
+.insights,
+.how,
+.stories,
+.kids-zone,
+.cta {
+  padding: 80px 0;
+  border-top: 1px solid var(--c-border);
+}
+
+.pathways {
+  padding-top: 0;
+  border-top: none;
+}
+
+.paths-grid,
+.about-grid,
+.insights-inner,
+.steps-grid,
+.stories-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.paths-grid,
+.about-grid {
   grid-template-columns: 1fr 1fr;
+}
+
+.focus-grid,
+.steps-grid,
+.stories-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.insights-inner {
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 56px;
+  align-items: start;
+}
+
+.path-card,
+.focus-card,
+.insight-card,
+.subcard,
+.step-card,
+.story-card {
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-card);
+  background: var(--c-surface);
+}
+
+.path-card,
+.step-card,
+.story-card,
+.insight-card,
+.subcard {
+  padding: 32px;
+}
+
+.path-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.path-card h3 {
+  margin-bottom: 12px;
+  font-size: 1.3rem;
+}
+
+.path-card p {
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.path-kids {
+  background: #f0f1fc;
+  border-color: rgba(44, 54, 184, 0.15);
+}
+
+.path-kids .label {
+  color: #3040c0;
+}
+
+.about-grid {
+  gap: 56px;
+  align-items: start;
+}
+
+.about-grid h2 {
+  max-width: 10ch;
+}
+
+.about-copy p {
+  margin-bottom: 16px;
+}
+
+.about-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.section-head {
+  margin-bottom: 40px;
+}
+
+.section-head h2 {
+  max-width: 14ch;
+}
+
+.insights {
+  background: #f4f2ef;
+}
+
+.insights-left h2 {
+  max-width: 9ch;
+  margin-bottom: 18px;
+}
+
+.insights-left p {
+  max-width: 30rem;
+  font-size: 0.95rem;
+}
+
+.tab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.tab-btn {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--c-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: var(--c-text);
+}
+
+.tab-btn.active {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.tab-pane {
+  display: grid;
   gap: 18px;
 }
 
-.mini-insight-card strong {
+.state-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.insight-overline,
+.sub-label,
+.step-num,
+.kids-label {
   display: block;
-  margin-top: 10px;
-  font-size: 1.22rem;
-  line-height: 1.28;
-  color: #161616;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.mini-insight-card p {
-  margin: 12px 0 0;
-  font-size: 0.98rem;
-  line-height: 1.7;
-  color: #3e3a36;
+.insight-overline {
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  color: var(--c-muted);
 }
 
-/* BODY */
-.body-visual-layout {
+.insight-card h3 {
+  margin-bottom: 8px;
+  font-size: 1.3rem;
+}
+
+.insight-sub {
+  margin-bottom: 24px;
+  font-size: 0.93rem;
+}
+
+.subcards {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.sub-label {
+  margin-bottom: 8px;
+  font-size: 0.7rem;
+  color: var(--c-muted);
+}
+
+.subcard strong {
+  display: block;
+  margin-bottom: 8px;
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--c-text);
+  line-height: 1.35;
+}
+
+.subcard p {
+  font-size: 0.88rem;
+}
+
+.body-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
   gap: 28px;
   align-items: center;
 }
 
-.body-ring-panel {
+.ring-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.body-ring {
-  width: 235px;
-  height: 235px;
-  border-radius: 50%;
+.ring {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
 }
 
-.body-ring-inner {
-  width: 148px;
-  height: 148px;
-  border-radius: 50%;
-  background: #f8f3ed;
+.ring-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: #fff;
   text-align: center;
-  padding: 14px;
-  box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
-.body-ring-number {
-  font-size: 2.8rem;
-  line-height: 1;
-  font-weight: 800;
-  color: #111;
+.ring-num {
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--c-text);
 }
 
-.body-ring-label {
-  margin-top: 8px;
-  font-size: 0.86rem;
-  font-weight: 800;
-  color: #6f6359;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.body-ring-caption {
-  margin: 18px 0 0;
-  max-width: 240px;
-  text-align: center;
-  font-size: 0.98rem;
-  line-height: 1.65;
-  color: #4a433d;
-}
-
-.body-breakdown-panel {
-  display: grid;
-  gap: 16px;
-}
-
-.metric-row {
-  background: #f6f0e8;
-  border: 1px solid rgba(20, 20, 20, 0.06);
-  border-radius: 20px;
-  padding: 16px 18px;
-}
-
-.metric-row-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 10px;
-}
-
-.metric-label-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.metric-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  display: inline-block;
-}
-
-.metric-label {
-  font-size: 1rem;
+.ring-lbl {
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #2f2a26;
-}
-
-.metric-value {
-  font-size: 1rem;
-  color: #111;
-}
-
-.metric-track,
-.comparison-track {
-  width: 100%;
-  height: 12px;
-  border-radius: 999px;
-  background: #ddd4c9;
-  overflow: hidden;
-}
-
-.metric-fill,
-.comparison-fill {
-  height: 100%;
-  border-radius: 999px;
-}
-
-.metric-dot.underweight,
-.metric-fill.underweight {
-  background: #88b6d7;
-}
-
-.metric-dot.normal,
-.metric-fill.normal {
-  background: #b9845b;
-}
-
-.metric-dot.overweight,
-.metric-fill.overweight {
-  background: #db7f27;
-}
-
-.metric-dot.obese,
-.metric-fill.obese {
-  background: #5f89a3;
-}
-
-.summary-chip-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 6px;
-}
-
-.summary-chip {
-  background: #f3ece5;
-  border: 1px solid rgba(20, 20, 20, 0.06);
-  border-radius: 22px;
-  padding: 18px;
-}
-
-.summary-chip span {
-  display: block;
-  font-size: 0.78rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 800;
-  color: #7a6d62;
+  color: var(--c-muted);
 }
 
-.summary-chip strong {
-  display: block;
-  margin-top: 8px;
-  font-size: 1rem;
-  line-height: 1.35;
-  color: #161616;
+.ring-caption {
+  max-width: 200px;
+  margin-top: 14px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--c-muted);
+  text-align: center;
 }
 
-/* SLEEP + ACTIVITY */
-.polished-visual-card {
+.bars-wrap {
   display: grid;
-  gap: 22px;
+  gap: 12px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 52px;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar-row span,
+.bar-row strong {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+}
+
+.bar-row span {
+  color: var(--c-muted);
+}
+
+.bar-row strong {
+  text-align: right;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.bar-row .bar {
+  height: 10px;
+}
+
+.bar i.underweight {
+  background: #a8c5da;
+}
+
+.bar i.normal {
+  background: #6aaa8a;
+}
+
+.bar i.overweight {
+  background: #e8a84c;
+}
+
+.bar i.obese {
+  background: #c97158;
+}
+
+.bar i.sleep-wn {
+  background: #1a1a1a;
+}
+
+.bar i.sleep-we {
+  background: #9e9085;
+}
+
+.bar i.activity {
+  background: #c97328;
 }
 
 .sleep-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 16px;
 }
 
-.comparison-card {
-  background: #f6f0e8;
-  border: 1px solid rgba(20, 20, 20, 0.06);
-  border-radius: 24px;
+.inner-card {
   padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  background: #f7f5f2;
 }
 
-.comparison-card-head {
+.inner-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
   margin-bottom: 18px;
 }
 
-.comparison-card-head strong {
-  font-size: 1.45rem;
-  color: #1d2233;
+.inner-head strong {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--c-text);
 }
 
-.comparison-pill {
+.pill {
   display: inline-flex;
   align-items: center;
   min-height: 34px;
   padding: 0 14px;
-  border-radius: 999px;
-  background: #b9845b;
+  border-radius: 6px;
+  background: #1a1a1a;
   color: #fff;
-  font-size: 0.83rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
-.comparison-pill.muted {
-  background: #8f6f58;
+.pill.muted {
+  background: #9e9085;
 }
 
-.comparison-pill.warm {
-  background: #db7f27;
+.pill.warm {
+  background: #c97328;
 }
 
-.comparison-row {
+.step-card h3 {
+  margin-bottom: 10px;
+}
+
+.step-num {
+  margin-bottom: 20px;
+  font-size: 0.7rem;
+  color: var(--c-muted);
+}
+
+.story-card p {
+  margin-bottom: 16px;
+  font-family: Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--c-text);
+  font-style: italic;
+}
+
+.story-card cite {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--c-muted);
+  font-style: normal;
+}
+
+.kids-shell {
   display: grid;
-  grid-template-columns: 165px 1fr 58px;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
   align-items: center;
+  padding: 52px;
+  border-radius: var(--r-card);
+  background: #1c2678;
+  color: #fff;
+}
+
+.kids-label {
+  margin-bottom: 14px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.kids-shell h2 {
+  margin-bottom: 14px;
+  color: #fff;
+}
+
+.kids-shell p {
+  max-width: 34rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.kids-actions {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  margin-bottom: 12px;
+  min-width: 200px;
 }
 
-.comparison-row:last-child {
-  margin-bottom: 0;
+.cta-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
 }
 
-.comparison-label {
-  font-size: 0.93rem;
-  color: #5a5148;
-  line-height: 1.45;
+.cta-inner h2 {
+  max-width: 14ch;
 }
 
-.comparison-value {
-  font-size: 0.95rem;
-  color: #1d2233;
-  text-align: right;
+.footer {
+  padding: 28px 0;
+  border-top: 1px solid var(--c-border);
 }
 
-.comparison-fill.sleep-weeknight {
-  background: #b9845b;
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
 }
 
-.comparison-fill.sleep-weekend {
-  background: #8f6f58;
-}
-
-.comparison-fill.activity-fill {
-  background: #db7f27;
-}
-
-/* RESPONSIVE */
-@media (max-width: 1180px) {
-  .insights-grid {
-    grid-template-columns: 1fr;
-  }
+.footer p {
+  font-size: 0.82rem;
+  color: var(--c-muted);
 }
 
 @media (max-width: 980px) {
-  .body-visual-layout,
+  .hero-inner,
+  .paths-grid,
+  .about-grid,
+  .insights-inner,
+  .kids-shell,
+  .focus-grid,
+  .steps-grid,
+  .stories-grid,
+  .subcards,
   .sleep-grid,
-  .summary-chip-grid,
-  .insight-mini-grid {
+  .body-layout {
     grid-template-columns: 1fr;
   }
 
-  .body-ring-panel {
-    align-items: flex-start;
+  .hero-media {
+    min-height: auto;
   }
 
-  .body-ring-caption {
-    text-align: left;
+  .kids-actions {
+    flex-direction: row;
+  }
+
+  .cta-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav,
+  .header-cta .btn-outline {
+    display: none;
+  }
+
+  .wrap {
+    width: calc(100% - 32px);
+  }
+
+  .hero {
+    padding: 48px 0 64px;
+  }
+
+  .kids-shell {
+    padding: 32px;
+  }
+
+  .hero-float-card {
+    right: 12px;
+    bottom: 16px;
+    left: 12px;
+  }
+
+  .trust-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .trust-row li {
+    margin-right: 0;
+    padding-right: 0;
+    border-right: none;
+  }
+}
+
+.focus {
+  padding: 80px 0;
+}
+
+.focus-shell {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.focus-head {
+  margin: 0;
+}
+
+.focus-head h2 {
+  margin: 0;
+  max-width: none;
+  font-size: clamp(2.3rem, 4.2vw, 4rem);
+  line-height: 0.96;
+}
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.focus-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--r-card);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  box-shadow: 0 10px 24px rgba(57, 73, 114, 0.06);
+}
+
+.focus-img-wrap {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #ede9e3;
+}
+
+.focus-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.focus-card-body {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+}
+
+.focus-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  color: var(--c-text);
+}
+
+.focus-card p {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--c-muted);
+}
+
+@media (max-width: 1100px) {
+  .focus-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-head h2 {
+    max-width: 10ch;
+  }
+
+  .focus-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .focus-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-head h2 {
     max-width: none;
   }
 }
 
-@media (max-width: 760px) {
-  .hero-insight-card,
-  .mini-insight-card {
-    padding: 22px;
-    border-radius: 22px;
+@media (max-width: 640px) {
+  .focus {
+    padding: 64px 0;
   }
 
-  .body-ring {
-    width: 210px;
-    height: 210px;
+  .focus-img-wrap {
+    height: 200px;
   }
 
-  .body-ring-inner {
-    width: 132px;
-    height: 132px;
-  }
-
-  .body-ring-number {
-    font-size: 2.2rem;
-  }
-
-  .comparison-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .comparison-value {
-    text-align: left;
-  }
-}
-
-.insights-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 28px;
-  align-items: stretch;
-}
-
-.insights-copy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 760px;
-}
-
-.insights-copy h2 {
-  margin: 0;
-  font-size: clamp(3.8rem, 6vw, 6.2rem);
-  line-height: 0.92;
-  font-weight: 800;
-  color: #1f2940;
-  max-width: 8ch;
-}
-
-.insights-copy p {
-  max-width: 30rem;
-}
-
-.insight-panel,
-.tab-view,
-.tab-content {
-  height: 100%;
-}
-
-.tab-content {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: 18px;
-}
-
-.hero-insight-card {
-  min-height: 760px;
-}
-
-.insight-mini-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.mini-insight-card {
-  padding: 22px;
-}
-
-.mini-insight-card strong {
-  font-size: 1.12rem;
-  line-height: 1.3;
-}
-
-.mini-insight-card p {
-  font-size: 0.96rem;
-  line-height: 1.65;
-}
-
-/* body card balance */
-.body-visual-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 24px;
-  align-items: center;
-}
-
-.body-ring {
-  width: 215px;
-  height: 215px;
-}
-
-.body-ring-inner {
-  width: 136px;
-  height: 136px;
-}
-
-.body-ring-number {
-  font-size: 2.45rem;
-}
-
-.summary-chip-grid {
-  gap: 14px;
-}
-
-.summary-chip {
-  padding: 16px;
-}
-
-/* sleep + activity rows slightly tighter */
-.comparison-row {
-  grid-template-columns: 150px 1fr 56px;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.comparison-card {
-  padding: 18px;
-}
-
-@media (max-width: 1180px) {
-  .insights-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .insights-copy,
-  .hero-insight-card {
-    min-height: auto;
-  }
-
-  .insights-copy h2 {
-    max-width: 11ch;
-    font-size: clamp(3rem, 8vw, 5rem);
-  }
-}
-
-@media (max-width: 760px) {
-  .insight-mini-grid,
-  .summary-chip-grid,
-  .body-visual-layout,
-  .sleep-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .comparison-row {
-    grid-template-columns: 1fr;
+  .focus-card-body {
+    padding: 20px;
   }
 }
 </style>

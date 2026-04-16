@@ -12,11 +12,6 @@ const routes = [
     component: HomePage,
   },
   {
-    path: '/parent-quiz',
-    name: 'parent-quiz',
-    component: ParentQuizPage,
-  },
-  {
     path: '/parent-entry',
     name: 'ParentEntry',
     component: ParentEntry,
@@ -36,11 +31,18 @@ const routes = [
     name: 'young-person-dashboard',
     component: YoungPersonDashboardPage,
   },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/',
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0, left: 0 }
+  },
 })
 
 export default router

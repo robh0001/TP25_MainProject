@@ -579,7 +579,6 @@ async function persistDashboardUpdate(updatedState) {
 
   return data
 }
-
 </script>
 
 <style scoped>
@@ -589,33 +588,68 @@ async function persistDashboardUpdate(updatedState) {
 
 :global(body) {
   margin: 0;
-  background: #ece7df;
-  font-family: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f6f3ee;
+  color: #171717;
   -webkit-font-smoothing: antialiased;
-  color: #2f2a26;
 }
 
 .dashboard-page {
   min-height: 100vh;
-  background: #ece7df;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(109, 195, 216, 0.18), transparent 34%),
+    radial-gradient(circle at 84% 14%, rgba(116, 130, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(255, 176, 132, 0.16), transparent 36%),
+    linear-gradient(145deg, #eef4ff 0%, #f7f1ff 46%, #fff5ee 100%);
+  position: relative;
+  overflow-x: clip;
+}
+
+.dashboard-page::before,
+.dashboard-page::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(56px);
+  opacity: 0.42;
+}
+
+.dashboard-page::before {
+  width: 420px;
+  height: 420px;
+  top: -120px;
+  left: -150px;
+  background: radial-gradient(circle, rgba(116, 203, 225, 0.46), rgba(116, 203, 225, 0));
+}
+
+.dashboard-page::after {
+  width: 460px;
+  height: 460px;
+  top: 40vh;
+  right: -180px;
+  background: radial-gradient(circle, rgba(147, 146, 255, 0.34), rgba(147, 146, 255, 0));
 }
 
 .container {
   width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(236, 231, 223, 0.92);
+  background: rgba(246, 243, 238, 0.88);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(47, 42, 38, 0.12);
+  border-bottom: 1px solid rgba(88, 109, 166, 0.12);
 }
 
 .header-row {
-  min-height: 82px;
+  min-height: 78px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -624,9 +658,10 @@ async function persistDashboardUpdate(updatedState) {
 
 .brand {
   text-decoration: none;
-  color: #2f2a26;
-  font-size: 1.75rem;
-  font-weight: 900;
+  color: #18233b;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
 .nav {
@@ -638,28 +673,39 @@ async function persistDashboardUpdate(updatedState) {
 .nav-link,
 .nav a {
   text-decoration: none;
-  color: #3e3631;
-  font-size: 0.96rem;
+  color: #4b556f;
+  font-size: 0.95rem;
   font-weight: 500;
+}
+
+.nav-link:hover,
+.nav a:hover {
+  color: #18233b;
 }
 
 .header-btn {
   text-decoration: none;
-  min-height: 46px;
+  min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  border: 1px solid #3b312b;
-  color: #3b312b;
-  background: transparent;
+  border: 1px solid rgba(88, 109, 166, 0.16);
+  color: #18233b;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.header-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .dashboard-top {
-  padding: 28px 0 22px;
+  padding: 40px 0 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .top-shell {
@@ -673,24 +719,42 @@ async function persistDashboardUpdate(updatedState) {
 .section-label,
 .card-kicker,
 .chart-label {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 0.78rem;
   text-transform: uppercase;
+  letter-spacing: 0.12em;
   font-weight: 800;
-  color: #6c6258;
+  color: #6f6a86;
 }
 
 .top-copy h1,
 .section-head h2,
 .summary-card h2,
 .chart-card h3,
-.today-main-card h3,
-.side-info-card h3,
+.glass-card h3,
 .chart-detail-card h4 {
   margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
   line-height: 0.96;
-  font-weight: 800;
-  color: #2f2a26;
+  letter-spacing: -0.05em;
+  font-weight: 700;
+  color: #18233b;
+}
+
+.top-copy h1 {
+  font-size: clamp(2.8rem, 5vw, 4.6rem);
+}
+
+.section-head h2 {
+  font-size: clamp(2rem, 3vw, 2.9rem);
+}
+
+.summary-card h2,
+.chart-card h3,
+.glass-card h3,
+.chart-detail-card h4 {
+  font-size: 1.5rem;
+  line-height: 1.05;
 }
 
 .top-text,
@@ -698,17 +762,16 @@ async function persistDashboardUpdate(updatedState) {
 .info-copy,
 .today-progress-copy,
 .detail-list,
-.summary-list p,
 .task-item span,
 .weekday-list,
 .chart-summary,
 .chart-detail-text {
-  color: #5e5248;
-  line-height: 1.65;
+  color: #5f5a74;
+  line-height: 1.68;
 }
 
 .top-text {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   max-width: 42rem;
   font-size: 1rem;
 }
@@ -717,17 +780,17 @@ async function persistDashboardUpdate(updatedState) {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 22px;
 }
 
 .top-pills span {
   padding: 10px 14px;
   border-radius: 999px;
-  background: #f3eee8;
-  border: 1px solid rgba(47, 42, 38, 0.1);
-  font-size: 0.92rem;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(88, 109, 166, 0.12);
+  font-size: 0.9rem;
   font-weight: 700;
-  color: #3b312b;
+  color: #4f4a66;
 }
 
 .top-side {
@@ -736,26 +799,40 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .summary-card {
-  background: #f3eee8;
-  border: 1px solid rgba(47, 42, 38, 0.12);
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(88, 109, 166, 0.12);
+  border-radius: 28px;
+  padding: 22px;
   position: relative;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 34px rgba(57, 73, 114, 0.08);
 }
 
-.summary-card h2 {
-  font-size: 1.5rem;
-  line-height: 1.05;
+.mission-card {
+  background:
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(246, 242, 255, 0.92));
 }
 
 .summary-card p {
   margin: 10px 0 0;
 }
 
+.mission-progress-top {
+  margin-top: 16px;
+  color: #4f4a66;
+  font-size: 0.95rem;
+}
+
+.mission-progress-top strong {
+  color: #18233b;
+}
+
 .progress-track {
   width: 100%;
   height: 10px;
   border-radius: 999px;
-  background: #ddd4c9;
+  background: #ddd7ef;
   overflow: hidden;
   margin-top: 14px;
 }
@@ -768,7 +845,7 @@ async function persistDashboardUpdate(updatedState) {
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #b2805c 0%, #8e6a4f 100%);
+  background: linear-gradient(90deg, #3649f4 0%, #7c3aed 100%);
 }
 
 .pill-btn {
@@ -782,12 +859,15 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .pill-btn.dark {
-  background: #3b312b;
+  margin-top: 16px;
+  background: linear-gradient(135deg, #171717 0%, #3649f4 100%);
   color: #fff;
+  box-shadow: 0 12px 24px rgba(58, 73, 170, 0.18);
 }
 
-.mission-card .pill-btn {
-  margin-top: 16px;
+.pill-btn.dark:hover {
+  transform: translateY(-1px);
+  opacity: 0.96;
 }
 
 .today-plan-section,
@@ -796,12 +876,13 @@ async function persistDashboardUpdate(updatedState) {
 .chart-section,
 .overview-section {
   padding: 0 0 28px;
+  position: relative;
+  z-index: 1;
 }
 
 .section-head {
   margin-bottom: 18px;
 }
-
 
 .section-head.compact {
   display: flex;
@@ -829,9 +910,12 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .glass-card {
-  background: #f3eee8;
-  border: 1px solid rgba(47, 42, 38, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(88, 109, 166, 0.12);
+  border-radius: 26px;
   padding: 22px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 30px rgba(57, 73, 114, 0.08);
 }
 
 .today-focus-label {
@@ -839,13 +923,8 @@ async function persistDashboardUpdate(updatedState) {
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: #6c6258;
-}
-
-.today-main-card h3,
-.side-info-card h3 {
-  font-size: 1.55rem;
-  line-height: 1.05;
+  letter-spacing: 0.12em;
+  color: #6f6a86;
 }
 
 .task-list {
@@ -859,19 +938,19 @@ async function persistDashboardUpdate(updatedState) {
   gap: 12px;
   padding: 12px 14px;
   border-radius: 16px;
-  background: #fbf7f2;
-  border: 1px solid rgba(47, 42, 38, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 242, 255, 0.95));
+  border: 1px solid rgba(88, 109, 166, 0.08);
 }
 
 .task-item input {
   width: 18px;
   height: 18px;
-  accent-color: #b2805c;
+  accent-color: #5d6df5;
   flex-shrink: 0;
 }
 
 .task-item.done {
-  opacity: 0.7;
+  opacity: 0.72;
 }
 
 .task-item.done span {
@@ -892,19 +971,19 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .weekday-card.active {
-  border: 2px solid #b2805c;
+  border: 2px solid rgba(93, 109, 245, 0.48);
+  box-shadow: 0 18px 32px rgba(93, 109, 245, 0.14);
 }
 
 .weekday-card h3 {
-  margin: 0 0 10px;
-  font-size: 1.1rem;
-  color: #2f2a26;
+  margin-bottom: 10px;
+  font-size: 1.08rem;
 }
 
 .weekday-list {
   margin: 0;
   padding-left: 18px;
-  font-size: 0.94rem;
+  font-size: 0.93rem;
 }
 
 .weekday-list li {
@@ -917,9 +996,10 @@ async function persistDashboardUpdate(updatedState) {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: #b2805c;
+  background: linear-gradient(135deg, #3649f4 0%, #7c3aed 100%);
   color: #fff;
   font-weight: 800;
+  box-shadow: 0 10px 24px rgba(80, 74, 220, 0.22);
 }
 
 .custom-item-form {
@@ -929,12 +1009,18 @@ async function persistDashboardUpdate(updatedState) {
 
 .custom-input {
   width: 100%;
-  min-height: 50px;
+  min-height: 52px;
   border-radius: 16px;
-  border: 1px solid rgba(47, 42, 38, 0.12);
+  border: 1px solid rgba(88, 109, 166, 0.14);
   padding: 0 16px;
   font: inherit;
-  background: #fffdf9;
+  background: rgba(255, 255, 255, 0.95);
+  outline: none;
+}
+
+.custom-input:focus {
+  border-color: #5d6df5;
+  box-shadow: 0 0 0 4px rgba(93, 109, 245, 0.12);
 }
 
 .chart-card {
@@ -950,15 +1036,11 @@ async function persistDashboardUpdate(updatedState) {
   flex-wrap: wrap;
 }
 
-.chart-card h3 {
-  font-size: 1.4rem;
-  line-height: 1.05;
-}
-
 .chart-summary {
   padding: 8px 12px;
   border-radius: 999px;
-  background: #fbf7f2;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(88, 109, 166, 0.1);
   font-size: 0.9rem;
   font-weight: 800;
 }
@@ -991,11 +1073,11 @@ async function persistDashboardUpdate(updatedState) {
 }
 
 .interactive-bar.active .bar-track {
-  box-shadow: 0 0 0 2px rgba(178, 128, 92, 0.35);
+  box-shadow: 0 0 0 2px rgba(93, 109, 245, 0.3);
 }
 
 .interactive-bar.active .bar-fill {
-  filter: brightness(0.95);
+  filter: brightness(0.96);
 }
 
 .bar-column {
@@ -1009,7 +1091,7 @@ async function persistDashboardUpdate(updatedState) {
 .bar-label {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #5e5248;
+  color: #5f5a74;
 }
 
 .bar-track {
@@ -1017,7 +1099,7 @@ async function persistDashboardUpdate(updatedState) {
   max-width: 44px;
   height: 180px;
   border-radius: 999px;
-  background: #ddd4c9;
+  background: #ddd7ef;
   overflow: hidden;
   display: flex;
   align-items: end;
@@ -1027,19 +1109,19 @@ async function persistDashboardUpdate(updatedState) {
 .bar-fill {
   width: 100%;
   border-radius: 999px;
-  background: linear-gradient(180deg, #d3a886 0%, #8e6a4f 100%);
+  background: linear-gradient(180deg, #8ea2ff 0%, #5d6df5 48%, #7c3aed 100%);
   transition: height 0.3s ease;
 }
 
 .chart-detail-card {
-  background: #fbf7f2;
-  border: 1px solid rgba(47, 42, 38, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 242, 255, 0.95));
+  border: 1px solid rgba(88, 109, 166, 0.08);
   padding: 18px;
-  border-radius: 18px;
+  border-radius: 20px;
 }
 
 .chart-detail-card h4 {
-  font-size: 1.35rem;
+  font-size: 1.32rem;
   margin-top: 2px;
 }
 
@@ -1047,7 +1129,7 @@ async function persistDashboardUpdate(updatedState) {
   margin: 10px 0 0;
   font-size: 1.35rem;
   font-weight: 800;
-  color: #8e6a4f;
+  color: #5d6df5;
 }
 
 .chart-detail-text {
@@ -1057,7 +1139,7 @@ async function persistDashboardUpdate(updatedState) {
 .chart-detail-list {
   margin: 14px 0 0;
   padding-left: 18px;
-  color: #5e5248;
+  color: #5f5a74;
   line-height: 1.6;
 }
 
@@ -1073,7 +1155,7 @@ async function persistDashboardUpdate(updatedState) {
 .empty-state {
   margin: 0;
   font-style: italic;
-  color: #6c6258;
+  color: #6f6a86;
 }
 
 .confetti-layer {
@@ -1089,7 +1171,7 @@ async function persistDashboardUpdate(updatedState) {
   width: 10px;
   height: 18px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #d3a886 0%, #f0c98d 100%);
+  background: linear-gradient(180deg, #8ea2ff 0%, #f0c98d 100%);
   animation: confettiDrop 1.2s ease forwards;
 }
 
@@ -1139,7 +1221,6 @@ async function persistDashboardUpdate(updatedState) {
     width: calc(100% - 24px);
   }
 
-
   .weekly-days-grid {
     grid-template-columns: 1fr;
   }
@@ -1155,6 +1236,13 @@ async function persistDashboardUpdate(updatedState) {
 
   .pill-btn {
     width: 100%;
+  }
+
+  .summary-card,
+  .glass-card,
+  .chart-detail-card {
+    padding: 20px;
+    border-radius: 22px;
   }
 }
 </style>
