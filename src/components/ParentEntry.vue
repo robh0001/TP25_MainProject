@@ -2,7 +2,7 @@
     <div class="entry-page">
       <header class="site-header">
         <div class="container header-row">
-          <RouterLink to="/" class="brand">HealthySteps</RouterLink>
+          <RouterLink to="/" class="brand">HealthyKids</RouterLink>
   
           <nav class="nav" aria-label="Primary">
             <RouterLink to="/" class="nav-link">Home</RouterLink>
