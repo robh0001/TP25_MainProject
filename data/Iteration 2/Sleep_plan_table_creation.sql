@@ -6,10 +6,10 @@
 
 CREATE TABLE sleep_plan (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    week_number INT UNSIGNED NOT NULL COMMENT 'Week number (1 to 4)',
+    week_number INT               NOT NULL COMMENT 'Week number (1 to 4)',
     week_theme  VARCHAR2(100)     NOT NULL COMMENT 'Overarching theme for the week',
     day_name    VARCHAR2(10)      NOT NULL COMMENT 'Day of the week',
-    daily_tip   TEXT             NOT NULL COMMENT 'Paraphrased daily habit tip'
+    daily_tip   VARCHAR(100000)   NOT NULL COMMENT 'Paraphrased daily habit tip'
 );
 
 -- ============================================================
