@@ -1,9 +1,3 @@
--- ============================================================
--- Sleep Training Plan
--- Table: sleep_plan
--- Columns: id, week_number, week_theme, day_name, daily_tip
--- ============================================================
-
 CREATE TABLE sleep_plan (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     week_number INT               NOT NULL COMMENT 'Week number (1 to 4)',
@@ -12,9 +6,8 @@ CREATE TABLE sleep_plan (
     daily_tip   VARCHAR(100000)   NOT NULL COMMENT 'Paraphrased daily habit tip'
 );
 
--- ============================================================
+
 -- Week 1: Reset Your Sleep Cycle
--- ============================================================
 
 INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (1, 'Reset Your Sleep Cycle', 'Monday',
@@ -38,9 +31,8 @@ INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (1, 'Reset Your Sleep Cycle', 'Sunday',
  'Keep your sleeping environment cool, dark, and free of clutter. A tidy and calm space helps the brain associate the bedroom with rest and relaxation.');
 
--- ============================================================
+
 -- Week 2: Deepen Relaxation and Recovery
--- ============================================================
 
 INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (2, 'Deepen Relaxation and Recovery', 'Monday',
@@ -64,9 +56,8 @@ INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (2, 'Deepen Relaxation and Recovery', 'Sunday',
  'Take time to reflect on your progress over the past two weeks. Identify which strategies have been most effective for you and set aside approaches that have not felt useful.');
 
--- ============================================================
+
 -- Week 3: Maximise Sleep Efficiency
--- ============================================================
 
 INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (3, 'Maximise Sleep Efficiency', 'Monday',
@@ -90,9 +81,8 @@ INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (3, 'Maximise Sleep Efficiency', 'Sunday',
  'Improving air circulation in your bedroom can contribute to more restful sleep. Open a window for ventilation or consider adding an air-purifying plant to your sleeping space.');
 
--- ============================================================
+
 -- Week 4: Lock In Long-Term Sleep Habits
--- ============================================================
 
 INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (4, 'Lock In Long-Term Sleep Habits', 'Monday',
