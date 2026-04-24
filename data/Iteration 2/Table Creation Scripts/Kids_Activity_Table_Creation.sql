@@ -1,11 +1,3 @@
--- ============================================================
--- Exercise A to Z Plan
--- Table: exercise_plan
--- Columns: id, week_number, letter, exercise_name, description
--- Exercises are shuffled across 4 weeks with no repeats within
--- the same week. Repeats are permitted across different weeks.
--- ============================================================
-
 CREATE TABLE exercise_plan (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     week_number   INT               NOT NULL COMMENT 'Week number (1 to 4)',
@@ -14,9 +6,8 @@ CREATE TABLE exercise_plan (
     description   VARCHAR2(10000)   NOT NULL COMMENT 'Paraphrased description of how to perform the exercise'
 );
 
--- ============================================================
+
 -- Week 1
--- ============================================================
 
 INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALUES
 (1, 'A', 'Animal Walk',       'Move across the floor by crawling on all fours in a bear-like position, keeping the body low and the limbs engaged.'),
@@ -33,9 +24,8 @@ INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALU
 (1, 'W', 'Windmill',          'Stand with the feet apart and reach each hand down toward the opposite foot in an alternating and continuous windmill motion.'),
 (1, 'Y', 'Yoji Pose',         'Hold a simple yoga-inspired balancing pose such as a tree pose, focusing on stillness and controlled breathing.');
 
--- ============================================================
+
 -- Week 2
--- ============================================================
 
 INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALUES
 (2, 'B', 'Balloon Bounce',    'Keep a balloon in the air by tapping it upward repeatedly using the hands, ensuring it does not touch the ground.'),
@@ -52,9 +42,8 @@ INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALU
 (2, 'X', 'X-Jumps',           'Jump upward while crossing the arms and legs in front of the body at the peak of the jump, then open them back out on landing.'),
 (2, 'Z', 'Zig Zag',           'Run or move forward in a zig zag pattern, changing direction at each point to improve agility and coordination.');
 
--- ============================================================
+
 -- Week 3
--- ============================================================
 
 INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALUES
 (3, 'A', 'Animal Walk',       'Revisit the bear crawl movement, this time focusing on keeping a steady and controlled pace across a longer distance.'),
@@ -71,9 +60,8 @@ INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALU
 (3, 'X', 'X-Jumps',           'Return to X-jumps and focus on achieving a clear and full arm and leg extension at the peak of each jump.'),
 (3, 'Z', 'Zig Zag',           'Revisit the zig zag run and tighten the turning points to make each direction change sharper and more challenging.');
 
--- ============================================================
+
 -- Week 4
--- ============================================================
 
 INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALUES
 (4, 'B', 'Balloon Bounce',    'Return to the balloon bounce and challenge yourself to use only one hand, or try keeping two balloons in the air at the same time.'),
