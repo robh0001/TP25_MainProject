@@ -1,12 +1,3 @@
--- ============================================================
--- Four Weeks of Healthy Menus
--- Table: nutrition_plan (final version, no NULL macro values)
--- Columns: id, week_number, day_number, meal_type, meal_name,
--- Where meals comprise combined individual items, macros have
--- been estimated using the Australian Food Composition Database
--- (FSANZ), and summed across all components of the meal.
--- All content paraphrased in Australian Academic English.
--- ============================================================
 
 CREATE TABLE nutrition_plan (
     id               INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,9 +16,7 @@ CREATE TABLE nutrition_plan (
     iron_mg          DECIMAL(5,1)       NOT NULL  COMMENT 'Iron per serving (mg)'
 );
 
--- ============================================================
 -- Week 1
--- ============================================================
 
 INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, description, calories, protein_g, carbohydrates_g, fat_g, fibre_g, sodium_mg, calcium_mg, iron_mg) VALUES
 
@@ -143,9 +132,8 @@ INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, descr
  'A slice of homemade banana bread served with canned peach slices and a small portion of unsalted nuts.',
  237, 3.2, 32.1, 10.7, 1.5, 165.0, 9.0, 0.9);
 
--- ============================================================
+
 -- Week 2
--- ============================================================
 
 INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, description, calories, protein_g, carbohydrates_g, fat_g, fibre_g, sodium_mg, calcium_mg, iron_mg) VALUES
 
@@ -261,9 +249,8 @@ INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, descr
  'A glass of milk served with a fresh apple and a small portion of unsalted nuts.',
  382, 14.6, 34.8, 20.5, 5.7, 120.0, 355.0, 1.3);
 
--- ============================================================
+
 -- Week 3
--- ============================================================
 
 INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, description, calories, protein_g, carbohydrates_g, fat_g, fibre_g, sodium_mg, calcium_mg, iron_mg) VALUES
 
@@ -379,9 +366,8 @@ INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, descr
  'A bran muffin served alongside a few dried apricots.',
  155, 4.4, 31.1, 3.5, 5.2, 229.0, 132.0, 3.4);
 
--- ============================================================
+
 -- Week 4
--- ============================================================
 
 INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, description, calories, protein_g, carbohydrates_g, fat_g, fibre_g, sodium_mg, calcium_mg, iron_mg) VALUES
 
