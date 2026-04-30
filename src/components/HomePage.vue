@@ -581,7 +581,7 @@
           </div>
           <div class="pathway" style="background:#0d1f14">
             <div class="pathway-img-col">
-              <img src="https://images.unsplash.com/photo-1543068219-3c4c5dbf1524?auto=format&fit=crop&w=900&q=80" alt="Kids" />
+              <img src="https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Kids playing and building healthy routines" />
             </div>
             <div class="pathway-body pathway-body-dark">
               <div class="pathway-eyebrow pathway-eyebrow-green">For kids aged 5–12</div>
@@ -730,9 +730,21 @@ const pillarsData = [
 ]
 
 const processSteps = [
-  { title: 'Complete the quiz', body: "Parents answer targeted questions about their child's current routines, habits, and primary concerns - in under 3 minutes.", img: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Receive your plan', body: 'We analyse your responses against population health data to surface priority areas and generate a personalised weekly action plan.', img: 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Build lasting habits', body: 'Use the parent and kids dashboards to log habits, track progress, and adapt goals as your family improves over time.', img: 'https://images.unsplash.com/photo-1484665042814-bf35cda4e7e5?auto=format&fit=crop&w=800&q=80' },
+  {
+    title: 'Complete the quiz',
+    body: "Parents answer targeted questions about their child's current routines, habits, and primary concerns - in under 3 minutes.",
+    img: 'https://images.pexels.com/photos/4145153/pexels-photo-4145153.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    title: 'Receive your plan',
+    body: 'We analyse your responses against population health data to surface priority areas and generate a personalised weekly action plan.',
+    img: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    title: 'Build lasting habits',
+    body: 'Use the parent and kids dashboards to log habits, track progress, and adapt goals as your family improves over time.',
+    img: 'https://images.pexels.com/photos/8613312/pexels-photo-8613312.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
 ]
 
 const API_BASE_URL = import.meta.env.VITE_PARENT_DATA_INSIGHTS_API_BASE_URL || ''
