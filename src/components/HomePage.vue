@@ -350,12 +350,15 @@
         </div>
       </section>
 
-      <section id="insights" class="research-section">
+      <section id="insights" class="research-section wellbeing-light-section ">
         <div class="research-wrap">
           <div class="research-head">
-            <div class="section-eyebrow light">Research foundation</div>
-            <h2 class="research-h2">Grounded in<br>population health data.</h2>
-            <p>Every recommendation is anchored in real data from children aged 5-17 in Australia.</p>
+              <h2>Understanding where families may need support.</h2>
+              <br>
+              <p>
+                HealthyKids uses simple wellbeing insights to help families focus on one
+                area at a time - with gentle, practical support.
+              </p>
             <div class="rtabs">
               <button v-for="tab in tabs" :key="tab.key" :class="['rtab', { active: activeInsight === tab.key }]" @click="activeInsight = tab.key">{{ tab.label }}</button>
             </div>
@@ -367,29 +370,64 @@
             <template v-else-if="insights">
 
               <div v-show="activeInsight === 'body'" class="rpane">
-                <div class="rpane-main">
-                  <div class="rpane-heading">
-                    <h3>Weight distribution · children aged 5-17</h3>
-                    <div class="rpane-badge">{{ insights.bodyBalance.headlinePct }}% in healthy range</div>
-                  </div>
-                  <div class="rvisual-body">
-                    <div class="rdoughnut" :style="bodyRingStyle">
-                      <div class="rdoughnut-inner">
-                        <div class="rdoughnut-pct">{{ insights.bodyBalance.headlinePct }}%</div>
-                        <div class="rdoughnut-lbl">Healthy</div>
-                      </div>
+                <div class="rpane-main children-grid-card">
+                  <div class="children-grid-head">
+                    <div>
+                      <h3>Out of every 100 children</h3>
+                      <p>
+                        A simple view of children's growth patterns, shown in a way that is
+                        easier for families to understand.
+                      </p>
                     </div>
-                    <div class="rbars">
-                      <div v-for="seg in insights.bodyBalance.segments" :key="seg.key" class="rbar-row">
-                        <div class="rbar-meta"><span>{{ seg.label }}</span><strong>{{ seg.value }}%</strong></div>
-                        <div class="rbar-track"><div class="rbar-fill" :class="'rf-' + seg.key" :style="{ width: seg.value + '%' }"></div></div>
+
+                    <div class="children-grid-badge">
+                      {{ formattedHeadlinePct }} in healthy range
+                    </div>
+                  </div>
+
+                  <div class="children-grid-wrap">
+                    <div class="children-grid">
+                      <div
+                        v-for="child in childrenGrid"
+                        :key="child.id"
+                        class="child-square"
+                        :class="'child-' + child.key"
+                        :title="child.label"
+                      ></div>
+                    </div>
+
+                    <div class="children-legend">
+                      <div
+                        v-for="item in friendlyBodySegments"
+                        :key="item.key"
+                        class="legend-item"
+                      >
+                        <span class="legend-dot" :class="'legend-' + item.key"></span>
+                        <div>
+                          <strong>{{ item.value }} children</strong>
+                          <small>{{ item.friendlyLabel }}</small>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
                 <div class="rpane-notes">
-                  <div class="rnote"><div class="rnote-head">Key finding</div><p>Most children remain in the healthy range, but overweight and obesity represent significant areas for early, targeted support.</p></div>
-                  <div class="rnote"><div class="rnote-head">What HealthyKids does</div><p>Targeted routine changes in meals, active play, and daily structure measurably shift weight trajectories over time.</p></div>
+                  <div class="rnote">
+                    <div class="rnote-head">What this means</div>
+                    <p>
+                      Children's wellbeing is shaped by everyday routines, including meals,
+                      movement, sleep, and family structure.
+                    </p>
+                  </div>
+
+                  <div class="rnote">
+                    <div class="rnote-head">How HealthyKids helps</div>
+                    <p>
+                      HealthyKids turns wellbeing insights into small, realistic actions that
+                      families can try at home without pressure.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -658,6 +696,67 @@ const bodyRingStyle = computed(() => {
   const a = uw, b = uw + nm, c = uw + nm + ow, d = uw + nm + ow + ob
   return { background: `conic-gradient(#93c5fd ${0}% ${a}%, #4ade80 ${a}% ${b}%, #fbbf24 ${b}% ${c}%, #f87171 ${c}% ${d}%, #e5e7eb ${d}% 100%)` }
 })
+
+const friendlyBodySegments = computed(() => {
+  const segs = insights.value?.bodyBalance?.segments || []
+
+  const labelMap = {
+    underweight: 'Below healthy range',
+    normal: 'Healthy range',
+    overweight: 'Above healthy range',
+    obese: 'Needs extra support',
+  }
+
+  return segs.map((seg) => ({
+    ...seg,
+    friendlyLabel: labelMap[seg.key] || seg.label,
+    value: Math.round(Number(seg.value || 0)),
+  }))
+})
+
+const childrenGrid = computed(() => {
+  const segs = friendlyBodySegments.value
+
+  if (!segs.length) return []
+
+  let counts = segs.map((seg) => ({
+    key: seg.key,
+    label: seg.friendlyLabel,
+    count: Math.round(Number(seg.value || 0)),
+  }))
+
+  const total = counts.reduce((sum, item) => sum + item.count, 0)
+  const diff = 100 - total
+
+  if (diff !== 0 && counts.length) {
+    const largestIndex = counts.reduce((maxIndex, item, index, arr) => {
+      return item.count > arr[maxIndex].count ? index : maxIndex
+    }, 0)
+
+    counts[largestIndex].count += diff
+  }
+
+  const squares = []
+  let id = 1
+
+  counts.forEach((item) => {
+    for (let i = 0; i < item.count; i++) {
+      squares.push({
+        id,
+        key: item.key,
+        label: item.label,
+      })
+      id++
+    }
+  })
+
+  return squares.slice(0, 100)
+})
+
+const formattedHeadlinePct = computed(() => {
+  const pct = Number(insights.value?.bodyBalance?.headlinePct || 0)
+  return `${Math.round(pct)}%`
+})
 </script>
 
 <style scoped>
@@ -885,7 +984,8 @@ p:last-child{margin-bottom:0}
 .research-section{padding:var(--section-v) 0;background:var(--c-900);border-top:1px solid rgba(255,255,255,.04)}
 .research-wrap{max-width:1280px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:1fr 1.5fr;gap:80px;align-items:start}
 .research-h2{color:var(--c-white);margin-bottom:16px}
-.research-head p{color:rgba(255,255,255,.45);margin-bottom:36px}
+.research-head p{color:white;margin-bottom:36px}
+.research-head h2{color:white}
 .rtabs{display:flex;flex-direction:column;gap:4px}
 .rtab{height:44px;padding:0 16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:transparent;font-family:var(--f-body);font-size:.88rem;font-weight:500;color:rgba(255,255,255,.4);cursor:pointer;text-align:left;transition:all .2s}
 .rtab:hover{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.7);background:rgba(255,255,255,.04)}
@@ -1036,5 +1136,292 @@ p:last-child{margin-bottom:0}
   .proof-logos{flex-wrap:wrap;gap:16px}
   .pathway-body{padding:28px 24px}
   .anno{display:none}
+}
+
+.children-grid-card {
+  padding: 30px;
+}
+
+.children-grid-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.children-grid-head h3 {
+  color: var(--c-white);
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+
+.children-grid-head p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.children-grid-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.children-grid-wrap {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 28px;
+  align-items: start;
+}
+
+.children-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.child-square {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  min-width: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.child-underweight {
+  background: #93c5fd;
+}
+
+.child-normal {
+  background: #4ade80;
+}
+
+.child-overweight {
+  background: #fbbf24;
+}
+
+.child-obese {
+  background: #fb7185;
+}
+
+.children-legend {
+  display: grid;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.legend-underweight {
+  background: #93c5fd;
+}
+
+.legend-normal {
+  background: #4ade80;
+}
+
+.legend-overweight {
+  background: #fbbf24;
+}
+
+.legend-obese {
+  background: #fb7185;
+}
+
+.legend-item strong {
+  display: block;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+  margin-bottom: 3px;
+}
+
+.legend-item small {
+  display: block;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 900px) {
+  .children-grid-head {
+    flex-direction: column;
+  }
+
+  .children-grid-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .children-grid-badge {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 600px) {
+  .children-grid {
+    gap: 5px;
+    padding: 14px;
+  }
+
+  .child-square {
+    border-radius: 5px;
+  }
+}
+
+/* section background */
+.wellbeing-section,
+.research-section {
+  background:
+    radial-gradient(circle at top right, rgba(67, 169, 119, 0.08), transparent 28rem),
+    radial-gradient(circle at bottom left, rgba(255, 231, 168, 0.05), transparent 24rem),
+    #111715;
+}
+
+/* left text */
+.wellbeing-copy h2,
+.research-copy h2 {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.wellbeing-copy p,
+.research-copy p {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.section-label.light {
+  color: rgba(167, 243, 208, 0.9);
+  border-color: rgba(167, 243, 208, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* main chart card */
+.children-grid-card {
+  padding: 30px;
+  border-radius: 30px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+/* chart title/desc */
+.children-grid-head h3 {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.children-grid-head p {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* top-right badge */
+.children-grid-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  color: #6ee7a3;
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* grid container */
+.children-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* legend cards on right */
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.legend-item strong {
+  display: block;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.92rem;
+  margin-bottom: 3px;
+}
+
+.legend-item small {
+  display: block;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
+}
+
+/* notes below */
+.rnote {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.rnote-head {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.rnote p {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.child-square {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.child-underweight {
+  background: #93c5fd;
+}
+
+.child-normal {
+  background: #4ade80;
+}
+
+.child-overweight {
+  background: #fbbf24;
+}
+
+.child-obese {
+  background: #fb7185;
 }
 </style>
