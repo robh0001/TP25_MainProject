@@ -564,9 +564,6 @@
       <section class="pathways-section">
         <div class="pathways-wrap">
           <div class="pathway" style="background:#f7f6f2">
-            <div class="pathway-img-col">
-              <img src="https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?auto=format&fit=crop&w=900&q=80" alt="Parent" />
-            </div>
             <div class="pathway-body">
               <div class="pathway-eyebrow">For parents</div>
               <h3>Build, manage and track your family's health plan.</h3>
@@ -580,9 +577,6 @@
             </div>
           </div>
           <div class="pathway" style="background:#0d1f14">
-            <div class="pathway-img-col">
-              <img src="https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Kids playing and building healthy routines" />
-            </div>
             <div class="pathway-body pathway-body-dark">
               <div class="pathway-eyebrow pathway-eyebrow-green">For kids aged 5–12</div>
               <h3 style="color:#fff">A playful dashboard made just for children.</h3>
@@ -2802,24 +2796,19 @@ p:last-child {
   grid-template-columns: 1fr 1fr;
 }
 
+
 .pathway {
   display: flex;
   flex-direction: column;
-  min-height: 600px;
+  min-height: 390px;
 }
 
 .pathway-img-col {
-  flex: 1;
+  height: 220px;
+  flex: none;
   overflow: hidden;
 }
 
-.pathway-img-col img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.6s ease;
-}
 
 .pathway:hover .pathway-img-col img {
   transform: scale(1.04);
