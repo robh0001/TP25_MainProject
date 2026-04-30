@@ -432,31 +432,62 @@
               </div>
 
               <div v-show="activeInsight === 'sleep'" class="rpane">
-                <div class="rpane-main">
-                  <div class="rpane-heading">
-                    <h3>Sleep patterns · weeknight vs. weekend</h3>
-                    <div class="rpane-badge rpane-badge-b">{{ insights.sleep.headlinePct }}% hit target hours</div>
-                  </div>
-                  <div class="rsleep-grid">
-                    <div class="rsleep-col">
-                      <div class="rsleep-tag">Weeknights</div>
-                      <div v-for="item in insights.sleep.weeknight" :key="'wn'+item.label" class="rbar-row">
-                        <div class="rbar-meta"><span>{{ item.label }}</span><strong>{{ item.value }}%</strong></div>
-                        <div class="rbar-track"><div class="rbar-fill rf-sleep-wn" :style="{ width: item.value + '%' }"></div></div>
-                      </div>
+                <div class="rpane-main simple-sleep-card">
+                  <div class="simple-sleep-head">
+                    <div>
+                      <h3>Sleep routine snapshot</h3>
+                      <p>
+                        A simple view of children's sleep patterns across school nights and weekends.
+                      </p>
                     </div>
-                    <div class="rsleep-col">
-                      <div class="rsleep-tag rsleep-tag-b">Weekends</div>
-                      <div v-for="item in insights.sleep.weekend" :key="'we'+item.label" class="rbar-row">
-                        <div class="rbar-meta"><span>{{ item.label }}</span><strong>{{ item.value }}%</strong></div>
-                        <div class="rbar-track"><div class="rbar-fill rf-sleep-we" :style="{ width: item.value + '%' }"></div></div>
-                      </div>
+
+                    <div class="simple-sleep-badge">
+                      {{ sleepHeadlinePct }} reach target sleep
+                    </div>
+                  </div>
+
+                  <div class="sleep-simple-grid">
+                    <div class="sleep-big-card sleep-target-card">
+                      <small>Target sleep</small>
+                      <strong>{{ sleepHeadlinePct }}</strong>
+                      <p>of children reach the target sleep range.</p>
+                    </div>
+
+                    <div class="sleep-big-card">
+                      <small>Most common on weeknights</small>
+                      <strong>{{ weeknightTopBand.friendlyLabel }}</strong>
+                      <p>{{ weeknightTopBand.value }}% of children are in this range.</p>
+                    </div>
+
+                    <div class="sleep-big-card">
+                      <small>Most common on weekends</small>
+                      <strong>{{ weekendTopBand.friendlyLabel }}</strong>
+                      <p>{{ weekendTopBand.value }}% of children are in this range.</p>
+                    </div>
+                  </div>
+
+                  <div class="sleep-takeaway">
+                    <div>
+                      <strong>Parent takeaway</strong>
+                      <p>{{ weekendShiftText }}</p>
                     </div>
                   </div>
                 </div>
+
                 <div class="rpane-notes">
-                  <div class="rnote"><div class="rnote-head">Weeknight insight</div><p>The 8-9 hour band dominates weeknights - structured bedtime routines have the clearest measurable impact here.</p></div>
-                  <div class="rnote"><div class="rnote-head">Weekend drift</div><p>Patterns broaden significantly on weekends without school-day structure - a key opportunity for routine support.</p></div>
+                  <div class="rnote">
+                    <div class="rnote-head">Why this matters</div>
+                    <p>
+                      Sleep routines can affect children's mood, energy, focus, and daily habits.
+                    </p>
+                  </div>
+
+                  <div class="rnote">
+                    <div class="rnote-head">How HealthyKids helps</div>
+                    <p>
+                      HealthyKids suggests small bedtime actions that families can try without pressure.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -756,6 +787,72 @@ const childrenGrid = computed(() => {
 const formattedHeadlinePct = computed(() => {
   const pct = Number(insights.value?.bodyBalance?.headlinePct || 0)
   return `${Math.round(pct)}%`
+})
+
+const sleepHeadlinePct = computed(() => {
+  const pct = Number(insights.value?.sleep?.headlinePct || 0)
+  return `${Math.round(pct)}%`
+})
+
+function simplifySleepLabel(label = '') {
+  const map = {
+    'Less than 6 hours': 'Less than 6 hours',
+    '6 to less than 7 hours': '6–7 hours',
+    '7 to less than 8 hours': '7–8 hours',
+    '8 to less than 9 hours': '8–9 hours',
+    '9 to less than 10 hours': '9–10 hours',
+    '10 hours or more': '10+ hours',
+  }
+
+  return map[label] || label
+}
+
+function mapSleepBands(items = []) {
+  return items.map((item) => ({
+    ...item,
+    friendlyLabel: simplifySleepLabel(item.label),
+    value: Number(item.value || 0),
+  }))
+}
+
+const friendlySleepWeeknight = computed(() =>
+  mapSleepBands(insights.value?.sleep?.weeknight || [])
+)
+
+const friendlySleepWeekend = computed(() =>
+  mapSleepBands(insights.value?.sleep?.weekend || [])
+)
+
+function getTopBand(items = []) {
+  if (!items.length) {
+    return {
+      friendlyLabel: '-',
+      value: 0,
+    }
+  }
+
+  return items.reduce((best, current) =>
+    Number(current.value) > Number(best.value) ? current : best
+  )
+}
+
+const weeknightTopBand = computed(() =>
+  getTopBand(friendlySleepWeeknight.value)
+)
+
+const weekendTopBand = computed(() =>
+  getTopBand(friendlySleepWeekend.value)
+)
+
+const weekendShiftText = computed(() => {
+  const weeknight = weeknightTopBand.value?.friendlyLabel || '-'
+  const weekend = weekendTopBand.value?.friendlyLabel || '-'
+
+  if (weeknight === weekend) {
+    return `The most common sleep range is ${weeknight} on both weeknights and weekends, which suggests a fairly consistent routine.`
+  }
+
+  return `The most common sleep range changes from ${weeknight} on weeknights to ${weekend} on weekends, which may suggest routines shift at the end of the week.`
 })
 </script>
 
@@ -1423,5 +1520,140 @@ p:last-child{margin-bottom:0}
 
 .child-obese {
   background: #fb7185;
+}
+.simple-sleep-card {
+  padding: 32px;
+  border-radius: 30px;
+}
+
+.simple-sleep-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.simple-sleep-head h3 {
+  color: white;
+  font-size: 1.35rem;
+  margin-bottom: 10px;
+}
+
+.simple-sleep-head p {
+  color: #66766e;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 560px;
+}
+
+.simple-sleep-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #e0e7ff;
+  border: 1px solid rgba(67, 56, 202, 0.18);
+  color: #4338ca;
+  font-size: 0.84rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.sleep-simple-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sleep-big-card {
+  min-height: 190px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid rgba(20, 53, 40, 0.08);
+  box-shadow: 0 12px 28px rgba(20, 53, 40, 0.06);
+}
+
+.sleep-target-card {
+  background: linear-gradient(145deg, #eef2ff, #ffffff);
+}
+
+.sleep-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: #f0fdf4;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  margin-bottom: 18px;
+}
+
+.sleep-big-card small {
+  display: block;
+  color: #6b7c73;
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.sleep-big-card strong {
+  display: block;
+  color: #143528;
+  font-family: var(--f-display);
+  font-size: 2rem;
+  line-height: 1.05;
+  margin-bottom: 10px;
+}
+
+.sleep-big-card p {
+  color: #66766e;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.sleep-takeaway {
+  padding: 20px 22px;
+  border-radius: 22px;
+  background: #f6fbf7;
+  border: 1px solid rgba(20, 53, 40, 0.08);
+}
+
+.sleep-takeaway strong {
+  display: block;
+  color: #15803d;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.sleep-takeaway p {
+  color: #52665c;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 1000px) {
+  .sleep-simple-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .simple-sleep-head {
+    flex-direction: column;
+  }
+
+  .simple-sleep-badge {
+    white-space: normal;
+  }
 }
 </style>
