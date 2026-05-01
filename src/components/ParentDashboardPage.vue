@@ -2,7 +2,6 @@
   <div class="dashboard-page">
     <div class="noise-overlay" aria-hidden="true"></div>
 
-    <!-- HEADER -->
     <header class="header" :class="{ scrolled: isScrolled }">
       <div class="header-inner">
         <RouterLink to="/" class="logo">
@@ -34,7 +33,21 @@
       </div>
     </header>
 
-    <main>
+    <div v-if="planLoading" class="plan-loading">
+      <p>Loading your personalised family plan...</p>
+    </div>
+
+    <div v-else-if="planError" class="plan-error">
+      <p>Could not load your family plan: {{ planError }}</p>
+      <button type="button" @click="fetchPlan(state.username)">Retry</button>
+    </div>
+
+    <div v-else-if="!isPlanReady" class="plan-error">
+      <p>No family plan found yet. Please complete the parent quiz first.</p>
+      <RouterLink to="/parent-quiz" class="nav-btn">Complete quiz</RouterLink>
+    </div>
+
+    <main v-else>
       <section class="dash-hero">
         <div class="dash-hero-bg">
           <div class="hero-blob hb-1"></div>
@@ -58,8 +71,7 @@
             </h1>
 
             <p class="dash-hero-desc">
-              Here's your personalised habit plan. Track today's actions, follow the 4-week roadmap,
-              and build lasting routines - one small step at a time.
+              Your 4-week planner is loaded from the database and displayed as weekly and daily scheduled actions.
             </p>
 
             <div class="hero-kpi-row">
@@ -74,7 +86,7 @@
               </div>
               <div class="hkpi-div"></div>
               <div class="hkpi">
-                <div class="hkpi-val">{{ completedTodayCount }}/{{ todayTasks.length }}</div>
+                <div class="hkpi-val">{{ completedTodayCount }}/{{ todayFullSchedule.length }}</div>
                 <div class="hkpi-lbl">Today's tasks</div>
               </div>
               <div class="hkpi-div"></div>
@@ -92,20 +104,20 @@
               </div>
 
               <div class="mission-top">
-                <div class="mission-eyebrow">Daily mission</div>
-                <div class="streak-chip"> {{ streakDays }}-day streak</div>
+                <div class="mission-eyebrow">Daily progress</div>
+                <div class="streak-chip">{{ streakDays }}-day streak</div>
               </div>
 
-              <h2 class="mission-title">{{ mission }}</h2>
-              <p class="mission-desc">Keep momentum by completing one healthy action today.</p>
+              <h2 class="mission-title">{{ completedTodayCount }} of {{ todayFullSchedule.length }} actions done today</h2>
+              <p class="mission-desc">Track the database-fetched plan as your family completes each scheduled action.</p>
 
               <div class="mission-progress-wrap">
                 <div class="mp-labels">
-                  <span>Streak progress</span>
-                  <span>{{ streakDays }}/7 days</span>
+                  <span>Today's progress</span>
+                  <span>{{ todayProgress }}%</span>
                 </div>
                 <div class="mp-track">
-                  <div class="mp-fill" :style="{ width: streakProgress + '%' }"></div>
+                  <div class="mp-fill" :style="{ width: todayProgress + '%' }"></div>
                 </div>
               </div>
 
@@ -113,27 +125,24 @@
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                Mark mission done
+                Add to streak
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 4-WEEK ROADMAP -->
       <section class="roadmap-section" id="roadmap">
         <div class="section-wrap">
           <div class="section-head-row">
             <div class="section-head-left">
-              <div class="section-eyebrow">4-week habit roadmap · User Story 4.1</div>
+              <div class="section-eyebrow">4-week habit roadmap</div>
               <h2 class="section-h2">
                 Your personalised<br />
                 <em>habit journey.</em>
               </h2>
               <p class="section-desc">
-                A structured path for {{ childName }} built around
-                {{ primaryConcern === 'balanced' ? 'balanced healthy habits' : primaryConcern + ' improvement' }}
-                - broken into four manageable weeks with clear daily actions and feedback.
+                These weeks, days, meals, workouts, exercises and sleep tips are fetched from the family-plan API.
               </p>
             </div>
 
@@ -146,8 +155,8 @@
               </div>
               <div class="rsb-meta">
                 <div class="rsb-num">{{ completedRoadmapActions }}<span>/{{ totalRoadmapActions }}</span></div>
-                <div class="rsb-desc">actions completed</div>
-                <div class="rsb-focus-chip">Focus: {{ focusLabel }}</div>
+                <div class="rsb-desc">scheduled actions completed</div>
+                <div class="rsb-focus-chip">{{ childName }}</div>
               </div>
             </div>
           </div>
@@ -168,7 +177,6 @@
                 <span class="rweek-num">Week {{ week.week }}</span>
                 <span class="rweek-status" :class="'rs-' + week.statusKey">{{ week.status }}</span>
               </div>
-              <div class="rweek-icon">{{ week.icon }}</div>
               <h3 class="rweek-title">{{ week.title }}</h3>
               <p class="rweek-summary">{{ week.summary }}</p>
               <div class="rweek-progress-wrap">
@@ -189,58 +197,15 @@
                   <h3 class="rdm-title">{{ selectedRoadmapWeek.title }}</h3>
                 </div>
                 <div class="rdm-header-actions">
-                  <div class="rdm-week-badge">{{ selectedRoadmapWeek.icon }} Week {{ selectedRoadmapWeek.week }}</div>
-
-                  <button
-                    v-if="!isEditingPlanner"
-                    class="planner-edit-btn"
-                    type="button"
-                    @click="startEditingPlanner"
-                  >
-                    Edit planner
-                  </button>
-
-                  <div v-else class="planner-edit-actions">
-                    <button class="planner-cancel-btn" type="button" @click="cancelEditingPlanner">
-                      Cancel
-                    </button>
-                    <button class="planner-save-btn" type="button" @click="saveEditedPlanner">
-                      Save changes
-                    </button>
-                  </div>
+                  <div class="rdm-week-badge">Week {{ selectedRoadmapWeek.week }}</div>
                 </div>
               </div>
 
-              <p class="rdm-detail">{{ selectedRoadmapWeek.detail }}</p>
-
-              <div class="rdm-actions-head">
-                <span>Core actions this week</span>
-                <span class="rdm-actions-count">{{ selectedRoadmapWeek.weeklyCompleted }}/{{ selectedRoadmapWeek.actions.length }} done</span>
-              </div>
-
-              <div class="rdm-actions-list">
-                <label
-                  v-for="action in selectedRoadmapWeek.actions"
-                  :key="action.id"
-                  class="rdm-action"
-                  :class="{ done: action.done }"
-                >
-                  <input type="checkbox" :checked="action.done" @change="toggleRoadmapAction(action.id)" />
-                  <span class="rdm-check" :class="{ done: action.done }">
-                    <svg v-if="action.done" width="10" height="10" viewBox="0 0 10 10">
-                      <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </span>
-                  <span class="rdm-action-text">{{ action.text }}</span>
-                </label>
-              </div>
-
-              <!-- DAILY PLAN INSIDE SELECTED WEEK -->
               <div class="rdm-day-plan-block">
                 <div class="rdm-day-plan-head">
                   <div>
                     <span>Daily schedule for Week {{ selectedRoadmapWeek.week }}</span>
-                    <p>Time-blocked actions tailored to {{ childName }}'s focus areas - {{ focusLabel.toLowerCase() }} first, every day.</p>
+                    <p>Only API-fetched time slots are shown below.</p>
                   </div>
                   <strong>{{ selectedRoadmapWeek.dailyCompleted }}/{{ selectedRoadmapWeek.dailyTotal }} done</strong>
                 </div>
@@ -257,97 +222,42 @@
                         <span class="rdm-day-name">{{ getShortDayName(day.day) }}</span>
                         <small v-if="day.day === todayName">Today</small>
                       </div>
-                      <strong>{{ day.completed }}/{{ day.actions.length }}</strong>
+                      <strong>{{ day.completed }}/{{ day.timeSlots?.length || 0 }}</strong>
                     </div>
 
                     <div class="rdm-day-mini-track">
                       <div class="rdm-day-mini-fill" :style="{ width: day.progress + '%' }"></div>
                     </div>
 
-                    <!-- TIME-BLOCKED SCHEDULE SLOTS -->
                     <div class="rdm-day-schedule">
                       <div
-                        v-for="slot in day.timeSlots"
+                        v-for="slot in day.timeSlots || []"
                         :key="slot.id"
                         class="rdm-time-slot"
-                        :class="['slot-' + slot.category, { done: slot.done, editing: isEditingPlanner }]"
+                        :class="['slot-' + slot.category, { done: slot.done }]"
                       >
-                        <template v-if="!isEditingPlanner">
-                          <div class="slot-time-col">
-                            <span class="slot-time">{{ slot.time }}</span>
-                            <span class="slot-cat-dot"></span>
+                        <div class="slot-time-col">
+                          <span class="slot-time">{{ slot.time }}</span>
+                          <span class="slot-cat-dot"></span>
+                        </div>
+                        <label class="slot-action-col">
+                          <input type="checkbox" :checked="slot.done" @change="toggleRoadmapDailyAction(slot.id)" />
+                          <span class="slot-check" :class="{ done: slot.done }">
+                            <svg v-if="slot.done" width="8" height="8" viewBox="0 0 8 8">
+                              <path d="M1.5 4l2 2 3-3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                          </span>
+                          <div class="slot-text-wrap">
+                            <span class="slot-text">{{ slot.text }}</span>
+                            <span v-if="slot.tip" class="slot-tip">{{ slot.tip }}</span>
+                            <span v-if="slot.detail" class="slot-tip">{{ slot.detail }}</span>
                           </div>
-                          <label class="slot-action-col">
-                            <input type="checkbox" :checked="slot.done" @change="toggleRoadmapDailyAction(slot.id)" />
-                            <span class="slot-check" :class="{ done: slot.done }">
-                              <svg v-if="slot.done" width="8" height="8" viewBox="0 0 8 8">
-                                <path d="M1.5 4l2 2 3-3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-                              </svg>
-                            </span>
-                            <div class="slot-text-wrap">
-                              <span class="slot-text">{{ slot.text }}</span>
-                              <span v-if="slot.tip" class="slot-tip">{{ slot.tip }}</span>
-                            </div>
-                          </label>
-                        </template>
-
-                        <template v-else>
-                          <div class="slot-edit-form">
-                            <div class="slot-edit-row">
-                              <input
-                                v-model="editablePlanner[slot.id].time"
-                                class="slot-edit-time"
-                                type="text"
-                                placeholder="Time"
-                              />
-
-                              <select
-                                v-model="editablePlanner[slot.id].category"
-                                class="slot-edit-category"
-                              >
-                                <option value="nutrition">Nutrition</option>
-                                <option value="movement">Movement</option>
-                                <option value="sleep">Sleep / Wind-down</option>
-                                <option value="routine">Routine</option>
-                                <option value="family">Family time</option>
-                              </select>
-                            </div>
-
-                            <input
-                              v-model="editablePlanner[slot.id].text"
-                              class="slot-edit-text"
-                              type="text"
-                              placeholder="Habit action"
-                            />
-
-                            <input
-                              v-model="editablePlanner[slot.id].tip"
-                              class="slot-edit-tip"
-                              type="text"
-                              placeholder="Optional parent tip"
-                            />
-                          </div>
-                        </template>
+                        </label>
                       </div>
-                    </div>
-
-                    <!-- Legacy simple actions fallback -->
-                    <div v-if="!day.timeSlots || !day.timeSlots.length" class="rdm-day-actions">
-                      <label
-                        v-for="action in day.actions"
-                        :key="action.id"
-                        class="rdm-day-action"
-                        :class="{ done: action.done }"
-                      >
-                        <input type="checkbox" :checked="action.done" @change="toggleRoadmapDailyAction(action.id)" />
-                        <span class="rdm-day-check"></span>
-                        <span>{{ action.text }}</span>
-                      </label>
                     </div>
                   </article>
                 </div>
 
-                <!-- SCHEDULE LEGEND -->
                 <div class="schedule-legend">
                   <div v-for="cat in scheduleCategories" :key="cat.key" class="legend-item" :class="'legend-' + cat.key">
                     <span class="legend-dot"></span>
@@ -373,7 +283,7 @@
                   </svg>
                 </div>
                 <div>
-                  <div class="rfp-status-label">Weekly progress · Story 4.2</div>
+                  <div class="rfp-status-label">Weekly progress</div>
                   <div class="rfp-status-text">{{ selectedRoadmapWeek.status }}</div>
                 </div>
               </div>
@@ -391,30 +301,6 @@
                   />
                   <text x="44" y="49" text-anchor="middle" font-size="14" font-weight="700" fill="#0a0b0a">{{ selectedRoadmapWeek.progress }}%</text>
                 </svg>
-              </div>
-
-              <div class="rfp-feedback-block">
-                <div class="rfp-fb-title">{{ selectedRoadmapWeek.feedbackTitle }}</div>
-                <p class="rfp-fb-body">{{ selectedRoadmapWeek.feedback }}</p>
-              </div>
-
-              <!-- QUIZ INSIGHTS PANEL -->
-              <div class="rfp-quiz-insights">
-                <div class="rfp-qi-head">Plan tailored for</div>
-                <div class="rfp-qi-chips">
-                  <span v-for="tag in planTags" :key="tag" class="rfp-qi-chip">{{ tag }}</span>
-                </div>
-              </div>
-
-              <div class="rfp-tip">
-                <div class="rfp-tip-head">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <circle cx="7" cy="7" r="6" stroke="#16a34a" stroke-width="1.3" />
-                    <path d="M7 4.5v3M7 9v.5" stroke="#16a34a" stroke-width="1.3" stroke-linecap="round" />
-                  </svg>
-                  Parent tip
-                </div>
-                <p>{{ selectedRoadmapWeek.parentTip }}</p>
               </div>
 
               <div class="rfp-all-weeks">
@@ -438,7 +324,6 @@
         </div>
       </section>
 
-      <!-- TODAY'S PLAN -->
       <section class="today-section">
         <div class="section-wrap">
           <div class="section-head-row">
@@ -449,8 +334,7 @@
                 <em>actions.</em>
               </h2>
               <p class="section-desc">
-                {{ completedTodayCount }} of {{ todayTasks.length }} tasks completed today.
-                Keep going - consistency beats perfection.
+                {{ completedTodayCount }} of {{ todayFullSchedule.length }} scheduled actions completed today.
               </p>
             </div>
 
@@ -463,12 +347,11 @@
             </div>
           </div>
 
-          <!-- TODAY'S FULL TIME-BLOCKED SCHEDULE -->
           <div class="today-schedule-card">
             <div class="tsc-header">
               <div>
                 <div class="tsc-day">{{ todayName }}</div>
-                <div class="tsc-sub">{{ childName }}'s personalised schedule · {{ focusLabel }} focus</div>
+                <div class="tsc-sub">{{ childName }}'s database-fetched schedule</div>
               </div>
               <div class="tsc-pct-chip" :class="todayProgress === 100 ? 'chip-green' : 'chip-default'">{{ todayProgress }}%</div>
             </div>
@@ -492,7 +375,7 @@
                   <div class="tsc-line"></div>
                 </div>
                 <label class="tsc-content">
-                  <input type="checkbox" :checked="slot.done" @change="toggleTodayScheduleSlot(slot.id)" />
+                  <input type="checkbox" :checked="slot.done" @change="toggleTodayScheduleSlot(slot)" />
                   <div class="tsc-card" :class="{ done: slot.done }">
                     <div class="tsc-card-row">
                       <span class="tsc-cat-badge" :class="'badge-' + slot.category">{{ slot.categoryLabel }}</span>
@@ -504,220 +387,20 @@
                     </div>
                     <span class="tsc-text">{{ slot.text }}</span>
                     <span v-if="slot.detail" class="tsc-detail">{{ slot.detail }}</span>
+                    <span v-if="slot.tip" class="tsc-detail">{{ slot.tip }}</span>
                   </div>
                 </label>
               </div>
 
               <p v-if="!todayFullSchedule.length" class="tsc-empty">
-                Complete the quiz to generate {{ todayName }}'s schedule.
+                No scheduled actions found for {{ todayName }}.
               </p>
-            </div>
-          </div>
-
-          <div class="today-context-row">
-            <div class="today-context-card">
-              <div class="tcc-eyebrow">This week's focus</div>
-              <h3 class="tcc-title">{{ weeklyNarrativeTitle }}</h3>
-              <p class="tcc-body">{{ weeklyNarrative }}</p>
-              <div class="tcc-facts">
-                <div class="tcc-fact">
-                  <div class="tcc-fact-label">Main concern</div>
-                  <div class="tcc-fact-val">{{ concernSummary }}</div>
-                </div>
-                <div class="tcc-fact">
-                  <div class="tcc-fact-label">Habit focus</div>
-                  <div class="tcc-fact-val">{{ habitSummary }}</div>
-                </div>
-                <div class="tcc-fact">
-                  <div class="tcc-fact-label">Expected win</div>
-                  <div class="tcc-fact-val">{{ winNarrative }}</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="today-week-card">
-              <div class="twc-eyebrow">Risk to watch</div>
-              <h3 class="twc-title">If you skip this week</h3>
-              <p class="twc-body">{{ riskNarrative }}</p>
-              <div class="twc-support-style">
-                <div class="tss-label">Best support style</div>
-                <div class="tss-val">{{ state.supportStyle || 'Daily micro-actions' }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PROGRESS TRACKER -->
-      <section class="tracker-section">
-        <div class="section-wrap tracker-grid">
-          <div class="tracker-main-card">
-            <div class="tmc-header">
-              <div>
-                <div class="section-eyebrow">Progress tracker</div>
-                <h2 class="section-h2 tracker-title">
-                  Track healthy<br />
-                  <em>wins.</em>
-                </h2>
-              </div>
-              <div class="tmc-pct-ring">
-                <svg width="72" height="72" viewBox="0 0 72 72">
-                  <circle cx="36" cy="36" r="28" stroke="rgba(0,0,0,0.07)" stroke-width="7" fill="none" />
-                  <circle
-                    cx="36" cy="36" r="28" stroke="#16a34a" stroke-width="7" fill="none"
-                    stroke-linecap="round"
-                    :stroke-dasharray="`${(progressCompletion / 100) * 176} 176`"
-                    transform="rotate(-90 36 36)"
-                    style="transition: stroke-dasharray 0.6s ease"
-                  />
-                  <text x="36" y="41" text-anchor="middle" font-size="13" font-weight="700" fill="#0a0b0a">{{ progressCompletion }}%</text>
-                </svg>
-              </div>
-            </div>
-
-            <div class="tmc-items">
-              <label
-                v-for="item in resolvedProgressItems"
-                :key="item.id"
-                class="tmc-item"
-                :class="{ done: item.done }"
-              >
-                <input type="checkbox" :checked="item.done" @change="toggleProgressItem(item.id)" />
-                <span class="tmc-check" :class="{ done: item.done }">
-                  <svg v-if="item.done" width="10" height="10" viewBox="0 0 10 10">
-                    <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </span>
-                <span class="tmc-item-text">{{ item.text }}</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="tracker-custom-card">
-            <div class="section-eyebrow">Add your own</div>
-            <h3 class="tcc2-title">Custom habit item</h3>
-            <p class="tcc2-desc">Track something specific to your family's routine.</p>
-            <div class="tcc2-form">
-              <input
-                v-model="newProgressItem"
-                type="text"
-                placeholder="e.g. Packed fruit for school"
-                class="tcc2-input"
-                @keyup.enter="addProgressItem"
-              />
-              <button class="tcc2-btn" @click="addProgressItem">
-                <svg width="14" height="14" viewBox="0 0 14 14">
-                  <path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-                Add item
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- WEEKLY CHART -->
-      <section class="chart-section">
-        <div class="section-wrap">
-          <div class="chart-head-row">
-            <div>
-              <div class="section-eyebrow">Weekly progress</div>
-              <h2 class="section-h2 chart-section-title">
-                7-day habit<br />
-                <em>consistency.</em>
-              </h2>
-            </div>
-            <div class="chart-avg-block">
-              <div class="cab-val">{{ weeklyAverage }}<span>%</span></div>
-              <div class="cab-lbl">Weekly average</div>
-            </div>
-          </div>
-
-          <div class="chart-card">
-            <div class="chart-bars-wrap">
-              <button
-                v-for="day in weeklyProgress"
-                :key="day.label"
-                class="cbar-col"
-                :class="{ active: selectedDayLabel === day.label }"
-                @click="selectedDayLabel = day.label"
-              >
-                <div class="cbar-val">{{ day.value }}%</div>
-                <div class="cbar-track">
-                  <div class="cbar-fill" :style="{ height: day.value + '%' }"></div>
-                </div>
-                <div class="cbar-lbl">{{ day.label }}</div>
-              </button>
-            </div>
-
-            <div class="chart-detail">
-              <div class="cd-eyebrow">Selected day</div>
-              <h3 class="cd-day">{{ selectedDay.fullLabel }}</h3>
-              <div class="cd-score">{{ selectedDay.value }}<span>%</span></div>
-              <p class="cd-meta">{{ selectedDay.completed }} of {{ selectedDay.total }} tasks completed</p>
-              <div class="cd-tasks">
-                <div v-for="task in selectedDay.tasks" :key="task.id" class="cd-task" :class="{ done: task.done }">
-                  <span class="cd-task-dot" :class="{ done: task.done }"></span>
-                  <span>{{ task.text }}</span>
-                </div>
-                <p v-if="!selectedDay.tasks.length" class="cd-empty">No tasks for this day.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- WHY THIS MATTERS -->
-      <section class="why-section">
-        <div class="section-wrap why-inner">
-          <div class="why-left">
-            <div class="section-eyebrow light">Why this matters</div>
-            <h2 class="why-h2">
-              The science behind<br />
-              <em>small habits.</em>
-            </h2>
-            <p class="why-copy">{{ weeklyNarrative }}</p>
-            <div class="why-facts">
-              <div class="why-fact">
-                <div class="wf-label">Risk if skipped</div>
-                <div class="wf-val">{{ riskNarrative }}</div>
-              </div>
-              <div class="why-fact">
-                <div class="wf-label">Expected win</div>
-                <div class="wf-val">{{ winNarrative }}</div>
-              </div>
-              <div class="why-fact">
-                <div class="wf-label">Support style</div>
-                <div class="wf-val">{{ state.supportStyle || 'Daily micro-actions' }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="why-right">
-            <div class="why-stat-grid">
-              <div class="wsg-card">
-                <div class="wsg-n">21</div>
-                <div class="wsg-l">days to build early habit consistency</div>
-              </div>
-              <div class="wsg-card">
-                <div class="wsg-n">3x</div>
-                <div class="wsg-l">more effective with parent involvement</div>
-              </div>
-              <div class="wsg-card">
-                <div class="wsg-n">4</div>
-                <div class="wsg-l">weeks of structured small actions</div>
-              </div>
-              <div class="wsg-card">
-                <div class="wsg-n">1</div>
-                <div class="wsg-l">small action per day - all it takes</div>
-              </div>
             </div>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="footer">
       <div class="footer-inner">
         <div class="footer-col">
@@ -753,17 +436,39 @@
   </div>
 </template>
 
+
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
+import { useDynamicPlan } from '../composables/useDynamicPlan'
 
 const { state, savePlan } = useFamilyPlanStore()
+
+const {
+  loading: planLoading,
+  error: planError,
+  fetchPlan,
+  getTodaySlots,
+  buildRoadmapWeeks,
+} = useDynamicPlan()
 
 const TIME_ZONE = 'Australia/Melbourne'
 const LOCALE = 'en-AU'
 const DAY_LABEL_LENGTH = 3
 const API_BASE_URL = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
+
+const scheduleCategories = [
+  { key: 'nutrition', label: 'Nutrition' },
+  { key: 'movement', label: 'Movement' },
+  { key: 'sleep', label: 'Sleep / Wind-down' },
+  { key: 'routine', label: 'Routine' },
+  { key: 'family', label: 'Family time' },
+]
+
+const isScrolled = ref(false)
+const showCelebration = ref(false)
+const activeRoadmapWeek = ref(1)
 
 function getTodayName() {
   return new Date().toLocaleDateString(LOCALE, {
@@ -776,704 +481,60 @@ function getShortDayName(dayName) {
   return dayName.slice(0, DAY_LABEL_LENGTH)
 }
 
-const isScrolled = ref(false)
-const showCelebration = ref(false)
-const newProgressItem = ref('')
-const selectedDayLabel = ref(getShortDayName(getTodayName()))
-const activeRoadmapWeek = ref(1)
-const isEditingPlanner = ref(false)
-const editablePlanner = ref({})
-
-const orderedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-const scheduleCategories = [
-  { key: 'nutrition', label: 'Nutrition' },
-  { key: 'movement', label: 'Movement' },
-  { key: 'sleep', label: 'Sleep / Wind-down' },
-  { key: 'routine', label: 'Routine' },
-  { key: 'family', label: 'Family time' },
-]
-
-const defaultDailyPlan = {
-  Monday: [
-    { id: 101, text: 'Prepare one healthy after-school snack', done: false },
-    { id: 102, text: 'Encourage 15 minutes of movement', done: false },
-  ],
-  Tuesday: [
-    { id: 201, text: 'Do one screen-free activity together', done: false },
-    { id: 202, text: 'Keep a calm bedtime cue', done: false },
-  ],
-  Wednesday: [
-    { id: 301, text: 'Repeat the after-school snack routine', done: false },
-    { id: 302, text: 'Offer water before snacks', done: false },
-  ],
-  Thursday: [
-    { id: 401, text: 'Encourage active play before screens', done: false },
-    { id: 402, text: 'Use one predictable routine cue', done: false },
-  ],
-  Friday: [
-    { id: 501, text: 'Celebrate one healthy win from the week', done: false },
-    { id: 502, text: 'Choose one easy family meal together', done: false },
-  ],
-  Saturday: [
-    { id: 601, text: 'Do one family movement activity', done: false },
-    { id: 602, text: 'Keep one healthy snack visible', done: false },
-  ],
-  Sunday: [
-    { id: 701, text: 'Review the week and reset for Monday', done: false },
-    { id: 702, text: 'Plan one routine goal for next week', done: false },
-  ],
-}
-
-const defaultProgressItems = [
-  { id: 1, text: 'Healthy snack prepared', done: false, custom: false },
-  { id: 2, text: 'Active play completed', done: false, custom: false },
-  { id: 3, text: 'Bedtime routine followed', done: false, custom: false },
-  { id: 4, text: 'Screen-free family time completed', done: false, custom: false },
-]
-
-
-const childName = computed(() => state.childName || 'Your child')
-const mission = computed(() => state.mission || 'Complete one healthy habit win together today.')
-const streakDays = computed(() => state.streakDays || 0)
-const streakProgress = computed(() => Math.min((streakDays.value / 7) * 100, 100))
+const childName = computed(() => state.childName || state.child_name || 'Your child')
+const streakDays = computed(() => state.streakDays || state.streak_days || 0)
 
 const timeOfDay = computed(() => {
-  const h = new Date().getHours()
-  if (h < 12) return 'morning'
-  if (h < 17) return 'afternoon'
+  const hour = new Date().getHours()
+  if (hour < 12) return 'morning'
+  if (hour < 17) return 'afternoon'
   return 'evening'
 })
 
 const todayName = computed(() => getTodayName())
 
-const resolvedDailyPlan = computed(() => {
-  const base = state.dailyPlan && Object.keys(state.dailyPlan).length
-    ? state.dailyPlan
-    : defaultDailyPlan
-  return orderedDays.reduce((acc, day) => {
-    acc[day] = base[day] || []
-    return acc
-  }, {})
-})
-
-const resolvedProgressItems = computed(() =>
-  state.progressItems?.length ? state.progressItems : defaultProgressItems
-)
-
-const todayTasks = computed(() => resolvedDailyPlan.value[todayName.value] || [])
-const completedTodayCount = computed(() => todayTasks.value.filter(t => t.done).length)
-const todayProgress = computed(() =>
-  todayTasks.value.length
-    ? Math.round((completedTodayCount.value / todayTasks.value.length) * 100)
-    : 0
-)
-
-const progressCompletion = computed(() => {
-  const items = resolvedProgressItems.value
-  return items.length
-    ? Math.round((items.filter(i => i.done).length / items.length) * 100)
-    : 0
-})
-
-
-const primaryConcern = computed(() => {
-  const concerns = state.concerns || []
-  if (concerns.includes('Sleep consistency') || concerns.includes('Bedtime feels inconsistent')) return 'sleep'
-  if (concerns.includes('Nutrition') || concerns.includes('My child snacks too often')) return 'nutrition'
-  if (concerns.includes('Physical activity') || concerns.includes('My child is not active enough')) return 'movement'
-  if (concerns.includes('Routine battles') || concerns.includes('Our family routine feels hard to manage')) return 'routine'
-  return 'balanced'
-})
-
-const focusLabel = computed(() => {
-  const labels = { sleep: 'Sleep', nutrition: 'Nutrition', movement: 'Movement', routine: 'Routine', balanced: 'Balanced' }
-  return labels[primaryConcern.value] || 'Balanced'
-})
-
-
-const planTags = computed(() => {
-  const tags = []
-  const name = childName.value
-  if (name && name !== 'Your child') tags.push(name)
-  if (primaryConcern.value !== 'balanced') tags.push(focusLabel.value + ' focus')
-  const age = state.childAge
-  if (age) tags.push('Age ' + age)
-  const habits = state.habits || []
-  if (habits.includes('Regular bedtime') || habits.includes('Consistent sleep')) tags.push('Sleep habits')
-  if (habits.includes('Healthy snacking') || habits.includes('Balanced meals')) tags.push('Nutrition habits')
-  const style = state.supportStyle
-  if (style) tags.push(style)
-  if (!tags.length) tags.push('Personalised plan')
-  return tags.slice(0, 5)
-})
-
-const concernSummary = computed(() =>
-  state.concerns?.length ? state.concerns.join(', ') : 'Nutrition, activity, sleep, and routine'
-)
-
-const habitSummary = computed(() =>
-  state.habits?.length ? state.habits.join(', ') : 'Balanced meals and bedtime consistency'
-)
-
-const weeklyNarrativeTitle = computed(() => {
-  const c = state.concerns || []
-  if (c.includes('Sleep consistency') || c.includes('Bedtime feels inconsistent')) return 'Sleep is the priority this week.'
-  if (c.includes('Nutrition') || c.includes('My child snacks too often')) return 'Nutrition needs your attention.'
-  if (c.includes('Physical activity') || c.includes('My child is not active enough')) return 'Movement matters most right now.'
-  return 'Consistency drives everything.'
-})
-
-const weeklyNarrative = computed(() => {
-  const name = childName.value
-  const c = state.concerns || []
-  if (c.includes('Sleep consistency') || c.includes('Bedtime feels inconsistent'))
-    return `${name} may struggle with energy and mood if sleep stays inconsistent. Prioritising bedtime structure can improve appetite, attention, and after-school behaviour.`
-  if (c.includes('Nutrition') || c.includes('My child snacks too often'))
-    return `${name} needs consistent fuel through the day. Better snack quality can stabilise energy, reduce irritability, and support healthy growth habits.`
-  return `${name}'s plan is focused on consistency. One repeated healthy action each day is the strongest predictor of long-term habit success.`
-})
-
-const riskNarrative = computed(() => {
-  const c = state.concerns || []
-  if (c.includes('Routine battles') || c.includes('Our family routine feels hard to manage'))
-    return 'Daily friction increases and healthy habits become harder to sustain.'
-  if (c.includes('Physical activity') || c.includes('My child is not active enough'))
-    return 'Lower movement can affect mood regulation and sleep quality.'
-  return 'Inconsistent habits reduce progress and make routines harder to maintain.'
-})
-
-const winNarrative = computed(() => {
-  const c = state.concerns || []
-  if (c.includes('Nutrition') || c.includes('My child snacks too often'))
-    return 'Higher energy and fewer snack-related conflicts after school.'
-  if (c.includes('Sleep consistency') || c.includes('Bedtime feels inconsistent'))
-    return 'Calmer evenings and more predictable morning routines.'
-  return 'Better consistency with less parent-child conflict across the day.'
-})
-
-function buildTimeSlots(focusKey, weekNumber, dayName, childNameVal, stateRef, baseId) {
-  const name = childNameVal || 'your child'
-  const age = stateRef.childAge || 8
-  const isYoung = age <= 7
-  const isWeekend = dayName === 'Saturday' || dayName === 'Sunday'
-  const concerns = stateRef.concerns || []
-  const hasScreenIssue = concerns.includes('Too much screen time') || concerns.includes('Screen time battles')
-  const hasSleepIssue = concerns.includes('Sleep consistency') || concerns.includes('Bedtime feels inconsistent')
-  const hasNutritionIssue = concerns.includes('Nutrition') || concerns.includes('My child snacks too often')
-  const hasMovementIssue = concerns.includes('Physical activity') || concerns.includes('My child is not active enough')
-  const hasRoutineIssue = concerns.includes('Routine battles') || concerns.includes('Our family routine feels hard to manage')
-
-  // Slot factory
-  const s = (time, category, categoryLabel, text, tip, id) => ({
-    id: `${baseId}-${id}`,
-    time,
-    category,
-    categoryLabel,
-    text,
-    tip: tip || null,
-    done: Boolean((stateRef.roadmapProgress || {})[`${baseId}-${id}`]),
-  })
-
-  const templates = {
-    nutrition: {
-      1: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', 'Offer one nutritious breakfast option - whole grain, fruit, or eggs', isYoung ? 'Make it fun: let them pick the fruit topping' : 'Keep prep under 5 minutes', 'breakfast'),
-          s('8:00 am', 'routine', 'Routine', 'Pack one healthy item in the school lunchbox', 'A familiar item reduces lunchbox refusal', 'lunchpack'),
-          s('3:30 pm', 'nutrition', 'Nutrition', 'Have a healthy snack ready before screens go on', hasNutritionIssue ? 'Snack before screens reduces binge eating later' : null, 'aftersnack'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Serve dinner together at the table where possible', 'Family meals reduce screen time naturally', 'dinner'),
-          s(hasSleepIssue ? '7:30 pm' : '8:00 pm', 'sleep', 'Wind-down', 'Begin bedtime cue - dim lights and reduce noise', null, 'winddown'),
-        ],
-        weekend: [
-          s('8:30 am', 'family', 'Family', 'Cook or prepare a simple breakfast together', isYoung ? 'Let them pour or mix - involvement = engagement' : null, 'breakfast'),
-          s('10:30 am', 'movement', 'Movement', 'Do a 20-minute outdoor or active play session', null, 'movement'),
-          s('12:30 pm', 'nutrition', 'Nutrition', 'Prepare a home-made lunch with one new ingredient', 'Trying one new food weekly builds variety', 'lunch'),
-          s('3:00 pm', 'nutrition', 'Nutrition', 'Choose a healthy afternoon snack together', hasNutritionIssue ? 'Involve them in choice - reduces resistance' : null, 'snack'),
-          s('6:30 pm', 'routine', 'Routine', 'Plan one healthy food goal for the coming week', null, 'plan'),
-        ],
-      },
-      2: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', 'Use the same breakfast each weekday - build the routine', 'Repetition creates automatic habit', 'breakfast'),
-          s('8:00 am', 'routine', 'Routine', 'Use a consistent lunchbox packing cue - same time, same spot', null, 'lunchpack'),
-          s('3:30 pm', 'nutrition', 'Nutrition', 'Offer water before the after-school snack', hasNutritionIssue ? 'Thirst is often mistaken for hunger - water first reduces overeating' : null, 'water'),
-          s('5:00 pm', 'movement', 'Movement', 'Encourage 20 minutes of active play or bike ride', hasMovementIssue ? 'Schedule movement before homework - energy improves focus' : null, 'movement'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Include one vegetable in dinner tonight', null, 'dinner'),
-          s(hasSleepIssue ? '7:30 pm' : '8:00 pm', 'sleep', 'Wind-down', 'Begin the same bedtime routine - books, bath, or quiet time', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'family', 'Family', 'Make a smoothie or fruit bowl together', null, 'breakfast'),
-          s('11:00 am', 'movement', 'Movement', 'Family walk, scooter, or park visit', null, 'movement'),
-          s('1:00 pm', 'nutrition', 'Nutrition', 'Try one new healthy lunch option as a family', null, 'lunch'),
-          s('4:00 pm', 'routine', 'Routine', 'Review what food habits worked this week', null, 'review'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Maintain the same bedtime even on weekends', hasSleepIssue ? 'Weekend sleep drift makes Monday mornings harder' : null, 'bedtime'),
-        ],
-      },
-      3: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', `Let ${name} choose between two breakfast options`, 'Choice builds ownership', 'breakfast'),
-          s('3:30 pm', 'nutrition', 'Nutrition', 'Put fruit or veggies out before the snack - first food seen = first food eaten', null, 'snack'),
-          s('5:00 pm', 'movement', 'Movement', 'Active break before homework or screens', null, 'movement'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Involve them in one small dinner task - washing veg, setting table', null, 'dinner'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Follow the same wind-down order without prompting', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:30 am', 'family', 'Family', 'Cook one full breakfast together - pancakes, eggs, or toast', isYoung ? 'Assign simple safe tasks: stirring, plating' : null, 'breakfast'),
-          s('12:00 pm', 'nutrition', 'Nutrition', 'Try one meal with reduced processed options', null, 'lunch'),
-          s('3:00 pm', 'movement', 'Movement', 'Active outdoor time as a family for at least 30 minutes', null, 'movement'),
-          s('6:30 pm', 'routine', 'Routine', 'Note which food habit felt easiest this week', null, 'reflect'),
-        ],
-      },
-      4: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', 'Maintain the breakfast routine with no prompting needed', null, 'breakfast'),
-          s('3:30 pm', 'nutrition', 'Nutrition', 'Healthy snack is the default - no alternative offered', null, 'snack'),
-          s('5:30 pm', 'movement', 'Movement', 'Active time before dinner - make it non-negotiable', null, 'movement'),
-          s('6:30 pm', 'nutrition', 'Nutrition', 'Serve one balanced dinner with protein, veg, and starch', null, 'dinner'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Wind down at the same time without reminders', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'family', 'Family', 'Celebrate the strongest food habit from the 4 weeks', null, 'celebrate'),
-          s('11:00 am', 'movement', 'Movement', 'Family physical activity - their choice', null, 'movement'),
-          s('2:00 pm', 'nutrition', 'Nutrition', 'Plan next month\'s one food habit goal', null, 'plan'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Set bedtime for the school week ahead', null, 'bedtime'),
-        ],
-      },
-    },
-
-    sleep: {
-      1: {
-        weekday: [
-          s('3:30 pm', 'movement', 'Movement', 'Encourage active play after school - physical tiredness aids sleep', null, 'movement'),
-          s('5:30 pm', 'nutrition', 'Nutrition', 'Serve dinner at a consistent time each night', hasSleepIssue ? 'Late meals delay sleep onset' : null, 'dinner'),
-          s('6:30 pm', 'routine', 'Routine', 'Reduce screen brightness and noise 90 minutes before bed', hasScreenIssue ? 'Blue light suppresses melatonin for up to 2 hours' : null, 'screens'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Begin wind-down: bath, pyjamas, or quiet reading', null, 'bath'),
-          s('7:30 pm', 'sleep', 'Wind-down', `Say goodnight using one calm, consistent phrase with ${name}`, isYoung ? 'Predictable phrases signal safety to young children' : null, 'goodnight'),
-        ],
-        weekend: [
-          s('8:00 am', 'sleep', 'Wind-down', 'Wake at the same time as school days - within 1 hour', hasSleepIssue ? 'Weekend sleep drift disrupts Monday school mornings significantly' : null, 'wake'),
-          s('10:00 am', 'movement', 'Movement', 'Morning physical activity to build sleep pressure for tonight', null, 'movement'),
-          s('7:00 pm', 'routine', 'Routine', 'Begin bedtime routine at the same time as weekdays', null, 'routine'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Follow the same wind-down steps as school nights', null, 'winddown'),
-        ],
-      },
-      2: {
-        weekday: [
-          s('5:30 pm', 'nutrition', 'Nutrition', 'Serve a light, early dinner - avoid heavy meals close to bed', null, 'dinner'),
-          s('6:00 pm', 'movement', 'Movement', 'Last active play session of the day ends now', null, 'movement'),
-          s('6:30 pm', 'routine', 'Routine', 'Use one visual bedtime countdown - clock, timer, or chart', isYoung ? 'Visual cues work better than verbal reminders for young children' : null, 'cue'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Screens off - swap to books, drawing, or calm music', hasScreenIssue ? 'No screens at least 60 min before target bedtime' : null, 'screens'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Lights dim, same story or quiet routine - same order each night', null, 'story'),
-          s('8:00 pm', 'sleep', 'Wind-down', `${name} in bed - aim for lights out by 8:00-8:30 pm`, null, 'sleep'),
-        ],
-        weekend: [
-          s('8:30 am', 'sleep', 'Wind-down', 'Morning routine at the same time - no sleeping in past 1 hour', null, 'wake'),
-          s('10:30 am', 'family', 'Family', 'Calm, low-stimulation family activity in the morning', null, 'family'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Begin weekend bedtime routine - same steps as weekdays', null, 'bedtime'),
-        ],
-      },
-      3: {
-        weekday: [
-          s('5:00 pm', 'movement', 'Movement', 'Active outdoor play - use up energy before wind-down', null, 'movement'),
-          s('6:30 pm', 'routine', 'Routine', 'Start bedtime cue without prompting - let it become expected', null, 'cue'),
-          s('7:00 pm', 'sleep', 'Wind-down', `Let ${name} choose one part of the wind-down routine`, 'Choice reduces resistance dramatically', 'choice'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Lights low, quiet voices, same sequence', null, 'quiet'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Lights out - no re-entries unless genuinely needed', null, 'sleep'),
-        ],
-        weekend: [
-          s('8:00 am', 'routine', 'Routine', 'Keep wake time consistent', null, 'wake'),
-          s('2:00 pm', 'family', 'Family', 'Lower-stimulation afternoon activity - park, art, or reading', null, 'afternoon'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Bedtime routine starts - same time, same steps', null, 'bedtime'),
-        ],
-      },
-      4: {
-        weekday: [
-          s('5:00 pm', 'movement', 'Movement', 'Physical activity in the afternoon - make it a daily anchor', null, 'movement'),
-          s('6:30 pm', 'routine', 'Routine', `${name} initiates part of the bedtime routine independently`, null, 'independent'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Wind-down sequence runs smoothly with minimal prompting', null, 'winddown'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Lights out at the consistent time', null, 'sleep'),
-        ],
-        weekend: [
-          s('8:00 am', 'routine', 'Routine', 'Wake time within 1 hour of school schedule', null, 'wake'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Begin bedtime routine - celebrate the consistency built', null, 'bedtime'),
-        ],
-      },
-    },
-
-    movement: {
-      1: {
-        weekday: [
-          s('7:30 am', 'movement', 'Movement', 'Walk or bike to school if possible - even part of the way', null, 'morning'),
-          s('3:30 pm', 'movement', 'Movement', 'Active play for 15 minutes before snack or screens', hasMovementIssue ? 'Movement before screens is easier to enforce than after' : null, 'afterschool'),
-          s('5:00 pm', 'routine', 'Routine', 'Set a simple daily movement goal - e.g. 3 laps of the yard', isYoung ? 'Make it a game - chase, tag, or obstacle course' : null, 'goal'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Serve dinner - protein helps muscle recovery from activity', null, 'dinner'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Begin calm bedtime routine - active kids need clear transitions', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:30 am', 'movement', 'Movement', 'Family physical activity - park, beach, or backyard play', null, 'morning'),
-          s('12:00 pm', 'nutrition', 'Nutrition', 'Fuel up with a balanced lunch after the morning activity', null, 'lunch'),
-          s('3:00 pm', 'movement', 'Movement', 'Second active session - bike, scooter, or sports', null, 'afternoon'),
-          s('6:00 pm', 'family', 'Family', 'Celebrate the day\'s active moments together', null, 'celebrate'),
-        ],
-      },
-      2: {
-        weekday: [
-          s('3:30 pm', 'movement', 'Movement', 'After-school active break - 20 minutes before any screen time', hasScreenIssue ? 'Movement before screens builds the expectation: active first, then relax' : null, 'afterschool'),
-          s('5:00 pm', 'movement', 'Movement', 'Attach one movement habit to homework time - stretch breaks every 20 min', null, 'homework'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Dinner together - discuss one active thing done today', null, 'dinner'),
-          s('7:30 pm', 'routine', 'Routine', 'Track today\'s movement on a simple chart or sticker', isYoung ? 'Sticker charts work brilliantly for ages 5-8' : null, 'track'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Calm wind-down - avoid vigorous activity within 90 min of bed', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'movement', 'Movement', 'Family walk or cycle - aim for 30+ minutes', null, 'morning'),
-          s('11:30 am', 'nutrition', 'Nutrition', 'Healthy brunch after activity', null, 'brunch'),
-          s('3:00 pm', 'movement', 'Movement', `${childName.value}'s choice of physical activity`, null, 'choice'),
-          s('6:00 pm', 'family', 'Family', 'Reflect on the week\'s movement wins', null, 'reflect'),
-        ],
-      },
-      3: {
-        weekday: [
-          s('7:30 am', 'movement', 'Movement', 'Morning stretch or short walk - sets an active tone for the day', null, 'morning'),
-          s('3:30 pm', 'movement', 'Movement', `${name} chooses today's after-school active activity`, 'Choice increases follow-through significantly', 'choice'),
-          s('5:30 pm', 'routine', 'Routine', 'Reduce sitting time - stand during homework or TV', null, 'sit'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Calm wind-down after an active day', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'movement', 'Movement', 'Long active session - sport, hiking, or playground for 45+ min', null, 'morning'),
-          s('1:00 pm', 'nutrition', 'Nutrition', 'Post-activity nourishing meal', null, 'lunch'),
-          s('4:00 pm', 'family', 'Family', 'Shared activity - board game, dance, or casual sport', null, 'family'),
-        ],
-      },
-      4: {
-        weekday: [
-          s('3:30 pm', 'movement', 'Movement', `${name} starts the after-school active session independently`, null, 'afterschool'),
-          s('5:00 pm', 'routine', 'Routine', 'Movement habit runs without reminders', null, 'independent'),
-          s('8:00 pm', 'sleep', 'Wind-down', 'Wind down smoothly after active day', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'movement', 'Movement', 'Celebrate 4 weeks of building movement habits - family activity of choice', null, 'celebrate'),
-          s('12:00 pm', 'nutrition', 'Nutrition', 'Fuel the activity with a balanced meal', null, 'lunch'),
-          s('3:00 pm', 'family', 'Family', 'Plan one movement goal for next month', null, 'plan'),
-        ],
-      },
-    },
-
-    routine: {
-      1: {
-        weekday: [
-          s('7:00 am', 'routine', 'Routine', 'Use one consistent morning cue - alarm, song, or phrase', hasRoutineIssue ? 'One predictable cue reduces morning conflict significantly' : null, 'morning'),
-          s('7:30 am', 'nutrition', 'Nutrition', 'Breakfast at the same time - consistency is the goal', null, 'breakfast'),
-          s('3:30 pm', 'routine', 'Routine', 'After-school routine: snack -> play -> homework in order', null, 'afterschool'),
-          s('5:30 pm', 'movement', 'Movement', 'Active time before dinner - built into the routine', null, 'movement'),
-          s('7:00 pm', 'routine', 'Routine', 'Begin bedtime sequence at the same time', hasSleepIssue ? 'Consistent start time matters more than sleep time' : null, 'bedtime'),
-        ],
-        weekend: [
-          s('8:30 am', 'routine', 'Routine', 'Morning routine similar to weekdays - anchor the habit', null, 'morning'),
-          s('10:00 am', 'family', 'Family', 'One shared family activity that uses a routine cue', null, 'family'),
-          s('6:30 pm', 'routine', 'Routine', 'Evening routine starts at the same time as school nights', null, 'evening'),
-        ],
-      },
-      2: {
-        weekday: [
-          s('7:00 am', 'routine', 'Routine', 'Morning routine runs on the same order - no deviations', null, 'morning'),
-          s('3:30 pm', 'routine', 'Routine', 'Use one visual or verbal cue to start the after-school routine', hasRoutineIssue ? 'Cues eliminate negotiation - they just signal what\'s next' : null, 'cue'),
-          s('5:00 pm', 'movement', 'Movement', 'Active break as part of the routine - not optional', null, 'movement'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Dinner at the same time - sets the rhythm for the evening', null, 'dinner'),
-          s('7:30 pm', 'routine', 'Routine', 'Bedtime routine starts with a predictable cue', null, 'bedtime'),
-        ],
-        weekend: [
-          s('9:00 am', 'routine', 'Routine', 'Anchor the weekend to at least one weekday routine step', null, 'anchor'),
-          s('11:00 am', 'movement', 'Movement', 'Active family time - use the movement habit', null, 'movement'),
-          s('7:00 pm', 'routine', 'Routine', 'Weekend bedtime routine - same steps, maybe slightly later', null, 'bedtime'),
-        ],
-      },
-      3: {
-        weekday: [
-          s('7:00 am', 'routine', 'Routine', `${name} follows the morning routine with minimal prompts`, 'Reduce reminders by one each week', 'morning'),
-          s('3:30 pm', 'routine', 'Routine', `${name} helps choose how the after-school routine runs`, 'Offering choices increases buy-in', 'choice'),
-          s('5:00 pm', 'movement', 'Movement', 'Movement is built into the routine - no separate reminder needed', null, 'movement'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Bedtime routine runs smoother - less friction', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'routine', 'Routine', 'Weekend morning routine - keep the anchor habit', null, 'morning'),
-          s('3:00 pm', 'family', 'Family', 'Family reflection: what routine step felt easiest this week?', null, 'reflect'),
-          s('7:00 pm', 'routine', 'Routine', 'Evening routine - aim for same time as school nights', null, 'evening'),
-        ],
-      },
-      4: {
-        weekday: [
-          s('7:00 am', 'routine', 'Routine', 'Morning routine runs independently - minimal parent involvement', null, 'morning'),
-          s('3:30 pm', 'routine', 'Routine', `${name} begins after-school routine without prompting`, null, 'afterschool'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Family dinner - celebrate the routine habit formed', null, 'dinner'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Bedtime routine is automatic - everyone knows what\'s next', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'routine', 'Routine', 'Celebrate 4 weeks of routine building', null, 'celebrate'),
-          s('2:00 pm', 'family', 'Family', 'Choose one routine to keep for next month', null, 'plan'),
-        ],
-      },
-    },
-
-    balanced: {
-      1: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', 'Start the day with one nutritious breakfast', null, 'breakfast'),
-          s('3:30 pm', 'movement', 'Movement', 'After-school active play for 15 minutes', null, 'movement'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Family dinner - one vegetable included', null, 'dinner'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Begin consistent bedtime routine', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:00 am', 'family', 'Family', 'Active family morning', null, 'morning'),
-          s('12:00 pm', 'nutrition', 'Nutrition', 'Balanced home-cooked lunch together', null, 'lunch'),
-          s('3:00 pm', 'movement', 'Movement', 'Afternoon activity of their choice', null, 'afternoon'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Consistent bedtime routine', null, 'winddown'),
-        ],
-      },
-      2: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', 'Same breakfast routine - build the habit', null, 'breakfast'),
-          s('3:30 pm', 'movement', 'Movement', 'After-school movement before screens', null, 'movement'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Dinner together - healthy and consistent', null, 'dinner'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Wind-down - same sequence each night', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:30 am', 'family', 'Family', 'Active family activity outside', null, 'morning'),
-          s('1:00 pm', 'nutrition', 'Nutrition', 'Healthy weekend lunch', null, 'lunch'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Consistent weekend bedtime', null, 'bedtime'),
-        ],
-      },
-      3: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', `${name} helps with one breakfast task`, null, 'breakfast'),
-          s('3:30 pm', 'movement', 'Movement', `${name} chooses the after-school activity`, null, 'movement'),
-          s('7:00 pm', 'sleep', 'Wind-down', 'Wind-down with reduced prompting', null, 'winddown'),
-        ],
-        weekend: [
-          s('10:00 am', 'movement', 'Movement', '30-minute family activity', null, 'morning'),
-          s('6:00 pm', 'nutrition', 'Nutrition', 'Balanced family dinner', null, 'dinner'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Bedtime routine - smooth and calm', null, 'bedtime'),
-        ],
-      },
-      4: {
-        weekday: [
-          s('7:00 am', 'nutrition', 'Nutrition', 'Breakfast habit is automatic', null, 'breakfast'),
-          s('3:30 pm', 'movement', 'Movement', 'Movement habit runs without reminders', null, 'movement'),
-          s('7:30 pm', 'sleep', 'Wind-down', 'Bedtime routine is self-directed', null, 'winddown'),
-        ],
-        weekend: [
-          s('9:30 am', 'family', 'Family', 'Celebrate the 4-week journey', null, 'celebrate'),
-          s('2:00 pm', 'routine', 'Routine', 'Set one habit goal for next month', null, 'plan'),
-        ],
-      },
-    },
-  }
-
-  const focusTemplates = templates[focusKey] || templates.balanced
-  const weekTemplates = focusTemplates[weekNumber] || focusTemplates[1]
-  const slotSet = isWeekend ? weekTemplates.weekend : weekTemplates.weekday
-
-  return slotSet || []
-}
-
-function getCategoryLabel(category) {
-  const labels = {
-    nutrition: 'Nutrition',
-    movement: 'Movement',
-    sleep: 'Wind-down',
-    routine: 'Routine',
-    family: 'Family',
-  }
-  return labels[category] || 'Routine'
-}
-
-function applyPlannerOverrides(slot) {
-  const overrides = state.plannerOverrides || {}
-  const edited = overrides[slot.id]
-
-  if (!edited) return slot
-
-  const category = edited.category || slot.category
-
-  return {
-    ...slot,
-    time: edited.time || slot.time,
-    text: edited.text || slot.text,
-    tip: edited.tip ?? slot.tip,
-    category,
-    categoryLabel: getCategoryLabel(category),
-  }
-}
-
-
-const todayFullSchedule = computed(() => {
-  const today = todayName.value
-  const weekNum = currentWeek.value
-  const baseId = `week-${weekNum}-${today.toLowerCase()}`
-
-  const slots = buildTimeSlots(
-    primaryConcern.value,
-    weekNum,
-    today,
-    childName.value,
-    state,
-    baseId
-  )
-
-  return slots.map(slot => {
-    const editedSlot = applyPlannerOverrides(slot)
-    return {
-      ...editedSlot,
-      id: `today-schedule-${slot.id}`,
-      done: Boolean((state.todaySchedule || {})[`today-schedule-${slot.id}`]),
-    }
-  })
-})
-
-function toggleTodayScheduleSlot(slotId) {
-  const updated = {
-    ...(state.todaySchedule || {}),
-    [slotId]: !(state.todaySchedule || {})[slotId],
-  }
-  const updatedState = { ...state, todaySchedule: updated }
-  saveAndPersist(updatedState)
-}
-
-const roadmapFocus = computed(() => {
-  const focusMap = {
-    sleep: { w1: 'Create a calmer bedtime rhythm', w2: 'Reduce evening friction', w3: 'Strengthen wind-down habits', w4: 'Make sleep routines self-sustaining' },
-    nutrition: { w1: 'Improve snack quality', w2: 'Build simple meal structure', w3: 'Increase healthy choices', w4: 'Make food routines consistent' },
-    movement: { w1: 'Add short movement moments', w2: 'Build active after-school habits', w3: 'Reduce long sitting periods', w4: 'Make movement part of the routine' },
-    routine: { w1: 'Create one predictable daily cue', w2: 'Reduce routine battles', w3: 'Build consistency around transitions', w4: 'Make family routines easier to repeat' },
-    balanced: { w1: 'Start with one simple healthy habit', w2: 'Build consistency across the week', w3: 'Connect habits into a routine', w4: 'Maintain progress with less effort' },
-  }
-  return focusMap[primaryConcern.value] || focusMap.balanced
-})
-
-const roadmapProgressMap = computed(() => state.roadmapProgress || {})
-
-const roadmapActionTemplates = computed(() => {
-  const name = childName.value
-  return [
-    {
-      id: 1, week: 1,
-      title: roadmapFocus.value.w1,
-      summary: 'Start small - the goal is to make one action feel easy to repeat.',
-      detail: 'Week 1 focuses on starting gently. The goal is not perfection - it is to make one healthy routine feel possible without adding pressure.',
-      actions: [`Choose one daily habit to try with ${name}`, 'Complete the habit at least three times this week', 'Celebrate one small win together'],
-      parentTip: 'Keep the first week very small. A habit that feels easy is far more likely to continue than one that feels like a chore.',
-    },
-    {
-      id: 2, week: 2,
-      title: roadmapFocus.value.w2,
-      summary: 'Turn the first habit into something predictable and expected.',
-      detail: 'Week 2 builds consistency. Families begin connecting the habit to a regular part of the day, making it feel automatic rather than intentional.',
-      actions: ['Attach the habit to an existing family routine', 'Use one visual or verbal cue to remind everyone', 'Track progress without applying pressure'],
-      parentTip: 'Try linking the habit to something that already happens - after school, dinner, or bedtime. This is called habit stacking.',
-    },
-    {
-      id: 3, week: 3,
-      title: roadmapFocus.value.w3,
-      summary: 'Strengthen the routine and reduce daily resistance.',
-      detail: 'Week 3 makes the habit smoother. The aim is to reduce reminders, arguments, or pushback - and let your child take some ownership.',
-      actions: [`Let ${name} help choose how the habit is completed`, 'Repeat the habit on at least four days this week', 'Notice what makes the habit easier or harder'],
-      parentTip: 'Children are more engaged when they feel involved. Offer simple choices rather than instructions - it shifts the dynamic significantly.',
-    },
-    {
-      id: 4, week: 4,
-      title: roadmapFocus.value.w4,
-      summary: 'Reflect, adjust, and make the habit sustainable beyond this plan.',
-      detail: 'Week 4 helps families reflect, adapt, and decide what to continue. The goal is to identify one or two habits worth keeping long-term.',
-      actions: ['Review what improved over the last four weeks', 'Choose one habit to continue next month', `Set one gentle goal for ${name} for the next stage`],
-      parentTip: 'The best habit is the one your family can keep doing. Keep what worked, simplify what felt too hard, and build from there.',
-    },
-  ]
-})
-
-
 const fourWeekRoadmap = computed(() =>
-  roadmapActionTemplates.value.map((week) => {
-    const actions = week.actions.map((text, index) => {
-      const id = `week-${week.week}-action-${index + 1}`
-      return { id, text, done: Boolean(roadmapProgressMap.value[id]) }
-    })
-
-    const dailyPlan = orderedDays.map((day) => {
-      const baseId = `week-${week.week}-${day.toLowerCase()}`
-      const timeSlots = buildTimeSlots(
-        primaryConcern.value,
-        week.week,
-        day,
-        childName.value,
-        state,
-        baseId
-      )
-
-      const slotsWithDoneState = timeSlots.map(slot => {
-        const editedSlot = applyPlannerOverrides(slot)
-
-        return {
-          ...editedSlot,
-          done: Boolean(roadmapProgressMap.value[slot.id]),
-        }
-      })
-
-      const legacyActions = slotsWithDoneState.map((slot, i) => ({
-        id: `${baseId}-legacy-${i}`,
-        text: slot.text,
-        done: slot.done,
-      }))
-
-      const completed = slotsWithDoneState.filter(s => s.done).length
-      const progress = slotsWithDoneState.length
-        ? Math.round((completed / slotsWithDoneState.length) * 100)
-        : 0
-
-      return { day, actions: legacyActions, timeSlots: slotsWithDoneState, completed, progress }
-    })
-
-    const weeklyCompleted = actions.filter(a => a.done).length
-    const dailyCompleted = dailyPlan.reduce((sum, d) => sum + d.completed, 0)
-    const dailyTotal = dailyPlan.reduce((sum, d) => sum + d.timeSlots.length, 0)
-    const totalItems = actions.length + dailyTotal
-    const completedItems = weeklyCompleted + dailyCompleted
-    const progress = totalItems ? Math.round((completedItems / totalItems) * 100) : 0
-
-    let status = 'Not started'
-    let statusKey = 'not-started'
-    if (progress > 0 && progress < 100) { status = 'In progress'; statusKey = 'in-progress' }
-    if (progress === 100) { status = 'Completed'; statusKey = 'completed' }
-
-    return {
-      ...week,
-      actions,
-      dailyPlan,
-      dailyCompleted,
-      dailyTotal,
-      weeklyCompleted,
-      totalItems,
-      completed: completedItems,
-      progress,
-      status,
-      statusKey,
-      feedbackTitle: progress === 100 ? 'Week complete - excellent work!' : progress > 0 ? 'Building momentum' : 'Ready to begin',
-      feedback: progress === 100
-        ? `${childName.value} has completed all actions for this week. This is a strong sign the routine is becoming easier to repeat.`
-        : progress > 0
-          ? 'Some progress is already happening. Continue with the easiest action first and build from there - every check matters.'
-          : 'This week is ready to begin. Choose the single easiest action and try it just once today to get started.',
-    }
-  })
+  buildRoadmapWeeks(state.roadmapProgress || {})
 )
+
+const isPlanReady = computed(() => fourWeekRoadmap.value.length > 0)
+
+const emptyRoadmapWeek = {
+  id: 1,
+  week: 1,
+  title: 'Loading plan',
+  summary: '',
+  detail: '',
+  parentTip: '',
+  actions: [],
+  dailyPlan: [],
+  dailyCompleted: 0,
+  dailyTotal: 0,
+  weeklyCompleted: 0,
+  totalItems: 0,
+  completed: 0,
+  progress: 0,
+  status: 'Not started',
+  statusKey: 'not-started',
+}
 
 const selectedRoadmapWeek = computed(() =>
-  fourWeekRoadmap.value.find(w => w.id === activeRoadmapWeek.value) || fourWeekRoadmap.value[0]
+  fourWeekRoadmap.value.find(week => week.id === activeRoadmapWeek.value)
+  || fourWeekRoadmap.value[0]
+  || emptyRoadmapWeek
 )
+
+const currentWeek = computed(() => {
+  const firstIncomplete = fourWeekRoadmap.value.find(week => week.progress < 100)
+  return firstIncomplete?.week || fourWeekRoadmap.value[0]?.week || 1
+})
 
 const currentFirstRoadmapDailyPlan = computed(() => {
   const plan = selectedRoadmapWeek.value?.dailyPlan || []
   const todayIndex = plan.findIndex(day => day.day === todayName.value)
+
   if (todayIndex === -1) return plan
+
   return [
     plan[todayIndex],
     ...plan.slice(0, todayIndex),
@@ -1481,149 +542,138 @@ const currentFirstRoadmapDailyPlan = computed(() => {
   ]
 })
 
-const totalRoadmapActions = computed(() => fourWeekRoadmap.value.reduce((s, w) => s + w.totalItems, 0))
-const completedRoadmapActions = computed(() => fourWeekRoadmap.value.reduce((s, w) => s + w.completed, 0))
-const roadmapCompletion = computed(() =>
-  totalRoadmapActions.value ? Math.round((completedRoadmapActions.value / totalRoadmapActions.value) * 100) : 0
+const todayFullSchedule = computed(() =>
+  getTodaySlots(
+    currentWeek.value,
+    todayName.value,
+    state.todaySchedule || {}
+  )
 )
 
-const roadmapRingStyle = computed(() => {
-  const pct = roadmapCompletion.value
-  const color = pct === 100 ? '#16a34a' : pct > 0 ? '#d97706' : '#e2e8f0'
-  return { background: `conic-gradient(${color} ${pct}%, rgba(0,0,0,0.07) ${pct}%)` }
+const completedTodayCount = computed(() =>
+  todayFullSchedule.value.filter(slot => slot.done).length
+)
+
+const todayProgress = computed(() =>
+  todayFullSchedule.value.length
+    ? Math.round((completedTodayCount.value / todayFullSchedule.value.length) * 100)
+    : 0
+)
+
+const weeklyProgress = computed(() => {
+  const week = fourWeekRoadmap.value.find(item => item.week === currentWeek.value)
+  if (!week?.dailyPlan?.length) return []
+
+  return week.dailyPlan.map((day) => ({
+    label: day.day.slice(0, DAY_LABEL_LENGTH),
+    fullLabel: day.day,
+    value: day.progress,
+    completed: day.completed,
+    total: day.timeSlots.length,
+    tasks: day.timeSlots,
+  }))
 })
-
-const currentWeek = computed(() => {
-  const total = fourWeekRoadmap.value.reduce((s, w) => s + w.progress, 0)
-  if (total === 0) return 1
-  const avg = total / 4
-  if (avg >= 75) return 4
-  if (avg >= 50) return 3
-  if (avg >= 25) return 2
-  return 1
-})
-
-const weeklyProgress = computed(() =>
-  orderedDays.map((day) => {
-    const tasks = resolvedDailyPlan.value[day] || []
-    const completed = tasks.filter(t => t.done).length
-    return {
-      label: day.slice(0, 3),
-      fullLabel: day,
-      value: tasks.length ? Math.round((completed / tasks.length) * 100) : 0,
-      completed,
-      total: tasks.length,
-      tasks,
-    }
-  })
-)
-
-const selectedDay = computed(() =>
-  weeklyProgress.value.find(d => d.label === selectedDayLabel.value) ||
-  weeklyProgress.value[0] ||
-  { label: 'Mon', fullLabel: 'Monday', value: 0, completed: 0, total: 0, tasks: [] }
-)
 
 const weeklyAverage = computed(() => {
-  const total = weeklyProgress.value.reduce((s, d) => s + d.value, 0)
+  if (!weeklyProgress.value.length) return 0
+  const total = weeklyProgress.value.reduce((sum, day) => sum + day.value, 0)
   return Math.round(total / weeklyProgress.value.length)
 })
 
+const totalRoadmapActions = computed(() =>
+  fourWeekRoadmap.value.reduce((sum, week) => sum + week.totalItems, 0)
+)
+
+const completedRoadmapActions = computed(() =>
+  fourWeekRoadmap.value.reduce((sum, week) => sum + week.completed, 0)
+)
+
+const roadmapCompletion = computed(() =>
+  totalRoadmapActions.value
+    ? Math.round((completedRoadmapActions.value / totalRoadmapActions.value) * 100)
+    : 0
+)
+
+const roadmapRingStyle = computed(() => {
+  const percentage = roadmapCompletion.value
+  const color = percentage === 100 ? '#16a34a' : percentage > 0 ? '#d97706' : '#e2e8f0'
+
+  return {
+    background: `conic-gradient(${color} ${percentage}%, rgba(0,0,0,0.07) ${percentage}%)`,
+  }
+})
+
 const confettiPieces = computed(() =>
-  Array.from({ length: 16 }, (_, i) => ({
-    id: i,
-    style: { left: `${4 + i * 6}%`, animationDelay: `${i * 0.04}s`, transform: `rotate(${i * 22}deg)` },
+  Array.from({ length: 16 }, (_, index) => ({
+    id: index,
+    style: {
+      left: `${4 + index * 6}%`,
+      animationDelay: `${index * 0.04}s`,
+      transform: `rotate(${index * 22}deg)`,
+    },
   }))
 )
 
+function toggleTodayScheduleSlot(slot) {
+  const todaySlotId = typeof slot === 'string' ? slot : slot.id
+  const sourceSlotId = typeof slot === 'string' ? slot.replace('today-schedule-', '') : slot.sourceSlotId
+  const nextDone = !(state.todaySchedule || {})[todaySlotId]
+
+  const updatedTodaySchedule = {
+    ...(state.todaySchedule || {}),
+    [todaySlotId]: nextDone,
+  }
+
+  const updatedRoadmapProgress = sourceSlotId
+    ? {
+        ...(state.roadmapProgress || {}),
+        [sourceSlotId]: nextDone,
+      }
+    : state.roadmapProgress || {}
+
+  saveAndPersist({
+    ...state,
+    todaySchedule: updatedTodaySchedule,
+    roadmapProgress: updatedRoadmapProgress,
+  })
+}
+
+function toggleRoadmapDailyAction(actionId) {
+  const updated = {
+    ...(state.roadmapProgress || {}),
+    [actionId]: !state.roadmapProgress?.[actionId],
+  }
+
+  saveAndPersist({
+    ...state,
+    roadmapProgress: updated,
+  })
+}
+
+function completeMission() {
+  saveAndPersist({
+    ...state,
+    streakDays: (state.streakDays || 0) + 1,
+  })
+
+  showCelebration.value = true
+
+  setTimeout(() => {
+    showCelebration.value = false
+  }, 2000)
+}
+
 function saveAndPersist(updatedState) {
   savePlan(updatedState)
-  persistDashboardUpdate(updatedState).catch(error => {
+
+  persistDashboardUpdate(updatedState).catch((error) => {
     console.error('Failed to sync dashboard update:', error)
   })
 }
 
-
-function startEditingPlanner() {
-  const editable = {}
-
-  selectedRoadmapWeek.value.dailyPlan.forEach(day => {
-    day.timeSlots.forEach(slot => {
-      editable[slot.id] = {
-        time: slot.time,
-        text: slot.text,
-        tip: slot.tip || '',
-        category: slot.category,
-      }
-    })
-  })
-
-  editablePlanner.value = editable
-  isEditingPlanner.value = true
-}
-
-function cancelEditingPlanner() {
-  editablePlanner.value = {}
-  isEditingPlanner.value = false
-}
-
-function saveEditedPlanner() {
-  const currentOverrides = state.plannerOverrides || {}
-
-  const updatedOverrides = {
-    ...currentOverrides,
-    ...editablePlanner.value,
-  }
-
-  const updatedState = {
-    ...state,
-    plannerOverrides: updatedOverrides,
-  }
-
-  saveAndPersist(updatedState)
-  editablePlanner.value = {}
-  isEditingPlanner.value = false
-}
-
-
-function toggleProgressItem(itemId) {
-  const updated = resolvedProgressItems.value.map(item =>
-    item.id === itemId ? { ...item, done: !item.done } : item
-  )
-  const updatedState = { ...state, progressItems: updated }
-  saveAndPersist(updatedState)
-}
-
-function toggleRoadmapAction(actionId) {
-  const updated = { ...(state.roadmapProgress || {}), [actionId]: !state.roadmapProgress?.[actionId] }
-  const updatedState = { ...state, roadmapProgress: updated }
-  saveAndPersist(updatedState)
-}
-
-function toggleRoadmapDailyAction(actionId) {
-  const updated = { ...(state.roadmapProgress || {}), [actionId]: !state.roadmapProgress?.[actionId] }
-  const updatedState = { ...state, roadmapProgress: updated }
-  saveAndPersist(updatedState)
-}
-
-function addProgressItem() {
-  const value = newProgressItem.value.trim()
-  if (!value) return
-  const newItem = { id: Date.now(), text: value, done: false, custom: true }
-  const updatedState = { ...state, progressItems: [...resolvedProgressItems.value, newItem] }
-  saveAndPersist(updatedState)
-  newProgressItem.value = ''
-}
-
-function completeMission() {
-  const updatedState = { ...state, streakDays: (state.streakDays || 0) + 1 }
-  saveAndPersist(updatedState)
-  showCelebration.value = true
-  setTimeout(() => { showCelebration.value = false }, 2000)
-}
-
 async function persistDashboardUpdate(updatedState) {
   const username = updatedState.username || state.username
+
   if (!username) throw new Error('Missing username')
   if (!API_BASE_URL) throw new Error('Missing VITE_PARENT_PROFILES_API_BASE_URL')
 
@@ -1634,28 +684,41 @@ async function persistDashboardUpdate(updatedState) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         dailyPlan: updatedState.dailyPlan ?? state.dailyPlan,
-        progressItems: updatedState.progressItems ?? state.progressItems,
         roadmapProgress: updatedState.roadmapProgress ?? state.roadmapProgress ?? {},
         todaySchedule: updatedState.todaySchedule ?? state.todaySchedule ?? {},
-        plannerOverrides: updatedState.plannerOverrides ?? state.plannerOverrides ?? {},
         streakDays: updatedState.streakDays ?? state.streakDays ?? 0,
         nextAction: updatedState.nextAction ?? state.nextAction,
         mission: updatedState.mission ?? state.mission,
       }),
     }
   )
+
   const data = await response.json().catch(() => ({}))
-  if (!response.ok) throw new Error(data.error || `Dashboard update failed: ${response.status}`)
+
+  if (!response.ok) {
+    throw new Error(data.error || `Dashboard update failed: ${response.status}`)
+  }
+
   return data
 }
 
-function onScroll() { isScrolled.value = window.scrollY > 40 }
+function onScroll() {
+  isScrolled.value = window.scrollY > 40
+}
 
 onMounted(() => {
-  selectedDayLabel.value = getShortDayName(todayName.value)
   window.addEventListener('scroll', onScroll, { passive: true })
+
+  if (state.username) {
+    fetchPlan(state.username)
+  } else {
+    console.warn('No username found in state. Complete quiz or load profile first.')
+  }
 })
-onUnmounted(() => window.removeEventListener('scroll', onScroll))
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+})
 </script>
 
 <style scoped>
@@ -1690,9 +753,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   --slot-family-bg: #fdf2f8;
   --slot-family-border: rgba(219,39,119,0.18);
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400;1,9..144,500&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap');
 
 :global(*,*::before,*::after){box-sizing:border-box}
 :global(body){margin:0;font-family:var(--f-body),system-ui;background:var(--c-white);color:var(--c-black);-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -1742,7 +802,6 @@ p:last-child{margin-bottom:0}
 @keyframes live-pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
 .dash-h1{display:flex;flex-direction:column;margin-bottom:20px}
 .dh-serif{font-family:var(--f-display);font-weight:300;font-size:clamp(2.4rem,5vw,5.6rem);color:var(--c-black);letter-spacing:-.04em;line-height:.96}
-.dh-name{font-family:var(--f-display);font-style:italic;font-size:clamp(2rem,4.2vw,4.8rem);font-weight:400;color:var(--c-green);letter-spacing:-.04em;line-height:1}
 .dash-hero-desc{max-width:28rem;font-size:clamp(.94rem,1.05vw,1.02rem);color:var(--c-500);margin-bottom:36px}
 .hero-kpi-row{display:flex;align-items:center;gap:0;padding:20px 24px;background:var(--c-white);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-sm)}
 .hkpi{flex:1;text-align:center}
@@ -1904,7 +963,6 @@ p:last-child{margin-bottom:0}
 .rfp-status-label{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:3px}
 .rfp-status-text{font-family:var(--f-body);font-size:.88rem;font-weight:600;color:rgba(255,255,255,.8)}
 .rfp-progress-donut{display:flex;justify-content:center}
-.rfp-feedback-block{}
 .rfp-fb-title{font-family:var(--f-display);font-size:1.1rem;font-weight:500;color:var(--c-white);margin-bottom:8px;letter-spacing:-.02em}
 .rfp-fb-body{font-size:.84rem;color:rgba(255,255,255,.5);line-height:1.65;margin:0}
 
@@ -2006,58 +1064,6 @@ p:last-child{margin-bottom:0}
 .twc-body{font-size:.84rem;color:var(--c-500);line-height:1.65;margin-bottom:20px}
 .tss-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--c-400);margin-bottom:6px}
 .tss-val{font-family:var(--f-display);font-size:1.1rem;font-weight:400;color:var(--c-black);letter-spacing:-.01em}
-
-.tracker-section{padding:var(--section-v) 0;background:var(--c-white);border-top:1px solid var(--border)}
-.tracker-grid{display:grid;grid-template-columns:1.4fr .6fr;gap:20px}
-.tracker-main-card{padding:32px;background:var(--c-white);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-sm)}
-.tmc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
-.tmc-items{display:flex;flex-direction:column;gap:8px}
-.tmc-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:12px;background:var(--c-50);border:1px solid var(--border);cursor:pointer;transition:all .18s}
-.tmc-item:hover{background:var(--c-white);box-shadow:var(--shadow-xs);border-color:var(--border-mid)}
-.tmc-item.done{opacity:.6}
-.tmc-item input{position:absolute;opacity:0;pointer-events:none}
-.tmc-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--c-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-.tmc-check.done{background:var(--c-green);border-color:var(--c-green)}
-.tmc-item-text{font-size:.88rem;font-weight:500;color:var(--c-700)}
-.tmc-item.done .tmc-item-text{text-decoration:line-through;color:var(--c-400)}
-.tracker-custom-card{padding:28px;background:var(--c-50);border:1px solid var(--border);border-radius:20px;display:flex;flex-direction:column}
-.tcc2-title{font-family:var(--f-display);font-size:1.3rem;font-weight:500;color:var(--c-black);letter-spacing:-.02em;margin-bottom:8px}
-.tcc2-desc{font-size:.84rem;color:var(--c-500);margin-bottom:20px}
-.tcc2-form{display:flex;flex-direction:column;gap:10px;margin-top:auto}
-.tcc2-input{width:100%;height:48px;border-radius:12px;border:1.5px solid var(--border-mid);padding:0 16px;font-family:var(--f-body);font-size:.88rem;background:var(--c-white);outline:none;transition:border-color .2s}
-.tcc2-input:focus{border-color:var(--c-green);box-shadow:0 0 0 3px rgba(22,163,74,.12)}
-.tcc2-btn{height:48px;border-radius:12px;border:none;background:var(--c-black);color:var(--c-white);font-family:var(--f-body);font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:all .2s}
-.tcc2-btn:hover{background:var(--c-800);transform:translateY(-1px);box-shadow:var(--shadow-md)}
-
-.chart-section{padding:var(--section-v) 0;background:var(--c-50);border-top:1px solid var(--border)}
-.chart-head-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;gap:32px}
-.cab-val{font-family:var(--f-display);font-size:2.4rem;font-weight:300;color:var(--c-black);letter-spacing:-.04em;line-height:1}
-.cab-val span{font-size:.5em;color:var(--c-400)}
-.cab-lbl{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--c-400);margin-top:4px}
-.chart-card{display:grid;grid-template-columns:1fr 280px;gap:24px;padding:28px;background:var(--c-white);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-sm)}
-.chart-bars-wrap{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;align-items:end;min-height:200px}
-.cbar-col{display:flex;flex-direction:column;align-items:center;gap:6px;border:none;background:transparent;padding:0;cursor:pointer;transition:transform .18s}
-.cbar-col:hover{transform:translateY(-3px)}
-.cbar-col.active .cbar-track{box-shadow:0 0 0 2px rgba(22,163,74,.25)}
-.cbar-val{font-family:var(--f-mono);font-size:.68rem;font-weight:700;color:var(--c-400)}
-.cbar-col.active .cbar-val{color:var(--c-green)}
-.cbar-track{width:100%;height:140px;border-radius:8px;background:rgba(0,0,0,.06);overflow:hidden;display:flex;align-items:flex-end}
-.cbar-fill{width:100%;border-radius:8px;background:linear-gradient(180deg,#86efac,#16a34a);transition:height .4s ease}
-.cbar-lbl{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-300)}
-.chart-detail{padding:22px;background:var(--c-50);border-radius:16px;border:1px solid var(--border)}
-.cd-eyebrow{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--c-400);margin-bottom:6px}
-.cd-day{font-family:var(--f-display);font-size:1.2rem;font-weight:500;color:var(--c-black);letter-spacing:-.02em;margin-bottom:6px}
-.cd-score{font-family:var(--f-display);font-size:2.4rem;font-weight:300;color:var(--c-green);letter-spacing:-.04em;line-height:1;margin-bottom:4px}
-.cd-score span{font-size:.5em;color:var(--c-green)}
-.cd-meta{font-size:.78rem;color:var(--c-400);margin-bottom:14px}
-.cd-tasks{display:flex;flex-direction:column;gap:7px}
-.cd-task{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--c-500)}
-.cd-task-dot{width:6px;height:6px;border-radius:50%;background:var(--c-300);flex-shrink:0;margin-top:5px}
-.cd-task.done{opacity:.5}
-.cd-task.done .cd-task-dot{background:var(--c-green)}
-.cd-empty{font-size:.8rem;color:var(--c-300);font-style:italic;margin:0}
-.chart-section-title{font-size:clamp(1.8rem,3vw,2.8rem)}
-.tracker-title{font-size:clamp(1.8rem,3vw,2.6rem)}
 
 
 .why-section{padding:var(--section-v) 0;background:var(--c-900);border-top:1px solid rgba(255,255,255,.04)}
