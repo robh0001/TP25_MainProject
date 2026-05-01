@@ -434,6 +434,103 @@
       </div>
     </footer>
   </div>
+
+  <section class="food-ai-section">
+  <div class="section-wrap">
+    <div class="food-ai-card">
+      <div>
+        <div class="section-eyebrow">AI nutrition helper</div>
+        <h2 class="section-h2">
+          Check a food's<br />
+          <em>health score.</em>
+        </h2>
+        <p class="section-desc">
+          Enter a food item and the AI model will estimate a health score using its nutrition profile.
+        </p>
+      </div>
+
+      <div class="food-ai-panel">
+        <div class="food-ai-form">
+          <input
+            v-model="foodInput"
+            type="text"
+            placeholder="Try banana, apple, rice, milk..."
+            class="food-ai-input"
+            @keyup.enter="submitFoodPrediction"
+          />
+
+          <button
+            type="button"
+            class="food-ai-btn"
+            :disabled="foodPredictionLoading"
+            @click="submitFoodPrediction"
+          >
+            {{ foodPredictionLoading ? 'Checking...' : 'Check score' }}
+          </button>
+        </div>
+
+        <p v-if="foodPredictionError" class="food-ai-error">
+          {{ foodPredictionError }}
+        </p>
+
+        <div v-if="foodPredictionCandidates.length" class="food-ai-candidates">
+          <button
+            v-for="candidate in foodPredictionCandidates"
+            :key="candidate"
+            type="button"
+            class="food-ai-candidate"
+            @click="chooseFoodCandidate(candidate)"
+          >
+            {{ candidate }}
+          </button>
+        </div>
+
+        <div v-if="foodPredictionResult" class="food-ai-result">
+          <div class="food-ai-score">
+            {{ Math.round(foodPredictionResult.health_score) }}
+            <span>/100</span>
+          </div>
+
+          <div>
+            <h3>{{ foodPredictionResult.matched_food }}</h3>
+            <p>{{ foodPredictionResult.category }}</p>
+
+            <div class="food-ai-nutrition-grid">
+              <div>
+                <span>Calories</span>
+                <strong>{{ foodPredictionResult.nutrition.calories }}</strong>
+              </div>
+              <div>
+                <span>Protein</span>
+                <strong>{{ foodPredictionResult.nutrition.protein_g }}g</strong>
+              </div>
+              <div>
+                <span>Fat</span>
+                <strong>{{ foodPredictionResult.nutrition.fat_g }}g</strong>
+              </div>
+              <div>
+                <span>Carbs</span>
+                <strong>{{ foodPredictionResult.nutrition.carbs_g }}g</strong>
+              </div>
+              <div>
+                <span>Fiber</span>
+                <strong>{{ foodPredictionResult.nutrition.fiber_g }}g</strong>
+              </div>
+              <div>
+                <span>Sugar</span>
+                <strong>{{ foodPredictionResult.nutrition.sugar_g }}g</strong>
+              </div>
+            </div>
+
+            <button type="button" class="food-ai-clear" @click="clearPrediction">
+              Clear result
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 </template>
 
 
@@ -442,6 +539,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useDynamicPlan } from '../composables/useDynamicPlan'
+import { useFoodHealthPredictor } from '../composables/useFoodHealthPredictor'
 
 const { state, savePlan } = useFamilyPlanStore()
 
@@ -719,6 +817,26 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
 })
+
+const foodInput = ref('')
+
+const {
+  loading: foodPredictionLoading,
+  error: foodPredictionError,
+  result: foodPredictionResult,
+  candidates: foodPredictionCandidates,
+  predictFood,
+  clearPrediction,
+} = useFoodHealthPredictor()
+
+function submitFoodPrediction() {
+  predictFood(foodInput.value)
+}
+
+function chooseFoodCandidate(candidate) {
+  foodInput.value = candidate
+  predictFood(candidate)
+}
 </script>
 
 <style scoped>
@@ -1219,5 +1337,201 @@ p:last-child{margin-bottom:0}
 
 @media(max-width:700px){
   .rdm-day-card{min-width:82vw;flex-basis:82vw;max-width:82vw}
+}
+
+.food-ai-section {
+  padding: 72px 0;
+  background: var(--c-white);
+  border-top: 1px solid var(--border);
+}
+
+.food-ai-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  gap: 32px;
+  padding: 34px;
+  border-radius: 28px;
+  background: var(--c-50);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.food-ai-panel {
+  padding: 24px;
+  border-radius: 22px;
+  background: var(--c-white);
+  border: 1px solid var(--border);
+}
+
+.food-ai-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.food-ai-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-mid);
+  font-size: .92rem;
+  outline: none;
+}
+
+.food-ai-btn {
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid var(--c-black);
+  background: var(--c-black);
+  color: var(--c-white);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.food-ai-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.food-ai-error {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff7ed;
+  border: 1px solid rgba(217,119,6,.18);
+  color: #b45309;
+  font-size: .84rem;
+  margin: 0 0 12px;
+}
+
+.food-ai-candidates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.food-ai-candidate {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(22,163,74,.24);
+  background: var(--c-green-soft);
+  color: var(--c-green);
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.food-ai-result {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 22px;
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #f0fdf4, #ffffff);
+  border: 1px solid rgba(22,163,74,.18);
+}
+
+.food-ai-score {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-green);
+  color: white;
+  font-family: var(--f-display);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.food-ai-score span {
+  margin-top: 4px;
+  font-family: var(--f-body);
+  font-size: .76rem;
+  font-weight: 700;
+  opacity: .82;
+}
+
+.food-ai-result h3 {
+  margin: 0 0 4px;
+  font-family: var(--f-display);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--c-black);
+}
+
+.food-ai-result p {
+  margin: 0 0 14px;
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--c-400);
+}
+
+.food-ai-nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.food-ai-nutrition-grid div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid var(--border);
+}
+
+.food-ai-nutrition-grid span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: .62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--c-400);
+}
+
+.food-ai-nutrition-grid strong {
+  font-size: .88rem;
+  color: var(--c-black);
+}
+
+.food-ai-clear {
+  margin-top: 14px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-mid);
+  background: white;
+  color: var(--c-500);
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media(max-width: 900px) {
+  .food-ai-card {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .food-ai-form {
+    grid-template-columns: 1fr;
+  }
+
+  .food-ai-result {
+    grid-template-columns: 1fr;
+  }
+
+  .food-ai-nutrition-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
