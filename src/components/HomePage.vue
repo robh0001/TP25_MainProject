@@ -2593,24 +2593,72 @@ p:last-child {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
+.child-square,
+.legend-dot {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
 .child-underweight,
 .legend-underweight {
-  background: #93c5fd;
+  background-color: #56B4E9;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.45) 0 3px,
+    transparent 3px 7px
+  );
 }
 
 .child-normal,
 .legend-normal {
-  background: #4ade80;
+  background-color: #009E73;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.95) 0 24%,
+    transparent 26%
+  );
 }
 
 .child-overweight,
 .legend-overweight {
-  background: #fbbf24;
+  background-color: #E69F00;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.45) 0 3px,
+    transparent 3px 7px
+  );
 }
 
 .child-obese,
 .legend-obese {
-  background: #fb7185;
+  background-color: #CC79A7;
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.92) 40%,
+      rgba(255, 255, 255, 0.92) 60%,
+      transparent 60%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.92) 40%,
+      rgba(255, 255, 255, 0.92) 60%,
+      transparent 60%
+    );
+}
+
+.legend-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.child-square {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .children-legend {
