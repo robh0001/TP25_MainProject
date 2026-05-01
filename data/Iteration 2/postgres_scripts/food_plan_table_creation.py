@@ -502,7 +502,8 @@ INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, descr
  'A bowl of whole grain cereal served with a fresh banana and a glass of milk.',
  340, 14.1, 62.7, 2.3, 6.9, 298.0, 408.0, 7.6);""")
                
-               
+connection.commit()    
+        
 cursor.execute("SELECT * FROM nutrition_plan;")
 rows = cursor.fetchall()
 

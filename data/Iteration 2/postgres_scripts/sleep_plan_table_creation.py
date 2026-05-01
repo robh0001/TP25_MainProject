@@ -125,6 +125,8 @@ INSERT INTO sleep_plan (week_number, week_theme, day_name, daily_tip) VALUES
 (4, 'Lock In Long-Term Sleep Habits', 'Sunday',
  'You have now completed the four-week sleep training plan. Reflect on the journey as a whole. Consider which habits you intend to carry forward and how you will continue to prioritise your sleep health going forward.'); """)
 
+connection.commit()
+
 cursor.execute("SELECT * FROM sleep_plan;")
 rows = cursor.fetchall()
 

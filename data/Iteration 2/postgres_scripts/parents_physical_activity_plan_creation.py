@@ -390,7 +390,9 @@ INSERT INTO workout_plan (week_number, day_number, workout_number, exercise_name
  'This is a scheduled rest day. Focus on rest, adequate hydration, and nutritious food to support recovery. Avoid high intensity activity and allow the muscles time to adapt and strengthen.'),
 (4, 7, 0, 'Rest Day',
  'This is the final rest day of the week. Use this day to prepare mentally and physically for the following week of training. Light mobility work or a gentle walk is acceptable if the body feels ready.');""")
-       
+
+connection.commit()
+  
 cursor.execute("SELECT * FROM workout_plan;")
 rows = cursor.fetchall()
 

@@ -12,6 +12,11 @@ print("Connected successfully")
 
 cursor = connection.cursor()
 
+cursor.execute("DROP TABLE IF EXISTS exercise_plan")
+
+connection.commit()
+
+
 cursor.execute("""
 CREATE TABLE exercise_plan (
     id SERIAL PRIMARY KEY,
@@ -96,7 +101,8 @@ INSERT INTO exercise_plan (week_number, letter, exercise_name, description) VALU
 (4, 'W', 'Windmill',          'Revisit the windmill and increase the pace of the alternating reaches, keeping the legs straight and the movement fluid throughout.'),
 (4, 'Y', 'Yoji Pose',         'Return to the yoga balance pose and attempt to hold it for a longer duration than in Week 1, focusing on stillness and steady breathing.'); """)
 
-               
+connection.commit()
+           
 cursor.execute("SELECT * FROM exercise_plan;")
 rows = cursor.fetchall()
 
