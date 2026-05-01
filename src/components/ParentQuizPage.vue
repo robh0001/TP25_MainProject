@@ -734,9 +734,6 @@ async function submitQuiz() {
   --r-card: 28px;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
-
 :global(*, *::before, *::after) {
   box-sizing: border-box;
 }

@@ -594,39 +594,57 @@
 
       <section class="testimonials-section">
         <div class="testimonials-wrap">
-          <div class="test-head">
+          <div class="test-head test-head-inline">
             <div class="section-eyebrow">Parent stories</div>
-            <h2>Real families.<br><em>Real results.</em></h2>
+            <h2>Real families. <em>Real results.</em></h2>
           </div>
-          <div class="testimonials-layout">
-            <div class="testimonials-col-a">
-              <blockquote class="tq tq-lg">
-                <div class="tq-stars">★★★★★</div>
-                <p>"HealthyKids gave our family a clear way to manage after-school time. The actions were small enough to actually follow — and that made all the difference."</p>
-                <footer>
-                  <div class="tq-av" style="background:#dbeafe">SL</div>
-                  <div><strong>Sarah L.</strong><span>Parent of a 7-year-old, Melbourne</span></div>
-                </footer>
-              </blockquote>
-            </div>
-            <div class="testimonials-col-b">
-              <blockquote class="tq">
-                <div class="tq-stars">★★★★★</div>
-                <p>"Instead of generic advice, I got a dashboard telling me exactly what to do each day. Everything felt realistic for our busy family."</p>
-                <footer>
-                  <div class="tq-av" style="background:#f3e8ff">MJ</div>
-                  <div><strong>Marcus J.</strong><span>Parent of a 9-year-old, Sydney</span></div>
-                </footer>
-              </blockquote>
-              <blockquote class="tq">
-                <div class="tq-stars">★★★★★</div>
-                <p>"It focused on progress, not perfection. Improving our family's routines felt genuinely achievable for all of us."</p>
-                <footer>
-                  <div class="tq-av" style="background:#fce7f3">AT</div>
-                  <div><strong>Anika T.</strong><span>Parent of an 11-year-old, Brisbane</span></div>
-                </footer>
-              </blockquote>
-            </div>
+
+          <div class="testimonials-grid">
+            <blockquote class="tq">
+              <div class="tq-stars">★★★★★</div>
+              <p>
+                "HealthyKids gave our family a clear way to manage after-school time.
+                The actions were small enough to actually follow — and that made all
+                the difference."
+              </p>
+              <footer>
+                <div class="tq-av" style="background:#dbeafe">SL</div>
+                <div>
+                  <strong>Sarah L.</strong>
+                  <span>Parent of a 7-year-old, Melbourne</span>
+                </div>
+              </footer>
+            </blockquote>
+
+            <blockquote class="tq">
+              <div class="tq-stars">★★★★★</div>
+              <p>
+                "Instead of generic advice, I got a dashboard telling me exactly what
+                to do each day. Everything felt realistic for our busy family."
+              </p>
+              <footer>
+                <div class="tq-av" style="background:#f3e8ff">MJ</div>
+                <div>
+                  <strong>Marcus J.</strong>
+                  <span>Parent of a 9-year-old, Sydney</span>
+                </div>
+              </footer>
+            </blockquote>
+
+            <blockquote class="tq">
+              <div class="tq-stars">★★★★★</div>
+              <p>
+                "It focused on progress, not perfection. Improving our family's
+                routines felt genuinely achievable for all of us."
+              </p>
+              <footer>
+                <div class="tq-av" style="background:#fce7f3">AT</div>
+                <div>
+                  <strong>Anika T.</strong>
+                  <span>Parent of an 11-year-old, Brisbane</span>
+                </div>
+              </footer>
+            </blockquote>
           </div>
         </div>
       </section>
@@ -2931,8 +2949,9 @@ p:last-child {
 }
 
 /* TESTIMONIALS */
+/* TESTIMONIALS */
 .testimonials-section {
-  padding: var(--section-v) 0;
+  padding: 88px 0;
   background: var(--c-50);
   border-top: 1px solid var(--border);
 }
@@ -2944,26 +2963,34 @@ p:last-child {
 }
 
 .test-head {
-  margin-bottom: 52px;
-  max-width: 20rem;
+  margin-bottom: 28px;
 }
 
-.testimonials-layout {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 20px;
-}
-
-.testimonials-col-a,
-.testimonials-col-b {
+.test-head-inline {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 18px;
+  max-width: none;
+  margin-bottom: 42px;
+}
+
+.test-head-inline h2 {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
+  align-items: stretch;
 }
 
 .tq {
   margin: 0;
-  padding: 30px;
+  padding: 28px;
   border-radius: var(--r-xl);
   background: var(--c-white);
   border: 1px solid var(--border);
@@ -2971,6 +2998,7 @@ p:last-child {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-height: 260px;
   transition: box-shadow 0.25s, transform 0.25s;
 }
 
@@ -2979,63 +3007,78 @@ p:last-child {
   transform: translateY(-3px);
 }
 
-.tq-lg {
-  flex: 1;
-  background: linear-gradient(145deg, #f0fdf4, #dcfce7);
-  border-color: rgba(22, 163, 74, 0.14);
-}
-
 .tq-stars {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #f59e0b;
   letter-spacing: 2px;
 }
 
 .tq p {
-  font-family: var(--f-display);
-  font-style: italic;
-  font-size: clamp(0.98rem, 1.2vw, 1.15rem);
-  color: var(--c-black);
-  line-height: 1.62;
-  flex: 1;
   margin: 0;
+  font-family: var(--f-display);
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: var(--text-strong);
+  flex: 1;
 }
 
 .tq footer {
   display: flex;
   align-items: center;
-  gap: 12px;
-  border-top: 1px solid var(--border);
+  gap: 14px;
   padding-top: 16px;
-  margin-top: auto;
+  border-top: 1px solid var(--border);
 }
 
 .tq-av {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--f-body);
-  font-size: 0.76rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: var(--c-700);
+  color: var(--text-strong);
   flex-shrink: 0;
 }
 
 .tq footer strong {
   display: block;
-  font-family: var(--f-body);
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--c-black);
+  font-size: 1rem;
+  color: var(--text-strong);
+  margin-bottom: 4px;
 }
 
 .tq footer span {
-  font-size: 0.76rem;
-  color: var(--c-400);
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .test-head-inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .test-head-inline h2 {
+    white-space: normal;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
 /* FINAL CTA */
 .final-cta {
