@@ -20,10 +20,13 @@
           <div class="intro-shell">
             <div class="intro-copy">
               <p class="step-kicker">Step 2 of 3</p>
-              <h1>Build a plan</h1>
+              <h1>{{ isRetakeMode ? 'Update plan' : 'Build a plan' }}</h1>
               <p class="intro-text">
-                Answer a few questions so we can shape a more realistic family routine and build
-                your parent dashboard.
+                {{
+                  isRetakeMode
+                    ? 'Update your answers so your parent dashboard reflects your current family routine.'
+                    : 'Answer a few questions so we can shape a more realistic family routine and build your parent dashboard.'
+                }}
               </p>
             </div>
 
@@ -57,12 +60,27 @@
               <p class="wizard-step">Step {{ currentStep + 1 }} of {{ steps.length }}</p>
               <h2>{{ activeStep.title }}</h2>
               <p class="wizard-subtitle">{{ activeStep.subtitle }}</p>
+
+              <div class="progress-track" aria-hidden="true">
+                <div
+                  class="progress-fill"
+                  :style="{ width: `${((currentStep + 1) / steps.length) * 100}%` }"
+                ></div>
+              </div>
             </div>
 
             <div v-if="currentStep === 0" class="form-grid">
               <div class="form-group">
                 <label for="username">Username</label>
-                <input id="username" v-model.trim="form.username" placeholder="Enter your username" />
+                <input
+                  id="username"
+                  v-model.trim="form.username"
+                  :disabled="isRetakeMode"
+                  placeholder="Enter your username"
+                />
+                <small v-if="isRetakeMode" class="field-hint">
+                  Username is locked because you are updating your existing profile.
+                </small>
               </div>
 
               <div class="form-group">
@@ -159,16 +177,25 @@
                 <h3>Your family plan</h3>
 
                 <ul class="preview-list">
-                  <li><strong>Username:</strong> {{ form.username }}</li>
-                  <li><strong>Top habits to support:</strong> {{ form.habits.join(', ') }}</li>
-                  <li><strong>Main concerns:</strong> {{ form.concerns.join(', ') }}</li>
-                  <li><strong>Support style:</strong> {{ form.supportStyle }}</li>
-                  <li><strong>Routine context:</strong> {{ form.routineType }}</li>
+                  <li><strong>Username:</strong> {{ form.username || 'Not provided' }}</li>
+                  <li>
+                    <strong>Top habits to support:</strong>
+                    {{ form.habits.length ? form.habits.join(', ') : 'None selected' }}
+                  </li>
+                  <li>
+                    <strong>Main concerns:</strong>
+                    {{ form.concerns.length ? form.concerns.join(', ') : 'None selected' }}
+                  </li>
+                  <li><strong>Support style:</strong> {{ form.supportStyle || 'Not selected' }}</li>
+                  <li><strong>Routine context:</strong> {{ form.routineType || 'Not selected' }}</li>
                 </ul>
 
                 <p class="preview-note">
-                  Your answers will generate a saved parent dashboard with practical next steps, a
-                  weekly plan, and trackable tasks.
+                  {{
+                    isRetakeMode
+                      ? 'Your updated answers will replace your existing dashboard plan.'
+                      : 'Your answers will generate a saved parent dashboard with practical next steps, a weekly plan, and trackable tasks.'
+                  }}
                 </p>
               </article>
             </div>
@@ -180,6 +207,7 @@
                 v-if="currentStep > 0"
                 type="button"
                 class="outline-btn"
+                :disabled="saving"
                 @click="currentStep -= 1"
               >
                 Back
@@ -189,6 +217,7 @@
                 v-if="currentStep < steps.length - 1"
                 type="button"
                 class="soft-brown-btn"
+                :disabled="saving"
                 @click="goNext"
               >
                 Continue
@@ -198,9 +227,16 @@
                 v-else
                 type="button"
                 class="soft-brown-btn"
+                :disabled="saving"
                 @click="submitQuiz"
               >
-                Save and generate my family plan
+                {{
+                  saving
+                    ? 'Saving your plan...'
+                    : isRetakeMode
+                      ? 'Update my family plan'
+                      : 'Save and generate my family plan'
+                }}
               </button>
             </div>
           </div>
@@ -212,21 +248,23 @@
 
 <script setup>
 import { computed, reactive, ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 
 const router = useRouter()
 const { state, savePlan } = useFamilyPlanStore()
 
+const API_BASE = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
+
 const form = reactive({
   username: state.username || '',
-  ageRange: '',
-  routineType: '',
-  habits: [],
-  concerns: [],
-  struggle: '',
-  confidence: '',
-  supportStyle: '',
+  ageRange: state.ageRange || '',
+  routineType: state.routineType || '',
+  habits: Array.isArray(state.habits) ? [...state.habits] : [],
+  concerns: Array.isArray(state.concerns) ? [...state.concerns] : [],
+  struggle: state.struggle || '',
+  confidence: state.confidence || '',
+  supportStyle: state.supportStyle || '',
 })
 
 const steps = [
@@ -244,7 +282,7 @@ const steps = [
   },
   {
     title: 'Review your plan',
-    subtitle: 'Check your answers before generating your family dashboard.',
+    subtitle: 'Check your answers before saving your family dashboard.',
   },
 ]
 
@@ -271,39 +309,77 @@ const concernOptions = [
 
 const currentStep = ref(0)
 const errorMessage = ref('')
+const saving = ref(false)
 
 const activeStep = computed(() => steps[currentStep.value])
+const isRetakeMode = computed(() => Boolean(state.username))
 
 function toggleSelection(list, value) {
   const index = list.indexOf(value)
+
   if (index === -1) {
     list.push(value)
     return
   }
+
   list.splice(index, 1)
+}
+
+function isValidUsername(username) {
+  return /^[a-zA-Z0-9_-]{3,24}$/.test(username)
 }
 
 function validateStep() {
   errorMessage.value = ''
 
   if (currentStep.value === 0) {
-    if (!form.username || !form.ageRange || !form.routineType) {
-      errorMessage.value = 'Please complete all family basics fields before continuing.'
+    if (!form.username) {
+      errorMessage.value = 'Please enter a username.'
+      return false
+    }
+
+    if (!isValidUsername(form.username)) {
+      errorMessage.value =
+        'Username must be 3-24 characters and can only include letters, numbers, underscores, or hyphens.'
+      return false
+    }
+
+    if (!form.ageRange) {
+      errorMessage.value = 'Please select your child’s age range.'
+      return false
+    }
+
+    if (!form.routineType) {
+      errorMessage.value = 'Please select your family routine type.'
       return false
     }
   }
 
   if (currentStep.value === 1) {
-    if (!form.habits.length || !form.struggle) {
-      errorMessage.value =
-        'Please select at least one habit and describe what feels hardest right now.'
+    if (!form.habits.length) {
+      errorMessage.value = 'Please select at least one habit to support.'
+      return false
+    }
+
+    if (!form.struggle) {
+      errorMessage.value = 'Please describe what feels hardest in daily family life right now.'
       return false
     }
   }
 
   if (currentStep.value === 2) {
-    if (!form.concerns.length || !form.confidence || !form.supportStyle) {
-      errorMessage.value = 'Please complete all parent support questions.'
+    if (!form.concerns.length) {
+      errorMessage.value = 'Please select at least one parent concern.'
+      return false
+    }
+
+    if (!form.confidence) {
+      errorMessage.value = 'Please select how supported you currently feel.'
+      return false
+    }
+
+    if (!form.supportStyle) {
+      errorMessage.value = 'Please select the type of support that would help most.'
       return false
     }
   }
@@ -431,10 +507,7 @@ function buildTaskPool() {
       'Set one planned snack time instead of frequent grazing',
       'Use a portioned snack instead of eating from a large pack'
     )
-    trackerItems.push(
-      'Planned snack time used',
-      'Portioned snack served'
-    )
+    trackerItems.push('Planned snack time used', 'Portioned snack served')
   }
 
   if (form.concerns.includes('Healthy meals are hard on busy days')) {
@@ -442,10 +515,7 @@ function buildTaskPool() {
       'Choose one simple low-effort meal for today',
       "Decide tonight's meal before the busy part of the day begins"
     )
-    trackerItems.push(
-      'Simple low-effort meal used',
-      'Meal decided early'
-    )
+    trackerItems.push('Simple low-effort meal used', 'Meal decided early')
   }
 
   if (form.concerns.includes('Bedtime feels inconsistent')) {
@@ -453,10 +523,7 @@ function buildTaskPool() {
       'Keep bedtime within the same 20-minute window tonight',
       'Repeat the same final bedtime activity tonight'
     )
-    trackerItems.push(
-      'Bedtime kept within the target window',
-      'Same final bedtime activity repeated'
-    )
+    trackerItems.push('Bedtime kept within the target window', 'Same final bedtime activity repeated')
   }
 
   if (form.concerns.includes('Our family routine feels hard to manage')) {
@@ -464,10 +531,7 @@ function buildTaskPool() {
       'Focus on just one habit today instead of trying to fix everything',
       'Use one visible cue such as a note, bottle, or snack setup'
     )
-    trackerItems.push(
-      'One-habit focus maintained',
-      'Visible routine cue used'
-    )
+    trackerItems.push('One-habit focus maintained', 'Visible routine cue used')
   }
 
   if (form.supportStyle === 'Visual tips and reminders') {
@@ -495,10 +559,7 @@ function buildTaskPool() {
       "Pick the easiest possible version of today's task",
       'Prep one thing early to reduce pressure later'
     )
-    trackerItems.push(
-      'Easiest version of the task completed',
-      'One thing prepped early'
-    )
+    trackerItems.push('Easiest version of the task completed', 'One thing prepped early')
   }
 
   if (form.routineType === 'Busy and sometimes inconsistent') {
@@ -539,6 +600,7 @@ function buildDailyPlan(taskPool) {
         done: false,
       },
     ]
+
     return acc
   }, {})
 }
@@ -587,7 +649,10 @@ function createRecommendations() {
     })
   }
 
-  if (form.habits.includes('Screen time balance') || form.concerns.includes('My child prefers screens over outdoor activity')) {
+  if (
+    form.habits.includes('Screen time balance') ||
+    form.concerns.includes('My child prefers screens over outdoor activity')
+  ) {
     recommendations.push({
       title: 'Screen balance support',
       description:
@@ -615,7 +680,9 @@ function createRecommendations() {
     recommendations.push(
       {
         title: "This week's first step",
-        description: `Start with one small ${form.habits[0]?.toLowerCase() || 'healthy routine'} action each day and keep the goal realistic.`,
+        description: `Start with one small ${
+          form.habits[0]?.toLowerCase() || 'healthy routine'
+        } action each day and keep the goal realistic.`,
       },
       {
         title: 'Before the hard moment',
@@ -651,52 +718,102 @@ function createMission() {
   return 'Complete one healthy habit win today.'
 }
 
-async function submitQuiz() {
-  if (!validateStep()) return
-
+function buildPayload() {
   const taskPool = buildTaskPool()
-  const recommendations = createRecommendations()
-  const dailyPlan = buildDailyPlan(taskPool)
-  const progressItems = buildProgressItems(taskPool)
-  const nextAction = createNextAction(taskPool)
-  const mission = createMission()
 
-  const payload = {
-    ...form,
-    recommendations,
-    dailyPlan,
-    progressItems,
-    nextAction,
-    mission,
+  return {
+    username: form.username,
+    ageRange: form.ageRange,
+    routineType: form.routineType,
+    habits: [...form.habits],
+    concerns: [...form.concerns],
+    struggle: form.struggle,
+    confidence: form.confidence,
+    supportStyle: form.supportStyle,
+    recommendations: createRecommendations(),
+    dailyPlan: buildDailyPlan(taskPool),
+    progressItems: buildProgressItems(taskPool),
+    nextAction: createNextAction(taskPool),
+    mission: createMission(),
     streakDays: state.streakDays || 0,
   }
+}
+
+async function requestJson(url, options) {
+  const response = await fetch(url, options)
+  const data = await response.json().catch(() => ({}))
+
+  return {
+    response,
+    data,
+  }
+}
+
+async function createProfile(payload) {
+  return requestJson(`${API_BASE}/parent-profiles`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+}
+
+async function updateProfile(payload) {
+  const encodedUsername = encodeURIComponent(payload.username)
+
+  return requestJson(`${API_BASE}/parent-profiles/${encodedUsername}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+}
+
+async function saveProfile(payload) {
+  if (isRetakeMode.value) {
+    return updateProfile(payload)
+  }
+
+  const createResult = await createProfile(payload)
+
+  if (createResult.response.status === 409) {
+    return updateProfile(payload)
+  }
+
+  return createResult
+}
+
+async function submitQuiz() {
+  if (!validateStep() || saving.value) return
+
+  if (!API_BASE) {
+    errorMessage.value = 'Missing VITE_PARENT_PROFILES_API_BASE_URL.'
+    return
+  }
+
+  saving.value = true
+  errorMessage.value = ''
+
+  const payload = buildPayload()
 
   try {
-    const response = await fetch(
-      `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/test/parent-profiles`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }
-    )
-
-    const data = await response.json()
-
-    if (response.status === 409) {
-      errorMessage.value = 'That username is already taken. Please go back and choose another one.'
-      return
-    }
+    const { response, data } = await saveProfile(payload)
 
     if (!response.ok) {
-      throw new Error(data.error || 'Save failed')
+      if (response.status === 409) {
+        errorMessage.value = 'That username is already taken. Please use your existing username or choose another one.'
+        return
+      }
+
+      throw new Error(data.error || `Save failed with status ${response.status}`)
     }
 
     savePlan(payload)
     router.push('/parent-dashboard')
   } catch (error) {
-    errorMessage.value = 'Something went wrong while saving your plan. Please try again.'
     console.error(error)
+    errorMessage.value =
+      'Something went wrong while saving your plan. Please check your API update route and try again.'
+  } finally {
+    saving.value = false
   }
 }
 </script>
@@ -1051,7 +1168,7 @@ async function submitQuiz() {
 }
 
 .form-shell {
-  max-width: 980px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 32px;
   border-radius: 28px;
@@ -1084,6 +1201,22 @@ async function submitQuiz() {
   color: var(--c-500);
 }
 
+.progress-track {
+  width: 100%;
+  height: 8px;
+  margin-top: 22px;
+  border-radius: 999px;
+  background: var(--c-100);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--c-black);
+  transition: width 0.25s ease;
+}
+
 /* FORM CONTROLS */
 .form-grid {
   display: grid;
@@ -1108,13 +1241,19 @@ async function submitQuiz() {
   line-height: 1.5;
 }
 
+.field-hint {
+  color: var(--c-400);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
   border-radius: 12px;
   border: 1px solid var(--border-mid);
-  background: var(--c-white);
+  background: #fffefb;
   padding: 0 16px;
   font-family: var(--f-body);
   font-size: 0.96rem;
@@ -1127,6 +1266,12 @@ async function submitQuiz() {
 .form-group input,
 .form-group select {
   height: 54px;
+}
+
+.form-group input:disabled {
+  color: var(--c-500);
+  background: var(--c-50);
+  cursor: not-allowed;
 }
 
 .form-group textarea {
@@ -1186,6 +1331,10 @@ async function submitQuiz() {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
 }
 
+.option-chip.selected::after {
+  content: " ✓";
+}
+
 /* PREVIEW */
 .preview-stack {
   display: grid;
@@ -1232,7 +1381,7 @@ async function submitQuiz() {
 
 /* ERRORS */
 .form-error {
-  margin: 18px 0 0;
+  margin: 22px 0 0;
   padding: 12px 14px;
   border-radius: 12px;
   background: rgba(180, 35, 24, 0.08);
@@ -1275,7 +1424,7 @@ async function submitQuiz() {
   box-shadow: none;
 }
 
-.soft-brown-btn:hover {
+.soft-brown-btn:hover:not(:disabled) {
   background: var(--c-800);
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
@@ -1287,9 +1436,17 @@ async function submitQuiz() {
   border: 1px solid var(--border-mid);
 }
 
-.outline-btn:hover {
+.outline-btn:hover:not(:disabled) {
   background: var(--c-50);
   transform: translateY(-1px);
+}
+
+.soft-brown-btn:disabled,
+.outline-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* RESPONSIVE */
