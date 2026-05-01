@@ -132,7 +132,82 @@
         </div>
       </section>
 
-      <section class="roadmap-section" id="roadmap">
+      <section class="today-section">
+        <div class="section-wrap">
+          <div class="section-head-row">
+            <div class="section-head-left">
+              <div class="section-eyebrow">Today's plan</div>
+              <h2 class="section-h2">
+                {{ todayName }}'s<br />
+                <em>actions.</em>
+              </h2>
+              <p class="section-desc">
+                {{ completedTodayCount }} of {{ todayFullSchedule.length }} scheduled actions completed today.
+              </p>
+            </div>
+
+            <div class="today-score-block">
+              <div class="tsb-pct">{{ todayProgress }}<span>%</span></div>
+              <div class="tsb-lbl">Today's progress</div>
+              <div class="tsb-track">
+                <div class="tsb-fill" :style="{ width: todayProgress + '%' }"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="today-schedule-card">
+            <div class="tsc-header">
+              <div>
+                <div class="tsc-day">{{ todayName }}</div>
+                <div class="tsc-sub">{{ childName }}'s database-fetched schedule</div>
+              </div>
+              <div class="tsc-pct-chip" :class="todayProgress === 100 ? 'chip-green' : 'chip-default'">{{ todayProgress }}%</div>
+            </div>
+
+            <div class="tsc-progress-bar">
+              <div class="tsc-pb-fill" :style="{ width: todayProgress + '%' }"></div>
+            </div>
+
+            <div class="tsc-timeline">
+              <div
+                v-for="slot in todayFullSchedule"
+                :key="slot.id"
+                class="tsc-slot"
+                :class="['tsc-' + slot.category, { done: slot.done }]"
+              >
+                <div class="tsc-time-col">
+                  <span class="tsc-time">{{ slot.time }}</span>
+                </div>
+                <div class="tsc-slot-line">
+                  <div class="tsc-dot" :class="{ done: slot.done }"></div>
+                  <div class="tsc-line"></div>
+                </div>
+                <label class="tsc-content">
+                  <input type="checkbox" :checked="slot.done" @change="toggleTodayScheduleSlot(slot)" />
+                  <div class="tsc-card" :class="{ done: slot.done }">
+                    <div class="tsc-card-row">
+                      <span class="tsc-cat-badge" :class="'badge-' + slot.category">{{ slot.categoryLabel }}</span>
+                      <span class="tsc-check" :class="{ done: slot.done }">
+                        <svg v-if="slot.done" width="10" height="10" viewBox="0 0 10 10">
+                          <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                    </div>
+                    <span class="tsc-text">{{ slot.text }}</span>
+                    <span v-if="slot.detail" class="tsc-detail">{{ slot.detail }}</span>
+                    <span v-if="slot.tip" class="tsc-detail">{{ slot.tip }}</span>
+                  </div>
+                </label>
+              </div>
+
+              <p v-if="!todayFullSchedule.length" class="tsc-empty">
+                No scheduled actions found for {{ todayName }}.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+<section class="roadmap-section" id="roadmap">
         <div class="section-wrap">
           <div class="section-head-row">
             <div class="section-head-left">
@@ -324,77 +399,98 @@
         </div>
       </section>
 
-      <section class="today-section">
+            <section class="food-ai-section">
         <div class="section-wrap">
-          <div class="section-head-row">
-            <div class="section-head-left">
-              <div class="section-eyebrow">Today's plan</div>
+          <div class="food-ai-card">
+            <div>
+              <div class="section-eyebrow">AI nutrition helper</div>
               <h2 class="section-h2">
-                {{ todayName }}'s<br />
-                <em>actions.</em>
+                Check a food's<br />
+                <em>health score.</em>
               </h2>
               <p class="section-desc">
-                {{ completedTodayCount }} of {{ todayFullSchedule.length }} scheduled actions completed today.
+                Enter a food item and the AI model will estimate a health score using its nutrition profile.
               </p>
             </div>
 
-            <div class="today-score-block">
-              <div class="tsb-pct">{{ todayProgress }}<span>%</span></div>
-              <div class="tsb-lbl">Today's progress</div>
-              <div class="tsb-track">
-                <div class="tsb-fill" :style="{ width: todayProgress + '%' }"></div>
+            <div class="food-ai-panel">
+              <div class="food-ai-form">
+                <input
+                  v-model="foodInput"
+                  type="text"
+                  placeholder="Try banana, apple, rice, milk..."
+                  class="food-ai-input"
+                  @keyup.enter="submitFoodPrediction"
+                />
+
+                <button
+                  type="button"
+                  class="food-ai-btn"
+                  :disabled="foodPredictionLoading"
+                  @click="submitFoodPrediction"
+                >
+                  {{ foodPredictionLoading ? 'Checking...' : 'Check score' }}
+                </button>
               </div>
-            </div>
-          </div>
 
-          <div class="today-schedule-card">
-            <div class="tsc-header">
-              <div>
-                <div class="tsc-day">{{ todayName }}</div>
-                <div class="tsc-sub">{{ childName }}'s database-fetched schedule</div>
+              <p v-if="foodPredictionError" class="food-ai-error">
+                {{ foodPredictionError }}
+              </p>
+
+              <div v-if="foodPredictionCandidates.length" class="food-ai-candidates">
+                <button
+                  v-for="candidate in foodPredictionCandidates"
+                  :key="candidate"
+                  type="button"
+                  class="food-ai-candidate"
+                  @click="chooseFoodCandidate(candidate)"
+                >
+                  {{ candidate }}
+                </button>
               </div>
-              <div class="tsc-pct-chip" :class="todayProgress === 100 ? 'chip-green' : 'chip-default'">{{ todayProgress }}%</div>
-            </div>
 
-            <div class="tsc-progress-bar">
-              <div class="tsc-pb-fill" :style="{ width: todayProgress + '%' }"></div>
-            </div>
+              <div v-if="foodPredictionResult" class="food-ai-result">
+                <div class="food-ai-score">
+                  {{ Math.round(foodPredictionResult.health_score) }}
+                  <span>/100</span>
+                </div>
 
-            <div class="tsc-timeline">
-              <div
-                v-for="slot in todayFullSchedule"
-                :key="slot.id"
-                class="tsc-slot"
-                :class="['tsc-' + slot.category, { done: slot.done }]"
-              >
-                <div class="tsc-time-col">
-                  <span class="tsc-time">{{ slot.time }}</span>
-                </div>
-                <div class="tsc-slot-line">
-                  <div class="tsc-dot" :class="{ done: slot.done }"></div>
-                  <div class="tsc-line"></div>
-                </div>
-                <label class="tsc-content">
-                  <input type="checkbox" :checked="slot.done" @change="toggleTodayScheduleSlot(slot)" />
-                  <div class="tsc-card" :class="{ done: slot.done }">
-                    <div class="tsc-card-row">
-                      <span class="tsc-cat-badge" :class="'badge-' + slot.category">{{ slot.categoryLabel }}</span>
-                      <span class="tsc-check" :class="{ done: slot.done }">
-                        <svg v-if="slot.done" width="10" height="10" viewBox="0 0 10 10">
-                          <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                      </span>
+                <div>
+                  <h3>{{ foodPredictionResult.matched_food }}</h3>
+                  <p>{{ foodPredictionResult.category }}</p>
+
+                  <div class="food-ai-nutrition-grid">
+                    <div>
+                      <span>Calories</span>
+                      <strong>{{ foodPredictionResult.nutrition.calories }}</strong>
                     </div>
-                    <span class="tsc-text">{{ slot.text }}</span>
-                    <span v-if="slot.detail" class="tsc-detail">{{ slot.detail }}</span>
-                    <span v-if="slot.tip" class="tsc-detail">{{ slot.tip }}</span>
+                    <div>
+                      <span>Protein</span>
+                      <strong>{{ foodPredictionResult.nutrition.protein_g }}g</strong>
+                    </div>
+                    <div>
+                      <span>Fat</span>
+                      <strong>{{ foodPredictionResult.nutrition.fat_g }}g</strong>
+                    </div>
+                    <div>
+                      <span>Carbs</span>
+                      <strong>{{ foodPredictionResult.nutrition.carbs_g }}g</strong>
+                    </div>
+                    <div>
+                      <span>Fiber</span>
+                      <strong>{{ foodPredictionResult.nutrition.fiber_g }}g</strong>
+                    </div>
+                    <div>
+                      <span>Sugar</span>
+                      <strong>{{ foodPredictionResult.nutrition.sugar_g }}g</strong>
+                    </div>
                   </div>
-                </label>
-              </div>
 
-              <p v-if="!todayFullSchedule.length" class="tsc-empty">
-                No scheduled actions found for {{ todayName }}.
-              </p>
+                  <button type="button" class="food-ai-clear" @click="clearPrediction">
+                    Clear result
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -434,103 +530,6 @@
       </div>
     </footer>
   </div>
-
-  <section class="food-ai-section">
-  <div class="section-wrap">
-    <div class="food-ai-card">
-      <div>
-        <div class="section-eyebrow">AI nutrition helper</div>
-        <h2 class="section-h2">
-          Check a food's<br />
-          <em>health score.</em>
-        </h2>
-        <p class="section-desc">
-          Enter a food item and the AI model will estimate a health score using its nutrition profile.
-        </p>
-      </div>
-
-      <div class="food-ai-panel">
-        <div class="food-ai-form">
-          <input
-            v-model="foodInput"
-            type="text"
-            placeholder="Try banana, apple, rice, milk..."
-            class="food-ai-input"
-            @keyup.enter="submitFoodPrediction"
-          />
-
-          <button
-            type="button"
-            class="food-ai-btn"
-            :disabled="foodPredictionLoading"
-            @click="submitFoodPrediction"
-          >
-            {{ foodPredictionLoading ? 'Checking...' : 'Check score' }}
-          </button>
-        </div>
-
-        <p v-if="foodPredictionError" class="food-ai-error">
-          {{ foodPredictionError }}
-        </p>
-
-        <div v-if="foodPredictionCandidates.length" class="food-ai-candidates">
-          <button
-            v-for="candidate in foodPredictionCandidates"
-            :key="candidate"
-            type="button"
-            class="food-ai-candidate"
-            @click="chooseFoodCandidate(candidate)"
-          >
-            {{ candidate }}
-          </button>
-        </div>
-
-        <div v-if="foodPredictionResult" class="food-ai-result">
-          <div class="food-ai-score">
-            {{ Math.round(foodPredictionResult.health_score) }}
-            <span>/100</span>
-          </div>
-
-          <div>
-            <h3>{{ foodPredictionResult.matched_food }}</h3>
-            <p>{{ foodPredictionResult.category }}</p>
-
-            <div class="food-ai-nutrition-grid">
-              <div>
-                <span>Calories</span>
-                <strong>{{ foodPredictionResult.nutrition.calories }}</strong>
-              </div>
-              <div>
-                <span>Protein</span>
-                <strong>{{ foodPredictionResult.nutrition.protein_g }}g</strong>
-              </div>
-              <div>
-                <span>Fat</span>
-                <strong>{{ foodPredictionResult.nutrition.fat_g }}g</strong>
-              </div>
-              <div>
-                <span>Carbs</span>
-                <strong>{{ foodPredictionResult.nutrition.carbs_g }}g</strong>
-              </div>
-              <div>
-                <span>Fiber</span>
-                <strong>{{ foodPredictionResult.nutrition.fiber_g }}g</strong>
-              </div>
-              <div>
-                <span>Sugar</span>
-                <strong>{{ foodPredictionResult.nutrition.sugar_g }}g</strong>
-              </div>
-            </div>
-
-            <button type="button" class="food-ai-clear" @click="clearPrediction">
-              Clear result
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 </template>
 
 
