@@ -75,8 +75,8 @@
                 <input
                   id="username"
                   v-model.trim="form.username"
-                  :disabled="isRetakeMode"
-                  placeholder="Enter your username"
+                  :disabled="hasFamilyCode"
+                  placeholder="Enter your family code"
                 />
                 <small v-if="isRetakeMode" class="field-hint">
                   Family code is locked because you are updating your existing profile.
@@ -94,6 +94,9 @@
                   <option>8-10 years</option>
                   <option>11-12 years</option>
                 </select>
+                <small class="field-hint">
+                  This helps shape age-appropriate daily actions.
+                </small>
               </div>
 
               <div class="form-group full-row">
@@ -318,7 +321,25 @@ const errorMessage = ref('')
 const saving = ref(false)
 
 const activeStep = computed(() => steps[currentStep.value])
-const isRetakeMode = computed(() => Boolean(state.username))
+const hasFamilyCode = computed(() => Boolean(state.username))
+
+const isRetakeMode = computed(() =>
+  Boolean(
+    state.username &&
+    (
+      state.ageRange ||
+      state.routineType ||
+      state.struggle ||
+      state.confidence ||
+      state.supportStyle ||
+      state.dailyPlan ||
+      state.progressItems ||
+      state.recommendations ||
+      (Array.isArray(state.habits) && state.habits.length > 0) ||
+      (Array.isArray(state.concerns) && state.concerns.length > 0)
+    )
+  )
+)
 
 function toggleSelection(list, value) {
   const index = list.indexOf(value)
@@ -775,7 +796,13 @@ async function updateProfile(payload) {
 
 async function saveProfile(payload) {
   if (isRetakeMode.value) {
-    return updateProfile(payload)
+    const updateResult = await updateProfile(payload)
+
+    if (updateResult.response.status !== 404) {
+      return updateResult
+    }
+
+    return createProfile(payload)
   }
 
   const createResult = await createProfile(payload)
@@ -815,7 +842,6 @@ async function submitQuiz() {
     savePlan(payload)
     router.push('/parent-dashboard')
   } catch (error) {
-    console.error(error)
     errorMessage.value =
       'Something went wrong while saving your plan. Please try again in a moment.'
   } finally {
