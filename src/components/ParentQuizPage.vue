@@ -71,7 +71,7 @@
 
             <div v-if="currentStep === 0" class="form-grid">
               <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username">Family code</label>
                 <input
                   id="username"
                   v-model.trim="form.username"
@@ -79,13 +79,11 @@
                   placeholder="Enter your username"
                 />
                 <small v-if="isRetakeMode" class="field-hint">
-                  Username is locked because you are updating your existing profile.
+                  Family code is locked because you are updating your existing profile.
                 </small>
-              </div>
-
-              <div class="form-group">
-                <label for="child-name">Child name</label>
-                <input id="child-name" v-model.trim="form.childName" placeholder="Enter your child's name" />
+                <small v-else class="field-hint">
+                  Use the same private family code you created earlier. Avoid real names or contact details.
+                </small>
               </div>
 
               <div class="form-group">
@@ -134,6 +132,9 @@
                   rows="5"
                   placeholder="For example: my child wants screens after school, healthy meals are difficult on busy days, or bedtime becomes a battle."
                 ></textarea>
+                <small class="field-hint">
+                  Keep this general. Avoid real names, medical details, addresses, or contact information.
+                </small>
               </div>
             </div>
 
@@ -182,11 +183,7 @@
                 <h3>Your family plan</h3>
 
                 <ul class="preview-list">
-                  <li><strong>Username:</strong> {{ form.username || 'Not provided' }}</li>
-                  <li>
-                    <strong>Child:</strong>
-                    {{ form.childName || 'Not provided' }}{{ form.ageRange ? ` · ${form.ageRange}` : '' }}
-                  </li>
+                  <li><strong>Family code:</strong> {{ form.username || 'Not provided' }}</li>
                   <li>
                     <strong>Top habits to support:</strong>
                     {{ form.habits.length ? form.habits.join(', ') : 'None selected' }}
@@ -267,7 +264,6 @@ const API_BASE = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
 
 const form = reactive({
   username: state.username || '',
-  childName: state.childName || '',
   ageRange: state.ageRange || '',
   routineType: state.routineType || '',
   habits: Array.isArray(state.habits) ? [...state.habits] : [],
@@ -313,7 +309,7 @@ const concernOptions = [
   'Healthy meals are hard on busy days',
   'Bedtime feels inconsistent',
   'Our family routine feels hard to manage',
-  'I am worried about weight or long-term health',
+  'I am worried about healthy growth or long-term wellbeing',
   'I am not sure what the right approach is',
 ]
 
@@ -344,28 +340,23 @@ function validateStep() {
 
   if (currentStep.value === 0) {
     if (!form.username) {
-      errorMessage.value = 'Please enter a username.'
+      errorMessage.value = 'Please enter a family code.'
       return false
     }
 
     if (!isValidUsername(form.username)) {
       errorMessage.value =
-        'Username must be 3-24 characters and can only include letters, numbers, underscores, or hyphens.'
+        'Family code must be 3-24 characters and can only include letters, numbers, underscores, or hyphens.'
       return false
     }
 
     if (!form.ageRange) {
-      errorMessage.value = 'Please select your child’s age range.'
+      errorMessage.value = "Please select your child's age range."
       return false
     }
 
     if (!form.routineType) {
       errorMessage.value = 'Please select your family routine type.'
-      return false
-    }
-
-    if (!form.childName) {
-      errorMessage.value = 'Please enter your child’s name.'
       return false
     }
   }
@@ -738,7 +729,6 @@ function buildPayload() {
 
   return {
     username: form.username,
-    childName: form.childName,
     ageRange: form.ageRange,
     routineType: form.routineType,
     habits: [...form.habits],
@@ -815,7 +805,7 @@ async function submitQuiz() {
 
     if (!response.ok) {
       if (response.status === 409) {
-        errorMessage.value = 'That username is already taken. Please use your existing username or choose another one.'
+        errorMessage.value = 'That family code is already taken. Please use your existing family code or choose another one.'
         return
       }
 
@@ -827,7 +817,7 @@ async function submitQuiz() {
   } catch (error) {
     console.error(error)
     errorMessage.value =
-      'Something went wrong while saving your plan. Please check your API update route and try again.'
+      'Something went wrong while saving your plan. Please try again in a moment.'
   } finally {
     saving.value = false
   }

@@ -21,8 +21,8 @@
               <p class="step-kicker">Step 1 of 3</p>
               <h1>How would you like to continue?</h1>
               <p class="intro-text">
-                Start a new family plan or return to an existing one. This page is the parent access
-                point before the quiz and dashboard.
+                Start a new family plan or return using your saved family code. This keeps access simple
+                without asking for personal names or account details.
               </p>
             </div>
   
@@ -56,8 +56,8 @@
                   <p class="card-kicker">New parent</p>
                   <h2>Create a new family plan</h2>
                   <p>
-                    Choose a username, complete the parent quiz, and generate a personalised family
-                    dashboard with practical next steps.
+                    Choose a private family code, complete the parent quiz, and generate a personalised
+                    family dashboard with practical next steps.
                   </p>
                 </div>
   
@@ -66,7 +66,7 @@
                   <div class="visual-panel">
                     <strong>What happens next?</strong>
                     <ul>
-                      <li>Create username</li>
+                      <li>Create family code</li>
                       <li>Complete parent quiz</li>
                       <li>Unlock dashboard</li>
                     </ul>
@@ -74,13 +74,16 @@
                 </div>
   
                 <div class="form-block">
-                  <label for="new-username">Choose a username</label>
+                  <label for="new-username">Choose a family code</label>
                   <input
                     id="new-username"
                     v-model.trim="newUsername"
                     type="text"
-                    placeholder="e.g. healthyparent01"
+                    placeholder="e.g. familygreen01"
                   />
+                  <small class="field-hint">
+                    Use a code you can remember. Avoid real names, emails, phone numbers, or medical details.
+                  </small>
                   <p v-if="newUserError" class="form-error">{{ newUserError }}</p>
                   <button type="button" class="soft-brown-btn full-btn" @click="startNewUser">
                     Start as new parent
@@ -93,7 +96,7 @@
                   <p class="card-kicker">Returning parent</p>
                   <h2>Open your saved dashboard</h2>
                   <p>
-                    Enter your saved username to continue with your child's daily tasks, weekly plan,
+                    Enter your saved family code to continue with your child's daily tasks, weekly plan,
                     progress tracker, and recommendations.
                   </p>
                 </div>
@@ -111,13 +114,16 @@
                 </div>
   
                 <div class="form-block">
-                  <label for="returning-username">Enter your username</label>
+                  <label for="returning-username">Enter your family code</label>
                   <input
                     id="returning-username"
                     v-model.trim="returningUsername"
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder="Enter your family code"
                   />
+                  <small class="field-hint">
+                    This should be the same family code used when the plan was created.
+                  </small>
                   <p v-if="returningUserError" class="form-error">{{ returningUserError }}</p>
                   <button type="button" class="outline-btn full-btn" @click="continueReturningUser">
                     Open my dashboard
@@ -181,7 +187,7 @@
     newUserError.value = ''
   
     if (!newUsername.value) {
-        newUserError.value = 'Please choose a username before continuing.'
+        newUserError.value = 'Please choose a family code before continuing.'
         return
     }
   
@@ -193,13 +199,13 @@
         )
   
         if (!response.ok) {
-        throw new Error('Username check failed')
+        throw new Error('Family code check failed')
         }
   
         const data = await response.json()
   
         if (!data.available) {
-        newUserError.value = 'That username is already taken. Please choose another one.'
+        newUserError.value = 'That family code is already taken. Please choose another one.'
         return
         }
 
@@ -208,7 +214,7 @@
     
         router.push('/parent-quiz')
     } catch (error) {
-        newUserError.value = 'Unable to check username right now. Please try again.'
+        newUserError.value = 'Unable to check family code right now. Please try again.'
     }
     }
   
@@ -216,7 +222,7 @@
         returningUserError.value = ''
   
     if (!returningUsername.value) {
-        returningUserError.value = 'Please enter your username.'
+        returningUserError.value = 'Please enter your family code.'
         return
     }
   
@@ -230,7 +236,7 @@
   
         if (response.status === 404) {
         returningUserError.value =
-            'We could not find that profile. Check your username or start a new family plan.'
+            'We could not find that famuly plan. Check your family code or start a new plan.'
         return
         }
   
@@ -242,7 +248,6 @@
         router.push('/parent-dashboard')
     } catch (error) {
         returningUserError.value = 'Unable to load your profile right now. Please try again.'
-        console.error(error)
     }
   }
   </script>
@@ -596,14 +601,15 @@
   
   .path-card {
     display: grid;
-    gap: 22px;
+    grid-template-rows: auto 280px 1fr;
+    gap: 24px;
     padding: 32px;
     border-radius: 28px;
     background: var(--c-white);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-md);
     transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-  }
+}
   
   .path-card:hover {
     transform: translateY(-4px);
