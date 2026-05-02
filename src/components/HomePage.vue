@@ -73,14 +73,16 @@
                 Build your family plan
                 <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4.5l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </RouterLink>
-              <RouterLink to="/parent-dashboard" class="btn-ghost-hero">View live demo</RouterLink>
+              <RouterLink to="/parent-roadmap" class="btn-ghost-hero">View roadmap demo</RouterLink>
+              <RouterLink to="/parent-nutrition-tools" class="btn-ghost-hero">View nutrition demo</RouterLink>
+              <RouterLink to="/parent-dashboard" class="btn-ghost-hero">View dashboard demo</RouterLink>
             </div>
           </div>
 
           <div class="trust-strip">
             <div class="trust-item">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Free · no account needed</span>
+              <span>Saved parent access</span>
             </div>
             <div class="trust-sep"></div>
             <div class="trust-item">
@@ -344,7 +346,7 @@
             </div>
           </div>
           <div class="process-cta-nudge">
-            <RouterLink to="/parent-entry" class="btn-process">Start your plan - it's free →</RouterLink>
+            <RouterLink to="/parent-entry" class="btn-process">Start your plan →</RouterLink>
             <span>No account · 3 minutes · Immediate results</span>
           </div>
         </div>

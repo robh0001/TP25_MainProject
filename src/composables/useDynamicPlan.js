@@ -67,8 +67,10 @@ export function useDynamicPlan() {
     })
   }
 
-  function buildRoadmapWeeks(roadmapProgress = {}, plannerOverrides = {}) {
+  function buildRoadmapWeeks(roadmapProgress = {}, plannerOverrides = {}, displayName = 'Your child') {
     if (!rawPlan.value?.weeks?.length) return []
+
+    const name = displayName || 'Your child'
 
     return rawPlan.value.weeks.map((week) => {
       const dailyPlan = DAY_NAMES.map((dayName) => {
@@ -128,14 +130,44 @@ export function useDynamicPlan() {
         statusKey = 'completed'
       }
 
+      const feedbackTitle =
+        progress === 100 ? 'Week complete — great work!' : progress > 0 ? 'Building momentum' : 'Ready to begin'
+      const feedback =
+        progress === 100
+          ? `${name} has finished every action this week — that usually means the routine is getting easier to repeat.`
+          : progress > 0
+            ? 'Keep going with the smallest action first — each check builds momentum without adding pressure.'
+            : 'Pick one easy action and try it once today to get started.'
+      const statusSummary =
+        progress === 100
+          ? `All scheduled items for week ${week.weekNumber} are complete.`
+          : progress > 0
+            ? `${dailyCompleted} of ${dailyTotal} scheduled actions done so far this week.`
+            : `Nothing checked off yet for week ${week.weekNumber}.`
+      const feedbackCue = progress === 100 ? 'Keep this rhythm' : progress > 0 ? 'Stay consistent' : 'One easy win'
+      const feedbackNextStep =
+        progress === 100
+          ? 'Repeat the strongest habit cue next week so it sticks in your family routine.'
+          : progress > 0
+            ? 'Use the same cue at the same time so progress feels predictable.'
+            : 'Complete any single scheduled action today, then build from there.'
+
       return {
         id: week.weekNumber,
         week: week.weekNumber,
         title: week.theme || `Week ${week.weekNumber}`,
+        focus: week.theme || `Week ${week.weekNumber}`,
         icon: getWeekIcon(week.weekNumber),
+        theme:
+          ['week-theme-green', 'week-theme-amber', 'week-theme-blue', 'week-theme-violet'][week.weekNumber - 1] ||
+          'week-theme-green',
         summary: `${dailyTotal} scheduled actions loaded from your family plan.`,
-        detail: '',
-        parentTip: '',
+        detail: week.description || '',
+        mainAction: week.mainFocus || 'Follow your scheduled actions for this week.',
+        supportTip: week.supportTip || 'Small repeats beat perfect plans — pick what feels easiest.',
+        parentTip:
+          week.parentTip ||
+          'Keep expectations gentle: one reliable cue often matters more than doing everything at once.',
         actions: [],
         dailyPlan,
         dailyCompleted,
@@ -146,8 +178,11 @@ export function useDynamicPlan() {
         progress,
         status,
         statusKey,
-        feedbackTitle: '',
-        feedback: '',
+        feedbackTitle,
+        feedback,
+        statusSummary,
+        feedbackCue,
+        feedbackNextStep,
       }
     })
   }

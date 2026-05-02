@@ -166,7 +166,7 @@
   import { useFamilyPlanStore } from '../stores/familyPlanStore'
   
   const router = useRouter()
-  const { state, savePlan } = useFamilyPlanStore()
+  const { savePlan, clearPlan } = useFamilyPlanStore()
   
   const newUsername = ref('')
   const returningUsername = ref('')
@@ -203,10 +203,8 @@
         return
         }
 
-      savePlan({
-        ...state,
-        username,
-        })
+      clearPlan()
+      savePlan({ username })
     
         router.push('/parent-quiz')
     } catch (error) {

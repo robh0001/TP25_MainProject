@@ -84,6 +84,11 @@
               </div>
 
               <div class="form-group">
+                <label for="child-name">Child name</label>
+                <input id="child-name" v-model.trim="form.childName" placeholder="Enter your child's name" />
+              </div>
+
+              <div class="form-group">
                 <label for="child-age">Child age range</label>
                 <select id="child-age" v-model="form.ageRange">
                   <option disabled value="">Select age range</option>
@@ -179,6 +184,10 @@
                 <ul class="preview-list">
                   <li><strong>Username:</strong> {{ form.username || 'Not provided' }}</li>
                   <li>
+                    <strong>Child:</strong>
+                    {{ form.childName || 'Not provided' }}{{ form.ageRange ? ` · ${form.ageRange}` : '' }}
+                  </li>
+                  <li>
                     <strong>Top habits to support:</strong>
                     {{ form.habits.length ? form.habits.join(', ') : 'None selected' }}
                   </li>
@@ -258,6 +267,7 @@ const API_BASE = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
 
 const form = reactive({
   username: state.username || '',
+  childName: state.childName || '',
   ageRange: state.ageRange || '',
   routineType: state.routineType || '',
   habits: Array.isArray(state.habits) ? [...state.habits] : [],
@@ -351,6 +361,11 @@ function validateStep() {
 
     if (!form.routineType) {
       errorMessage.value = 'Please select your family routine type.'
+      return false
+    }
+
+    if (!form.childName) {
+      errorMessage.value = 'Please enter your child’s name.'
       return false
     }
   }
@@ -723,6 +738,7 @@ function buildPayload() {
 
   return {
     username: form.username,
+    childName: form.childName,
     ageRange: form.ageRange,
     routineType: form.routineType,
     habits: [...form.habits],

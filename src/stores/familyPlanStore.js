@@ -3,14 +3,21 @@ import { reactive } from 'vue'
 const STORAGE_KEY = 'healthysteps-family-plan'
 
 const defaultPlan = {
+  username: '',
   childName: '',
   ageRange: '',
+  routineType: '',
   habits: [],
   concerns: [],
   struggle: '',
   confidence: '',
   supportStyle: '',
   recommendations: [],
+  dailyPlan: {},
+  progressItems: [],
+  roadmapProgress: {},
+  todaySchedule: {},
+  plannerOverrides: {},
   nextAction: '',
   mission: '',
   streakDays: 0,
