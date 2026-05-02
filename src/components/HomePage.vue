@@ -17,7 +17,7 @@
         </RouterLink>
 
         <nav class="nav">
-          <a href="#about">About</a>
+          <a href="#problem">Problem</a>
           <a href="#focus">Approach</a>
           <a href="#how">How it works</a>
           <a href="#insights">Research</a>
@@ -73,9 +73,8 @@
                 Build your family plan
                 <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4.5l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </RouterLink>
-              <RouterLink to="/parent-roadmap" class="btn-ghost-hero">View roadmap demo</RouterLink>
-              <RouterLink to="/parent-nutrition-tools" class="btn-ghost-hero">View nutrition demo</RouterLink>
-              <RouterLink to="/parent-dashboard" class="btn-ghost-hero">View dashboard demo</RouterLink>
+              <RouterLink to="/parent-nutrition-tools" class="btn-ghost-hero">View nutrition</RouterLink>
+              <RouterLink to="/parent-dashboard" class="btn-ghost-hero">View dashboard</RouterLink>
             </div>
           </div>
 
@@ -88,11 +87,6 @@
             <div class="trust-item">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span>3-minute onboarding</span>
-            </div>
-            <div class="trust-sep"></div>
-            <div class="trust-item">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3L11.5 4" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Evidence-based · Monash University</span>
             </div>
             <div class="trust-sep"></div>
             <div class="trust-item">
@@ -218,7 +212,7 @@
           <div class="proof-logos">
             <div class="proof-logo">
               <svg width="20" height="20" viewBox="0 0 36 36"><circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5" fill="none"/><text x="18" y="23" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">MU</text></svg>
-              <span>Monash University</span>
+              <span>SYRBYX</span>
             </div>
             <div class="proof-div"></div>
             <div class="proof-logo">
@@ -239,7 +233,7 @@
         </div>
       </section>
 
-      <section id="about" class="value-section">
+      <section id="problem" class="value-section">
         <div class="value-wrap">
           <div class="value-left">
             <div class="section-eyebrow">The problem we solve</div>
@@ -678,7 +672,7 @@
             <div class="logo-icon"><svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2"/><path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor"/></svg></div>
             <span class="logo-text">HealthyKids</span>
           </RouterLink>
-          <p class="footer-tagline">A Monash University SDG 3 project<br>Team TP25 · 2025</p>
+          <p class="footer-tagline">A SDG 3 project<br>Team TP25 · 2025</p>
         </div>
         <div class="footer-col">
           <div class="footer-col-head">Product</div>
@@ -688,7 +682,7 @@
         </div>
         <div class="footer-col">
           <div class="footer-col-head">Learn</div>
-          <a href="#about">About</a>
+          <a href="#problem">Problem</a>
           <a href="#focus">Approach</a>
           <a href="#how">How it works</a>
           <a href="#insights">Research</a>
@@ -701,7 +695,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© 2025 HealthyKids · Monash University · Good Health &amp; Wellbeing (UN SDG 3) · All rights reserved.</p>
+        <p>© 2025 HealthyKids · SYRBYX · Good Health &amp; Wellbeing (UN SDG 3) · All rights reserved.</p>
       </div>
     </footer>
 
@@ -1287,7 +1281,7 @@ p:last-child {
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding: 160px 40px 0;
+  padding: 132px 40px 0;
 }
 
 .hero-badge-row {
@@ -1346,10 +1340,10 @@ p:last-child {
 .hl-serif {
   font-family: var(--f-display);
   font-weight: 300;
-  font-size: clamp(3.4rem, 7vw, 8rem);
+  font-size: clamp(3.2rem, 6.4vw, 7.2rem);
   color: var(--c-black);
-  letter-spacing: -0.04em;
-  line-height: 0.94;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
 }
 
 .hl-mixed {
@@ -1371,17 +1365,18 @@ p:last-child {
 .hl-em {
   font-family: var(--f-display);
   font-style: italic;
-  font-size: clamp(2.6rem, 5.5vw, 6.2rem);
+  font-size: clamp(2.4rem, 5vw, 5.4rem);
   font-weight: 400;
   color: var(--c-green);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
   line-height: 1;
 }
 
 .hero-sub-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 60px;
+  display: grid;
+  grid-template-columns: minmax(320px, 520px) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
   margin-bottom: 44px;
 }
 
@@ -1397,9 +1392,11 @@ p:last-child {
 .hero-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 12px;
+  flex-wrap: wrap;
   padding-top: 4px;
-  flex-shrink: 0;
+  max-width: 720px;
 }
 
 .btn-hero,
@@ -1433,11 +1430,12 @@ p:last-child {
 }
 
 .btn-ghost-hero {
-  padding: 0 22px;
+  padding: 0 18px;
   font-weight: 500;
   color: var(--c-500);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.72);
   border: 1px solid var(--border-mid);
+  backdrop-filter: blur(10px);
 }
 
 .btn-ghost-hero:hover {
@@ -3348,7 +3346,7 @@ p:last-child {
 
 @media (max-width: 900px) {
   .hero-sub-row {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 28px;
   }
 
