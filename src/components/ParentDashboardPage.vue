@@ -18,7 +18,9 @@
         <nav class="nav">
           <RouterLink to="/" class="nav-a">Home</RouterLink>
           <RouterLink to="/parent-entry" class="nav-a">Parent access</RouterLink>
+          <RouterLink to="/parent-nutrition-tools" class="nav-a">Nutrition tools</RouterLink>
           <RouterLink to="/young-person-dashboard" class="nav-a">Kids dashboard</RouterLink>
+          
         </nav>
 
         <div class="nav-cta">
@@ -260,19 +262,8 @@
                 <span class="rweek-num">Week {{ week.week }}</span>
                 <span class="rweek-status" :class="'rs-' + week.statusKey">{{ week.status }}</span>
               </div>
-              <div class="rweek-icon" :class="week.theme">{{ week.icon }}</div>
-              <h3 class="rweek-title">{{ week.focus || week.title }}</h3>
+              <h3 class="rweek-title">{{ week.title }}</h3>
               <p class="rweek-summary">{{ week.summary }}</p>
-              <div class="rweek-meta-block">
-                <div class="rweek-meta-item">
-                  <span class="rweek-meta-label">Action</span>
-                  <p class="rweek-meta-text">{{ week.mainAction }}</p>
-                </div>
-                <div class="rweek-meta-item">
-                  <span class="rweek-meta-label">Support tip</span>
-                  <p class="rweek-meta-text">{{ week.supportTip }}</p>
-                </div>
-              </div>
               <div class="rweek-progress-wrap">
                 <div class="rweek-track">
                   <div
@@ -295,29 +286,10 @@
                   <h3 class="rdm-title">{{ selectedRoadmapWeek.title }}</h3>
                 </div>
                 <div class="rdm-header-actions">
-                  <div class="rdm-week-badge" :class="selectedRoadmapWeek.theme">
-                    <span class="rdm-badge-icon" aria-hidden="true">{{ selectedRoadmapWeek.icon }}</span>
-                    Week {{ selectedRoadmapWeek.week }}
-                  </div>
+                  <div class="rdm-week-badge">Week {{ selectedRoadmapWeek.week }}</div>
                 </div>
               </div>
 
-              <p v-if="selectedRoadmapWeek.detail" class="rdm-detail">{{ selectedRoadmapWeek.detail }}</p>
-
-              <div class="rdm-template-grid">
-                <article class="rdm-template-card">
-                  <span class="rdm-template-label">Main focus</span>
-                  <h4 class="rdm-template-value">{{ selectedRoadmapWeek.focus || selectedRoadmapWeek.title }}</h4>
-                </article>
-                <article class="rdm-template-card">
-                  <span class="rdm-template-label">Weekly action</span>
-                  <p class="rdm-template-value body">{{ selectedRoadmapWeek.mainAction }}</p>
-                </article>
-                <article class="rdm-template-card">
-                  <span class="rdm-template-label">Support tip</span>
-                  <p class="rdm-template-value body">{{ selectedRoadmapWeek.supportTip }}</p>
-                </article>
-              </div>
               <div class="rdm-day-plan-block">
                 <div class="rdm-day-plan-head">
                   <div>
@@ -420,44 +392,8 @@
                     transform="rotate(-90 44 44)"
                     style="transition: stroke-dasharray 0.6s ease"
                   />
-                  <text x="44" y="49" text-anchor="middle" font-size="14" font-weight="700" fill="rgba(255,255,255,0.92)">{{ selectedRoadmapWeek.progress }}%</text>
+                  <text x="44" y="49" text-anchor="middle" font-size="14" font-weight="700" fill="#0a0b0a">{{ selectedRoadmapWeek.progress }}%</text>
                 </svg>
-              </div>
-
-              <div class="rfp-feedback-block">
-                <div class="rfp-fb-title">{{ selectedRoadmapWeek.feedbackTitle }}</div>
-                <p class="rfp-fb-body">{{ selectedRoadmapWeek.feedback }}</p>
-              </div>
-
-              <div class="rfp-guidance-grid">
-                <div class="rfp-guidance-card">
-                  <div class="rfp-guidance-label">Status update</div>
-                  <div class="rfp-guidance-value">{{ selectedRoadmapWeek.status }}</div>
-                  <p>{{ selectedRoadmapWeek.statusSummary }}</p>
-                </div>
-                <div class="rfp-guidance-card">
-                  <div class="rfp-guidance-label">Simple feedback</div>
-                  <div class="rfp-guidance-value">{{ selectedRoadmapWeek.feedbackCue }}</div>
-                  <p>{{ selectedRoadmapWeek.feedbackNextStep }}</p>
-                </div>
-              </div>
-
-              <div class="rfp-quiz-insights">
-                <div class="rfp-qi-head">Plan tailored for</div>
-                <div class="rfp-qi-chips">
-                  <span v-for="tag in planTags" :key="tag" class="rfp-qi-chip">{{ tag }}</span>
-                </div>
-              </div>
-
-              <div class="rfp-tip">
-                <div class="rfp-tip-head">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <circle cx="7" cy="7" r="6" stroke="#16a34a" stroke-width="1.3" />
-                    <path d="M7 4.5v3M7 9v.5" stroke="#16a34a" stroke-width="1.3" stroke-linecap="round" />
-                  </svg>
-                  Parent tip
-                </div>
-                <p>{{ selectedRoadmapWeek.parentTip }}</p>
               </div>
 
               <div class="rfp-all-weeks">
@@ -499,102 +435,6 @@
         </div>
       </section>
 
-            <section class="food-ai-section">
-        <div class="section-wrap">
-          <div class="food-ai-card">
-            <div>
-              <div class="section-eyebrow">AI nutrition helper</div>
-              <h2 class="section-h2">
-                Check a food's<br />
-                <em>health score.</em>
-              </h2>
-              <p class="section-desc">
-                Enter a food item and the AI model will estimate a health score using its nutrition profile.
-              </p>
-            </div>
-
-            <div class="food-ai-panel">
-              <div class="food-ai-form">
-                <input
-                  v-model="foodInput"
-                  type="text"
-                  placeholder="Try banana, apple, rice, milk..."
-                  class="food-ai-input"
-                  @keyup.enter="submitFoodPrediction"
-                />
-
-                <button
-                  type="button"
-                  class="food-ai-btn"
-                  :disabled="foodPredictionLoading"
-                  @click="submitFoodPrediction"
-                >
-                  {{ foodPredictionLoading ? 'Checking...' : 'Check score' }}
-                </button>
-              </div>
-
-              <p v-if="foodPredictionError" class="food-ai-error">
-                {{ foodPredictionError }}
-              </p>
-
-              <div v-if="foodPredictionCandidates.length" class="food-ai-candidates">
-                <button
-                  v-for="candidate in foodPredictionCandidates"
-                  :key="candidate"
-                  type="button"
-                  class="food-ai-candidate"
-                  @click="chooseFoodCandidate(candidate)"
-                >
-                  {{ candidate }}
-                </button>
-              </div>
-
-              <div v-if="foodPredictionResult" class="food-ai-result">
-                <div class="food-ai-score">
-                  {{ Math.round(foodPredictionResult.health_score) }}
-                  <span>/100</span>
-                </div>
-
-                <div>
-                  <h3>{{ foodPredictionResult.matched_food }}</h3>
-                  <p>{{ foodPredictionResult.category }}</p>
-
-                  <div class="food-ai-nutrition-grid">
-                    <div>
-                      <span>Calories</span>
-                      <strong>{{ foodPredictionResult.nutrition.calories }}</strong>
-                    </div>
-                    <div>
-                      <span>Protein</span>
-                      <strong>{{ foodPredictionResult.nutrition.protein_g }}g</strong>
-                    </div>
-                    <div>
-                      <span>Fat</span>
-                      <strong>{{ foodPredictionResult.nutrition.fat_g }}g</strong>
-                    </div>
-                    <div>
-                      <span>Carbs</span>
-                      <strong>{{ foodPredictionResult.nutrition.carbs_g }}g</strong>
-                    </div>
-                    <div>
-                      <span>Fiber</span>
-                      <strong>{{ foodPredictionResult.nutrition.fiber_g }}g</strong>
-                    </div>
-                    <div>
-                      <span>Sugar</span>
-                      <strong>{{ foodPredictionResult.nutrition.sugar_g }}g</strong>
-                    </div>
-                  </div>
-
-                  <button type="button" class="food-ai-clear" @click="clearPrediction">
-                    Clear result
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
 
     <footer class="footer">
@@ -638,7 +478,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useDynamicPlan } from '../composables/useDynamicPlan'
-import { useFoodHealthPredictor } from '../composables/useFoodHealthPredictor'
+
 
 const { state, savePlan } = useFamilyPlanStore()
 
@@ -697,20 +537,6 @@ function getProgressStroke(progress) {
 const childName = computed(() => state.childName || state.child_name || 'Your child')
 const streakDays = computed(() => state.streakDays || state.streak_days || 0)
 
-const planTags = computed(() => {
-  const tags = []
-  const name = childName.value
-  if (name && name !== 'Your child') tags.push(name)
-  if (state.ageRange) tags.push(state.ageRange)
-  const habits = state.habits || []
-  habits.slice(0, 2).forEach((h) => tags.push(h))
-  const concerns = state.concerns || []
-  if (concerns[0]) tags.push(concerns[0])
-  if (state.supportStyle) tags.push(state.supportStyle)
-  if (!tags.length) tags.push('Personalised plan')
-  return [...new Set(tags)].slice(0, 6)
-})
-
 const timeOfDay = computed(() => {
   const hour = new Date().getHours()
   if (hour < 12) return 'morning'
@@ -721,7 +547,7 @@ const timeOfDay = computed(() => {
 const todayName = computed(() => getTodayName())
 
 const fourWeekRoadmap = computed(() =>
-  buildRoadmapWeeks(state.roadmapProgress || {}, state.plannerOverrides || {}, childName.value)
+  buildRoadmapWeeks(state.roadmapProgress || {})
 )
 
 const isPlanReady = computed(() => fourWeekRoadmap.value.length > 0)
@@ -730,19 +556,9 @@ const emptyRoadmapWeek = {
   id: 1,
   week: 1,
   title: 'Loading plan',
-  focus: 'Loading plan',
-  icon: '🌱',
-  theme: 'week-theme-green',
   summary: '',
   detail: '',
-  mainAction: '',
-  supportTip: '',
   parentTip: '',
-  feedbackTitle: '',
-  feedback: '',
-  statusSummary: '',
-  feedbackCue: '',
-  feedbackNextStep: '',
   actions: [],
   dailyPlan: [],
   dailyCompleted: 0,
@@ -967,25 +783,6 @@ onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
 })
 
-const foodInput = ref('')
-
-const {
-  loading: foodPredictionLoading,
-  error: foodPredictionError,
-  result: foodPredictionResult,
-  candidates: foodPredictionCandidates,
-  predictFood,
-  clearPrediction,
-} = useFoodHealthPredictor()
-
-function submitFoodPrediction() {
-  predictFood(foodInput.value)
-}
-
-function chooseFoodCandidate(candidate) {
-  foodInput.value = candidate
-  predictFood(candidate)
-}
 </script>
 
 <style scoped>
@@ -2080,69 +1877,6 @@ p:last-child {
   color: var(--c-green);
 }
 
-.rweek-icon {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 12px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  box-shadow: var(--shadow-xs);
-}
-
-.week-theme-green {
-  background: linear-gradient(145deg, #f0fdf4, #dcfce7);
-  color: var(--c-green);
-}
-
-.week-theme-amber {
-  background: linear-gradient(145deg, #fffbeb, #fde68a);
-  color: #b45309;
-}
-
-.week-theme-blue {
-  background: linear-gradient(145deg, #eff6ff, #dbeafe);
-  color: #2563eb;
-}
-
-.week-theme-violet {
-  background: linear-gradient(145deg, #f5f3ff, #e9d5ff);
-  color: #7c3aed;
-}
-
-.rweek-meta-block {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.rweek-meta-item {
-  padding: 12px 13px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: var(--c-50);
-}
-
-.rweek-meta-label {
-  display: block;
-  margin-bottom: 5px;
-  font-size: .62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--c-400);
-}
-
-.rweek-meta-text {
-  margin: 0;
-  font-size: .77rem;
-  line-height: 1.5;
-  color: var(--c-700);
-}
-
 .rweek-title {
   margin-bottom: 8px;
   font-family: var(--f-display);
@@ -2237,7 +1971,6 @@ p:last-child {
 .rdm-week-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   height: 32px;
   padding: 0 14px;
   border-radius: 999px;
@@ -2247,81 +1980,6 @@ p:last-child {
   font-weight: 700;
   color: var(--c-500);
   white-space: nowrap;
-}
-
-.rdm-badge-icon {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.rdm-week-badge.week-theme-green {
-  background: #f0fdf4;
-  border-color: rgba(22, 163, 74, .16);
-  color: var(--c-green);
-}
-
-.rdm-week-badge.week-theme-amber {
-  background: #fffbeb;
-  border-color: rgba(217, 119, 6, .16);
-  color: #b45309;
-}
-
-.rdm-week-badge.week-theme-blue {
-  background: #eff6ff;
-  border-color: rgba(37, 99, 235, .16);
-  color: #2563eb;
-}
-
-.rdm-week-badge.week-theme-violet {
-  background: #f5f3ff;
-  border-color: rgba(124, 58, 237, .16);
-  color: #7c3aed;
-}
-
-.rdm-detail {
-  margin: 0 0 20px;
-  font-size: .88rem;
-  line-height: 1.65;
-  color: var(--c-500);
-}
-
-.rdm-template-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: 28px;
-}
-
-.rdm-template-card {
-  padding: 18px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: var(--c-50);
-}
-
-.rdm-template-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: .64rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--c-400);
-}
-
-.rdm-template-value {
-  margin: 0;
-  font-family: var(--f-display);
-  font-size: 1.02rem;
-  line-height: 1.35;
-  color: var(--c-black);
-}
-
-.rdm-template-value.body {
-  font-family: var(--f-body);
-  font-size: .88rem;
-  font-weight: 600;
-  color: var(--c-700);
 }
 
 .rdm-day-plan-block {
@@ -2698,110 +2356,6 @@ p:last-child {
   justify-content: center;
 }
 
-.rfp-feedback-block {
-  padding-bottom: 4px;
-}
-
-.rfp-guidance-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.rfp-guidance-card {
-  padding: 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  background: rgba(255, 255, 255, .05);
-}
-
-.rfp-guidance-label {
-  margin-bottom: 6px;
-  font-size: .64rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: rgba(255, 255, 255, .4);
-}
-
-.rfp-guidance-value {
-  margin-bottom: 6px;
-  font-family: var(--f-display);
-  font-size: 1rem;
-  color: var(--c-white);
-}
-
-.rfp-guidance-card p {
-  margin: 0;
-  font-size: .8rem;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, .58);
-}
-
-.rfp-fb-title {
-  margin-bottom: 8px;
-  font-family: var(--f-display);
-  font-size: 1.1rem;
-  color: var(--c-white);
-}
-
-.rfp-fb-body {
-  margin: 0;
-  font-size: .84rem;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, .58);
-}
-
-.rfp-quiz-insights,
-.rfp-tip {
-  padding: 16px 18px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  background: rgba(255, 255, 255, .05);
-}
-
-.rfp-qi-head,
-.rfp-tip-head {
-  margin-bottom: 10px;
-  font-size: .64rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: rgba(255, 255, 255, .35);
-}
-
-.rfp-tip-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.rfp-qi-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.rfp-qi-chip {
-  display: inline-flex;
-  align-items: center;
-  height: 22px;
-  padding: 0 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(22, 163, 74, .25);
-  background: rgba(22, 163, 74, .18);
-  font-size: .68rem;
-  font-weight: 700;
-  color: #4ade80;
-}
-
-.rfp-tip p {
-  margin: 0;
-  font-size: .82rem;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, .58);
-}
-
 .rfp-all-weeks {
   padding-top: 18px;
   border-top: 1px solid rgba(255,255,255,.06);
@@ -2909,184 +2463,6 @@ p:last-child {
   color: #f87171;
 }
 
-/* Food AI */
-.food-ai-section {
-  padding: 72px 0;
-  background: var(--c-white);
-  border-top: 1px solid var(--border);
-}
-
-.food-ai-card {
-  display: grid;
-  grid-template-columns: minmax(0, .9fr) minmax(360px, 1.1fr);
-  gap: 32px;
-  padding: 34px;
-  border-radius: 28px;
-  border: 1px solid var(--border);
-  background: var(--c-50);
-  box-shadow: var(--shadow-sm);
-}
-
-.food-ai-panel {
-  padding: 24px;
-  border-radius: 22px;
-  border: 1px solid var(--border);
-  background: var(--c-white);
-}
-
-.food-ai-form {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.food-ai-input {
-  width: 100%;
-  height: 48px;
-  padding: 0 16px;
-  border-radius: 14px;
-  border: 1px solid var(--border-mid);
-  font-size: .92rem;
-  outline: none;
-}
-
-.food-ai-btn {
-  height: 48px;
-  padding: 0 18px;
-  border-radius: 14px;
-  border: 1px solid var(--c-black);
-  background: var(--c-black);
-  color: var(--c-white);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.food-ai-btn:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-}
-
-.food-ai-error {
-  padding: 12px 14px;
-  margin: 0 0 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(217,119,6,.18);
-  background: #fff7ed;
-  color: #b45309;
-  font-size: .84rem;
-}
-
-.food-ai-candidates {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.food-ai-candidate {
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(22,163,74,.24);
-  background: var(--c-green-soft);
-  color: var(--c-green);
-  font-size: .78rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.food-ai-result {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 22px;
-  margin-top: 16px;
-  padding: 18px;
-  border-radius: 18px;
-  border: 1px solid rgba(22,163,74,.18);
-  background: linear-gradient(145deg, #f0fdf4, #ffffff);
-}
-
-.food-ai-score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  background: var(--c-green);
-  color: white;
-  font-family: var(--f-display);
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.food-ai-score span {
-  margin-top: 4px;
-  font-family: var(--f-body);
-  font-size: .76rem;
-  font-weight: 700;
-  opacity: .82;
-}
-
-.food-ai-result h3 {
-  margin: 0 0 4px;
-  font-family: var(--f-display);
-  font-size: 1.3rem;
-  font-weight: 500;
-  color: var(--c-black);
-}
-
-.food-ai-result p {
-  margin: 0 0 14px;
-  font-size: .82rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--c-400);
-}
-
-.food-ai-nutrition-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.food-ai-nutrition-grid div {
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.72);
-}
-
-.food-ai-nutrition-grid span {
-  display: block;
-  margin-bottom: 4px;
-  font-size: .62rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--c-400);
-}
-
-.food-ai-nutrition-grid strong {
-  font-size: .88rem;
-  color: var(--c-black);
-}
-
-.food-ai-clear {
-  min-height: 34px;
-  margin-top: 14px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border-mid);
-  background: white;
-  color: var(--c-500);
-  font-size: .78rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 /* Footer */
 .footer {
   padding: 56px 0 0;
@@ -3169,11 +2545,6 @@ p:last-child {
     grid-template-columns: 1fr;
   }
 
-  .rdm-template-grid,
-  .rfp-guidance-grid {
-    grid-template-columns: 1fr;
-  }
-
   .rdm-day-card {
     min-width: 260px;
     flex-basis: 260px;
@@ -3198,20 +2569,6 @@ p:last-child {
 
   .tsc-slot {
     grid-template-columns: 48px 20px 1fr;
-  }
-
-  .food-ai-card {
-    grid-template-columns: 1fr;
-    padding: 24px;
-  }
-
-  .food-ai-form,
-  .food-ai-result {
-    grid-template-columns: 1fr;
-  }
-
-  .food-ai-nutrition-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
