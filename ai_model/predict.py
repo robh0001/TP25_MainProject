@@ -23,6 +23,34 @@ FEATURE_COLS = [
     "sodium_mg",
 ]
 
+def json_safe(obj):
+    """
+    Convert numpy/pandas NaN and numpy types into JSON-safe Python values.
+    NaN / inf -> None
+    numpy number -> Python number
+    """
+    if isinstance(obj, dict):
+        return {k: json_safe(v) for k, v in obj.items()}
+
+    if isinstance(obj, list):
+        return [json_safe(v) for v in obj]
+
+    if isinstance(obj, tuple):
+        return tuple(json_safe(v) for v in obj)
+
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+
+    if isinstance(obj, (np.floating, float)):
+        if pd.isna(obj) or np.isinf(obj):
+            return None
+        return float(obj)
+
+    if pd.isna(obj):
+        return None
+
+    return obj
+
 
 class FoodHealthPredictor:
     def __init__(self, model_path=MODEL_PATH, database_path=DATABASE_PATH):
@@ -150,8 +178,8 @@ def predict_health_score(food_name: str):
     """
     Main function for backend/API integration.
     """
-    return predictor.predict(food_name)
-
+    result = predictor.predict(food_name)
+    return json_safe(result)
 
 def print_result(result):
     """
