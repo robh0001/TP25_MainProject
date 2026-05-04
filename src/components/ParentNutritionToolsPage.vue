@@ -36,7 +36,7 @@
         <div class="hero-label">Nutrition support</div>
         <h1 class="hero-h1">
           What should<br/>
-          <span class="hero-accent">{{ childName }}</span><br/>
+          <span class="hero-accent">you</span><br/>
           eat today?
         </h1>
         <p class="hero-sub">Meal ideas, snack combos, lunchbox builds, and a live food-score tool - all shaped around your family's actual plan.</p>
@@ -79,7 +79,6 @@
               <span class="ai-dot"></span>
               AI food scorer
             </div>
-            <div class="ai-model-badge">Claude-powered</div>
           </div>
 
           <div class="ai-prompt-area">
@@ -959,17 +958,6 @@ export default { components: { MealCardExpanded, SnackCardExpanded, LunchboxCard
 @keyframes ai-pulse {
   0%,100% { box-shadow: 0 0 6px rgba(34,197,94,.5) }
   50%      { box-shadow: 0 0 14px rgba(34,197,94,.9) }
-}
-.ai-model-badge {
-  height: 22px;
-  padding: 0 9px;
-  border-radius: 999px;
-  background: rgba(34,197,94,.15);
-  border: 1px solid rgba(34,197,94,.25);
-  font-size: .62rem;
-  font-weight: 800;
-  color: var(--green-b);
-  letter-spacing: .06em;
 }
 .ai-prompt-label {
   font-size: .82rem;

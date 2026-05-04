@@ -449,7 +449,7 @@
             </div>
             <span class="logo-text">HealthyKids</span>
           </RouterLink>
-          <p class="footer-blurb">A Monash University SDG 3 project<br />Team TP25 · 2025</p>
+          <p class="footer-blurb">A SDG 3 project<br />Team TP25 · 2025</p>
         </div>
         <div class="footer-col">
           <div class="footer-col-head">Navigate</div>
@@ -466,7 +466,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© 2025 HealthyKids · Monash University · Good Health &amp; Wellbeing (UN SDG 3) · All rights reserved.</p>
+        <p>© 2025 HealthyKids · SYRBYX · Good Health &amp; Wellbeing (UN SDG 3) · All rights reserved.</p>
       </div>
     </footer>
   </div>
