@@ -244,6 +244,7 @@
             <div class="value-cards">
               <div class="vcard">
                 <div class="vcard-number">01</div>
+                <div class="vcard-content">
                   <h3>Personalised to your child</h3>
                   <p>Quiz responses drive tailored recommendations - not generic checklists that feel impossible to follow.</p>
                 </div>
