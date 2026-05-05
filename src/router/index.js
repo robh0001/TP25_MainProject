@@ -10,6 +10,7 @@ import KidsMealsPage from '../components/KidsMealsPage.vue'
 import KidsStatsPage from '../components/KidsStatsPage.vue'
 import KidsWinsPage from '../components/KidsWinsPage.vue'
 import ParentEntry from '../components/ParentEntry.vue'
+import { useFamilyPlanStore } from '../stores/familyPlanStore'
 
 const routes = [
   {
@@ -31,16 +32,19 @@ const routes = [
     path: '/parent-dashboard',
     name: 'ParentDashboard',
     component: ParentDashboardPage,
+    meta: { requiresParentProfile: true },
   },
   {
     path: '/parent-roadmap',
     name: 'ParentRoadmap',
     component: ParentRoadmapPage,
+    meta: { requiresParentProfile: true },
   },
   {
     path: '/parent-nutrition-tools',
     name: 'ParentNutritionTools',
     component: ParentNutritionToolsPage,
+    meta: { requiresParentProfile: true },
   },
   {
     path: '/kids-dashboard',
@@ -81,6 +85,35 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0, left: 0 }
   },
+})
+
+router.beforeEach((to) => {
+  if (!to.meta.requiresParentProfile) {
+    return true
+  }
+
+  const { state } = useFamilyPlanStore()
+
+  const hasParentProfile =
+    Boolean(state.username) &&
+    (
+      Boolean(state.childName) ||
+      Boolean(state.child_name) ||
+      Boolean(state.dailyPlan) ||
+      Boolean(state.roadmapProgress)
+    )
+
+  if (hasParentProfile) {
+    return true
+  }
+
+  return {
+    path: '/parent-entry',
+    query: {
+      redirect: to.fullPath,
+      reason: 'missing-parent-profile',
+    },
+  }
 })
 
 export default router

@@ -236,7 +236,7 @@
   
         if (response.status === 404) {
         returningUserError.value =
-            'We could not find that famuly plan. Check your family code or start a new plan.'
+            'We could not find that family plan. Check your family code or start a new plan.'
         return
         }
   
@@ -245,7 +245,14 @@
         }
 
         savePlan(data)
-        router.push('/parent-dashboard')
+
+        const redirectPath = router.currentRoute.value.query.redirect
+
+        router.push(
+          typeof redirectPath === 'string'
+            ? redirectPath
+            : '/parent-dashboard'
+        )
     } catch (error) {
         returningUserError.value = 'Unable to load your profile right now. Please try again.'
     }
