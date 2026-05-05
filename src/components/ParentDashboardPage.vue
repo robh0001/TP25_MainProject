@@ -286,6 +286,24 @@
                 </div>
                 <div class="rdm-header-actions">
                   <div class="rdm-week-badge">Week {{ selectedRoadmapWeek.week }}</div>
+
+                  <button
+                    v-if="!isEditingPlanner"
+                    class="planner-edit-btn"
+                    type="button"
+                    @click="startEditingPlanner"
+                  >
+                    Edit planner
+                  </button>
+
+                  <div v-else class="planner-edit-actions">
+                    <button class="planner-cancel-btn" type="button" @click="cancelEditingPlanner">
+                      Cancel
+                    </button>
+                    <button class="planner-save-btn" type="button" @click="saveEditedPlanner">
+                      Save changes
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -323,14 +341,16 @@
                     <div class="rdm-day-schedule">
                       <div
                         v-for="slot in day.timeSlots || []"
-                        :key="slot.id"
-                        class="rdm-time-slot"
-                        :class="['slot-' + slot.category, { done: slot.done }]"
-                      >
+                      :key="slot.id"
+                      class="rdm-time-slot"
+                      :class="['slot-' + slot.category, { done: slot.done, editing: isEditingPlanner }]"
+                    >
+                      <template v-if="!isEditingPlanner">
                         <div class="slot-time-col">
                           <span class="slot-time">{{ slot.time }}</span>
                           <span class="slot-cat-dot"></span>
                         </div>
+
                         <label class="slot-action-col">
                           <input type="checkbox" :checked="slot.done" @change="toggleRoadmapDailyAction(slot.id)" />
                           <span class="slot-check" :class="{ done: slot.done }">
@@ -338,13 +358,53 @@
                               <path d="M1.5 4l2 2 3-3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                           </span>
+
                           <div class="slot-text-wrap">
                             <span class="slot-text">{{ slot.text }}</span>
                             <span v-if="slot.tip" class="slot-tip">{{ slot.tip }}</span>
                             <span v-if="slot.detail" class="slot-tip">{{ slot.detail }}</span>
                           </div>
                         </label>
-                      </div>
+                      </template>
+
+                      <template v-else>
+                        <div class="slot-edit-form">
+                          <div class="slot-edit-row">
+                            <input
+                              v-model="editablePlanner[slot.id].time"
+                              class="slot-edit-time"
+                              type="text"
+                              placeholder="Time"
+                            />
+
+                            <select
+                              v-model="editablePlanner[slot.id].category"
+                              class="slot-edit-category"
+                            >
+                              <option value="nutrition">Nutrition</option>
+                              <option value="movement">Movement</option>
+                              <option value="sleep">Sleep / Wind-down</option>
+                              <option value="routine">Routine</option>
+                              <option value="family">Family time</option>
+                            </select>
+                          </div>
+
+                          <input
+                            v-model="editablePlanner[slot.id].text"
+                            class="slot-edit-text"
+                            type="text"
+                            placeholder="Habit action"
+                          />
+
+                          <input
+                            v-model="editablePlanner[slot.id].tip"
+                            class="slot-edit-tip"
+                            type="text"
+                            placeholder="Optional parent tip"
+                          />
+                        </div>
+                      </template>
+                    </div>
                     </div>
                   </article>
                 </div>
@@ -504,6 +564,8 @@ const scheduleCategories = [
 const isScrolled = ref(false)
 const showCelebration = ref(false)
 const activeRoadmapWeek = ref(1)
+const isEditingPlanner = ref(false)
+const editablePlanner = ref({})
 
 function getTodayName() {
   return new Date().toLocaleDateString(LOCALE, {
@@ -532,6 +594,36 @@ function getProgressStroke(progress) {
   return '#dc2626'
 }
 
+function getCategoryLabel(category) {
+  const labels = {
+    nutrition: 'Nutrition',
+    movement: 'Movement',
+    sleep: 'Wind-down',
+    routine: 'Routine',
+    family: 'Family',
+  }
+
+  return labels[category] || 'Routine'
+}
+
+function applyPlannerOverridesToSlot(slot) {
+  const overrides = state.plannerOverrides || {}
+  const edited = overrides[slot.id]
+
+  if (!edited) return slot
+
+  const category = edited.category || slot.category
+
+  return {
+    ...slot,
+    time: edited.time || slot.time,
+    text: edited.text || slot.text,
+    tip: edited.tip ?? slot.tip,
+    category,
+    categoryLabel: getCategoryLabel(category),
+  }
+}
+
 const childName = computed(() => state.childName || state.child_name || 'Your child')
 const streakDays = computed(() => state.streakDays || state.streak_days || 0)
 
@@ -545,9 +637,24 @@ const timeOfDay = computed(() => {
 const todayName = computed(() => getTodayName())
 
 const fourWeekRoadmap = computed(() =>
-  buildRoadmapWeeks(state.roadmapProgress || {})
-)
+  buildRoadmapWeeks(state.roadmapProgress || {}).map((week) => ({
+    ...week,
+    dailyPlan: (week.dailyPlan || []).map((day) => {
+      const timeSlots = (day.timeSlots || []).map(applyPlannerOverridesToSlot)
+      const completed = timeSlots.filter(slot => slot.done).length
+      const progress = timeSlots.length
+        ? Math.round((completed / timeSlots.length) * 100)
+        : 0
 
+      return {
+        ...day,
+        timeSlots,
+        completed,
+        progress,
+      }
+    }),
+  }))
+)
 const isPlanReady = computed(() => fourWeekRoadmap.value.length > 0)
 
 const emptyRoadmapWeek = {
@@ -677,6 +784,46 @@ function getCanonicalActionId(slotOrId) {
   )
 }
 
+function startEditingPlanner() {
+  const editable = {}
+
+  selectedRoadmapWeek.value.dailyPlan.forEach((day) => {
+    ;(day.timeSlots || []).forEach((slot) => {
+      editable[slot.id] = {
+        time: slot.time,
+        text: slot.text,
+        tip: slot.tip || slot.detail || '',
+        category: slot.category,
+      }
+    })
+  })
+
+  editablePlanner.value = editable
+  isEditingPlanner.value = true
+}
+
+function cancelEditingPlanner() {
+  editablePlanner.value = {}
+  isEditingPlanner.value = false
+}
+
+function saveEditedPlanner() {
+  const currentOverrides = state.plannerOverrides || {}
+
+  const updatedState = {
+    ...state,
+    plannerOverrides: {
+      ...currentOverrides,
+      ...editablePlanner.value,
+    },
+  }
+
+  saveAndPersist(updatedState)
+
+  editablePlanner.value = {}
+  isEditingPlanner.value = false
+}
+
 function togglePlanAction(slotOrId) {
   const actionId = getCanonicalActionId(slotOrId)
 
@@ -745,6 +892,7 @@ async function persistDashboardUpdate(updatedState) {
         dailyPlan: updatedState.dailyPlan ?? state.dailyPlan,
         roadmapProgress: updatedState.roadmapProgress ?? state.roadmapProgress ?? {},
         todaySchedule: updatedState.todaySchedule ?? state.todaySchedule ?? {},
+        plannerOverrides: updatedState.plannerOverrides ?? state.plannerOverrides ?? {},
         streakDays: updatedState.streakDays ?? state.streakDays ?? 0,
         nextAction: updatedState.nextAction ?? state.nextAction,
         mission: updatedState.mission ?? state.mission,
@@ -2618,5 +2766,114 @@ p:last-child {
   .tsc-time {
     font-size: .6rem;
   }
+}
+
+.rdm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.planner-edit-btn,
+.planner-save-btn,
+.planner-cancel-btn {
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: .76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.planner-edit-btn {
+  border: 1px solid rgba(22,163,74,.25);
+  background: var(--c-green-pale);
+  color: var(--c-green);
+}
+
+.planner-edit-btn:hover {
+  background: var(--c-green);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.planner-edit-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.planner-cancel-btn {
+  border: 1px solid var(--border-mid);
+  background: var(--c-white);
+  color: var(--c-500);
+}
+
+.planner-cancel-btn:hover {
+  background: var(--c-50);
+  color: var(--c-black);
+}
+
+.planner-save-btn {
+  border: 1px solid var(--c-black);
+  background: var(--c-black);
+  color: white;
+}
+
+.planner-save-btn:hover {
+  background: var(--c-800);
+  transform: translateY(-1px);
+}
+
+.rdm-time-slot.editing {
+  padding: 10px;
+  background: var(--c-white);
+  border-color: rgba(22,163,74,.22);
+  box-shadow: var(--shadow-xs);
+}
+
+.slot-edit-form {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.slot-edit-row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px;
+}
+
+.slot-edit-time,
+.slot-edit-category,
+.slot-edit-text,
+.slot-edit-tip {
+  width: 100%;
+  min-height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--border-mid);
+  background: var(--c-white);
+  padding: 0 10px;
+  font-family: var(--f-body);
+  font-size: .72rem;
+  color: var(--c-700);
+  outline: none;
+}
+
+.slot-edit-text,
+.slot-edit-tip {
+  min-height: 36px;
+}
+
+.slot-edit-time:focus,
+.slot-edit-category:focus,
+.slot-edit-text:focus,
+.slot-edit-tip:focus {
+  border-color: var(--c-green);
+  box-shadow: 0 0 0 3px rgba(22,163,74,.1);
 }
 </style>
