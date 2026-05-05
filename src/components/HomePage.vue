@@ -240,11 +240,10 @@
             <h2 class="value-h2">Parents want to help.<br>The advice is <em>overwhelming.</em></h2>
           </div>
           <div class="value-right">
-            <p class="value-lede">Most family health guidance is generic, conflicting, and unrealistic. HealthyKids cuts through that - turning your child's actual habits into a specific, achievable weekly plan.</p>
+            <p class="value-lede">Most family health guidance is generic, conflicting, and unrealistic. HealthyKids cuts through that, turning your child's actual habits into a specific, achievable weekly plan.</p>
             <div class="value-cards">
               <div class="vcard">
                 <div class="vcard-number">01</div>
-                <div class="vcard-content">
                   <h3>Personalised to your child</h3>
                   <p>Quiz responses drive tailored recommendations - not generic checklists that feel impossible to follow.</p>
                 </div>

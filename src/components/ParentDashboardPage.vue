@@ -73,7 +73,7 @@
             </h1>
 
             <p class="dash-hero-desc">
-              Your 4-week planner is loaded from the database and displayed as weekly and daily scheduled actions.
+              Your personalised 4-week plan is ready! Explore your weekly goals and daily actions to start building healthier habits step by step.
             </p>
 
             <div class="hero-kpi-row">
@@ -111,7 +111,7 @@
               </div>
 
               <h2 class="mission-title">{{ completedTodayCount }} of {{ todayFullSchedule.length }} actions done today</h2>
-              <p class="mission-desc">Track the database-fetched plan as your family completes each scheduled action.</p>
+              <p class="mission-desc">Track your progress as your family completes each activity in your plan.</p>
 
               <div class="mission-progress-wrap">
                 <div class="mp-labels">
@@ -165,7 +165,6 @@
             <div class="tsc-header">
               <div>
                 <div class="tsc-day">{{ todayName }}</div>
-                <div class="tsc-sub">{{ childName }}'s database-fetched schedule</div>
               </div>
               <div class="tsc-pct-chip" :class="todayProgress === 100 ? 'chip-green' : 'chip-default'">{{ todayProgress }}%</div>
             </div>
@@ -227,7 +226,7 @@
                 <em>habit journey.</em>
               </h2>
               <p class="section-desc">
-                These weeks, days, meals, workouts, exercises and sleep tips are fetched from the family-plan API.
+                Your weekly plans, daily activities, meals, workouts, and sleep tips are all ready for you.
               </p>
             </div>
 
@@ -294,7 +293,6 @@
                 <div class="rdm-day-plan-head">
                   <div>
                     <span>Daily schedule for Week {{ selectedRoadmapWeek.week }}</span>
-                    <p>Only API-fetched time slots are shown below.</p>
                   </div>
                   <strong>{{ selectedRoadmapWeek.dailyCompleted }}/{{ selectedRoadmapWeek.dailyTotal }} done</strong>
                 </div>
