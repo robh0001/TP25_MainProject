@@ -1,0 +1,27 @@
+Food Health Score Regression Model Report
+==================================================
+
+Total records: 9028
+Training records: 7222
+Testing records: 1806
+
+Target distribution:
+health_score
+60    6853
+65     485
+70    1642
+75      48
+
+MAE: 0.6966
+RMSE: 1.6438
+R2 Score: 0.8317
+5-Fold CV R2: 0.7539 ± 0.1041
+
+Feature Importance:
+fiber_g: 0.2568
+protein_g: 0.1943
+sodium_mg: 0.1513
+carbs_g: 0.1439
+sugar_g: 0.1166
+fat_g: 0.1017
+calories: 0.0353

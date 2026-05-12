@@ -1,38 +1,31 @@
-<script setup>
-</script>
-
 <template>
   <div class="page-shell">
-    <router-view />
+    <RouterView v-slot="{ Component, route }">
+      <Transition name="page-slide" mode="out-in">
+        <component :is="Component" :key="route.fullPath" />
+      </Transition>
+    </RouterView>
   </div>
 </template>
 
 
 <style scoped>
-header {
-  line-height: 1.5;
+:global(.page-slide-enter-active),
+:global(.page-slide-leave-active) {
+  transition: opacity 0.28s ease, transform 0.28s ease, filter 0.28s ease;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+:global(.page-slide-enter-from),
+:global(.page-slide-leave-to) {
+  opacity: 0;
+  transform: translateY(12px) scale(0.985);
+  filter: blur(4px);
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+:global(.page-slide-enter-to),
+:global(.page-slide-leave-from) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
 }
 </style>

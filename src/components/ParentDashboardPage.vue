@@ -1,569 +1,898 @@
 <template>
   <div class="dashboard-page">
-    <header class="site-header">
-      <div class="container header-row">
-        <RouterLink to="/" class="brand">HealthyKids</RouterLink>
+    <div class="noise-overlay" aria-hidden="true"></div>
 
-        <nav class="nav" aria-label="Primary">
-          <RouterLink to="/" class="nav-link">Home</RouterLink>
-          <RouterLink to="/parent-entry" class="nav-link">Parent access</RouterLink>
-          <RouterLink to="/parent-quiz" class="nav-link">Retake quiz</RouterLink>
+    <header class="header" :class="{ scrolled: isScrolled }">
+      <div class="header-inner">
+        <RouterLink to="/" class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 36 36" fill="none">
+              <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
+              <path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor" />
+              <path d="M18 13C15.5 15.5 15 19 18 23" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.55" />
+            </svg>
+          </div>
+          <span class="logo-text">HealthyKids</span>
+        </RouterLink>
+
+        <nav class="nav">
+          <RouterLink to="/" class="nav-a">Home</RouterLink>
+          <RouterLink to="/parent-entry" class="nav-a">Parent access</RouterLink>
+          <RouterLink to="/parent-nutrition-tools" class="nav-a">Nutrition tools</RouterLink>
+          <RouterLink to="/young-person-dashboard" class="nav-a">Kids dashboard</RouterLink>
+          
         </nav>
 
-        <RouterLink to="/parent-quiz" class="header-btn">Quiz</RouterLink>
+        <div class="nav-cta">
+          <RouterLink to="/parent-quiz" class="nav-link">Retake quiz</RouterLink>
+          <RouterLink to="/parent-quiz" class="nav-btn">
+            New plan
+            <svg width="12" height="12" viewBox="0 0 12 12">
+              <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </RouterLink>
+        </div>
       </div>
     </header>
 
-    <main>
-      <section class="dashboard-top">
-        <div class="container">
-          <div class="top-shell">
-            <div class="top-copy">
-              <p class="eyebrow">Parent dashboard</p>
-              <h1>Your family plan</h1>
-              <p class="top-text">
-                A practical view of what to do today, what is coming next this week, and how your
-                family is progressing over time.
-              </p>
+    <div v-if="planLoading" class="plan-loading">
+      <p>Loading your personalised family plan...</p>
+    </div>
 
-              <div class="top-pills">
-                <span>{{ state.ageRange || 'Age range not set yet' }}</span>
-                <span>{{ state.supportStyle || 'Daily micro-actions' }}</span>
-                <span>{{ streakDays }} day streak</span>
-              </div>
-            </div>
+    <div v-else-if="planError" class="plan-error">
+      <p>Could not load your family plan: {{ planError }}</p>
+      <button type="button" @click="fetchPlan(state.username)">Retry</button>
+    </div>
 
-            <div class="top-side">
-              <article class="summary-card mission-card" :class="{ celebrate: showCelebration }">
-                <div v-if="showCelebration" class="confetti-layer" aria-hidden="true">
-                  <span
-                    v-for="piece in confettiPieces"
-                    :key="piece.id"
-                    class="confetti-piece"
-                    :style="piece.style"
-                  ></span>
-                </div>
+    <div v-else-if="!isPlanReady" class="plan-error">
+      <p>No family plan found yet. Please complete the parent quiz first.</p>
+      <RouterLink to="/parent-quiz" class="nav-btn">Complete quiz</RouterLink>
+    </div>
 
-                <p class="card-kicker">Daily mission</p>
-                <h2>{{ mission }}</h2>
-                <p>Keep momentum by completing one healthy action today.</p>
-
-                <div class="mission-progress-top">
-                  <span>Family streak: </span>
-                  <strong>{{ streakDays }} days</strong>
-                </div>
-
-                <div class="progress-track">
-                  <div class="progress-fill" :style="{ width: `${streakProgress}%` }"></div>
-                </div>
-
-                <button type="button" class="pill-btn dark" @click="completeMission">
-                  Mark mission done
-                </button>
-              </article>
-            </div>
+    <main v-else>
+      <section class="dash-hero">
+        <div class="dash-hero-bg">
+          <div class="hero-blob hb-1"></div>
+          <div class="hero-blob hb-2"></div>
+          <div class="hero-lines" aria-hidden="true">
+            <span v-for="n in 8" :key="n"></span>
           </div>
         </div>
-      </section>
 
-      <section class="today-plan-section">
-        <div class="container">
-          <div class="section-head">
-            <p class="section-label">Today's plan</p>
-            <h2>{{ todayName }}</h2>
-          </div>
-
-          <div class="today-plan-grid">
-            <article class="glass-card">
-              <p class="today-focus-label">Today's tasks</p>
-              <h3>{{ todayName }}</h3>
-              <p class="today-progress-copy">
-                {{ completedTodayCount }} of {{ todayTasks.length }} tasks completed
-              </p>
-
-              <div class="progress-track large">
-                <div class="progress-fill" :style="{ width: `${todayProgress}%` }"></div>
+        <div class="dash-hero-inner">
+          <div class="dash-hero-left">
+            <div class="eyebrow-row">
+              <div class="live-badge">
+                <span class="live-dot"></span>
+                Parent dashboard · Week {{ currentWeek }}
               </div>
-
-              <div class="task-list">
-                <label
-                  v-for="task in todayTasks"
-                  :key="task.id"
-                  class="task-item"
-                  :class="{ done: task.done }"
-                >
-                  <input
-                    type="checkbox"
-                    :checked="task.done"
-                    @change="toggleTodayTask(task.id)"
-                  />
-                  <span>{{ task.text }}</span>
-                </label>
-
-                <p v-if="!todayTasks.length" class="empty-state">
-                  No tasks yet. Complete the parent quiz to generate a daily plan.
-                </p>
-              </div>
-            </article>
-
-            <article class="glass-card side-info-card">
-              <p class="section-label">This week</p>
-              <h3>What matters most</h3>
-              <p class="info-copy">{{ weeklyNarrative }}</p>
-
-              <ul class="detail-list">
-                <li><strong>Main concerns:</strong> {{ concernSummary }}</li>
-                <li><strong>Habit focus:</strong> {{ habitSummary }}</li>
-                <li><strong>Expected win:</strong> {{ winNarrative }}</li>
-              </ul>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="weekly-plan-section">
-        <div class="container">
-          <div class="section-head">
-            <p class="section-label">Day-by-day plan</p>
-            <h2>Your weekly family routine</h2>
-          </div>
-
-          <div class="weekly-days-grid">
-            <article
-              v-for="day in orderedDays"
-              :key="day"
-              class="glass-card weekday-card"
-              :class="{ active: day === todayName }"
-            >
-              <h3>{{ day }}</h3>
-
-              <ul v-if="resolvedDailyPlan[day]?.length" class="weekday-list">
-                <li v-for="task in resolvedDailyPlan[day]" :key="task.id">
-                  {{ task.text }}
-                </li>
-              </ul>
-
-              <p v-else class="empty-state">No tasks planned.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="tracker-section">
-        <div class="container tracker-grid">
-          <article class="glass-card tracker-card">
-            <div class="section-head compact">
-              <div>
-                <p class="section-label">Progress tracker</p>
-                <h2>Track healthy wins</h2>
-              </div>
-              <div class="tracker-badge">{{ progressCompletion }}%</div>
             </div>
 
-            <div class="task-list">
-              <label
-                v-for="item in resolvedProgressItems"
-                :key="item.id"
-                class="task-item"
-                :class="{ done: item.done }"
-              >
-                <input
-                  type="checkbox"
-                  :checked="item.done"
-                  @change="toggleProgressItem(item.id)"
-                />
-                <span>{{ item.text }}</span>
-              </label>
+            <h1 class="dash-h1">
+              <span class="dh-serif">Good {{ timeOfDay }},</span>
+            </h1>
+
+            <p class="dash-hero-desc">
+              Your personalised 4-week plan is ready! Explore your weekly goals and daily actions to start building healthier habits step by step.
+            </p>
+
+            <div class="hero-kpi-row">
+              <div class="hkpi">
+                <div class="hkpi-val">{{ streakDays }}</div>
+                <div class="hkpi-lbl">Day streak</div>
+              </div>
+              <div class="hkpi-div"></div>
+              <div class="hkpi">
+                <div class="hkpi-val">{{ roadmapCompletion }}%</div>
+                <div class="hkpi-lbl">Roadmap done</div>
+              </div>
+              <div class="hkpi-div"></div>
+              <div class="hkpi">
+                <div class="hkpi-val">{{ completedTodayCount }}/{{ todayFullSchedule.length }}</div>
+                <div class="hkpi-lbl">Today's tasks</div>
+              </div>
+              <div class="hkpi-div"></div>
+              <div class="hkpi">
+                <div class="hkpi-val">{{ weeklyAverage }}%</div>
+                <div class="hkpi-lbl">Weekly avg.</div>
+              </div>
             </div>
-          </article>
+          </div>
 
-          <article class="glass-card tracker-card">
-            <p class="section-label">Add your own</p>
-            <h2>Custom progress item</h2>
+          <div class="dash-hero-right">
+            <div class="mission-card" :class="{ celebrate: showCelebration }">
+              <div v-if="showCelebration" class="confetti-layer" aria-hidden="true">
+                <span v-for="p in confettiPieces" :key="p.id" class="confetti-piece" :style="p.style"></span>
+              </div>
 
-            <div class="custom-item-form">
-              <input
-                v-model="newProgressItem"
-                type="text"
-                placeholder="e.g. Packed fruit for school"
-                class="custom-input"
-                @keyup.enter="addProgressItem"
-              />
-              <button type="button" class="pill-btn dark" @click="addProgressItem">
-                Add item
+              <div class="mission-top">
+                <div class="mission-eyebrow">Daily progress</div>
+                <div class="streak-chip">{{ streakDays }}-day streak</div>
+              </div>
+
+              <h2 class="mission-title">{{ completedTodayCount }} of {{ todayFullSchedule.length }} actions done today</h2>
+              <p class="mission-desc">Track your progress as your family completes each activity in your plan.</p>
+
+              <div class="mission-progress-wrap">
+                <div class="mp-labels">
+                  <span>Today's progress</span>
+                  <span>{{ todayProgress }}%</span>
+                </div>
+                <div class="mp-track">
+                  <div class="mp-fill" :style="{ width: todayProgress + '%' }"></div>
+                </div>
+              </div>
+
+              <button class="mission-btn" @click="completeMission">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Add to streak
               </button>
             </div>
-          </article>
+          </div>
         </div>
       </section>
 
-      <section class="chart-section">
-        <div class="container">
-          <div class="section-head">
-            <p class="section-label">Weekly progress</p>
-            <h2>Daily consistency across the week</h2>
+      <section class="today-section">
+        <div class="section-wrap">
+          <div class="section-head-row">
+            <div class="section-head-left">
+              <div class="section-eyebrow">Today's plan</div>
+              <h2 class="section-h2">
+                {{ todayName }}'s<br />
+                <em>actions.</em>
+              </h2>
+              <p class="section-desc">
+                {{ completedTodayCount }} of {{ todayFullSchedule.length }} scheduled actions completed today.
+              </p>
+            </div>
+
+            <div class="today-score-block">
+              <div class="tsb-pct">{{ todayProgress }}<span>%</span></div>
+              <div class="tsb-lbl">Today's progress</div>
+              <div class="tsb-track">
+                <div
+                  class="tsb-fill"
+                  :class="getProgressColorClass(todayProgress)"
+                  :style="{ width: todayProgress + '%' }"
+                ></div>
+              </div>
+            </div>
           </div>
 
-          <article class="glass-card chart-card">
-            <div class="chart-header">
+          <div class="today-schedule-card">
+            <div class="tsc-header">
               <div>
-                <p class="chart-label">Habit consistency</p>
-                <h3>7-day progress view</h3>
+                <div class="tsc-day">{{ todayName }}</div>
               </div>
-              <div class="chart-summary">{{ weeklyAverage }}% average</div>
+              <div class="tsc-pct-chip" :class="todayProgress === 100 ? 'chip-green' : 'chip-default'">{{ todayProgress }}%</div>
             </div>
 
-            <div class="chart-interactive-wrap">
-              <div class="bar-chart">
-                <button
-                  v-for="day in weeklyProgress"
-                  :key="day.label"
-                  type="button"
-                  class="bar-column interactive-bar"
-                  :class="{ active: selectedDay.label === day.label }"
-                  :title="`${day.fullLabel}: ${day.value}%`"
-                  @click="selectedDayLabel = day.label"
-                >
-                  <div class="bar-value">{{ day.value }}%</div>
-                  <div class="bar-track">
-                    <div class="bar-fill" :style="{ height: `${day.value}%` }"></div>
+            <div class="tsc-progress-bar">
+              <div
+                class="tsc-pb-fill"
+                :class="getProgressColorClass(todayProgress)"
+                :style="{ width: todayProgress + '%' }"
+              ></div>
+            </div>
+
+            <div class="tsc-timeline">
+              <div
+                v-for="slot in todayFullSchedule"
+                :key="slot.id"
+                class="tsc-slot"
+                :class="['tsc-' + slot.category, { done: slot.done }]"
+              >
+                <div class="tsc-time-col">
+                  <span class="tsc-time">{{ slot.time }}</span>
+                </div>
+                <div class="tsc-slot-line">
+                  <div class="tsc-dot" :class="{ done: slot.done }"></div>
+                  <div class="tsc-line"></div>
+                </div>
+                <label class="tsc-content">
+                  <input type="checkbox" :checked="slot.done" @change="toggleTodayScheduleSlot(slot)" />
+                  <div class="tsc-card" :class="{ done: slot.done }">
+                    <div class="tsc-card-row">
+                      <span class="tsc-cat-badge" :class="'badge-' + slot.category">{{ slot.categoryLabel }}</span>
+                      <span class="tsc-check" :class="{ done: slot.done }">
+                        <svg v-if="slot.done" width="10" height="10" viewBox="0 0 10 10">
+                          <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                    </div>
+                    <span class="tsc-text">{{ slot.text }}</span>
+                    <span v-if="slot.detail" class="tsc-detail">{{ slot.detail }}</span>
+                    <span v-if="slot.tip" class="tsc-detail">{{ slot.tip }}</span>
                   </div>
-                  <div class="bar-label">{{ day.label }}</div>
-                </button>
+                </label>
               </div>
 
-              <div class="chart-detail-card">
-                <p class="card-kicker">Selected day</p>
-                <h4>{{ selectedDay.fullLabel }}</h4>
-                <p class="chart-detail-score">{{ selectedDay.value }}% completed</p>
-                <p class="chart-detail-text">
-                  {{ selectedDay.completed }} of {{ selectedDay.total }} planned tasks completed.
-                </p>
+              <p v-if="!todayFullSchedule.length" class="tsc-empty">
+                No scheduled actions found for {{ todayName }}.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+<section class="roadmap-section" id="roadmap">
+        <div class="section-wrap">
+          <div class="section-head-row">
+            <div class="section-head-left">
+              <div class="section-eyebrow">4-week habit roadmap</div>
+              <h2 class="section-h2">
+                Your personalised<br />
+                <em>habit journey.</em>
+              </h2>
+              <p class="section-desc">
+                Your weekly plans, daily activities, meals, workouts, and sleep tips are all ready for you.
+              </p>
+            </div>
 
-                <ul class="chart-detail-list" v-if="selectedDay.tasks.length">
-                  <li v-for="task in selectedDay.tasks" :key="task.id">
-                    <span :class="{ 'done-text': task.done }">{{ task.text }}</span>
-                  </li>
-                </ul>
+            <div class="roadmap-score-block">
+              <div class="rsb-ring" :style="roadmapRingStyle">
+                <div class="rsb-ring-inner">
+                  <div class="rsb-pct">{{ roadmapCompletion }}<span>%</span></div>
+                  <div class="rsb-lbl">complete</div>
+                </div>
+              </div>
+              <div class="rsb-meta">
+                <div class="rsb-num">{{ completedRoadmapActions }}<span>/{{ totalRoadmapActions }}</span></div>
+                <div class="rsb-desc">scheduled actions completed</div>
+                <div class="rsb-focus-chip">{{ childName }}</div>
               </div>
             </div>
-          </article>
+          </div>
+
+          <div class="roadmap-weeks">
+            <button
+              v-for="week in fourWeekRoadmap"
+              :key="week.id"
+              class="rweek-card"
+              :class="{
+                active: week.id === activeRoadmapWeek,
+                completed: week.statusKey === 'completed',
+                'in-progress': week.statusKey === 'in-progress'
+              }"
+              @click="activeRoadmapWeek = week.id"
+            >
+              <div class="rweek-top">
+                <span class="rweek-num">Week {{ week.week }}</span>
+                <span class="rweek-status" :class="'rs-' + week.statusKey">{{ week.status }}</span>
+              </div>
+              <h3 class="rweek-title">{{ week.title }}</h3>
+              <p class="rweek-summary">{{ week.summary }}</p>
+              <div class="rweek-progress-wrap">
+                <div class="rweek-track">
+                  <div
+                    class="rweek-fill"
+                    :class="getProgressColorClass(week.progress)"
+                    :style="{ width: week.progress + '%' }"
+                  ></div>
+                </div>
+                <span class="rweek-pct">{{ week.progress }}%</span>
+              </div>
+              <div class="rweek-done-count">{{ week.completed }}/{{ week.totalItems }} actions</div>
+            </button>
+          </div>
+
+          <div class="roadmap-detail">
+            <div class="roadmap-detail-main">
+              <div class="rdm-header">
+                <div>
+                  <div class="rdm-eyebrow">Selected · Week {{ selectedRoadmapWeek.week }}</div>
+                  <h3 class="rdm-title">{{ selectedRoadmapWeek.title }}</h3>
+                </div>
+                <div class="rdm-header-actions">
+                  <div class="rdm-week-badge">Week {{ selectedRoadmapWeek.week }}</div>
+
+                  <button
+                    v-if="!isEditingPlanner"
+                    class="planner-edit-btn"
+                    type="button"
+                    @click="startEditingPlanner"
+                  >
+                    Edit planner
+                  </button>
+
+                  <div v-else class="planner-edit-actions">
+                    <button class="planner-cancel-btn" type="button" @click="cancelEditingPlanner">
+                      Cancel
+                    </button>
+                    <button class="planner-save-btn" type="button" @click="saveEditedPlanner">
+                      Save changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rdm-day-plan-block">
+                <div class="rdm-day-plan-head">
+                  <div>
+                    <span>Daily schedule for Week {{ selectedRoadmapWeek.week }}</span>
+                  </div>
+                  <strong>{{ selectedRoadmapWeek.dailyCompleted }}/{{ selectedRoadmapWeek.dailyTotal }} done</strong>
+                </div>
+
+                <div class="rdm-day-plan-grid">
+                  <article
+                    v-for="day in currentFirstRoadmapDailyPlan"
+                    :key="day.day"
+                    class="rdm-day-card"
+                    :class="{ today: day.day === todayName }"
+                  >
+                    <div class="rdm-day-card-head">
+                      <div>
+                        <span class="rdm-day-name">{{ getShortDayName(day.day) }}</span>
+                        <small v-if="day.day === todayName">Today</small>
+                      </div>
+                      <strong>{{ day.completed }}/{{ day.timeSlots?.length || 0 }}</strong>
+                    </div>
+
+                    <div class="rdm-day-mini-track">
+                      <div
+                        class="rdm-day-mini-fill"
+                        :class="getProgressColorClass(day.progress)"
+                        :style="{ width: day.progress + '%' }"
+                      ></div>
+                    </div>
+
+                    <div class="rdm-day-schedule">
+                      <div
+                        v-for="slot in day.timeSlots || []"
+                      :key="slot.id"
+                      class="rdm-time-slot"
+                      :class="['slot-' + slot.category, { done: slot.done, editing: isEditingPlanner }]"
+                    >
+                      <template v-if="!isEditingPlanner">
+                        <div class="slot-time-col">
+                          <span class="slot-time">{{ slot.time }}</span>
+                          <span class="slot-cat-dot"></span>
+                        </div>
+
+                        <label class="slot-action-col">
+                          <input type="checkbox" :checked="slot.done" @change="toggleRoadmapDailyAction(slot.id)" />
+                          <span class="slot-check" :class="{ done: slot.done }">
+                            <svg v-if="slot.done" width="8" height="8" viewBox="0 0 8 8">
+                              <path d="M1.5 4l2 2 3-3" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                          </span>
+
+                          <div class="slot-text-wrap">
+                            <span class="slot-text">{{ slot.text }}</span>
+                            <span v-if="slot.tip" class="slot-tip">{{ slot.tip }}</span>
+                            <span v-if="slot.detail" class="slot-tip">{{ slot.detail }}</span>
+                          </div>
+                        </label>
+                      </template>
+
+                      <template v-else>
+                        <div class="slot-edit-form">
+                          <div class="slot-edit-row">
+                            <input
+                              v-model="editablePlanner[slot.id].time"
+                              class="slot-edit-time"
+                              type="text"
+                              placeholder="Time"
+                            />
+
+                            <select
+                              v-model="editablePlanner[slot.id].category"
+                              class="slot-edit-category"
+                            >
+                              <option value="nutrition">Nutrition</option>
+                              <option value="movement">Movement</option>
+                              <option value="sleep">Sleep / Wind-down</option>
+                              <option value="routine">Routine</option>
+                              <option value="family">Family time</option>
+                            </select>
+                          </div>
+
+                          <input
+                            v-model="editablePlanner[slot.id].text"
+                            class="slot-edit-text"
+                            type="text"
+                            placeholder="Habit action"
+                          />
+
+                          <input
+                            v-model="editablePlanner[slot.id].tip"
+                            class="slot-edit-tip"
+                            type="text"
+                            placeholder="Optional parent tip"
+                          />
+                        </div>
+                      </template>
+                    </div>
+                    </div>
+                  </article>
+                </div>
+
+                <div class="schedule-legend">
+                  <div v-for="cat in scheduleCategories" :key="cat.key" class="legend-item" :class="'legend-' + cat.key">
+                    <span class="legend-dot"></span>
+                    <span>{{ cat.label }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="roadmap-feedback-panel">
+              <div class="rfp-status-row">
+                <div class="rfp-status-indicator" :class="'rfi-' + selectedRoadmapWeek.statusKey">
+                  <svg v-if="selectedRoadmapWeek.statusKey === 'completed'" width="18" height="18" viewBox="0 0 18 18">
+                    <path d="M3 9l4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <svg v-else-if="selectedRoadmapWeek.statusKey === 'in-progress'" width="18" height="18" viewBox="0 0 18 18">
+                    <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M9 5v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                  <svg v-else width="18" height="18" viewBox="0 0 18 18">
+                    <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M9 6v4M9 12v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="rfp-status-label">Weekly progress</div>
+                  <div class="rfp-status-text">{{ selectedRoadmapWeek.status }}</div>
+                </div>
+              </div>
+
+              <div class="rfp-progress-donut">
+                <svg width="88" height="88" viewBox="0 0 88 88">
+                  <circle cx="44" cy="44" r="36" stroke="rgba(0,0,0,0.06)" stroke-width="8" fill="none" />
+                  <circle
+                    cx="44" cy="44" r="36"
+                    :stroke="getProgressStroke(selectedRoadmapWeek.progress)"
+                    stroke-width="8" fill="none" stroke-linecap="round"
+                    :stroke-dasharray="`${(selectedRoadmapWeek.progress / 100) * 226} 226`"
+                    transform="rotate(-90 44 44)"
+                    style="transition: stroke-dasharray 0.6s ease"
+                  />
+                  <text x="44" y="49" text-anchor="middle" font-size="14" font-weight="700" fill="#0a0b0a">{{ selectedRoadmapWeek.progress }}%</text>
+                </svg>
+              </div>
+
+              <div class="rfp-all-weeks">
+                <div class="rfp-aw-head">All weeks at a glance</div>
+
+                <div class="rfp-week-list">
+                  <button
+                    v-for="week in fourWeekRoadmap"
+                    :key="week.id"
+                    type="button"
+                    class="rfp-week-row"
+                    :class="{ current: week.id === activeRoadmapWeek }"
+                    @click="activeRoadmapWeek = week.id"
+                  >
+                    <div class="rfp-week-row-top">
+                      <span class="rfp-week-name">Week {{ week.week }}</span>
+                      <span class="rfp-week-percent" :class="getProgressColorClass(week.progress)">
+                        {{ week.progress }}%
+                      </span>
+                    </div>
+
+                    <div class="rfp-week-progress-track">
+                      <div
+                        class="rfp-week-progress-fill"
+                        :class="getProgressColorClass(week.progress)"
+                        :style="{ width: week.progress + '%' }"
+                      ></div>
+                    </div>
+
+                    <div class="rfp-week-row-meta">
+                      <span>{{ week.status }}</span>
+                      <span>{{ week.completed }}/{{ week.totalItems }} actions</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section class="overview-section">
-        <div class="container overview-grid single">
-          <article class="glass-card">
-            <p class="section-label">Why this matters</p>
-            <h2>This week</h2>
-
-            <p class="summary-text">{{ weeklyNarrative }}</p>
-
-            <ul class="detail-list">
-              <li><strong>Risk if ignored:</strong> {{ riskNarrative }}</li>
-              <li><strong>Expected win:</strong> {{ winNarrative }}</li>
-              <li><strong>Best support style:</strong> {{ state.supportStyle || 'Daily micro-actions' }}</li>
-            </ul>
-          </article>
-        </div>
-      </section>
     </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <RouterLink to="/" class="logo footer-logo">
+            <div class="logo-icon footer-logo-icon">
+              <svg viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
+                <path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor" />
+              </svg>
+            </div>
+            <span class="logo-text">HealthyKids</span>
+          </RouterLink>
+          <p class="footer-blurb">A SDG 3 project<br />Team TP25 · 2025</p>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-head">Navigate</div>
+          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/parent-entry">Parent access</RouterLink>
+          <RouterLink to="/parent-quiz">Retake quiz</RouterLink>
+          <RouterLink to="/young-person-dashboard">Kids dashboard</RouterLink>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-head">Legal</div>
+          <a href="#">Privacy policy</a>
+          <a href="#">Terms of use</a>
+          <a href="#">Contact us</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 HealthyKids · SYRBYX · Good Health &amp; Wellbeing (UN SDG 3) · All rights reserved.</p>
+      </div>
+    </footer>
   </div>
 </template>
 
+
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
+import { useDynamicPlan } from '../composables/useDynamicPlan'
+
 
 const { state, savePlan } = useFamilyPlanStore()
 
-const showCelebration = ref(false)
-const newProgressItem = ref('')
-const selectedDayLabel = ref('Mon')
+const {
+  loading: planLoading,
+  error: planError,
+  fetchPlan,
+  getTodaySlots,
+  buildRoadmapWeeks,
+} = useDynamicPlan()
 
-const orderedDays = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
+const TIME_ZONE = 'Australia/Melbourne'
+const LOCALE = 'en-AU'
+const DAY_LABEL_LENGTH = 3
+const API_BASE_URL = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
+
+const scheduleCategories = [
+  { key: 'nutrition', label: 'Nutrition' },
+  { key: 'movement', label: 'Movement' },
+  { key: 'sleep', label: 'Sleep / Wind-down' },
+  { key: 'routine', label: 'Routine' },
+  { key: 'family', label: 'Family time' },
 ]
 
-const defaultDailyPlan = {
-  Monday: [
-    { id: 101, text: 'Prepare one healthy after-school snack', done: false },
-    { id: 102, text: 'Encourage 15 minutes of movement', done: false },
-  ],
-  Tuesday: [
-    { id: 201, text: 'Do one screen-free activity together', done: false },
-    { id: 202, text: 'Keep a calm bedtime cue', done: false },
-  ],
-  Wednesday: [
-    { id: 301, text: 'Repeat the after-school snack routine', done: false },
-    { id: 302, text: 'Offer water before snacks', done: false },
-  ],
-  Thursday: [
-    { id: 401, text: 'Encourage active play before screens', done: false },
-    { id: 402, text: 'Use one predictable routine cue', done: false },
-  ],
-  Friday: [
-    { id: 501, text: 'Celebrate one healthy win from the week', done: false },
-    { id: 502, text: 'Choose one easy family meal together', done: false },
-  ],
-  Saturday: [
-    { id: 601, text: 'Do one family movement activity', done: false },
-    { id: 602, text: 'Keep one healthy snack visible', done: false },
-  ],
-  Sunday: [
-    { id: 701, text: 'Review the week and reset for Monday', done: false },
-    { id: 702, text: 'Plan one routine goal for next week', done: false },
-  ],
+const isScrolled = ref(false)
+const showCelebration = ref(false)
+const activeRoadmapWeek = ref(1)
+const isEditingPlanner = ref(false)
+const editablePlanner = ref({})
+
+function getTodayName() {
+  return new Date().toLocaleDateString(LOCALE, {
+    weekday: 'long',
+    timeZone: TIME_ZONE,
+  })
 }
 
-const defaultProgressItems = [
-  { id: 1, text: 'Healthy snack prepared', done: false, custom: false },
-  { id: 2, text: 'Active play completed', done: false, custom: false },
-  { id: 3, text: 'Bedtime routine followed', done: false, custom: false },
-  { id: 4, text: 'Screen-free family time completed', done: false, custom: false },
-]
+function getShortDayName(dayName) {
+  return dayName.slice(0, DAY_LABEL_LENGTH)
+}
 
-const childName = computed(() => state.childName || 'Your child')
-const nextAction = computed(
-  () => state.nextAction || 'Take the parent quiz to unlock a personalized next action.'
-)
-const mission = computed(() => state.mission || 'Complete one healthy habit win together today.')
-const streakDays = computed(() => state.streakDays || 0)
-const streakProgress = computed(() => Math.min((streakDays.value / 7) * 100, 100))
+function getProgressColorClass(progress) {
+  if (progress >= 80) return 'progress-green'
+  if (progress >= 60) return 'progress-lime'
+  if (progress >= 40) return 'progress-amber'
+  if (progress >= 20) return 'progress-orange'
+  return 'progress-red'
+}
 
-const concernSummary = computed(() =>
-  state.concerns?.length ? state.concerns.join(', ') : 'Nutrition, activity, sleep, and routine'
-)
+function getProgressStroke(progress) {
+  if (progress >= 80) return '#16a34a'
+  if (progress >= 60) return '#65a30d'
+  if (progress >= 40) return '#d97706'
+  if (progress >= 20) return '#ea580c'
+  return '#dc2626'
+}
 
-const habitSummary = computed(() =>
-  state.habits?.length ? state.habits.join(', ') : 'Balanced meals and bedtime consistency'
-)
+function getCategoryLabel(category) {
+  const labels = {
+    nutrition: 'Nutrition',
+    movement: 'Movement',
+    sleep: 'Wind-down',
+    routine: 'Routine',
+    family: 'Family',
+  }
 
-const resolvedDailyPlan = computed(() => {
-  const existing = state.dailyPlan && Object.keys(state.dailyPlan).length ? state.dailyPlan : defaultDailyPlan
-  return orderedDays.reduce((acc, day) => {
-    acc[day] = existing[day] || []
-    return acc
-  }, {})
+  return labels[category] || 'Routine'
+}
+
+function applyPlannerOverridesToSlot(slot) {
+  const overrides = state.plannerOverrides || {}
+  const edited = overrides[slot.id]
+
+  if (!edited) return slot
+
+  const category = edited.category || slot.category
+
+  return {
+    ...slot,
+    time: edited.time || slot.time,
+    text: edited.text || slot.text,
+    tip: edited.tip ?? slot.tip,
+    category,
+    categoryLabel: getCategoryLabel(category),
+  }
+}
+
+const childName = computed(() => state.childName || state.child_name || 'Your child')
+const streakDays = computed(() => state.streakDays || state.streak_days || 0)
+
+const timeOfDay = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'morning'
+  if (hour < 17) return 'afternoon'
+  return 'evening'
 })
 
-const resolvedProgressItems = computed(() =>
-  state.progressItems?.length ? state.progressItems : defaultProgressItems
+const todayName = computed(() => getTodayName())
+
+const fourWeekRoadmap = computed(() =>
+  buildRoadmapWeeks(state.roadmapProgress || {}).map((week) => ({
+    ...week,
+    dailyPlan: (week.dailyPlan || []).map((day) => {
+      const timeSlots = (day.timeSlots || []).map(applyPlannerOverridesToSlot)
+      const completed = timeSlots.filter(slot => slot.done).length
+      const progress = timeSlots.length
+        ? Math.round((completed / timeSlots.length) * 100)
+        : 0
+
+      return {
+        ...day,
+        timeSlots,
+        completed,
+        progress,
+      }
+    }),
+  }))
+)
+const isPlanReady = computed(() => fourWeekRoadmap.value.length > 0)
+
+const emptyRoadmapWeek = {
+  id: 1,
+  week: 1,
+  title: 'Loading plan',
+  summary: '',
+  detail: '',
+  parentTip: '',
+  actions: [],
+  dailyPlan: [],
+  dailyCompleted: 0,
+  dailyTotal: 0,
+  weeklyCompleted: 0,
+  totalItems: 0,
+  completed: 0,
+  progress: 0,
+  status: 'Not started',
+  statusKey: 'not-started',
+}
+
+const selectedRoadmapWeek = computed(() =>
+  fourWeekRoadmap.value.find(week => week.id === activeRoadmapWeek.value)
+  || fourWeekRoadmap.value[0]
+  || emptyRoadmapWeek
 )
 
-const todayName = computed(() =>
-  new Date().toLocaleDateString('en-AU', { weekday: 'long' })
-)
+const currentWeek = computed(() => {
+  const firstIncomplete = fourWeekRoadmap.value.find(week => week.progress < 100)
+  return firstIncomplete?.week || fourWeekRoadmap.value[0]?.week || 1
+})
 
-const todayTasks = computed(() => resolvedDailyPlan.value[todayName.value] || [])
+const currentFirstRoadmapDailyPlan = computed(() => {
+  const plan = selectedRoadmapWeek.value?.dailyPlan || []
+  const todayIndex = plan.findIndex(day => day.day === todayName.value)
+
+  if (todayIndex === -1) return plan
+
+  return [
+    plan[todayIndex],
+    ...plan.slice(0, todayIndex),
+    ...plan.slice(todayIndex + 1),
+  ]
+})
+
+const todayFullSchedule = computed(() => {
+  const week = fourWeekRoadmap.value.find(item => item.week === currentWeek.value)
+  const today = week?.dailyPlan?.find(day => day.day === todayName.value)
+
+  return today?.timeSlots || []
+})
+
 
 const completedTodayCount = computed(() =>
-  todayTasks.value.filter(task => task.done).length
+  todayFullSchedule.value.filter(slot => slot.done).length
 )
 
 const todayProgress = computed(() =>
-  todayTasks.value.length
-    ? Math.round((completedTodayCount.value / todayTasks.value.length) * 100)
+  todayFullSchedule.value.length
+    ? Math.round((completedTodayCount.value / todayFullSchedule.value.length) * 100)
     : 0
 )
-
-const completedProgressItems = computed(() =>
-  resolvedProgressItems.value.filter(item => item.done).length
-)
-
-const progressCompletion = computed(() =>
-  resolvedProgressItems.value.length
-    ? Math.round((completedProgressItems.value / resolvedProgressItems.value.length) * 100)
-    : 0
-)
-
-const weeklyNarrative = computed(() => {
-  if (state.concerns?.includes('Sleep consistency') || state.concerns?.includes('Bedtime feels inconsistent')) {
-    return `${childName.value} may struggle with energy and mood if sleep stays inconsistent. Prioritising bedtime structure can improve appetite, attention, and after-school behaviour.`
-  }
-  if (state.concerns?.includes('Nutrition') || state.concerns?.includes('My child snacks too often')) {
-    return `${childName.value} needs consistent fuel through the day. Better snack quality can stabilise energy, reduce irritability, and support healthy growth habits.`
-  }
-  return `${childName.value}'s plan is focused on consistency. One repeated healthy action each day is the strongest predictor of long-term habit success.`
-})
-
-const riskNarrative = computed(() => {
-  if (
-    state.concerns?.includes('Routine battles') ||
-    state.concerns?.includes('Our family routine feels hard to manage')
-  ) {
-    return 'Daily friction increases and healthy habits become harder to sustain.'
-  }
-
-  if (
-    state.concerns?.includes('Physical activity') ||
-    state.concerns?.includes('My child is not active enough')
-  ) {
-    return 'Lower movement can affect mood regulation and sleep quality.'
-  }
-
-  return 'Inconsistent habits reduce progress and make routines harder to maintain.'
-})
-
-const winNarrative = computed(() => {
-  if (state.concerns?.includes('Nutrition') || state.concerns?.includes('My child snacks too often')) {
-    return 'Higher energy and fewer snack-related conflicts after school.'
-  }
-  if (state.concerns?.includes('Sleep consistency') || state.concerns?.includes('Bedtime feels inconsistent')) {
-    return 'Calmer evenings and more predictable morning routines.'
-  }
-  return 'Better consistency with less parent-child conflict across the day.'
-})
 
 const weeklyProgress = computed(() => {
-  return orderedDays.map(day => {
-    const tasks = resolvedDailyPlan.value[day] || []
-    const completed = tasks.filter(task => task.done).length
-    const value = tasks.length ? Math.round((completed / tasks.length) * 100) : 0
-    return {
-      label: day.slice(0, 3),
-      fullLabel: day,
-      value,
-      completed,
-      total: tasks.length,
-      tasks,
-    }
-  })
-})
+  const week = fourWeekRoadmap.value.find(item => item.week === currentWeek.value)
+  if (!week?.dailyPlan?.length) return []
 
-const selectedDay = computed(() => {
-  return (
-    weeklyProgress.value.find(day => day.label === selectedDayLabel.value) ||
-    weeklyProgress.value[0]
-  )
+  return week.dailyPlan.map((day) => ({
+    label: day.day.slice(0, DAY_LABEL_LENGTH),
+    fullLabel: day.day,
+    value: day.progress,
+    completed: day.completed,
+    total: day.timeSlots.length,
+    tasks: day.timeSlots,
+  }))
 })
 
 const weeklyAverage = computed(() => {
-  const total = weeklyProgress.value.reduce((sum, item) => sum + item.value, 0)
+  if (!weeklyProgress.value.length) return 0
+  const total = weeklyProgress.value.reduce((sum, day) => sum + day.value, 0)
   return Math.round(total / weeklyProgress.value.length)
 })
 
+const totalRoadmapActions = computed(() =>
+  fourWeekRoadmap.value.reduce((sum, week) => sum + week.totalItems, 0)
+)
+
+const completedRoadmapActions = computed(() =>
+  fourWeekRoadmap.value.reduce((sum, week) => sum + week.completed, 0)
+)
+
+const roadmapCompletion = computed(() =>
+  totalRoadmapActions.value
+    ? Math.round((completedRoadmapActions.value / totalRoadmapActions.value) * 100)
+    : 0
+)
+
+const roadmapRingStyle = computed(() => {
+  const percentage = roadmapCompletion.value
+  const color = percentage === 100 ? '#16a34a' : percentage > 0 ? '#d97706' : '#e2e8f0'
+
+  return {
+    background: `conic-gradient(${color} ${percentage}%, rgba(0,0,0,0.07) ${percentage}%)`,
+  }
+})
+
 const confettiPieces = computed(() =>
-  Array.from({ length: 14 }, (_, i) => ({
-    id: i,
+  Array.from({ length: 16 }, (_, index) => ({
+    id: index,
     style: {
-      left: `${6 + i * 6.2}%`,
-      animationDelay: `${i * 0.05}s`,
-      transform: `rotate(${i * 17}deg)`,
+      left: `${4 + index * 6}%`,
+      animationDelay: `${index * 0.04}s`,
+      transform: `rotate(${index * 22}deg)`,
     },
   }))
 )
 
-async function toggleTodayTask(taskId) {
-  const updatedDailyPlan = {
-    ...resolvedDailyPlan.value,
-    [todayName.value]: resolvedDailyPlan.value[todayName.value].map(task =>
-      task.id === taskId ? { ...task, done: !task.done } : task
-    ),
+function getCanonicalActionId(slotOrId) {
+  if (typeof slotOrId === 'string') {
+    return slotOrId.replace('today-schedule-', '')
   }
 
-  const updatedState = {
-    ...state,
-    dailyPlan: updatedDailyPlan,
-  }
-
-  savePlan(updatedState)
-
-  try {
-    await persistDashboardUpdate(updatedState)
-  } catch (error) {
-    console.error('Failed to persist today task update', error)
-  }
-}
-
-async function toggleProgressItem(itemId) {
-  const updatedItems = resolvedProgressItems.value.map(item =>
-    item.id === itemId ? { ...item, done: !item.done } : item
+  return (
+    slotOrId?.sourceSlotId ||
+    slotOrId?.id?.replace('today-schedule-', '') ||
+    slotOrId?.id
   )
+}
+
+function startEditingPlanner() {
+  const editable = {}
+
+  selectedRoadmapWeek.value.dailyPlan.forEach((day) => {
+    ;(day.timeSlots || []).forEach((slot) => {
+      editable[slot.id] = {
+        time: slot.time,
+        text: slot.text,
+        tip: slot.tip || slot.detail || '',
+        category: slot.category,
+      }
+    })
+  })
+
+  editablePlanner.value = editable
+  isEditingPlanner.value = true
+}
+
+function cancelEditingPlanner() {
+  editablePlanner.value = {}
+  isEditingPlanner.value = false
+}
+
+function saveEditedPlanner() {
+  const currentOverrides = state.plannerOverrides || {}
 
   const updatedState = {
     ...state,
-    progressItems: updatedItems,
+    plannerOverrides: {
+      ...currentOverrides,
+      ...editablePlanner.value,
+    },
   }
 
-  savePlan(updatedState)
+  saveAndPersist(updatedState)
 
-  try {
-    await persistDashboardUpdate(updatedState)
-  } catch (error) {
-    console.error('Failed to persist progress item update', error)
-  }
+  editablePlanner.value = {}
+  isEditingPlanner.value = false
 }
 
-async function addProgressItem() {
-  const value = newProgressItem.value.trim()
-  if (!value) return
+function togglePlanAction(slotOrId) {
+  const actionId = getCanonicalActionId(slotOrId)
 
-  const newItem = {
-    id: Date.now(),
-    text: value,
-    done: false,
-    custom: true,
+  if (!actionId) return
+
+  const nextDone = !(state.roadmapProgress || {})[actionId]
+
+  const updatedRoadmapProgress = {
+    ...(state.roadmapProgress || {}),
+    [actionId]: nextDone,
   }
 
-  const updatedState = {
+  saveAndPersist({
     ...state,
-    progressItems: [...resolvedProgressItems.value, newItem],
-  }
+    roadmapProgress: updatedRoadmapProgress,
 
-  savePlan(updatedState)
-  newProgressItem.value = ''
-
-  try {
-    const result = await persistDashboardUpdate(updatedState)
-    console.log('Custom progress item persisted:', result)
-  } catch (error) {
-    console.error('Failed to persist custom progress item', error)
-    alert(`Failed to save custom item to database: ${error.message}`)
-  }
+   
+    todaySchedule: {
+      ...(state.todaySchedule || {}),
+      [`today-schedule-${actionId}`]: nextDone,
+    },
+  })
 }
 
-async function completeMission() {
-  const updatedState = {
+function toggleTodayScheduleSlot(slot) {
+  togglePlanAction(slot)
+}
+
+function toggleRoadmapDailyAction(actionId) {
+  togglePlanAction(actionId)
+}
+
+function completeMission() {
+  saveAndPersist({
     ...state,
     streakDays: (state.streakDays || 0) + 1,
-  }
-
-  savePlan(updatedState)
-
-  try {
-    await persistDashboardUpdate(updatedState)
-  } catch (error) {
-    console.error('Failed to persist mission completion', error)
-  }
+  })
 
   showCelebration.value = true
-  window.setTimeout(() => {
+
+  setTimeout(() => {
     showCelebration.value = false
-  }, 1800)
+  }, 2000)
+}
+
+function saveAndPersist(updatedState) {
+  savePlan(updatedState)
+
+  persistDashboardUpdate(updatedState).catch((error) => {
+    console.error('Failed to sync dashboard update:', error)
+  })
 }
 
 async function persistDashboardUpdate(updatedState) {
   const username = updatedState.username || state.username
-  if (!username) {
-    throw new Error('Missing username for dashboard persistence')
-  }
+
+  if (!username) throw new Error('Missing username')
+  if (!API_BASE_URL) throw new Error('Missing VITE_PARENT_PROFILES_API_BASE_URL')
 
   const response = await fetch(
-    `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`,
+    `${API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`,
     {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         dailyPlan: updatedState.dailyPlan ?? state.dailyPlan,
-        progressItems: updatedState.progressItems ?? state.progressItems,
+        roadmapProgress: updatedState.roadmapProgress ?? state.roadmapProgress ?? {},
+        todaySchedule: updatedState.todaySchedule ?? state.todaySchedule ?? {},
+        plannerOverrides: updatedState.plannerOverrides ?? state.plannerOverrides ?? {},
         streakDays: updatedState.streakDays ?? state.streakDays ?? 0,
         nextAction: updatedState.nextAction ?? state.nextAction,
         mission: updatedState.mission ?? state.mission,
@@ -574,596 +903,562 @@ async function persistDashboardUpdate(updatedState) {
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
-    throw new Error(data.error || `Dashboard update failed with status ${response.status}`)
+    throw new Error(data.error || `Dashboard update failed: ${response.status}`)
   }
 
   return data
 }
+
+function onScroll() {
+  isScrolled.value = window.scrollY > 40
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+
+  if (state.username) {
+    fetchPlan(state.username).then(() => {
+      activeRoadmapWeek.value = currentWeek.value
+    })
+  } else {
+    console.warn('No username found in state. Complete quiz or load profile first.')
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+})
+
 </script>
 
 <style scoped>
-:global(*) {
-  box-sizing: border-box;
+:global(:root) {
+  --c-black: #0a0b0a;
+  --c-900: #111312;
+  --c-800: #1c1f1d;
+  --c-700: #2d3230;
+  --c-500: #52605a;
+  --c-400: #7a8880;
+  --c-300: #a8b5ae;
+  --c-100: #e8ece9;
+  --c-50: #f4f5f2;
+  --c-white: #ffffff;
+
+  --c-green: #16a34a;
+  --c-green-mid: #22c55e;
+  --c-green-soft: #f0fdf4;
+  --c-green-pale: #dcfce7;
+  --c-amber-soft: #fffbeb;
+
+  --border: rgba(10,11,10,0.08);
+  --border-mid: rgba(10,11,10,0.14);
+
+  --shadow-xs: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow-md: 0 8px 28px rgba(0,0,0,0.09);
+  --shadow-lg: 0 20px 56px rgba(0,0,0,0.12);
+
+  --f-display: 'Fraunces', Georgia, serif;
+  --f-body: 'General Sans', 'Helvetica Neue', ui-sans-serif, sans-serif;
+  --f-mono: 'JetBrains Mono', monospace;
+
+  --section-v: clamp(80px, 9vw, 120px);
+
+  --slot-nutrition: #16a34a;
+  --slot-nutrition-bg: #f0fdf4;
+  --slot-nutrition-border: rgba(22,163,74,0.2);
+
+  --slot-movement: #2563eb;
+  --slot-movement-bg: #eff6ff;
+  --slot-movement-border: rgba(37,99,235,0.18);
+
+  --slot-sleep: #7c3aed;
+  --slot-sleep-bg: #f5f3ff;
+  --slot-sleep-border: rgba(124,58,237,0.18);
+
+  --slot-routine: #d97706;
+  --slot-routine-bg: #fffbeb;
+  --slot-routine-border: rgba(217,119,6,0.2);
+
+  --slot-family: #db2777;
+  --slot-family-bg: #fdf2f8;
+  --slot-family-border: rgba(219,39,119,0.18);
 }
 
-:global(:root) {
-  --c-text: #2f281f;
-  --c-muted: #6d6256;
-  --c-border: rgba(120, 102, 84, 0.14);
-  --c-surface: rgba(255, 251, 246, 0.84);
-  --c-surface-strong: rgba(255, 252, 248, 0.94);
-  --c-accent: #8a6f58;
-  --c-accent-dark: #5f4a3a;
-  --c-accent-soft: #efe5da;
-  --c-accent-warm: #b68052;
-  --c-accent-muted: #9c8774;
-  --r-card: 20px;
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+:global(*, *::before, *::after) {
+  box-sizing: border-box;
 }
 
 :global(body) {
   margin: 0;
-  font-family: var(--font-sans);
-  background: #f7f3ee;
-  color: #171717;
+  font-family: var(--f-body), system-ui;
+  background: var(--c-white);
+  color: var(--c-black);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 .dashboard-page {
   min-height: 100vh;
-  position: relative;
   overflow-x: clip;
-  background:
-    radial-gradient(circle at 14% 18%, rgba(214, 194, 174, 0.18), transparent 34%),
-    radial-gradient(circle at 84% 14%, rgba(235, 223, 210, 0.16), transparent 34%),
-    radial-gradient(circle at 86% 78%, rgba(224, 198, 170, 0.12), transparent 36%),
-    linear-gradient(145deg, #f7f3ee 0%, #f9f5f0 46%, #fcf9f5 100%);
-}
-
-.dashboard-page::before,
-.dashboard-page::after {
-  content: "";
-  position: fixed;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 999px;
-  filter: blur(56px);
-  opacity: 0.26;
-}
-
-.dashboard-page::before {
-  width: 420px;
-  height: 420px;
-  top: -120px;
-  left: -150px;
-  background: radial-gradient(circle, rgba(213, 191, 169, 0.34), rgba(213, 191, 169, 0));
-}
-
-.dashboard-page::after {
-  width: 460px;
-  height: 460px;
-  top: 40vh;
-  right: -180px;
-  background: radial-gradient(circle, rgba(234, 217, 199, 0.30), rgba(234, 217, 199, 0));
-}
-
-.container {
-  width: min(1180px, calc(100% - 48px));
-  margin: 0 auto;
   position: relative;
-  z-index: 1;
 }
 
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(250, 247, 243, 0.94);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--c-border);
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px;
 }
 
-.header-row {
-  min-height: 78px;
+/* Base typography */
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+em {
+  font-style: italic;
+  color: var(--c-green);
+}
+
+p {
+  margin: 0 0 1em;
+  font-family: var(--f-body);
+  font-size: clamp(.9rem, 1vw, 1rem);
+  line-height: 1.75;
+  color: var(--c-500);
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+.section-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+  padding: 0 11px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-mid);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--c-500);
+}
+
+.section-h2 {
+  margin-bottom: 14px;
+  font-size: clamp(2rem, 3.5vw, 3.2rem);
+}
+
+.section-desc {
+  max-width: 32rem;
+  font-size: clamp(.9rem, 1vw, .98rem);
+}
+
+/* Header */
+.header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 500;
+  transition: background .3s, border-color .3s, box-shadow .3s;
+}
+
+.header.scrolled {
+  background: rgba(255,255,255,.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-xs);
+}
+
+.header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  max-width: 1280px;
+  height: 76px;
+  margin: 0 auto;
+  padding: 0 40px;
 }
 
-.brand {
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   text-decoration: none;
-  color: var(--c-text);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
+  color: var(--c-black);
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--c-black);
+}
+
+.logo-text {
+  font-family: var(--f-display);
+  font-size: 1.22rem;
+  letter-spacing: -.03em;
+  color: var(--c-black);
+}
+
+.nav,
+.nav-cta {
+  display: flex;
+  align-items: center;
 }
 
 .nav {
-  display: flex;
-  align-items: center;
-  gap: 28px;
+  gap: 2px;
 }
 
-.nav-link,
-.nav a {
-  text-decoration: none;
-  color: var(--c-muted);
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-
-.nav-link:hover,
-.nav a:hover {
-  color: var(--c-text);
-}
-
-.header-btn {
-  text-decoration: none;
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.92rem;
-  font-weight: 700;
-  border: 1px solid rgba(120, 102, 84, 0.18);
-  color: var(--c-text);
-  background: rgba(255, 252, 248, 0.82);
-  transition: background 0.15s, transform 0.15s;
-}
-
-.header-btn:hover {
-  background: rgba(244, 237, 229, 0.82);
-}
-
-.dashboard-top {
-  padding: 40px 0 24px;
-  position: relative;
-  z-index: 1;
-}
-
-.top-shell {
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 24px;
-  align-items: start;
-}
-
-.eyebrow,
-.section-label,
-.card-kicker,
-.chart-label,
-.today-focus-label {
-  margin: 0 0 12px;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 800;
-  color: var(--c-muted);
-}
-
-.top-copy h1,
-.section-head h2,
-.summary-card h2,
-.chart-card h3,
-.glass-card h3,
-.chart-detail-card h4 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  line-height: 0.96;
-  letter-spacing: -0.05em;
-  font-weight: 700;
-  color: var(--c-text);
-}
-
-.top-copy h1 {
-  font-size: clamp(2.8rem, 5vw, 4.6rem);
-}
-
-.section-head h2 {
-  font-size: clamp(2rem, 3vw, 2.9rem);
-}
-
-.summary-card h2,
-.chart-card h3,
-.glass-card h3,
-.chart-detail-card h4 {
-  font-size: 1.5rem;
-  line-height: 1.05;
-}
-
-.top-text,
-.summary-text,
-.info-copy,
-.today-progress-copy,
-.detail-list,
-.task-item span,
-.weekday-list,
-.chart-summary,
-.chart-detail-text,
-.bar-value,
-.bar-label,
-.chart-detail-list {
-  color: var(--c-muted);
-  line-height: 1.68;
-}
-
-.top-text {
-  margin: 14px 0 0;
-  max-width: 42rem;
-  font-size: 1rem;
-}
-
-.top-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 22px;
-}
-
-.top-pills span {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(255, 250, 245, 0.82);
-  border: 1px solid rgba(120, 102, 84, 0.14);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #5f4c3d;
-}
-
-.top-side {
-  display: grid;
-  gap: 14px;
-}
-
-.summary-card,
-.glass-card {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 26px;
-  padding: 22px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 14px 30px rgba(98, 79, 61, 0.08);
-}
-
-.summary-card {
-  position: relative;
-  border-radius: 28px;
-}
-
-.mission-card {
-  background:
-    radial-gradient(circle at top right, rgba(198, 166, 132, 0.16), transparent 34%),
-    linear-gradient(180deg, rgba(255, 252, 248, 0.9), rgba(247, 239, 229, 0.96));
-}
-
-.summary-card p {
-  margin: 10px 0 0;
-}
-
-.mission-progress-top {
-  margin-top: 16px;
-  color: #4f4a66;
-  font-size: 0.95rem;
-}
-
-.mission-progress-top strong {
-  color: var(--c-text);
-}
-
-.progress-track {
-  width: 100%;
-  height: 10px;
-  border-radius: 999px;
-  background: #e7ddd1;
-  overflow: hidden;
-  margin-top: 14px;
-}
-
-.progress-track.large {
-  height: 12px;
-  margin: 14px 0 20px;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #b08a67 0%, #8f6b4f 100%);
-}
-
-.pill-btn {
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  padding: 14px 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  transition: transform 0.15s, opacity 0.15s;
-}
-
-.pill-btn.dark {
-  margin-top: 16px;
-  background: linear-gradient(135deg, #5c4636 0%, #8f6b4f 100%);
-  color: #fffaf5;
-  box-shadow: 0 12px 24px rgba(111, 86, 63, 0.18);
-}
-
-.pill-btn.dark:hover {
-  transform: translateY(-1px);
-  opacity: 0.96;
-}
-
-.today-plan-section,
-.weekly-plan-section,
-.tracker-section,
-.chart-section,
-.overview-section {
-  padding: 0 0 28px;
-  position: relative;
-  z-index: 1;
-}
-
-.section-head {
-  margin-bottom: 18px;
-}
-
-.section-head.compact {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.today-plan-grid,
-.tracker-grid,
-.overview-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 20px;
-}
-
-.overview-grid.single {
-  grid-template-columns: 1fr;
-}
-
-.weekly-days-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 14px;
-}
-
-.task-list {
-  display: grid;
-  gap: 10px;
-}
-
-.task-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255, 252, 248, 0.9), rgba(245, 237, 228, 0.96));
-  border: 1px solid rgba(120, 102, 84, 0.08);
-}
-
-.task-item input {
-  width: 18px;
-  height: 18px;
-  accent-color: #9c7657;
-  flex-shrink: 0;
-}
-
-.task-item.done {
-  opacity: 0.72;
-}
-
-.task-item.done span {
-  text-decoration: line-through;
-}
-
-.detail-list {
-  margin: 16px 0 0;
-  padding-left: 18px;
-}
-
-.detail-list li {
-  margin-bottom: 8px;
-}
-
-.weekday-card {
-  padding: 18px;
-}
-
-.weekday-card.active {
-  border: 2px solid rgba(156, 118, 87, 0.36);
-  box-shadow: 0 18px 32px rgba(156, 118, 87, 0.12);
-}
-
-.weekday-card h3 {
-  margin-bottom: 10px;
-  font-size: 1.08rem;
-}
-
-.weekday-list {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 0.93rem;
-}
-
-.weekday-list li {
-  margin-bottom: 8px;
-}
-
-.tracker-badge {
-  min-width: 54px;
-  height: 54px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #b08a67 0%, #8f6b4f 100%);
-  color: #fffaf5;
-  font-weight: 800;
-  box-shadow: 0 10px 24px rgba(143, 107, 79, 0.22);
-}
-
-.custom-item-form {
-  display: grid;
-  gap: 12px;
-}
-
-.custom-input {
-  width: 100%;
-  min-height: 52px;
-  border-radius: 16px;
-  border: 1px solid rgba(120, 102, 84, 0.14);
-  padding: 0 16px;
-  font: inherit;
-  background: rgba(255, 252, 248, 0.95);
-  outline: none;
-}
-
-.custom-input:focus {
-  border-color: #9c7657;
-  box-shadow: 0 0 0 4px rgba(156, 118, 87, 0.12);
-}
-
-.chart-card {
-  padding: 22px;
-}
-
-.chart-header {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.chart-summary {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 251, 246, 0.8);
-  border: 1px solid rgba(120, 102, 84, 0.1);
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.chart-interactive-wrap {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 20px;
-  align-items: stretch;
-}
-
-.bar-chart {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 14px;
-  align-items: end;
-  min-height: 250px;
-}
-
-.interactive-bar {
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 0.18s ease;
-}
-
-.interactive-bar:hover {
-  transform: translateY(-4px);
-}
-
-.interactive-bar.active .bar-track {
-  box-shadow: 0 0 0 2px rgba(156, 118, 87, 0.24);
-}
-
-.interactive-bar.active .bar-fill {
-  filter: brightness(0.96);
-}
-
-.bar-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.nav-cta {
   gap: 8px;
 }
 
-.bar-value,
-.bar-label {
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.bar-track {
-  width: 100%;
-  max-width: 44px;
-  height: 180px;
-  border-radius: 999px;
-  background: #e7ddd1;
-  overflow: hidden;
+.nav-a,
+.nav-link {
   display: flex;
-  align-items: end;
-  transition: box-shadow 0.18s ease, transform 0.18s ease;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: .86rem;
+  font-weight: 500;
+  color: var(--c-500);
+  text-decoration: none;
+  transition: color .18s, background .18s;
 }
 
-.bar-fill {
-  width: 100%;
+.nav-link {
+  padding: 0 14px;
+}
+
+.nav-a:hover,
+.nav-link:hover {
+  color: var(--c-black);
+  background: var(--c-50);
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--c-900);
+  background: var(--c-black);
+  color: var(--c-white);
+  font-size: .86rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2), 0 0 0 1px rgba(255,255,255,.06) inset;
+  transition: all .2s;
+}
+
+.nav-btn:hover {
+  background: var(--c-800);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.24);
+}
+
+/* Hero */
+.dash-hero {
+  position: relative;
+  padding: 120px 0 0;
+  overflow: hidden;
+  background: var(--c-white);
+}
+
+.dash-hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+}
+
+.hb-1 {
+  width: 700px;
+  height: 700px;
+  top: -200px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(22,163,74,.08) 0%, transparent 70%);
+}
+
+.hb-2 {
+  width: 500px;
+  height: 500px;
+  bottom: 0;
+  left: -100px;
+  background: radial-gradient(circle, rgba(59,130,246,.05) 0%, transparent 70%);
+}
+
+.hero-lines {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.hero-lines span {
+  border-right: 1px solid rgba(10,11,10,.03);
+}
+
+.dash-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 60px;
+  align-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.eyebrow-row {
+  margin-bottom: 28px;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #d8b89a 0%, #b08a67 48%, #8f6b4f 100%);
-  transition: height 0.3s ease;
+  border: 1px solid rgba(22,163,74,.2);
+  background: var(--c-green-soft);
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--c-green);
 }
 
-.chart-detail-card {
-  background: linear-gradient(180deg, rgba(255, 252, 248, 0.88), rgba(245, 237, 228, 0.96));
-  border: 1px solid rgba(120, 102, 84, 0.08);
-  padding: 18px;
-  border-radius: 20px;
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-green-mid);
+  animation: live-pulse 2.4s ease-in-out infinite;
 }
 
-.chart-detail-card h4 {
-  font-size: 1.32rem;
-  margin-top: 2px;
+@keyframes live-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(34,197,94,.45);
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px rgba(34,197,94,0);
+  }
 }
 
-.chart-detail-score {
-  margin: 10px 0 0;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #8f6b4f;
+.dash-h1 {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
 
-.chart-detail-text {
-  margin: 8px 0 0;
+.dh-serif {
+  font-family: var(--f-display);
+  font-size: clamp(2.4rem, 5vw, 5.6rem);
+  font-weight: 300;
+  line-height: .96;
+  letter-spacing: -.04em;
+  color: var(--c-black);
 }
 
-.chart-detail-list {
-  margin: 14px 0 0;
-  padding-left: 18px;
-  line-height: 1.6;
+.dash-hero-desc {
+  max-width: 28rem;
+  margin-bottom: 36px;
+  font-size: clamp(.94rem, 1.05vw, 1.02rem);
+  color: var(--c-500);
 }
 
-.chart-detail-list li {
+.hero-kpi-row {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.hkpi {
+  flex: 1;
+  text-align: center;
+}
+
+.hkpi-val {
+  font-family: var(--f-display);
+  font-size: 1.8rem;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--c-black);
+}
+
+.hkpi-lbl {
+  margin-top: 4px;
+  font-size: .68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--c-400);
+}
+
+.hkpi-div {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Mission card */
+.mission-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  border-radius: 24px;
+  border: 1.5px solid rgba(22,163,74,.2);
+  background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+  box-shadow: var(--shadow-md);
+}
+
+.mission-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.mission-eyebrow {
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--c-green);
+}
+
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(22,163,74,.2);
+  background: rgba(22,163,74,.12);
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--c-green);
+}
+
+.mission-title {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--c-black);
+}
+
+.mission-desc {
+  margin-bottom: 18px;
+  font-size: .86rem;
+  color: var(--c-500);
+}
+
+.mission-progress-wrap {
+  margin-bottom: 20px;
+}
+
+.mp-labels {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 8px;
+  font-size: .74rem;
+  font-weight: 600;
+  color: var(--c-500);
 }
 
-.done-text {
-  text-decoration: line-through;
-  opacity: 0.7;
+.mp-track,
+.tsb-track,
+.tsc-progress-bar,
+.rweek-track,
+.rdm-day-mini-track,
+.rfp-week-progress-track {
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(0,0,0,.07);
 }
 
-.empty-state {
-  margin: 0;
-  font-style: italic;
-  color: var(--c-muted);
+.mp-track {
+  height: 8px;
+  background: rgba(22,163,74,.15);
+}
+
+.mp-fill,
+.tsb-fill,
+.tsc-pb-fill,
+.rweek-fill,
+.rdm-day-mini-fill,
+.rfp-week-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width .45s ease, background .25s ease;
+}
+
+.mp-fill {
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+}
+
+.mission-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 48px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 12px;
+  background: var(--c-black);
+  color: var(--c-white);
+  font-family: var(--f-body);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.mission-btn:hover {
+  background: var(--c-800);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.2);
 }
 
 .confetti-layer {
@@ -1179,78 +1474,1406 @@ async function persistDashboardUpdate(updatedState) {
   width: 10px;
   height: 18px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #d7b089 0%, #f0c98d 100%);
-  animation: confettiDrop 1.2s ease forwards;
+  background: linear-gradient(180deg, #86efac 0%, #facc15 100%);
+  animation: confettiFall 1.4s ease forwards;
 }
 
-@keyframes confettiDrop {
+@keyframes confettiFall {
   0% {
     opacity: 0;
     transform: translateY(0) rotate(0deg);
   }
+
   10% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
-    transform: translateY(220px) rotate(220deg);
+    transform: translateY(260px) rotate(240deg);
   }
 }
 
+/* Today's plan */
+.today-section {
+  padding: var(--section-v) 0;
+  background: var(--c-white);
+  border-top: 1px solid var(--border);
+}
+
+.section-head-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 48px;
+}
+
+.today-score-block {
+  min-width: 180px;
+  padding: 24px 32px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--c-50);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.tsb-pct {
+  font-family: var(--f-display);
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--c-black);
+}
+
+.tsb-pct span {
+  font-size: .4em;
+  color: var(--c-400);
+}
+
+.tsb-lbl {
+  margin: 6px 0 14px;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--c-400);
+}
+
+.tsb-track {
+  height: 8px;
+}
+
+.today-schedule-card {
+  overflow: hidden;
+  margin-top: 32px;
+  margin-bottom: 24px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: var(--c-white);
+  box-shadow: var(--shadow-md);
+}
+
+.tsc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--c-50);
+}
+
+.tsc-day {
+  font-family: var(--f-display);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -.02em;
+  color: var(--c-black);
+}
+
+.tsc-sub {
+  margin-top: 4px;
+  font-size: .76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--c-400);
+}
+
+.tsc-pct-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: .86rem;
+  font-weight: 700;
+}
+
+.chip-green {
+  background: var(--c-green-pale);
+  color: var(--c-green);
+}
+
+.chip-default {
+  border: 1px solid var(--border-mid);
+  background: var(--c-50);
+  color: var(--c-500);
+}
+
+.tsc-progress-bar {
+  height: 5px;
+}
+
+.tsc-timeline {
+  display: grid;
+  gap: 0;
+  padding: 16px 24px 24px;
+}
+
+.tsc-slot {
+  display: grid;
+  grid-template-columns: 56px 24px 1fr;
+  gap: 0 12px;
+  align-items: stretch;
+  min-height: 72px;
+  position: relative;
+}
+
+.tsc-slot:last-child .tsc-line {
+  display: none;
+}
+
+.tsc-time-col {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+.tsc-time {
+  font-family: var(--f-mono);
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--c-400);
+  white-space: nowrap;
+}
+
+.tsc-slot-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.tsc-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--c-100);
+  background: var(--c-white);
+  z-index: 1;
+  transition: all .2s;
+}
+
+.tsc-dot.done {
+  background: var(--c-green);
+  border-color: var(--c-green);
+}
+
+.tsc-line {
+  flex: 1;
+  width: 2px;
+  margin-top: 4px;
+  background: var(--border);
+}
+
+.tsc-nutrition .tsc-dot {
+  border-color: rgba(22,163,74,.4);
+}
+
+.tsc-nutrition .tsc-dot.done {
+  background: var(--slot-nutrition);
+  border-color: var(--slot-nutrition);
+}
+
+.tsc-movement .tsc-dot {
+  border-color: rgba(37,99,235,.3);
+}
+
+.tsc-movement .tsc-dot.done {
+  background: var(--slot-movement);
+  border-color: var(--slot-movement);
+}
+
+.tsc-sleep .tsc-dot {
+  border-color: rgba(124,58,237,.3);
+}
+
+.tsc-sleep .tsc-dot.done {
+  background: var(--slot-sleep);
+  border-color: var(--slot-sleep);
+}
+
+.tsc-routine .tsc-dot {
+  border-color: rgba(217,119,6,.3);
+}
+
+.tsc-routine .tsc-dot.done {
+  background: var(--slot-routine);
+  border-color: var(--slot-routine);
+}
+
+.tsc-family .tsc-dot {
+  border-color: rgba(219,39,119,.3);
+}
+
+.tsc-family .tsc-dot.done {
+  background: var(--slot-family);
+  border-color: var(--slot-family);
+}
+
+.tsc-content {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 0 14px;
+  cursor: pointer;
+}
+
+.tsc-content input,
+.slot-action-col input,
+.rdm-action input,
+.rdm-day-action input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tsc-card {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--c-50);
+  transition: all .18s;
+}
+
+.tsc-card:hover {
+  background: var(--c-white);
+  box-shadow: var(--shadow-xs);
+  border-color: var(--border-mid);
+}
+
+.tsc-card.done {
+  opacity: .55;
+}
+
+.tsc-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.tsc-cat-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.badge-nutrition {
+  background: var(--slot-nutrition-bg);
+  color: var(--slot-nutrition);
+  border: 1px solid var(--slot-nutrition-border);
+}
+
+.badge-movement {
+  background: var(--slot-movement-bg);
+  color: var(--slot-movement);
+  border: 1px solid var(--slot-movement-border);
+}
+
+.badge-sleep {
+  background: var(--slot-sleep-bg);
+  color: var(--slot-sleep);
+  border: 1px solid var(--slot-sleep-border);
+}
+
+.badge-routine {
+  background: var(--slot-routine-bg);
+  color: var(--slot-routine);
+  border: 1px solid var(--slot-routine-border);
+}
+
+.badge-family {
+  background: var(--slot-family-bg);
+  color: var(--slot-family);
+  border: 1px solid var(--slot-family-border);
+}
+
+.tsc-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-100);
+  flex-shrink: 0;
+  transition: all .2s;
+}
+
+.tsc-check.done {
+  background: var(--c-green);
+  border-color: var(--c-green);
+}
+
+.tsc-text {
+  display: block;
+  font-size: .9rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--c-700);
+}
+
+.tsc-card.done .tsc-text {
+  text-decoration: line-through;
+  color: var(--c-400);
+}
+
+.tsc-detail {
+  display: block;
+  margin-top: 5px;
+  font-size: .78rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--c-400);
+}
+
+.tsc-empty {
+  padding: 24px 0;
+  margin: 0;
+  text-align: center;
+  font-size: .9rem;
+  font-style: italic;
+  color: var(--c-400);
+}
+
+/* Roadmap */
+.roadmap-section {
+  padding: var(--section-v) 0;
+  background: var(--c-50);
+  border-top: 1px solid var(--border);
+}
+
+.roadmap-score-block {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.rsb-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  flex-shrink: 0;
+}
+
+.rsb-ring-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--c-white);
+}
+
+.rsb-pct {
+  font-family: var(--f-display);
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--c-black);
+}
+
+.rsb-pct span {
+  font-size: .7em;
+}
+
+.rsb-lbl {
+  font-size: .6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--c-400);
+}
+
+.rsb-num {
+  margin-bottom: 2px;
+  font-family: var(--f-display);
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--c-black);
+}
+
+.rsb-num span {
+  font-size: .55em;
+  color: var(--c-400);
+}
+
+.rsb-desc {
+  margin-bottom: 10px;
+  font-size: .76rem;
+  font-weight: 500;
+  color: var(--c-400);
+}
+
+.rsb-focus-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--c-green-pale);
+  color: var(--c-green);
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.roadmap-weeks {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.rweek-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--c-white);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  text-align: left;
+  transition: all .25s ease;
+}
+
+.rweek-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-mid);
+}
+
+.rweek-card.active {
+  border-color: rgba(22,163,74,.35);
+  box-shadow: 0 0 0 3px rgba(22,163,74,.08), var(--shadow-md);
+}
+
+.rweek-card.completed {
+  border-color: rgba(22,163,74,.25);
+  background: linear-gradient(145deg, #f0fdf4, var(--c-white));
+}
+
+.rweek-card.in-progress {
+  border-color: rgba(217,119,6,.25);
+}
+
+.rweek-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.rweek-num {
+  font-family: var(--f-mono);
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--c-400);
+}
+
+.rweek-status {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: .64rem;
+  font-weight: 700;
+}
+
+.rs-not-started {
+  background: var(--c-50);
+  color: var(--c-400);
+}
+
+.rs-in-progress {
+  background: var(--c-amber-soft);
+  color: #b45309;
+}
+
+.rs-completed {
+  background: var(--c-green-pale);
+  color: var(--c-green);
+}
+
+.rweek-title {
+  margin-bottom: 8px;
+  font-family: var(--f-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--c-black);
+}
+
+.rweek-summary {
+  flex: 1;
+  margin-bottom: 16px;
+  font-size: .82rem;
+  line-height: 1.55;
+  color: var(--c-500);
+}
+
+.rweek-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.rweek-track {
+  flex: 1;
+  height: 6px;
+}
+
+.rweek-pct {
+  min-width: 28px;
+  text-align: right;
+  font-family: var(--f-mono);
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--c-400);
+}
+
+.rweek-done-count {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--c-400);
+}
+
+/* Roadmap detail: bigger planner, smaller progress panel */
+.roadmap-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(280px, .5fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+.roadmap-detail-main {
+  min-width: 0;
+  min-height: 680px;
+  padding: 40px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.rdm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 22px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rdm-eyebrow {
+  margin-bottom: 6px;
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--c-400);
+}
+
+.rdm-title {
+  font-family: var(--f-display);
+  font-size: clamp(1.8rem, 2.4vw, 2.4rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  color: var(--c-black);
+}
+
+.rdm-week-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-mid);
+  background: var(--c-50);
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--c-500);
+  white-space: nowrap;
+}
+
+.rdm-day-plan-block {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.rdm-day-plan-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.rdm-day-plan-head span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: .72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--c-green);
+}
+
+.rdm-day-plan-head p {
+  margin: 0;
+  font-size: .84rem;
+  line-height: 1.6;
+  color: var(--c-500);
+}
+
+.rdm-day-plan-head strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--c-green-pale);
+  color: var(--c-green);
+  font-size: .78rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.rdm-day-plan-grid {
+  display: flex;
+  gap: 18px;
+  min-height: 560px;
+  padding: 4px 4px 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  align-items: stretch;
+}
+
+.rdm-day-plan-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.rdm-day-plan-grid::-webkit-scrollbar-track {
+  background: rgba(0,0,0,.05);
+  border-radius: 999px;
+}
+
+.rdm-day-plan-grid::-webkit-scrollbar-thumb {
+  background: rgba(22,163,74,.35);
+  border-radius: 999px;
+}
+
+.rdm-day-plan-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(22,163,74,.55);
+}
+
+.rdm-day-card {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 300px;
+  min-width: 300px;
+  max-width: 330px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--c-50);
+  scroll-snap-align: start;
+  transition: .18s ease;
+}
+
+.rdm-day-card:hover {
+  background: var(--c-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.rdm-day-card.today {
+  border: 2px solid rgba(22,163,74,.42);
+  background: linear-gradient(160deg, #f0fdf4, #ffffff);
+  box-shadow: 0 12px 30px rgba(22,163,74,.13);
+}
+
+.rdm-day-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.rdm-day-name {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: .66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--c-400);
+}
+
+.rdm-day-card.today .rdm-day-name {
+  color: var(--c-green);
+}
+
+.rdm-day-card-head small {
+  display: inline-flex;
+  margin-top: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--c-green);
+  color: white;
+  font-size: .55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.rdm-day-card-head strong {
+  font-size: .68rem;
+  font-weight: 800;
+  color: var(--c-400);
+}
+
+.rdm-day-mini-track {
+  height: 5px;
+  margin-bottom: 10px;
+}
+
+.rdm-day-schedule {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+}
+
+.rdm-time-slot {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: all .15s;
+}
+
+.rdm-time-slot.slot-nutrition {
+  background: var(--slot-nutrition-bg);
+  border-color: var(--slot-nutrition-border);
+}
+
+.rdm-time-slot.slot-movement {
+  background: var(--slot-movement-bg);
+  border-color: var(--slot-movement-border);
+}
+
+.rdm-time-slot.slot-sleep {
+  background: var(--slot-sleep-bg);
+  border-color: var(--slot-sleep-border);
+}
+
+.rdm-time-slot.slot-routine {
+  background: var(--slot-routine-bg);
+  border-color: var(--slot-routine-border);
+}
+
+.rdm-time-slot.slot-family {
+  background: var(--slot-family-bg);
+  border-color: var(--slot-family-border);
+}
+
+.rdm-time-slot.done {
+  opacity: .5;
+}
+
+.slot-time-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.slot-time {
+  font-family: var(--f-mono);
+  font-size: .62rem;
+  font-weight: 700;
+  color: var(--c-400);
+  white-space: nowrap;
+}
+
+.slot-cat-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .4;
+}
+
+.slot-action-col {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.slot-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  margin-top: 3px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,.15);
+  flex-shrink: 0;
+  transition: all .15s;
+}
+
+.slot-check.done {
+  background: var(--c-green);
+  border-color: var(--c-green);
+}
+
+.slot-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.slot-text {
+  font-size: .86rem;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--c-700);
+}
+
+.rdm-time-slot.done .slot-text {
+  text-decoration: line-through;
+  color: var(--c-300);
+}
+
+.slot-tip {
+  font-size: .72rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--c-400);
+}
+
+.schedule-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--c-500);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-nutrition .legend-dot {
+  background: var(--slot-nutrition);
+}
+
+.legend-movement .legend-dot {
+  background: var(--slot-movement);
+}
+
+.legend-sleep .legend-dot {
+  background: var(--slot-sleep);
+}
+
+.legend-routine .legend-dot {
+  background: var(--slot-routine);
+}
+
+.legend-family .legend-dot {
+  background: var(--slot-family);
+}
+
+/* Right roadmap feedback panel */
+.roadmap-feedback-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  height: 100%;
+  padding: 28px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: var(--c-900);
+}
+
+.rfp-status-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rfp-status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.rfi-completed {
+  background: rgba(74,222,128,.15);
+  color: #4ade80;
+}
+
+.rfi-in-progress {
+  background: rgba(251,191,36,.12);
+  color: #fbbf24;
+}
+
+.rfi-not-started {
+  background: rgba(255,255,255,.07);
+  color: rgba(255,255,255,.4);
+}
+
+.rfp-status-label {
+  margin-bottom: 3px;
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.35);
+}
+
+.rfp-status-text {
+  font-size: .88rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.8);
+}
+
+.rfp-progress-donut {
+  display: flex;
+  justify-content: center;
+}
+
+.rfp-all-weeks {
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.rfp-aw-head {
+  margin-bottom: 14px;
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.35);
+}
+
+.rfp-week-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rfp-week-row {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  text-align: left;
+  transition: all .2s ease;
+}
+
+.rfp-week-row:hover {
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.14);
+  transform: translateY(-1px);
+}
+
+.rfp-week-row.current {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.22);
+  box-shadow: 0 0 0 2px rgba(255,255,255,.08);
+}
+
+.rfp-week-row-top,
+.rfp-week-row-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rfp-week-row-top {
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rfp-week-name {
+  font-size: .8rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.78);
+}
+
+.rfp-week-percent {
+  font-family: var(--f-mono);
+  font-size: .75rem;
+  font-weight: 800;
+  background: transparent !important;
+}
+
+.rfp-week-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,.08);
+}
+
+.rfp-week-row-meta {
+  margin-top: 7px;
+  font-size: .66rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.38);
+}
+
+/* Progress colours */
+.progress-green {
+  background: #16a34a;
+  color: #4ade80;
+}
+
+.progress-lime {
+  background: #65a30d;
+  color: #bef264;
+}
+
+.progress-amber {
+  background: #d97706;
+  color: #fbbf24;
+}
+
+.progress-orange {
+  background: #ea580c;
+  color: #fb923c;
+}
+
+.progress-red {
+  background: #dc2626;
+  color: #f87171;
+}
+
+/* Footer */
+.footer {
+  padding: 56px 0 0;
+  background: var(--c-black);
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px 44px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-col-head {
+  margin-bottom: 4px;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: rgba(255,255,255,.35);
+}
+
+.footer-col a {
+  font-size: .86rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.5);
+  text-decoration: none;
+  transition: color .18s;
+}
+
+.footer-col a:hover {
+  color: rgba(255,255,255,.9);
+}
+
+.footer-bottom {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 40px;
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-size: .76rem;
+  color: rgba(255,255,255,.2);
+}
+
+.footer-logo {
+  margin-bottom: 12px;
+  color: rgba(255,255,255,.88);
+}
+
+.footer-logo-icon {
+  color: rgba(255,255,255,.8);
+}
+
+.footer-blurb {
+  margin: 0;
+  font-size: .8rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,.3);
+}
+
+/* Responsive */
 @media (max-width: 1100px) {
-  .top-shell,
-  .today-plan-grid,
-  .tracker-grid,
-  .overview-grid,
-  .chart-interactive-wrap {
+  .roadmap-weeks {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .roadmap-detail,
+  .section-head-row {
     grid-template-columns: 1fr;
   }
 
-  .weekly-days-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .rdm-day-card {
+    min-width: 260px;
+    flex-basis: 260px;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (max-width: 760px) {
-  .nav {
+@media (max-width: 900px) {
+  .dash-hero-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .section-wrap,
+  .header-inner,
+  .dash-hero-inner {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .tsc-slot {
+    grid-template-columns: 48px 20px 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .nav,
+  .nav-link {
     display: none;
   }
 
-  .header-row {
+  .hero-kpi-row {
     flex-wrap: wrap;
-    padding: 14px 0;
   }
 
-  .header-btn {
-    width: 100%;
+  .hkpi {
+    flex: 0 0 50%;
   }
 
-  .container {
-    width: calc(100% - 24px);
+  .hkpi-div {
+    display: none;
   }
 
-  .weekly-days-grid {
+  .roadmap-weeks {
     grid-template-columns: 1fr;
   }
 
-  .bar-chart {
-    gap: 8px;
+  .rdm-day-card {
+    min-width: 82vw;
+    max-width: 82vw;
+    flex-basis: 82vw;
   }
 
-  .bar-track {
-    max-width: 34px;
-    height: 140px;
+  .rdm-day-plan-head {
+    flex-direction: column;
   }
 
-  .pill-btn {
-    width: 100%;
+  .footer-inner {
+    grid-template-columns: 1fr;
   }
 
-  .summary-card,
-  .glass-card,
-  .chart-detail-card {
-    padding: 20px;
-    border-radius: 22px;
+  h2 {
+    font-size: clamp(1.9rem, 7vw, 2.6rem);
   }
+
+  .tsc-slot {
+    grid-template-columns: 40px 18px 1fr;
+    gap: 0 8px;
+  }
+
+  .tsc-time {
+    font-size: .6rem;
+  }
+}
+
+.rdm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.planner-edit-btn,
+.planner-save-btn,
+.planner-cancel-btn {
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: .76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.planner-edit-btn {
+  border: 1px solid rgba(22,163,74,.25);
+  background: var(--c-green-pale);
+  color: var(--c-green);
+}
+
+.planner-edit-btn:hover {
+  background: var(--c-green);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.planner-edit-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.planner-cancel-btn {
+  border: 1px solid var(--border-mid);
+  background: var(--c-white);
+  color: var(--c-500);
+}
+
+.planner-cancel-btn:hover {
+  background: var(--c-50);
+  color: var(--c-black);
+}
+
+.planner-save-btn {
+  border: 1px solid var(--c-black);
+  background: var(--c-black);
+  color: white;
+}
+
+.planner-save-btn:hover {
+  background: var(--c-800);
+  transform: translateY(-1px);
+}
+
+.rdm-time-slot.editing {
+  padding: 10px;
+  background: var(--c-white);
+  border-color: rgba(22,163,74,.22);
+  box-shadow: var(--shadow-xs);
+}
+
+.slot-edit-form {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.slot-edit-row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px;
+}
+
+.slot-edit-time,
+.slot-edit-category,
+.slot-edit-text,
+.slot-edit-tip {
+  width: 100%;
+  min-height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--border-mid);
+  background: var(--c-white);
+  padding: 0 10px;
+  font-family: var(--f-body);
+  font-size: .72rem;
+  color: var(--c-700);
+  outline: none;
+}
+
+.slot-edit-text,
+.slot-edit-tip {
+  min-height: 36px;
+}
+
+.slot-edit-time:focus,
+.slot-edit-category:focus,
+.slot-edit-text:focus,
+.slot-edit-tip:focus {
+  border-color: var(--c-green);
+  box-shadow: 0 0 0 3px rgba(22,163,74,.1);
 }
 </style>
