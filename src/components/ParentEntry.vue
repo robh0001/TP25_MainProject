@@ -1,912 +1,716 @@
 <template>
-    <div class="entry-page">
-      <header class="site-header">
-        <div class="container header-row">
-          <RouterLink to="/" class="brand">HealthyKids</RouterLink>
-  
-          <nav class="nav" aria-label="Primary">
-            <RouterLink to="/" class="nav-link">Home</RouterLink>
-            <a href="#entry-options" class="nav-link">Parent access</a>
-            <a href="#flow" class="nav-link">How it works</a>
-          </nav>
-  
-          <RouterLink to="/" class="header-btn light-btn">Back home</RouterLink>
-        </div>
-      </header>
-  
-      <main>
-        <section class="entry-intro">
-          <div class="container intro-shell">
-            <div class="intro-copy">
-              <p class="step-kicker">Step 1 of 3</p>
-              <h1>How would you like to continue?</h1>
-              <p class="intro-text">
-                Start a new family plan or return using your saved family code. This keeps access simple
-                without asking for personal names or account details.
-              </p>
-            </div>
-  
-            <div class="intro-status-card">
-              <p class="status-label">Journey</p>
-              <div class="status-steps">
-                <div class="status-step active">
-                  <span>1</span>
-                  <small>Parent access</small>
-                </div>
-                <div class="status-line"></div>
-                <div class="status-step">
-                  <span>2</span>
-                  <small>Quiz</small>
-                </div>
-                <div class="status-line"></div>
-                <div class="status-step">
-                  <span>3</span>
-                  <small>Dashboard</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-  
-        <section id="entry-options" class="entry-options-section">
-          <div class="container">
-            <div class="entry-grid">
-              <article class="path-card new-parent-card">
-                <div class="path-top">
-                  <p class="card-kicker">New parent</p>
-                  <h2>Create a new family plan</h2>
-                  <p>
-                    Choose a private family code, complete the parent quiz, and generate a personalised
-                    family dashboard with practical next steps.
-                  </p>
-                </div>
-  
-                <div class="path-visual">
-                  <div class="visual-badge">New profile</div>
-                  <div class="visual-panel">
-                    <strong>What happens next?</strong>
-                    <ul>
-                      <li>Create family code</li>
-                      <li>Complete parent quiz</li>
-                      <li>Unlock dashboard</li>
-                    </ul>
-                  </div>
-                </div>
-  
-                <div class="form-block">
-                  <label for="new-username">Choose a family code</label>
-                  <input
-                    id="new-username"
-                    v-model.trim="newUsername"
-                    type="text"
-                    placeholder="e.g. familygreen01"
-                  />
-                  <small class="field-hint">
-                    Use a code you can remember. Avoid real names, emails, phone numbers, or medical details.
-                  </small>
-                  <p v-if="newUserError" class="form-error">{{ newUserError }}</p>
-                  <button type="button" class="soft-brown-btn full-btn" @click="startNewUser">
-                    Start as new parent
-                  </button>
-                </div>
-              </article>
-  
-              <article class="path-card returning-parent-card">
-                <div class="path-top">
-                  <p class="card-kicker">Returning parent</p>
-                  <h2>Open your saved dashboard</h2>
-                  <p>
-                    Enter your saved family code to continue with your child's daily tasks, weekly plan,
-                    progress tracker, and recommendations.
-                  </p>
-                </div>
-  
-                <div class="path-visual">
-                  <div class="visual-badge muted">Saved access</div>
-                  <div class="visual-panel">
-                    <strong>Continue where you left off</strong>
-                    <ul>
-                      <li>Load saved profile</li>
-                      <li>View current plan</li>
-                      <li>Track daily progress</li>
-                    </ul>
-                  </div>
-                </div>
-  
-                <div class="form-block">
-                  <label for="returning-username">Enter your family code</label>
-                  <input
-                    id="returning-username"
-                    v-model.trim="returningUsername"
-                    type="text"
-                    placeholder="Enter your family code"
-                  />
-                  <small class="field-hint">
-                    This should be the same family code used when the plan was created.
-                  </small>
-                  <p v-if="returningUserError" class="form-error">{{ returningUserError }}</p>
-                  <button type="button" class="outline-btn full-btn" @click="continueReturningUser">
-                    Open my dashboard
-                  </button>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-  
-        <section id="flow" class="flow-section">
-          <div class="container flow-shell">
-            <div class="flow-copy">
-              <p class="section-eyebrow">What happens next</p>
-              <h2>A simple flow for busy parents</h2>
-            </div>
-  
-            <div class="flow-grid">
-              <article class="flow-card">
-                <span>01</span>
-                <h3>Choose your path</h3>
-                <p>Select whether you are starting fresh or returning with an existing profile.</p>
-              </article>
-  
-              <article class="flow-card">
-                <span>02</span>
-                <h3>Complete the quiz</h3>
-                <p>Answer a few questions about routines, habits, and daily challenges.</p>
-              </article>
-  
-              <article class="flow-card">
-                <span>03</span>
-                <h3>Follow your dashboard</h3>
-                <p>Get relevant daily actions, weekly guidance, and progress tracking.</p>
-              </article>
-            </div>
-          </div>
-        </section>
-      </main>
+  <div class="entry-page" :class="{ loaded: isLoaded }">
+    <!-- Background -->
+    <div class="entry-bg">
+      <img
+        class="entry-bg__img"
+        src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=2400&q=90"
+
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="entry-bg__overlay"></div>
+      <div class="entry-bg__grain"></div>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue'
-  import { useRouter, RouterLink } from 'vue-router'
-  import { useFamilyPlanStore } from '../stores/familyPlanStore'
-  
-  const router = useRouter()
-  const { savePlan, clearPlan } = useFamilyPlanStore()
-  
-  const newUsername = ref('')
-  const returningUsername = ref('')
-  const newUserError = ref('')
-  const returningUserError = ref('')
-  
-  function normalizeUsername(value) {
-    return value.trim().toLowerCase().replace(/\s+/g, '')
-  }
-  
-  async function startNewUser() {
-    newUserError.value = ''
-  
-    if (!newUsername.value) {
-        newUserError.value = 'Please choose a family code before continuing.'
-        return
-    }
-  
-    const username = normalizeUsername(newUsername.value)
-  
-    try {
-        const response = await fetch(
-        `${import.meta.env.VITE_PARENT_PROFILE_CHECK_API_BASE_URL}/test/check-username?username=${encodeURIComponent(username)}`
-        )
-  
-        if (!response.ok) {
-        throw new Error('Family code check failed')
-        }
-  
-        const data = await response.json()
-  
-        if (!data.available) {
-        newUserError.value = 'That family code is already taken. Please choose another one.'
-        return
-        }
 
-      clearPlan()
-      savePlan({ username })
-    
-        router.push('/parent-quiz')
-    } catch (error) {
-        newUserError.value = 'Unable to check family code right now. Please try again.'
-    }
-    }
-  
-  async function continueReturningUser() {
-        returningUserError.value = ''
-  
-    if (!returningUsername.value) {
-        returningUserError.value = 'Please enter your family code.'
-        return
-    }
-  
-    const username = normalizeUsername(returningUsername.value)
-  
-    try {
-        const response = await fetch(
-        `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`
-        )
-        const data = await response.json()
-  
-        if (response.status === 404) {
-        returningUserError.value =
-            'We could not find that family plan. Check your family code or start a new plan.'
-        return
-        }
-  
-        if (!response.ok) {
-            throw new Error(data.error || 'Load failed')
-        }
+    <!-- Header -->
+    <header class="site-header">
+      <RouterLink to="/" class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
+            <path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor" />
+            <path
+              d="M18 13C15.5 15.5 15 19 18 23"
+              stroke="white"
+              stroke-width="1.2"
+              stroke-linecap="round"
+              fill="none"
+              opacity="0.55"
+            />
+          </svg>
+        </div>
+        <span>HealthyKids</span>
+      </RouterLink>
 
-        savePlan(data)
+      <RouterLink to="/" class="header-btn">
+        ← Back home
+      </RouterLink>
+    </header>
 
-        const redirectPath = router.currentRoute.value.query.redirect
+    <!-- Main -->
+    <main class="entry-main">
+      <section class="entry-card">
+        <div class="entry-intro">
+          <p class="step-kicker">
+            <span class="kicker-dot"></span>
+            Parent access
+          </p>
 
-        router.push(
-          typeof redirectPath === 'string'
-            ? redirectPath
-            : '/parent-dashboard'
-        )
-    } catch (error) {
-        returningUserError.value = 'Unable to load your profile right now. Please try again.'
-    }
-  }
-  </script>
-  
-  <style scoped>
-  :global(:root) {
-    --c-black: #0a0b0a;
-    --c-900: #111312;
-    --c-800: #1c1f1d;
-    --c-700: #2d3230;
-    --c-500: #52605a;
-    --c-400: #7a8880;
-    --c-300: #a8b5ae;
-    --c-100: #e8ece9;
-    --c-50: #f4f5f2;
-    --c-white: #ffffff;
-  
-    --c-green: #16a34a;
-    --c-green-mid: #22c55e;
-    --c-green-soft: #f0fdf4;
-    --c-green-pale: #dcfce7;
-  
-    --border: rgba(10, 11, 10, 0.08);
-    --border-mid: rgba(10, 11, 10, 0.14);
-  
-    --shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.09);
-    --shadow-lg: 0 20px 56px rgba(0, 0, 0, 0.12);
-  
-    --f-display: 'Fraunces', Georgia, serif;
-    --f-body: 'General Sans', 'Helvetica Neue', ui-sans-serif, sans-serif;
-    --f-mono: 'JetBrains Mono', monospace;
-  
-    --r-card: 28px;
-  }
-  
-  :global(*, *::before, *::after) {
-    box-sizing: border-box;
-  }
-  
-  :global(body) {
-    margin: 0;
-    font-family: var(--f-body), system-ui;
-    background: var(--c-white);
-    color: var(--c-black);
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-  
-  .entry-page {
-    min-height: 100vh;
-    position: relative;
-    overflow-x: clip;
-    background:
-      radial-gradient(circle at 82% 12%, rgba(34, 197, 94, 0.08), transparent 28rem),
-      radial-gradient(circle at 8% 28%, rgba(59, 130, 246, 0.04), transparent 26rem),
-      var(--c-white);
-  }
-  
-  .entry-page::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.025;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 256px;
-  }
-  
-  .container {
-    width: min(1180px, calc(100% - 48px));
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-  }
-  
-  /* HEADER */
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 500;
-    background: rgba(255, 255, 255, 0.92);
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: var(--shadow-xs);
-  }
-  
-  .header-row {
-    min-height: 76px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-  }
-  
-  .brand {
-    text-decoration: none;
-    color: var(--c-black);
-    font-family: var(--f-display);
-    font-size: 1.25rem;
-    font-weight: 400;
-    letter-spacing: -0.03em;
-  }
-  
-  .nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .nav a,
-  .nav-link {
-    height: 36px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
-    font-family: var(--f-body);
-    font-size: 0.86rem;
-    font-weight: 500;
-    color: var(--c-500);
-    text-decoration: none;
-    border-radius: 8px;
-    transition: color 0.18s, background 0.18s;
-  }
-  
-  .nav a:hover,
-  .nav-link:hover {
-    color: var(--c-black);
-    background: var(--c-50);
-  }
-  
-  .header-btn {
-    height: 38px;
-    padding: 0 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--f-body);
-    font-size: 0.86rem;
-    font-weight: 600;
-    color: var(--c-white);
-    background: var(--c-black);
-    text-decoration: none;
-    border-radius: 10px;
-    border: 1px solid var(--c-900);
-    box-shadow:
-      0 1px 3px rgba(0, 0, 0, 0.2),
-      0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-    transition: all 0.2s;
-  }
-  
-  .header-btn:hover {
-    background: var(--c-800);
-    transform: translateY(-1px);
-  }
-  
-  /* HERO INTRO */
-  .entry-intro {
-    position: relative;
-    padding: 92px 0 70px;
-    overflow: hidden;
-    border-bottom: 1px solid var(--border);
-  }
-  
-  .entry-intro::before {
-    content: "";
-    position: absolute;
-    width: 620px;
-    height: 620px;
-    top: -220px;
-    right: -120px;
-    border-radius: 50%;
-    filter: blur(100px);
-    background: radial-gradient(circle, rgba(22, 163, 74, 0.1), transparent 70%);
-    pointer-events: none;
-  }
-  
-  .entry-intro::after {
-    content: "";
-    position: absolute;
-    width: 460px;
-    height: 460px;
-    bottom: -180px;
-    left: -120px;
-    border-radius: 50%;
-    filter: blur(100px);
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.055), transparent 70%);
-    pointer-events: none;
-  }
-  
-  .intro-shell {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 420px;
-    gap: 70px;
-    align-items: center;
-  }
-  
-  .step-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 30px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: var(--c-green-soft);
-    border: 1px solid rgba(22, 163, 74, 0.2);
-    font-size: 0.72rem;
-    font-weight: 800;
-    color: var(--c-green);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin: 0 0 28px;
-  }
-  
-  .step-kicker::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--c-green-mid);
-    animation: livePulse 2.4s ease-in-out infinite;
-  }
-  
-  @keyframes livePulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
-    }
-  
-    50% {
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
-    }
-  }
-  
-  .intro-copy h1,
-  .path-top h2,
-  .flow-copy h2,
-  .flow-card h3 {
-    margin: 0;
-    font-family: var(--f-display);
-    font-weight: 400;
-    line-height: 1.02;
-    letter-spacing: -0.04em;
-    color: var(--c-black);
-  }
-  
-  .intro-copy h1 {
-    max-width: 12ch;
-    font-size: clamp(3rem, 6vw, 6.4rem);
-    font-weight: 300;
-    line-height: 0.96;
-    letter-spacing: -0.055em;
-  }
-  
-  .intro-text {
-    max-width: 42rem;
-    margin: 28px 0 0;
-    font-family: var(--f-body);
-    font-size: 1.02rem;
-    line-height: 1.75;
-    color: var(--c-500);
-  }
-  
-  .intro-status-card {
-    padding: 28px;
-    border-radius: 26px;
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(244, 245, 242, 0.92));
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-lg);
-  }
-  
-  .status-label,
-  .section-eyebrow,
-  .card-kicker {
-    margin: 0;
-    font-size: 0.7rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--c-400);
-  }
-  
-  .status-label {
-    margin-bottom: 22px;
-  }
-  
-  .status-steps {
-    display: grid;
-    gap: 12px;
-  }
-  
-  .status-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    min-width: 0;
-  }
-  
-  .status-step span {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    background: var(--c-50);
-    border: 1px solid var(--border);
-    font-family: var(--f-mono);
-    font-size: 0.74rem;
-    font-weight: 800;
-    color: var(--c-400);
-  }
-  
-  .status-step.active span {
-    background: var(--c-black);
-    color: var(--c-white);
-    border-color: var(--c-black);
-    box-shadow: none;
-  }
-  
-  .status-step small {
-    display: block;
-    padding-top: 11px;
-    font-family: var(--f-body);
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--c-black);
-  }
-  
-  .status-line {
-    width: 1px;
-    height: 24px;
-    margin-left: 21px;
-    background: var(--border-mid);
-  }
-  
-  /* ENTRY OPTIONS */
-  .entry-options-section {
-    padding: 86px 0 90px;
-    background: var(--c-white);
-  }
-  
-  .entry-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 22px;
-  }
-  
-  .path-card {
-    display: grid;
-    grid-template-rows: auto 280px 1fr;
-    gap: 24px;
-    padding: 32px;
-    border-radius: 28px;
-    background: var(--c-white);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-md);
-    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+          <h1>
+            Let's build a calmer
+            <span>family routine.</span>
+          </h1>
+
+          <p class="intro-text">
+            Start a new plan or open your saved family dashboard.
+          </p>
+        </div>
+
+        <div class="entry-options">
+          <!-- New parent -->
+          <article class="path-card path-card--new">
+            <div class="path-icon path-icon--new">🌼</div>
+
+            <h2>New parent</h2>
+            <p>Create your family plan.</p>
+
+            <div class="form-block">
+              <label for="new-username">Family code</label>
+              <input
+                id="new-username"
+                v-model.trim="newUsername"
+                type="text"
+                placeholder="e.g. sunnyfamily01"
+                autocomplete="off"
+              />
+
+              <p v-if="newUserError" class="form-error">{{ newUserError }}</p>
+
+              <button type="button" class="btn-primary" @click="startNewUser">
+                Start new plan →
+              </button>
+            </div>
+          </article>
+
+          <!-- Returning parent -->
+          <article class="path-card path-card--return">
+            <div class="path-icon path-icon--return">🔑</div>
+
+            <h2>Returning parent</h2>
+            <p>Continue your progress.</p>
+
+            <div class="form-block">
+              <label for="returning-username">Family code</label>
+              <input
+                id="returning-username"
+                v-model.trim="returningUsername"
+                type="text"
+                placeholder="Enter your code"
+                autocomplete="off"
+              />
+
+              <p v-if="returningUserError" class="form-error">{{ returningUserError }}</p>
+
+              <button type="button" class="btn-secondary" @click="continueReturningUser">
+                Open dashboard →
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <p class="privacy-note">
+          Use a simple code you can remember. No personal details needed.
+        </p>
+      </section>
+    </main>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter, RouterLink } from 'vue-router'
+import { useFamilyPlanStore } from '../stores/familyPlanStore'
+
+const router = useRouter()
+const { savePlan, clearPlan } = useFamilyPlanStore()
+
+const isLoaded = ref(false)
+const newUsername = ref('')
+const returningUsername = ref('')
+const newUserError = ref('')
+const returningUserError = ref('')
+
+onMounted(() => {
+  setTimeout(() => {
+    isLoaded.value = true
+  }, 80)
+})
+
+function normalizeUsername(value) {
+  return value.trim().toLowerCase().replace(/\s+/g, '')
 }
-  
-  .path-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--border-mid);
+
+async function startNewUser() {
+  newUserError.value = ''
+
+  if (!newUsername.value) {
+    newUserError.value = 'Please choose a family code before continuing.'
+    return
   }
-  
-  .new-parent-card {
-    background:
-      radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 18rem),
-      var(--c-white);
+
+  const username = normalizeUsername(newUsername.value)
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_PARENT_PROFILE_CHECK_API_BASE_URL}/test/check-username?username=${encodeURIComponent(username)}`
+    )
+
+    if (!response.ok) throw new Error('Family code check failed')
+
+    const data = await response.json()
+
+    if (!data.available) {
+      newUserError.value = 'That family code is already taken. Please choose another one.'
+      return
+    }
+
+    clearPlan()
+    savePlan({ username })
+    router.push('/parent-quiz')
+  } catch {
+    newUserError.value = 'Unable to check family code right now. Please try again.'
   }
-  
-  .returning-parent-card {
-    background: var(--c-white);
+}
+
+async function continueReturningUser() {
+  returningUserError.value = ''
+
+  if (!returningUsername.value) {
+    returningUserError.value = 'Please enter your family code.'
+    return
   }
-  
-  .path-top h2 {
-    margin-top: 12px;
-    font-size: clamp(1.55rem, 2.5vw, 2.15rem);
-    line-height: 1.08;
-    letter-spacing: -0.035em;
+
+  const username = normalizeUsername(returningUsername.value)
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`
+    )
+
+    const data = await response.json()
+
+    if (response.status === 404) {
+      returningUserError.value = 'We could not find that family plan. Check your code or start a new plan.'
+      return
+    }
+
+    if (!response.ok) throw new Error(data.error || 'Load failed')
+
+    savePlan(data)
+
+    const redirectPath = router.currentRoute.value.query.redirect
+    router.push(typeof redirectPath === 'string' ? redirectPath : '/parent-dashboard')
+  } catch {
+    returningUserError.value = 'Unable to load your profile right now. Please try again.'
   }
-  
-  .path-top p {
-    margin: 14px 0 0;
-    font-family: var(--f-body);
-    font-size: 0.95rem;
-    line-height: 1.72;
-    color: var(--c-500);
+}
+</script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+
+:global(*),
+:global(*::before),
+:global(*::after) {
+  box-sizing: border-box;
+}
+
+
+:global(body) {
+  margin: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.entry-page {
+  --ink: #172033;
+  --muted: #667085;
+
+  --cream: #fff8ef;
+  --coral: #ff725f;
+  --coral-dark: #ed5f4d;
+  --coral-soft: #fff0ec;
+
+  --sage: #7a9b76;
+  --sage-soft: #eef6ea;
+
+  --navy: #172033;
+
+  position: relative;
+  inset: 0;
+  overflow: hidden;
+  color: var(--ink);
+  background: #f7efe4;
+  min-height: 100vh;
+}
+
+/* BACKGROUND */
+.entry-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.entry-bg__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transform: scale(1.02);
+  transition: transform 9s ease;
+}
+
+.loaded .entry-bg__img {
+  transform: scale(1);
+}
+
+.entry-bg__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 248, 239, 0.72) 0%,
+      rgba(255, 248, 239, 0.48) 28%,
+      rgba(255, 248, 239, 0.28) 52%,
+      rgba(255, 248, 239, 0.18) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 248, 239, 0.56) 0%,
+      rgba(255, 248, 239, 0.12) 46%,
+      rgba(23, 32, 51, 0.34) 100%
+    ),
+    radial-gradient(
+      circle at 50% 48%,
+      rgba(255, 248, 239, 0.32),
+      transparent 34rem
+    ),
+    radial-gradient(
+      circle at 24% 72%,
+      rgba(255, 114, 95, 0.18),
+      transparent 28rem
+    ),
+    radial-gradient(
+      circle at 78% 22%,
+      rgba(122, 155, 118, 0.18),
+      transparent 28rem
+    );
+}
+
+.entry-bg__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+
+/* HEADER */
+.site-header {
+  position: relative;
+  z-index: 20;
+  height: 68px;
+  padding: 0 clamp(22px, 5vw, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink);
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.24rem;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+
+.brand-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: var(--sage);
+  border-radius: 999px;
+  background:
+    linear-gradient(145deg, rgba(255, 114, 95, 0.24), rgba(122, 155, 118, 0.24)),
+    rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  box-shadow: 0 8px 20px rgba(23, 32, 51, 0.08);
+}
+
+.header-btn {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 248, 239, 0.76);
+  border: 1px solid rgba(23, 32, 51, 0.1);
+  box-shadow: 0 10px 26px rgba(23, 32, 51, 0.08);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.84rem;
+  font-weight: 900;
+  backdrop-filter: blur(12px);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.header-btn:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(23, 32, 51, 0.12);
+}
+
+/* MAIN */
+.entry-main {
+  position: relative;
+  z-index: 5;
+  height: calc(100vh - 68px);
+  padding: 10px clamp(22px, 5vw, 64px) 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.entry-card {
+  width: min(100%, 760px);
+  padding: clamp(26px, 3.4vw, 38px);
+  border-radius: 34px;
+  background: rgba(255, 248, 239, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  box-shadow:
+    0 28px 76px rgba(23, 32, 51, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease;
+}
+
+.loaded .entry-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* INTRO */
+.entry-intro {
+  text-align: center;
+}
+
+.step-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 12px;
+  margin: 0 0 18px;
+  border-radius: 999px;
+  background: rgba(122, 155, 118, 0.16);
+  border: 1px solid rgba(122, 155, 118, 0.28);
+  color: #547650;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.kicker-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--coral);
+  box-shadow: 0 0 0 0 rgba(255, 114, 95, 0.42);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 114, 95, 0.42);
   }
-  
-  .path-visual {
-    padding: 20px;
-    border-radius: 18px;
-    background: var(--c-green-soft);
-    border: 1px solid rgba(22, 163, 74, 0.14);
-    display: grid;
-    gap: 14px;
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 114, 95, 0);
   }
-  
-  .returning-parent-card .path-visual {
-    background: var(--c-50);
-    border-color: var(--border);
+}
+
+.entry-intro h1 {
+  max-width: 680px;
+  margin: 0 auto;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2.45rem, 4.4vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+  font-weight: 300;
+  color: var(--ink);
+}
+
+.entry-intro h1 span {
+  color: var(--coral);
+  font-style: italic;
+}
+
+.intro-text {
+  max-width: 500px;
+  margin: 16px auto 28px;
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+/* OPTION CARDS */
+.entry-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.path-card {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(23, 32, 51, 0.08);
+  box-shadow: 0 10px 30px rgba(23, 32, 51, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.path-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 46px rgba(23, 32, 51, 0.12);
+}
+
+.path-card--new {
+  border-color: rgba(255, 114, 95, 0.28);
+}
+
+.path-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+  font-size: 1.1rem;
+}
+
+.path-icon--new {
+  background: var(--coral-soft);
+  border: 1px solid rgba(255, 114, 95, 0.24);
+}
+
+.path-icon--return {
+  background: var(--sage-soft);
+  border: 1px solid rgba(122, 155, 118, 0.28);
+}
+
+.path-card h2 {
+  margin: 0 0 6px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 400;
+  font-size: 1.42rem;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.path-card p {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+/* FORM */
+.form-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-block label {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.form-block input {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  border-radius: 13px;
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.form-block input:focus {
+  border-color: rgba(255, 114, 95, 0.55);
+  box-shadow: 0 0 0 4px rgba(255, 114, 95, 0.12);
+  background: #ffffff;
+}
+
+.form-block input::placeholder {
+  color: rgba(23, 32, 51, 0.32);
+}
+
+.form-error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.btn-primary,
+.btn-secondary {
+  width: 100%;
+  height: 44px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 900;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.btn-primary {
+  background: var(--coral);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(255, 114, 95, 0.26);
+}
+
+.btn-primary:hover {
+  background: var(--coral-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(255, 114, 95, 0.36);
+}
+
+.btn-secondary {
+  background: var(--navy);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(23, 32, 51, 0.16);
+}
+
+.btn-secondary:hover {
+  background: #24304a;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(23, 32, 51, 0.24);
+}
+
+.privacy-note {
+  margin: 18px 0 0;
+  color: rgba(23, 32, 51, 0.56);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  :global(body) {
+    overflow: auto;
   }
-  
-  .visual-badge {
-    width: fit-content;
-    height: 26px;
-    padding: 0 11px;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    background: var(--c-black);
-    color: var(--c-white);
-    font-size: 0.68rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+
+  .entry-page {
+    position: relative;
+    min-height: 100vh;
+    overflow-y: auto;
   }
-  
-  .visual-badge.muted {
-    background: var(--c-green-soft);
-    color: var(--c-green);
-    border: 1px solid rgba(22, 163, 74, 0.16);
+
+  .entry-bg__img {
+    object-position: 68% center;
   }
-  
-  .visual-panel strong {
-    display: block;
-    margin-bottom: 12px;
-    font-size: 0.92rem;
-    color: var(--c-black);
-  }
-  
-  .visual-panel ul {
-    margin: 0;
-    padding-left: 18px;
-    color: var(--c-500);
-    font-size: 0.9rem;
-    line-height: 1.75;
-  }
-  
-  /* FORM */
-  .form-block {
-    display: grid;
-    gap: 10px;
-  }
-  
-  .form-block label {
-    font-family: var(--f-body);
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--c-black);
-  }
-  
-  .form-block input {
-    width: 100%;
-    height: 54px;
-    padding: 0 16px;
-    border-radius: 12px;
-    border: 1px solid var(--border-mid);
-    background: var(--c-white);
-    color: var(--c-black);
-    font-family: var(--f-body);
-    font-size: 0.96rem;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  
-  .form-block input:focus {
-    border-color: var(--c-green);
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
-  }
-  
-  .form-error {
-    margin: 0;
-    color: #b42318;
-    font-size: 0.88rem;
-    font-weight: 700;
-    line-height: 1.5;
-  }
-  
-  .soft-brown-btn,
-  .outline-btn {
-    width: 100%;
-    height: 52px;
-    margin-top: 4px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
+
+  .entry-main {
+    height: auto;
+    min-height: calc(100vh - 68px);
+    align-items: flex-start;
     justify-content: center;
-    gap: 9px;
-    font-family: var(--f-body);
-    font-size: 0.94rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.22s;
+    padding-top: 16px;
   }
-  
-  .soft-brown-btn {
-    color: var(--c-white);
-    background: var(--c-black);
-    border: 1px solid var(--c-black);
-    box-shadow: none;
-  }
-  
-  .soft-brown-btn:hover {
-    background: var(--c-800);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-  }
-  
-  .outline-btn {
-    color: var(--c-black);
-    background: var(--c-white);
-    border: 1px solid var(--border-mid);
-  }
-  
-  .outline-btn:hover {
-    background: var(--c-50);
-    transform: translateY(-1px);
-  }
-  
-  .full-btn {
+
+  .entry-card {
     width: 100%;
   }
-  
-  /* FLOW */
-  .flow-section {
-    padding: 84px 0 96px;
-    background: var(--c-50);
-    border-top: 1px solid var(--border);
+
+  .entry-bg__overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 248, 239, 0.94) 0%,
+        rgba(255, 248, 239, 0.82) 54%,
+        rgba(255, 248, 239, 0.72) 100%
+      ),
+      radial-gradient(
+        circle at 50% 18%,
+        rgba(255, 114, 95, 0.18),
+        transparent 24rem
+      ),
+      radial-gradient(
+        circle at 18% 82%,
+        rgba(122, 155, 118, 0.2),
+        transparent 22rem
+      );
   }
-  
-  .flow-shell {
-    display: grid;
-    gap: 34px;
-    padding: 0;
+}
+
+@media (max-width: 680px) {
+  .site-header {
+    padding: 0 18px;
   }
-  
-  .flow-copy {
-    max-width: 560px;
+
+  .header-btn {
+    display: none;
   }
-  
-  .flow-copy h2 {
-    margin-top: 14px;
-    font-size: clamp(2.2rem, 4vw, 4rem);
-    line-height: 1.02;
+
+  .entry-main {
+    padding: 10px 16px 24px;
   }
-  
-  .flow-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-top: 0;
+
+  .entry-card {
+    padding: 24px 20px;
+    border-radius: 26px;
   }
-  
-  .flow-card {
-    padding: 28px;
-    border-radius: 24px;
-    background: var(--c-white);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-xs);
+
+  .entry-intro h1 {
+    font-size: clamp(2.35rem, 11vw, 3.8rem);
   }
-  
-  .flow-card span {
-    display: inline-block;
-    margin-bottom: 18px;
-    font-family: var(--f-mono);
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    color: var(--c-300);
+
+  .entry-options {
+    grid-template-columns: 1fr;
   }
-  
-  .flow-card h3 {
-    font-size: 1.35rem;
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: -0.025em;
-  }
-  
-  .flow-card p {
-    margin: 12px 0 0;
-    font-family: var(--f-body);
-    font-size: 0.92rem;
-    line-height: 1.7;
-    color: var(--c-500);
-  }
-  
-  /* RESPONSIVE */
-  @media (max-width: 980px) {
-    .intro-shell,
-    .entry-grid,
-    .flow-grid {
-      grid-template-columns: 1fr;
-    }
-  
-    .intro-status-card {
-      max-width: 560px;
-    }
-  
-    .intro-copy h1 {
-      max-width: 11ch;
-    }
-  }
-  
-  @media (max-width: 760px) {
-    .container {
-      width: calc(100% - 32px);
-    }
-  
-    .header-row {
-      min-height: auto;
-      padding: 14px 0;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-  
-    .nav {
-      display: none;
-    }
-  
-    .header-btn {
-      width: 100%;
-    }
-  
-    .entry-intro {
-      padding: 64px 0 52px;
-    }
-  
-    .intro-copy h1 {
-      font-size: clamp(2.75rem, 12vw, 4rem);
-    }
-  
-    .path-card,
-    .intro-status-card,
-    .flow-card {
-      padding: 24px;
-    }
-  
-    .entry-options-section,
-    .flow-section {
-      padding: 64px 0;
-    }
-  }
-  
-  @media (max-width: 520px) {
-    .status-step small {
-      font-size: 0.82rem;
-    }
-  }
-  </style>
+}
+</style>
