@@ -1,4 +1,21 @@
 /* =========================================================
+  Global Text Resizing System
+========================================================= */
+
+:root {
+  --hk-font-scale: 1;
+  --hk-base-font-size: calc(16px * var(--hk-font-scale));
+}
+  
+html {
+  font-size: var(--hk-base-font-size);
+}
+  
+body {
+  font-size: 1rem;
+}
+
+/* =========================================================
   HealthyKids Accessibility Tools Panel
   Component: AccessibilityToolsPanel.vue
   Prefix: hk-a11y-
@@ -169,6 +186,20 @@
   border-color: rgba(50, 124, 112, 0.24);
   background: #ffffff;
   box-shadow: 0 8px 22px rgba(22, 48, 43, 0.09);
+}
+
+.hk-a11y-zoom-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.hk-a11y-zoom-btn:disabled:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(22, 48, 43, 0.11);
+  box-shadow: none;
 }
   
 .hk-a11y-zoom-icon {

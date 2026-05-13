@@ -44,6 +44,7 @@
             type="button"
             class="hk-a11y-zoom-btn"
             aria-label="Zoom out text size"
+            :disabled="!canZoomOut"
             @click="handleZoomOut"
           >
             <span class="hk-a11y-zoom-icon" aria-hidden="true">-</span>
@@ -64,6 +65,7 @@
             type="button"
             class="hk-a11y-zoom-btn"
             aria-label="Zoom in text size"
+            :disabled="!canZoomIn"
             @click="handleZoomIn"
           >
             <span class="hk-a11y-zoom-icon" aria-hidden="true">+</span>
@@ -72,27 +74,33 @@
         </div>
       </section>
     </div>
-  </template>
+</template>
   
-  <script setup>
-  import { computed, ref } from 'vue'
+<script setup>
   
-  const isOpen = ref(false)
-  const zoomLevel = ref(0)
+import { ref } from 'vue'
+import { useTextResize } from '../composables/useTextResize'
   
-  const zoomPercent = computed(() => 100 + zoomLevel.value * 10)
+const isOpen = ref(false)
   
-  function handleZoomIn() {
-    if (zoomLevel.value >= 3) return
-    zoomLevel.value += 1
-  }
+const {
+    zoomPercent,
+    canZoomIn,
+    canZoomOut,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+} = useTextResize()
   
-  function handleZoomOut() {
-    if (zoomLevel.value <= -2) return
-    zoomLevel.value -= 1
-  }
+function handleZoomIn() {
+    zoomIn()
+}
   
-  function handleReset() {
-    zoomLevel.value = 0
-  }
-  </script>
+function handleZoomOut() {
+    zoomOut()
+}
+  
+function handleReset() {
+    resetZoom()
+}
+</script>
