@@ -5,6 +5,7 @@
         <component :is="Component" :key="route.fullPath" />
       </Transition>
     </RouterView>
+    <AccessibilityToolsPanel />
   </div>
 </template>
 
@@ -29,3 +30,7 @@
   filter: blur(0);
 }
 </style>
+
+<script setup>
+import AccessibilityToolsPanel from './components/AccessibilityToolsPanel.vue'
+</script>
