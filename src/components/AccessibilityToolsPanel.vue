@@ -72,8 +72,30 @@
             <span>Zoom in</span>
           </button>
         </div>
+
+        <div class="hk-a11y-hover-read">
+            <div class="hk-a11y-hover-read-copy">
+                <h3>Hover to Read</h3>
+                <p>Turn this on, then hover over page text to make it easier to read.</p>
+            </div>
+
+            <button
+                type="button"
+                class="hk-a11y-toggle-switch"
+                :class="{ 'hk-a11y-toggle-switch--on': hoverToReadEnabled }"
+                role="switch"
+                :aria-checked="hoverToReadEnabled"
+                aria-label="Toggle Hover to Read"
+                @click="toggleHoverToRead"
+                @keydown.enter.prevent="toggleHoverToRead"
+                @keydown.space.prevent="toggleHoverToRead"
+            >
+                <span class="hk-a11y-toggle-thumb"></span>
+            </button>
+        </div>
       </section>
     </div>
+    
 </template>
   
 <script setup>
@@ -82,7 +104,8 @@ import { ref } from 'vue'
 import { useTextResize } from '../composables/useTextResize'
   
 const isOpen = ref(false)
-  
+const hoverToReadEnabled = ref(false)
+
 const {
     zoomPercent,
     canZoomIn,
@@ -102,5 +125,9 @@ function handleZoomOut() {
   
 function handleReset() {
     resetZoom()
+}
+
+function toggleHoverToRead() {
+  hoverToReadEnabled.value = !hoverToReadEnabled.value
 }
 </script>
