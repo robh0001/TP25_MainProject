@@ -10,6 +10,7 @@ import KidsMealsPage from '../components/KidsMealsPage.vue'
 import KidsStatsPage from '../components/KidsStatsPage.vue'
 import KidsWinsPage from '../components/KidsWinsPage.vue'
 import ParentEntry from '../components/ParentEntry.vue'
+import StatisticPage from '@/components/StatisticPage.vue'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 
 const routes = [
@@ -72,6 +73,11 @@ const routes = [
     path: '/kids-wins',
     name: 'kids-wins',
     component: KidsWinsPage,
+  },
+  {
+    path: '/satistics',
+    name: 'satistics',
+    component: StatisticPage,
   },
   {
     path: '/:pathMatch(.*)*',
