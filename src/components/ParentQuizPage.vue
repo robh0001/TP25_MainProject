@@ -1,253 +1,221 @@
 <template>
   <div class="quiz-page">
-    <header class="site-header">
-      <div class="container header-row">
-        <RouterLink to="/" class="brand">HealthyKids</RouterLink>
+    <div class="quiz-bg">
+      <img
+        class="quiz-bg__img"
+        src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=90"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="quiz-bg__overlay"></div>
+      <div class="quiz-bg__grain"></div>
+    </div>
 
-        <nav class="nav" aria-label="Primary">
-          <RouterLink to="/" class="nav-link">Home</RouterLink>
-          <RouterLink to="/parent-entry" class="nav-link">Parent access</RouterLink>
-          <a href="#quiz-form" class="nav-link">Quiz</a>
-        </nav>
+    <header class="quiz-site-header">
+      <RouterLink to="/" class="quiz-brand">
+        <span class="quiz-brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
+            <path
+              d="M18 9C13.8 12.3 11.5 16.2 12.4 20.4C13.1 23.8 15.5 26.1 18 27.6C20.5 26.1 22.9 23.8 23.6 20.4C24.5 16.2 22.2 12.3 18 9Z"
+              fill="currentColor"
+              opacity="0.9"
+            />
+            <path
+              d="M18 14.2V24.5"
+              stroke="white"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              opacity="0.72"
+            />
+          </svg>
+        </span>
+        <span>HealthyKids</span>
+      </RouterLink>
 
-        <RouterLink to="/parent-entry" class="header-btn light-btn">Back</RouterLink>
-      </div>
+      <RouterLink to="/parent-entry" class="quiz-header-btn">
+        <span>&#8592;</span> Parent access
+      </RouterLink>
     </header>
 
-    <main>
-      <section class="quiz-top">
-        <div class="container">
-          <div class="intro-shell">
-            <div class="intro-copy">
-              <p class="step-kicker">Step 2 of 3</p>
-              <h1>{{ isRetakeMode ? 'Update plan' : 'Build a plan' }}</h1>
-              <p class="intro-text">
-                {{
-                  isRetakeMode
-                    ? 'Update your answers so your parent dashboard reflects your current family routine.'
-                    : 'Answer a few questions so we can shape a more realistic family routine and build your parent dashboard.'
-                }}
-              </p>
+    <main class="quiz-main">
+      <section class="quiz-card" id="quiz-form">
+        <div class="quiz-intro">
+          <p class="quiz-step-kicker">
+            <span class="quiz-kicker-dot"></span>
+            Step {{ currentStep + 1 }} of {{ steps.length }}
+          </p>
+
+          <h1>{{ isRetakeMode ? 'Review your routine' : 'Personalise your routine' }}</h1>
+
+          <p class="quiz-intro-text">
+            {{ activeStep.subtitle }}
+          </p>
+
+          <div class="quiz-progress-track" aria-hidden="true">
+            <div
+              class="quiz-progress-fill"
+              :style="{ width: `${((currentStep + 1) / steps.length) * 100}%` }"
+            ></div>
+          </div>
+        </div>
+
+        <div class="quiz-form-panel">
+          <h2>{{ activeStep.title }}</h2>
+
+          <div v-if="currentStep === 0" class="quiz-form-grid">
+            <div class="quiz-form-group">
+              <label for="username">Family code</label>
+              <input
+                id="username"
+                v-model.trim="form.username"
+                :disabled="hasFamilyCode"
+                placeholder="e.g. sunnyfamily01"
+              />
             </div>
 
-            <div class="journey-card">
-              <p class="journey-label">Journey</p>
-              <div class="journey-steps">
-                <div class="journey-step complete">
-                  <span>1</span>
-                  <small>Parent access</small>
-                </div>
-                <div class="journey-line"></div>
-                <div class="journey-step active">
-                  <span>2</span>
-                  <small>Quiz</small>
-                </div>
-                <div class="journey-line"></div>
-                <div class="journey-step">
-                  <span>3</span>
-                  <small>Dashboard</small>
-                </div>
+            <div class="quiz-form-group">
+              <label for="child-age">Child age range</label>
+              <select id="child-age" v-model="form.ageRange">
+                <option disabled value="">Select age range</option>
+                <option>5-7 years</option>
+                <option>8-10 years</option>
+                <option>11-12 years</option>
+              </select>
+            </div>
+
+            <div class="quiz-form-group quiz-full-row">
+              <label for="routine-type">Current family routine</label>
+              <select id="routine-type" v-model="form.routineType">
+                <option disabled value="">Choose one</option>
+                <option>Mostly structured</option>
+                <option>Busy and sometimes inconsistent</option>
+                <option>Very busy and hard to manage</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="currentStep === 1" class="quiz-form-grid">
+            <div class="quiz-form-group quiz-full-row">
+              <label>Priority areas</label>
+              <div class="quiz-chip-grid">
+                <button
+                  v-for="habit in habitOptions"
+                  :key="habit"
+                  type="button"
+                  class="quiz-option-chip"
+                  :class="{ selected: form.habits.includes(habit) }"
+                  @click="toggleSelection(form.habits, habit)"
+                >
+                  {{ habit }}
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section id="quiz-form" class="quiz-form-section">
-        <div class="container">
-          <div class="form-shell">
-            <div class="form-head">
-              <p class="wizard-step">Step {{ currentStep + 1 }} of {{ steps.length }}</p>
-              <h2>{{ activeStep.title }}</h2>
-              <p class="wizard-subtitle">{{ activeStep.subtitle }}</p>
-
-              <div class="progress-track" aria-hidden="true">
-                <div
-                  class="progress-fill"
-                  :style="{ width: `${((currentStep + 1) / steps.length) * 100}%` }"
-                ></div>
+          <div v-if="currentStep === 2" class="quiz-form-grid">
+            <div class="quiz-form-group quiz-full-row">
+              <label>Key concerns</label>
+              <div class="quiz-chip-grid">
+                <button
+                  v-for="concern in concernOptions"
+                  :key="concern"
+                  type="button"
+                  class="quiz-option-chip"
+                  :class="{ selected: form.concerns.includes(concern) }"
+                  @click="toggleSelection(form.concerns, concern)"
+                >
+                  {{ concern }}
+                </button>
               </div>
             </div>
 
-            <div v-if="currentStep === 0" class="form-grid">
-              <div class="form-group">
-                <label for="username">Family code</label>
-                <input
-                  id="username"
-                  v-model.trim="form.username"
-                  :disabled="hasFamilyCode"
-                  placeholder="Enter your family code"
-                />
-                <small v-if="isRetakeMode" class="field-hint">
-                  Family code is locked because you are updating your existing profile.
-                </small>
-                <small v-else class="field-hint">
-                  Use the same private family code you created earlier. Avoid real names or contact details.
-                </small>
-              </div>
-
-              <div class="form-group">
-                <label for="child-age">Child age range</label>
-                <select id="child-age" v-model="form.ageRange">
-                  <option disabled value="">Select age range</option>
-                  <option>5-7 years</option>
-                  <option>8-10 years</option>
-                  <option>11-12 years</option>
-                </select>
-                <small class="field-hint">
-                  This helps shape age-appropriate daily actions.
-                </small>
-              </div>
-
-              <div class="form-group full-row">
-                <label for="routine-type">How would you describe your weekly family routine?</label>
-                <select id="routine-type" v-model="form.routineType">
-                  <option disabled value="">Choose one</option>
-                  <option>Mostly structured</option>
-                  <option>Busy and sometimes inconsistent</option>
-                  <option>Very busy and hard to manage</option>
-                </select>
-              </div>
+            <div class="quiz-form-group">
+              <label for="confidence">Confidence level</label>
+              <select id="confidence" v-model="form.confidence">
+                <option disabled value="">Choose one</option>
+                <option>I feel confident</option>
+                <option>I know what to do but struggle to stay consistent</option>
+                <option>I need simple guidance and structure</option>
+              </select>
             </div>
 
-            <div v-if="currentStep === 1" class="form-grid">
-              <div class="form-group full-row">
-                <label>Which everyday habits need the most support right now?</label>
-                <div class="chip-grid">
-                  <button
-                    v-for="habit in habitOptions"
-                    :key="habit"
-                    type="button"
-                    class="option-chip"
-                    :class="{ selected: form.habits.includes(habit) }"
-                    @click="toggleSelection(form.habits, habit)"
-                  >
-                    {{ habit }}
-                  </button>
-                </div>
+            <div class="quiz-form-group">
+              <label for="support-style">Preferred guidance style</label>
+              <select id="support-style" v-model="form.supportStyle">
+                <option disabled value="">Choose one</option>
+                <option>Small daily actions</option>
+                <option>Structured weekly plan</option>
+                <option>Visual reminders</option>
+                <option>Low-conflict routine strategies</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="currentStep === 3" class="quiz-preview-card">
+            <p class="quiz-card-kicker">Summary</p>
+
+            <div class="quiz-review-grid">
+              <div>
+                <span>Family code</span>
+                <strong>{{ form.username || 'Not provided' }}</strong>
               </div>
 
-              <div class="form-group full-row">
-                <label for="struggle">What feels hardest in daily family life right now?</label>
-                <textarea
-                  id="struggle"
-                  v-model.trim="form.struggle"
-                  rows="5"
-                  placeholder="For example: my child wants screens after school, healthy meals are difficult on busy days, or bedtime becomes a battle."
-                ></textarea>
-                <small class="field-hint">
-                  Keep this general. Avoid real names, medical details, addresses, or contact information.
-                </small>
+              <div>
+                <span>Routine</span>
+                <strong>{{ form.routineType || 'Not selected' }}</strong>
+              </div>
+
+              <div>
+                <span>Priority areas</span>
+                <strong>{{ form.habits.length ? form.habits.join(', ') : 'None selected' }}</strong>
+              </div>
+
+              <div>
+                <span>Guidance style</span>
+                <strong>{{ form.supportStyle || 'Not selected' }}</strong>
               </div>
             </div>
+          </div>
 
-            <div v-if="currentStep === 2" class="form-grid">
-              <div class="form-group full-row">
-                <label>What are you most worried about right now?</label>
-                <div class="chip-grid">
-                  <button
-                    v-for="concern in concernOptions"
-                    :key="concern"
-                    type="button"
-                    class="option-chip"
-                    :class="{ selected: form.concerns.includes(concern) }"
-                    @click="toggleSelection(form.concerns, concern)"
-                  >
-                    {{ concern }}
-                  </button>
-                </div>
-              </div>
+          <p v-if="errorMessage" class="quiz-form-error">{{ errorMessage }}</p>
 
-              <div class="form-group">
-                <label for="confidence">How supported do you currently feel?</label>
-                <select id="confidence" v-model="form.confidence">
-                  <option disabled value="">Choose one</option>
-                  <option>I feel confident</option>
-                  <option>I know what to do but struggle to stay consistent</option>
-                  <option>I need simple guidance and structure</option>
-                </select>
-              </div>
+          <div class="quiz-wizard-actions">
+            <button
+              v-if="currentStep > 0"
+              type="button"
+              class="quiz-outline-btn"
+              :disabled="saving"
+              @click="currentStep -= 1"
+            >
+              Back
+            </button>
 
-              <div class="form-group">
-                <label for="support-style">What type of support would help most?</label>
-                <select id="support-style" v-model="form.supportStyle">
-                  <option disabled value="">Choose one</option>
-                  <option>Small daily actions</option>
-                  <option>Weekly family plan</option>
-                  <option>Visual tips and reminders</option>
-                  <option>Easy routines with less conflict</option>
-                </select>
-              </div>
-            </div>
+            <button
+              v-if="currentStep < steps.length - 1"
+              type="button"
+              class="quiz-primary-btn"
+              :disabled="saving"
+              @click="goNext"
+            >
+              Next
+            </button>
 
-            <div v-if="currentStep === 3" class="preview-stack">
-              <article class="preview-card">
-                <p class="card-kicker">Plan preview</p>
-                <h3>Your family plan</h3>
-
-                <ul class="preview-list">
-                  <li><strong>Family code:</strong> {{ form.username || 'Not provided' }}</li>
-                  <li>
-                    <strong>Top habits to support:</strong>
-                    {{ form.habits.length ? form.habits.join(', ') : 'None selected' }}
-                  </li>
-                  <li>
-                    <strong>Main concerns:</strong>
-                    {{ form.concerns.length ? form.concerns.join(', ') : 'None selected' }}
-                  </li>
-                  <li><strong>Support style:</strong> {{ form.supportStyle || 'Not selected' }}</li>
-                  <li><strong>Routine context:</strong> {{ form.routineType || 'Not selected' }}</li>
-                </ul>
-
-                <p class="preview-note">
-                  {{
-                    isRetakeMode
-                      ? 'Your updated answers will replace your existing dashboard plan.'
-                      : 'Your answers will generate a saved parent dashboard with practical next steps, a weekly plan, and trackable tasks.'
-                  }}
-                </p>
-              </article>
-            </div>
-
-            <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
-
-            <div class="form-actions wizard-actions">
-              <button
-                v-if="currentStep > 0"
-                type="button"
-                class="outline-btn"
-                :disabled="saving"
-                @click="currentStep -= 1"
-              >
-                Back
-              </button>
-
-              <button
-                v-if="currentStep < steps.length - 1"
-                type="button"
-                class="soft-brown-btn"
-                :disabled="saving"
-                @click="goNext"
-              >
-                Continue
-              </button>
-
-              <button
-                v-else
-                type="button"
-                class="soft-brown-btn"
-                :disabled="saving"
-                @click="submitQuiz"
-              >
-                {{
-                  saving
-                    ? 'Saving your plan...'
-                    : isRetakeMode
-                      ? 'Update my family plan'
-                      : 'Save and generate my family plan'
-                }}
-              </button>
-            </div>
+            <button
+              v-else
+              type="button"
+              class="quiz-primary-btn"
+              :disabled="saving"
+              @click="submitQuiz"
+            >
+              {{
+                saving
+                  ? 'Saving...'
+                  : isRetakeMode
+                    ? 'Update my plan'
+                    : 'Generate my plan'
+              }}
+            </button>
           </div>
         </div>
       </section>
@@ -271,7 +239,6 @@ const form = reactive({
   routineType: state.routineType || '',
   habits: Array.isArray(state.habits) ? [...state.habits] : [],
   concerns: Array.isArray(state.concerns) ? [...state.concerns] : [],
-  struggle: state.struggle || '',
   confidence: state.confidence || '',
   supportStyle: state.supportStyle || '',
 })
@@ -329,7 +296,6 @@ const isRetakeMode = computed(() =>
     (
       state.ageRange ||
       state.routineType ||
-      state.struggle ||
       state.confidence ||
       state.supportStyle ||
       state.dailyPlan ||
@@ -385,11 +351,6 @@ function validateStep() {
   if (currentStep.value === 1) {
     if (!form.habits.length) {
       errorMessage.value = 'Please select at least one habit to support.'
-      return false
-    }
-
-    if (!form.struggle) {
-      errorMessage.value = 'Please describe what feels hardest in daily family life right now.'
       return false
     }
   }
@@ -561,12 +522,12 @@ function buildTaskPool() {
     trackerItems.push('One-habit focus maintained', 'Visible routine cue used')
   }
 
-  if (form.supportStyle === 'Visual tips and reminders') {
+  if (form.supportStyle === 'Visual reminders') {
     tasks.push('Place one visible reminder where the habit needs to happen')
     trackerItems.push('Visible reminder placed')
   }
 
-  if (form.supportStyle === 'Easy routines with less conflict') {
+  if (form.supportStyle === 'Low-conflict routine strategies') {
     tasks.push('Use one calm instruction instead of repeated reminders')
     trackerItems.push('Calm single instruction used')
   }
@@ -576,7 +537,7 @@ function buildTaskPool() {
     trackerItems.push('One daily action completed')
   }
 
-  if (form.supportStyle === 'Weekly family plan') {
+  if (form.supportStyle === 'Structured weekly plan') {
     tasks.push("Review tomorrow's task before the day ends")
     trackerItems.push('Next day task reviewed')
   }
@@ -695,7 +656,7 @@ function createRecommendations() {
     })
   }
 
-  if (form.supportStyle === 'Visual tips and reminders') {
+  if (form.supportStyle === 'Visual reminders') {
     recommendations.push({
       title: 'Reminder strategy',
       description:
@@ -713,7 +674,7 @@ function createRecommendations() {
       },
       {
         title: 'Before the hard moment',
-        description: `Because "${form.struggle}", set one clear cue before the difficult time of day begins.`,
+        description: 'Set one clear cue before the difficult time of day begins.',
       }
     )
   }
@@ -754,7 +715,6 @@ function buildPayload() {
     routineType: form.routineType,
     habits: [...form.habits],
     concerns: [...form.concerns],
-    struggle: form.struggle,
     confidence: form.confidence,
     supportStyle: form.supportStyle,
     recommendations: createRecommendations(),
@@ -787,7 +747,7 @@ async function createProfile(payload) {
 async function updateProfile(payload) {
   const encodedUsername = encodeURIComponent(payload.username)
 
-  return requestJson(`${API_BASE}/parent-profiles/${encodedUsername}`, {
+  return requestJson(`${API_BASE}/${encodedUsername}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -832,7 +792,8 @@ async function submitQuiz() {
 
     if (!response.ok) {
       if (response.status === 409) {
-        errorMessage.value = 'That family code is already taken. Please use your existing family code or choose another one.'
+        errorMessage.value =
+          'That family code is already taken. Please use your existing family code or choose another one.'
         return
       }
 
@@ -841,7 +802,7 @@ async function submitQuiz() {
 
     savePlan(payload)
     router.push('/parent-dashboard')
-  } catch (error) {
+  } catch {
     errorMessage.value =
       'Something went wrong while saving your plan. Please try again in a moment.'
   } finally {
@@ -849,719 +810,3 @@ async function submitQuiz() {
   }
 }
 </script>
-
-<style scoped>
-:global(:root) {
-  --c-black: #0a0b0a;
-  --c-900: #111312;
-  --c-800: #1c1f1d;
-  --c-700: #2d3230;
-  --c-500: #52605a;
-  --c-400: #7a8880;
-  --c-300: #a8b5ae;
-  --c-100: #e8ece9;
-  --c-50: #f4f5f2;
-  --c-white: #ffffff;
-
-  --c-green: #16a34a;
-  --c-green-mid: #22c55e;
-  --c-green-soft: #f0fdf4;
-  --c-green-pale: #dcfce7;
-
-  --border: rgba(10, 11, 10, 0.08);
-  --border-mid: rgba(10, 11, 10, 0.14);
-
-  --shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.06);
-  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.07);
-  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.09);
-  --shadow-lg: 0 20px 56px rgba(0, 0, 0, 0.12);
-
-  --f-display: 'Fraunces', Georgia, serif;
-  --f-body: 'General Sans', 'Helvetica Neue', ui-sans-serif, sans-serif;
-  --f-mono: 'JetBrains Mono', monospace;
-
-  --r-card: 28px;
-}
-
-:global(*, *::before, *::after) {
-  box-sizing: border-box;
-}
-
-:global(body) {
-  margin: 0;
-  font-family: var(--f-body), system-ui;
-  background: var(--c-white);
-  color: var(--c-black);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-
-.quiz-page {
-  min-height: 100vh;
-  position: relative;
-  overflow-x: clip;
-  background:
-    radial-gradient(circle at 82% 12%, rgba(34, 197, 94, 0.08), transparent 28rem),
-    radial-gradient(circle at 8% 28%, rgba(59, 130, 246, 0.04), transparent 26rem),
-    var(--c-white);
-}
-
-.quiz-page::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 256px;
-}
-
-.container {
-  width: min(1180px, calc(100% - 48px));
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
-/* HEADER */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 500;
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: var(--shadow-xs);
-}
-
-.header-row {
-  min-height: 76px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.brand {
-  text-decoration: none;
-  color: var(--c-black);
-  font-family: var(--f-display);
-  font-size: 1.25rem;
-  font-weight: 400;
-  letter-spacing: -0.03em;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav a,
-.nav-link {
-  height: 36px;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  font-family: var(--f-body);
-  font-size: 0.86rem;
-  font-weight: 500;
-  color: var(--c-500);
-  text-decoration: none;
-  border-radius: 8px;
-  transition: color 0.18s, background 0.18s;
-}
-
-.nav a:hover,
-.nav-link:hover {
-  color: var(--c-black);
-  background: var(--c-50);
-}
-
-.header-btn {
-  height: 38px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--f-body);
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--c-white);
-  background: var(--c-black);
-  text-decoration: none;
-  border-radius: 10px;
-  border: 1px solid var(--c-900);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-  transition: all 0.2s;
-}
-
-.header-btn:hover {
-  background: var(--c-800);
-  transform: translateY(-1px);
-}
-
-.light-btn {
-  color: var(--c-white);
-}
-
-/* HERO / INTRO */
-.quiz-top {
-  position: relative;
-  padding: 92px 0 70px;
-  overflow: hidden;
-  border-bottom: 1px solid var(--border);
-}
-
-.quiz-top::before {
-  content: "";
-  position: absolute;
-  width: 620px;
-  height: 620px;
-  top: -220px;
-  right: -120px;
-  border-radius: 50%;
-  filter: blur(100px);
-  background: radial-gradient(circle, rgba(22, 163, 74, 0.1), transparent 70%);
-  pointer-events: none;
-}
-
-.quiz-top::after {
-  content: "";
-  position: absolute;
-  width: 460px;
-  height: 460px;
-  bottom: -180px;
-  left: -120px;
-  border-radius: 50%;
-  filter: blur(100px);
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.055), transparent 70%);
-  pointer-events: none;
-}
-
-.intro-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 420px;
-  gap: 70px;
-  align-items: center;
-}
-
-.step-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--c-green-soft);
-  border: 1px solid rgba(22, 163, 74, 0.2);
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--c-green);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin: 0 0 28px;
-}
-
-.step-kicker::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--c-green-mid);
-  animation: livePulse 2.4s ease-in-out infinite;
-}
-
-@keyframes livePulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
-  }
-
-  50% {
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
-  }
-}
-
-.intro-copy h1,
-.form-head h2,
-.preview-card h3 {
-  margin: 0;
-  font-family: var(--f-display);
-  font-weight: 400;
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  color: var(--c-black);
-}
-
-.intro-copy h1 {
-  max-width: 11ch;
-  font-size: clamp(3rem, 6vw, 6.4rem);
-  font-weight: 300;
-  line-height: 0.96;
-  letter-spacing: -0.055em;
-}
-
-.intro-text {
-  max-width: 42rem;
-  margin: 28px 0 0;
-  font-family: var(--f-body);
-  font-size: 1.02rem;
-  line-height: 1.75;
-  color: var(--c-500);
-}
-
-/* JOURNEY CARD */
-.journey-card {
-  padding: 28px;
-  border-radius: 26px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(244, 245, 242, 0.92));
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-lg);
-}
-
-.journey-label,
-.wizard-step,
-.card-kicker {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--c-400);
-}
-
-.journey-label {
-  margin-bottom: 22px;
-}
-
-.journey-steps {
-  display: grid;
-  gap: 12px;
-}
-
-.journey-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  min-width: 0;
-}
-
-.journey-step span {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  background: var(--c-50);
-  border: 1px solid var(--border);
-  font-family: var(--f-mono);
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: var(--c-400);
-}
-
-.journey-step.complete span,
-.journey-step.active span {
-  background: var(--c-black);
-  color: var(--c-white);
-  border-color: var(--c-black);
-}
-
-.journey-step small {
-  display: block;
-  padding-top: 11px;
-  font-family: var(--f-body);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--c-black);
-  line-height: 1.35;
-}
-
-.journey-line {
-  width: 1px;
-  height: 24px;
-  margin-left: 21px;
-  background: var(--border-mid);
-}
-
-/* FORM SECTION */
-.quiz-form-section {
-  padding: 86px 0 96px;
-  background: var(--c-white);
-  position: relative;
-  z-index: 1;
-}
-
-.form-shell {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 32px;
-  border-radius: 28px;
-  background: var(--c-white);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-}
-
-.form-head {
-  margin-bottom: 28px;
-}
-
-.wizard-step {
-  margin-bottom: 12px;
-  color: var(--c-green);
-}
-
-.form-head h2 {
-  font-size: clamp(2rem, 3.5vw, 3.25rem);
-  font-weight: 400;
-  line-height: 1.04;
-  letter-spacing: -0.045em;
-}
-
-.wizard-subtitle {
-  max-width: 44rem;
-  margin: 12px 0 0;
-  font-size: 0.98rem;
-  line-height: 1.72;
-  color: var(--c-500);
-}
-
-.progress-track {
-  width: 100%;
-  height: 8px;
-  margin-top: 22px;
-  border-radius: 999px;
-  background: var(--c-100);
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--c-black);
-  transition: width 0.25s ease;
-}
-
-/* FORM CONTROLS */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-}
-
-.full-row {
-  grid-column: 1 / -1;
-}
-
-.form-group {
-  display: grid;
-  gap: 10px;
-}
-
-.form-group label {
-  font-family: var(--f-body);
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--c-black);
-  line-height: 1.5;
-}
-
-.field-hint {
-  color: var(--c-400);
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--border-mid);
-  background: #fffefb;
-  padding: 0 16px;
-  font-family: var(--f-body);
-  font-size: 0.96rem;
-  color: var(--c-black);
-  outline: none;
-  resize: vertical;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-}
-
-.form-group input,
-.form-group select {
-  height: 54px;
-}
-
-.form-group input:disabled {
-  color: var(--c-500);
-  background: var(--c-50);
-  cursor: not-allowed;
-}
-
-.form-group textarea {
-  min-height: 140px;
-  padding-top: 16px;
-  line-height: 1.65;
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: var(--c-300);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: var(--c-green);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
-}
-
-/* OPTION CHIPS */
-.chip-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.option-chip {
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border-mid);
-  background: var(--c-white);
-  color: var(--c-700);
-  font-family: var(--f-body);
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    transform 0.16s ease,
-    background 0.16s ease,
-    border-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-
-.option-chip:hover {
-  transform: translateY(-1px);
-  background: var(--c-50);
-  border-color: rgba(22, 163, 74, 0.24);
-}
-
-.option-chip.selected {
-  color: var(--c-white);
-  background: var(--c-black);
-  border-color: var(--c-black);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
-}
-
-.option-chip.selected::after {
-  content: " ✓";
-}
-
-/* PREVIEW */
-.preview-stack {
-  display: grid;
-  gap: 18px;
-}
-
-.preview-card {
-  padding: 28px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 18rem),
-    var(--c-50);
-  border: 1px solid var(--border);
-}
-
-.card-kicker {
-  margin-bottom: 12px;
-}
-
-.preview-card h3 {
-  font-size: clamp(1.55rem, 2.4vw, 2.15rem);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-}
-
-.preview-list {
-  margin: 20px 0 0;
-  padding-left: 20px;
-  color: var(--c-500);
-  font-size: 0.94rem;
-  line-height: 1.85;
-}
-
-.preview-list strong {
-  color: var(--c-black);
-}
-
-.preview-note {
-  margin: 18px 0 0;
-  font-size: 0.94rem;
-  line-height: 1.7;
-  color: var(--c-500);
-}
-
-/* ERRORS */
-.form-error {
-  margin: 22px 0 0;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(180, 35, 24, 0.08);
-  border: 1px solid rgba(180, 35, 24, 0.16);
-  color: #b42318;
-  font-size: 0.9rem;
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-/* BUTTONS */
-.form-actions,
-.wizard-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 30px;
-}
-
-.soft-brown-btn,
-.outline-btn {
-  min-height: 52px;
-  padding: 0 24px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  font-family: var(--f-body);
-  font-size: 0.94rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.22s;
-}
-
-.soft-brown-btn {
-  color: var(--c-white);
-  background: var(--c-black);
-  border: 1px solid var(--c-black);
-  box-shadow: none;
-}
-
-.soft-brown-btn:hover:not(:disabled) {
-  background: var(--c-800);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-}
-
-.outline-btn {
-  color: var(--c-black);
-  background: var(--c-white);
-  border: 1px solid var(--border-mid);
-}
-
-.outline-btn:hover:not(:disabled) {
-  background: var(--c-50);
-  transform: translateY(-1px);
-}
-
-.soft-brown-btn:disabled,
-.outline-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* RESPONSIVE */
-@media (max-width: 980px) {
-  .intro-shell,
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .journey-card {
-    max-width: 560px;
-  }
-
-  .intro-copy h1 {
-    max-width: 11ch;
-  }
-}
-
-@media (max-width: 760px) {
-  .container {
-    width: calc(100% - 32px);
-  }
-
-  .header-row {
-    min-height: auto;
-    padding: 14px 0;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-
-  .nav {
-    display: none;
-  }
-
-  .header-btn {
-    width: 100%;
-  }
-
-  .quiz-top {
-    padding: 64px 0 52px;
-  }
-
-  .intro-copy h1 {
-    font-size: clamp(2.75rem, 12vw, 4rem);
-  }
-
-  .quiz-form-section {
-    padding: 64px 0;
-  }
-
-  .form-shell,
-  .journey-card,
-  .preview-card {
-    padding: 24px;
-  }
-
-  .form-actions,
-  .wizard-actions {
-    flex-direction: column;
-  }
-
-  .form-actions button,
-  .wizard-actions button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 520px) {
-  .journey-step small {
-    font-size: 0.82rem;
-  }
-
-  .form-shell {
-    padding: 20px;
-  }
-
-  .chip-grid {
-    gap: 10px;
-  }
-
-  .option-chip {
-    width: 100%;
-    justify-content: center;
-  }
-}
-</style>
