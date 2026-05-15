@@ -56,15 +56,15 @@
         </p>
 
         <div class="landing__ctas">
-          <RouterLink to="/home" class="cta cta--primary">
+          <RouterLink to="/parent-entry" class="cta cta--primary">
             Enter site
-            <svg width="16" height="16" viewBox="0 0 16 16">
+            <!-- <svg width="16" height="16" viewBox="0 0 16 16">
               <path d="M3 8h10M9 4.5l4 3.5-4 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            </svg> -->
           </RouterLink>
-          <RouterLink to="/parent-entry" class="cta cta--ghost">
+          <!-- <RouterLink to="/parent-entry" class="cta cta--ghost">
             I'm a parent
-          </RouterLink>
+          </RouterLink> -->
         </div>
 
         <div class="landing__pills">
