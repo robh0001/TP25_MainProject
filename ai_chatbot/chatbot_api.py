@@ -1,27 +1,57 @@
 import os
-from dotenv import load_dotenv
 
+# Force Hugging Face / Transformers to use Lambda writable storage
+os.environ["HOME"] = "/tmp"
+os.environ["HF_HOME"] = "/tmp/huggingface"
+os.environ["TRANSFORMERS_CACHE"] = "/tmp/huggingface"
+os.environ["SENTENCE_TRANSFORMERS_HOME"] = "/tmp/huggingface"
+os.environ["TORCH_HOME"] = "/tmp/torch"
+
+from dotenv import load_dotenv
 load_dotenv(override=True)
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from mangum import Mangum
+
 from chatbot import HealthyKidsChatbot, DEFAULT_FAQ_PATH
 
 app = FastAPI(
     title="Healthy Kids Chatbot API",
-    description="API for answering parent questions using FAQ retrieval and optional Claude rewriting.",
+    description="HealthyKids chatbot API",
     version="1.0.0"
 )
 
+ALLOWED_ORIGINS = os.environ.get(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,https://iteration2.healthykids.live,https://healthykids.live"
+).split(",")
 
-USE_LLM = os.environ.get("USE_LLM", "true").lower() == "true"
-
-
-chatbot = HealthyKidsChatbot(
-    faq_file=DEFAULT_FAQ_PATH,
-    use_llm=USE_LLM,
-    top_k=3
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in ALLOWED_ORIGINS],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
+USE_LLM = os.environ.get("USE_LLM", "false").lower() == "true"
+
+chatbot_instance = None
+
+
+def get_chatbot():
+    global chatbot_instance
+
+    if chatbot_instance is None:
+        chatbot_instance = HealthyKidsChatbot(
+            faq_file=DEFAULT_FAQ_PATH,
+            use_llm=USE_LLM,
+            top_k=3
+        )
+
+    return chatbot_instance
 
 
 class ChatRequest(BaseModel):
@@ -39,6 +69,7 @@ def root():
 
 @app.post("/chat")
 def chat(request: ChatRequest):
+    chatbot = get_chatbot()
     result = chatbot.get_response(request.message)
 
     return {
@@ -50,3 +81,6 @@ def chat(request: ChatRequest):
         "matched_question": result["matched_question"],
         "similarity_score": result["similarity_score"]
     }
+
+
+handler = Mangum(app)

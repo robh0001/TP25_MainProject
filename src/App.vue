@@ -6,6 +6,7 @@
       </Transition>
     </RouterView>
     <AccessibilityToolsPanel />
+    <ChatbotWidget/>
   </div>
 </template>
 
@@ -33,4 +34,5 @@
 
 <script setup>
 import AccessibilityToolsPanel from './components/AccessibilityToolsPanel.vue'
+import ChatbotWidget from "@/components/ChatbotWidget.vue";
 </script>
