@@ -131,12 +131,12 @@ export function useDynamicPlan() {
       }
 
       const feedbackTitle =
-        progress === 100 ? 'Week complete — great work!' : progress > 0 ? 'Building momentum' : 'Ready to begin'
+        progress === 100 ? 'Week complete - great work!' : progress > 0 ? 'Building momentum' : 'Ready to begin'
       const feedback =
         progress === 100
-          ? `${name} has finished every action this week — that usually means the routine is getting easier to repeat.`
+          ? `${name} has finished every action this week - that usually means the routine is getting easier to repeat.`
           : progress > 0
-            ? 'Keep going with the smallest action first — each check builds momentum without adding pressure.'
+            ? 'Keep going with the smallest action first - each check builds momentum without adding pressure.'
             : 'Pick one easy action and try it once today to get started.'
       const statusSummary =
         progress === 100
@@ -164,7 +164,7 @@ export function useDynamicPlan() {
         summary: `${dailyTotal} scheduled actions loaded from your family plan.`,
         detail: week.description || '',
         mainAction: week.mainFocus || 'Follow your scheduled actions for this week.',
-        supportTip: week.supportTip || 'Small repeats beat perfect plans — pick what feels easiest.',
+        supportTip: week.supportTip || 'Small repeats beat perfect plans - pick what feels easiest.',
         parentTip:
           week.parentTip ||
           'Keep expectations gentle: one reliable cue often matters more than doing everything at once.',

@@ -1438,13 +1438,26 @@ function toggleRoadmapDailyAction(actionId) {
 }
 
 async function persistDashboardUpdate(updatedState) {
-  const username = updatedState.username || state.username
-  if (!username) throw new Error('Missing username')
+  const profileId =
+    updatedState.profileId ||
+    state.profileId ||
+    localStorage.getItem('profileId')
+
+  const profileAccessToken =
+    updatedState.profileAccessToken ||
+    state.profileAccessToken ||
+    localStorage.getItem('profileAccessToken')
+
+  if (!profileId) throw new Error('Missing profileId')
+  if (!profileAccessToken) throw new Error('Missing profile access token')
   if (!API_BASE_URL) throw new Error('Missing VITE_PARENT_PROFILES_API_BASE_URL')
 
-  const response = await fetch(`${API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`, {
+  const response = await fetch(`${API_BASE_URL}/parent_profiles/${encodeURIComponent(profileId)}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${profileAccessToken}`,
+    },
     body: JSON.stringify({
       dailyPlan: updatedState.dailyPlan ?? state.dailyPlan,
       progressItems: updatedState.progressItems ?? state.progressItems,
@@ -1458,9 +1471,14 @@ async function persistDashboardUpdate(updatedState) {
   })
 
   const data = await response.json().catch(() => ({}))
-  if (!response.ok) throw new Error(data.error || `Dashboard update failed: ${response.status}`)
+
+  if (!response.ok) {
+    throw new Error(data.error || `Dashboard update failed: ${response.status}`)
+  }
+
   return data
 }
+
 </script>
 
 <style scoped>
