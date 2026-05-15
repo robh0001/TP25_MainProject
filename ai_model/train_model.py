@@ -2,20 +2,21 @@ import json
 import pandas as pd
 import numpy as np
 import joblib
+import os
 
 from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-HEALTHY_DB_PATH = "healthy_foods_database.csv"
-FOODSTRUCT_PATH = "foodstruct_nutritional_facts.csv"
+HEALTHY_DB_PATH = os.path.join(BASE_DIR, "healthy_foods_database.csv")
+FOODSTRUCT_PATH = os.path.join(BASE_DIR, "foodstruct_nutritional_facts.csv")
 
-MODEL_OUTPUT_PATH = "food_health_regressor.pkl"
-DATABASE_OUTPUT_PATH = "food_database.json"
-REPORT_OUTPUT_PATH = "training_report.txt"
+MODEL_OUTPUT_PATH = os.path.join(BASE_DIR, "food_health_regressor.pkl")
+DATABASE_OUTPUT_PATH = os.path.join(BASE_DIR, "food_database.json")
+REPORT_OUTPUT_PATH = os.path.join(BASE_DIR, "training_report.txt")
 
 
 FEATURE_COLS = [
@@ -49,7 +50,7 @@ def convert_foodstruct_value(foodstruct_col, target_col, value):
     """
 
     if pd.isna(value):
-        return np.nan
+        return 0
 
     value = float(value)
 
@@ -68,22 +69,24 @@ def train_model():
     for col in required_cols:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # Delete only the missing rows of target.
-    # Missing features are handled by SimpleImputer.
+    # Delete only rows where target value is missing.
     df = df.dropna(subset=[TARGET_COL])
+
+    # Missing feature values are filled with 0.
+    df[FEATURE_COLS] = df[FEATURE_COLS].fillna(0)
 
     X = df[FEATURE_COLS]
     y = df[TARGET_COL]
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X,y,
+        X,
+        y,
         test_size=0.2,
         random_state=42,
         stratify=y
     )
 
     pipeline = Pipeline([
-        ("imputer", SimpleImputer(strategy="median")),
         ("model", RandomForestRegressor(
             n_estimators=300,
             random_state=42,
@@ -101,7 +104,8 @@ def train_model():
 
     cv_scores = cross_val_score(
         pipeline,
-        X,y,
+        X,
+        y,
         cv=5,
         scoring="r2",
         n_jobs=-1
@@ -149,7 +153,7 @@ def build_food_database():
         nutrients = {}
 
         for foodstruct_col, target_col in FOODSTRUCT_COL_MAP.items():
-            raw_value = row.get(foodstruct_col, np.nan)
+            raw_value = row.get(foodstruct_col, 0)
 
             converted_value = convert_foodstruct_value(
                 foodstruct_col,
@@ -158,7 +162,7 @@ def build_food_database():
             )
 
             if pd.isna(converted_value):
-                nutrients[target_col] = None
+                nutrients[target_col] = 0
             else:
                 nutrients[target_col] = round(float(converted_value), 4)
 
