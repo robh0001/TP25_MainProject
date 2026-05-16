@@ -19,13 +19,13 @@ function getScaleFromZoomLevel(value) {
 
 function applyZoomLevel(value, options = {}) {
   const safeValue = clampZoomLevel(value)
-
   zoomLevel.value = safeValue
 
   const scale = getScaleFromZoomLevel(safeValue)
 
   if (typeof document !== 'undefined') {
     document.documentElement.style.setProperty('--hk-font-scale', String(scale))
+    document.documentElement.dataset.hkZoomLevel = String(safeValue)
   }
 
   if (typeof sessionStorage !== 'undefined') {
@@ -71,6 +71,7 @@ export function useTextResize() {
 
   const canZoomIn = computed(() => zoomLevel.value < MAX_ZOOM_LEVEL)
   const canZoomOut = computed(() => zoomLevel.value > MIN_ZOOM_LEVEL)
+  const canReset = computed(() => zoomLevel.value !== DEFAULT_ZOOM_LEVEL)
 
   function zoomIn() {
     applyZoomLevel(zoomLevel.value + 1)
@@ -89,6 +90,7 @@ export function useTextResize() {
     zoomPercent,
     canZoomIn,
     canZoomOut,
+    canReset,
     zoomIn,
     zoomOut,
     resetZoom,
