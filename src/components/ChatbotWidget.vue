@@ -125,8 +125,8 @@
   ]);
   
   const position = ref({
-    x: window.innerWidth - 150,
-    y: window.innerHeight - 160
+    x: window.innerWidth - 155,
+    y: window.innerHeight - 245
   });
   
   const isDragging = ref(false);

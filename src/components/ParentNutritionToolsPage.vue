@@ -10,37 +10,45 @@
       <div class="page-bg__grain"></div>
     </div>
 
-    <header class="site-header">
-      <RouterLink to="/" class="brand">
-        <span class="brand-icon" aria-hidden="true">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
-            <path
-              d="M18 9C13.8 12.3 11.5 16.2 12.4 20.4C13.1 23.8 15.5 26.1 18 27.6C20.5 26.1 22.9 23.8 23.6 20.4C24.5 16.2 22.2 12.3 18 9Z"
-              fill="currentColor"
-              opacity="0.9"
-            />
-            <path
-              d="M18 14.2V24.5"
-              stroke="white"
-              stroke-width="1.4"
-              stroke-linecap="round"
-              opacity="0.72"
-            />
-          </svg>
-        </span>
-        <span>HealthyKids</span>
-      </RouterLink>
+    <header class="header" :class="{ scrolled: isScrolled }">
+      <div class="header-inner">
+        <RouterLink to="/" class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 36 36" fill="none">
+              <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5" />
+              <path
+                d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+          <span>HealthyKids</span>
+        </RouterLink>
 
-      <nav class="nav-links" aria-label="Nutrition page navigation">
-        <RouterLink to="/parent-dashboard">Dashboard</RouterLink>
-        <RouterLink to="/parent-roadmap">Roadmap</RouterLink>
-        <RouterLink to="/young-person-dashboard">Kids view</RouterLink>
-      </nav>
+        <nav class="nav" aria-label="Nutrition page navigation">
+          <RouterLink to="/" class="nav-a">Home</RouterLink>
+          <RouterLink to="/parent-dashboard" class="nav-a">Dashboard</RouterLink>
+          <RouterLink to="/parent-nutrition-tools" class="nav-a">Nutrition</RouterLink>
+          <RouterLink to="/statistics" class="nav-a">Statistics</RouterLink>
+          <RouterLink to="/young-person-dashboard" class="nav-a">Kids view</RouterLink>
+        </nav>
 
-      <!-- <RouterLink to="/parent-dashboard" class="header-btn">
-        Back
-      </RouterLink> -->
+        <div class="nav-cta">
+          <RouterLink to="/parent-quiz" class="nav-link">Retake quiz</RouterLink>
+          <RouterLink to="/parent-dashboard" class="nav-btn">
+            Back to dashboard
+            <svg width="11" height="11" viewBox="0 0 12 12">
+              <path
+                d="M2 6h8M7 3l3 3-3 3"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </RouterLink>
+        </div>
+      </div>
     </header>
 
     <main class="page-main">
@@ -306,7 +314,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useFoodHealthPredictor } from '../composables/useFoodHealthPredictor'
@@ -326,6 +334,11 @@ const selectedCuisine = ref('all')
 const selectedNeed = ref('all')
 const openRecipeId = ref(null)
 const visibleLimit = ref(12)
+const isScrolled = ref(false)
+
+function onScroll() {
+  isScrolled.value = window.scrollY > 40
+}
 
 const foodInput = ref('')
 const {
@@ -379,7 +392,12 @@ const filteredRecipes = computed(() => {
 const visibleRecipes = computed(() => filteredRecipes.value.slice(0, visibleLimit.value))
 
 onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
   fetchRecipes()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
 })
 
 async function fetchRecipes() {
