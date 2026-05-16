@@ -35,27 +35,6 @@ const items = [
     badge: true,
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 10v4"/><path d="M5 12h4"/><path d="M17 11h.01"/><path d="M19 13h.01"/></svg>`,
   },
-  {
-    id: "meals",
-    label: "Meals",
-    to: "/kids-meals",
-    match: ["/kids-meals"],
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
-  },
-  {
-    id: "stats",
-    label: "Stats",
-    to: "/kids-stats",
-    match: ["/kids-stats"],
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
-  },
-  {
-    id: "wins",
-    label: "Wins",
-    to: "/kids-wins",
-    match: ["/kids-wins"],
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
-  },
 ]
 
 function isActive(item) {
@@ -73,7 +52,7 @@ function isActive(item) {
   transform: translateX(-50%);
   padding: 7px 8px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 4px;
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(28, 30, 54, 0.98), rgba(22, 24, 45, 0.98));

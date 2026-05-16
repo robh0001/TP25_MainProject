@@ -29,11 +29,7 @@
     </div>
 
     <div class="lab-shell">
-      <aside class="ingredient-panel">
-        <div class="panel-heading">
-          <h4>{{ currentStage.title }} Cards</h4>
-        </div>
-
+      <aside class="ingredient-panel" aria-label="Current set cards">
         <div class="ingredient-grid">
           <button
             v-for="item in currentStage.items"
@@ -47,14 +43,12 @@
             }"
             :disabled="isItemDisabled(item.id)"
             @click="pickItem(item.id)"
+            :aria-label="item.label"
           >
             <img class="ingredient-image" :src="item.image" :alt="item.label" />
-            <div class="ingredient-copy">
-              <span class="ingredient-icon" aria-hidden="true">{{ item.icon }}</span>
-              <strong>{{ item.label }}</strong>
+            <div class="ingredient-overlay" aria-hidden="true">
+              <span class="ingredient-icon">{{ item.icon }}</span>
             </div>
-            <span v-if="isItemCompleted(item.id)" class="state-badge">Done</span>
-            <span v-else-if="isItemSelected(item.id)" class="state-badge">Picked</span>
           </button>
         </div>
       </aside>
@@ -102,21 +96,6 @@
           </div>
         </div>
 
-        <div class="video-shell">
-          <div class="video-heading">
-            <h5>Watch a bright idea</h5>
-            <span>{{ previewCard.videoLabel }}</span>
-          </div>
-          <div class="video-frame">
-            <iframe
-              :src="previewCard.videoUrl"
-              :title="previewCard.videoLabel"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </div>
-        </div>
       </section>
 
       <aside class="discoveries-panel">
@@ -532,7 +511,7 @@ function resolvePair(first, second) {
 .lab-shell {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1.1fr 1.2fr 0.85fr;
+  grid-template-columns: 0.95fr 1.2fr 0.8fr;
   gap: 14px;
 }
 
@@ -551,7 +530,6 @@ function resolvePair(first, second) {
   overflow: hidden;
 }
 
-.panel-heading h4,
 .discoveries-panel h4 {
   margin: 0;
   font-family: "Baloo 2", cursive;
@@ -559,24 +537,48 @@ function resolvePair(first, second) {
 }
 
 .ingredient-grid {
-  margin-top: 14px;
+  margin-top: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .ingredient-btn {
   position: relative;
   border: 1px solid rgba(78, 97, 175, 0.1);
   border-radius: 22px;
-  padding: 10px;
+  padding: 8px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 246, 255, 0.92));
   color: #24305d;
   display: grid;
-  gap: 10px;
-  text-align: left;
+  place-items: center;
+  aspect-ratio: 1 / 1.02;
+  text-align: center;
   cursor: pointer;
-  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+  overflow: hidden;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease, border-color 0.14s ease;
+}
+
+.ingredient-btn::before {
+  content: "";
+  position: absolute;
+  inset: -35% 18% auto;
+  height: 70%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.ingredient-btn::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 16px;
+  border: 0 solid transparent;
+  pointer-events: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+  opacity: 0;
 }
 
 .ingredient-btn:nth-child(3n + 1) {
@@ -592,59 +594,97 @@ function resolvePair(first, second) {
 }
 
 .ingredient-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(36, 51, 118, 0.14);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 14px 24px rgba(36, 51, 118, 0.16);
   animation: cardWiggle 0.32s ease;
 }
 
 .ingredient-btn.burst {
-  animation: unlockPop 0.72s ease;
-  box-shadow: 0 0 0 3px rgba(120, 99, 255, 0.14), 0 18px 34px rgba(88, 84, 220, 0.22);
+  animation: unlockPop 0.92s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow:
+    0 0 0 4px rgba(120, 99, 255, 0.16),
+    0 18px 34px rgba(88, 84, 220, 0.24),
+    0 0 32px rgba(123, 101, 255, 0.2);
 }
 
 .ingredient-btn.selected,
 .ingredient-btn.completed,
 .ingredient-btn:disabled {
-  filter: grayscale(1);
-  opacity: 0.62;
+  opacity: 0.9;
   cursor: not-allowed;
 }
 
+.ingredient-btn.selected {
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(91, 112, 228, 0.34);
+  box-shadow: 0 16px 28px rgba(83, 104, 220, 0.16);
+}
+
+.ingredient-btn.selected::after {
+  opacity: 1;
+  border-width: 2px;
+  border-color: rgba(90, 142, 255, 0.8);
+  box-shadow: 0 0 0 4px rgba(90, 142, 255, 0.12);
+}
+
 .ingredient-btn.completed {
-  opacity: 0.56;
+  filter: saturate(0.8);
+  border-color: rgba(104, 113, 160, 0.18);
+  box-shadow: 0 12px 22px rgba(61, 73, 126, 0.12);
+}
+
+.ingredient-btn.completed::after {
+  opacity: 1;
+  border-width: 2px;
+  border-color: rgba(62, 195, 126, 0.85);
+  box-shadow: 0 0 0 4px rgba(62, 195, 126, 0.12);
 }
 
 .ingredient-image {
   width: 100%;
-  aspect-ratio: 1.12;
+  height: 100%;
   object-fit: cover;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #eef2ff;
+  display: block;
 }
 
-.ingredient-copy {
+.ingredient-overlay {
+  position: absolute;
+  inset: 0;
   display: grid;
-  gap: 4px;
-}
-
-.ingredient-copy strong {
-  font-size: 1rem;
+  place-items: center;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(18, 27, 57, 0.04), rgba(18, 27, 57, 0.2));
 }
 
 .ingredient-icon {
-  font-size: 1.8rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 14px 24px rgba(20, 35, 78, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transform: translateY(0);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.state-badge {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  border-radius: 999px;
-  background: rgba(20, 31, 69, 0.8);
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: 800;
-  padding: 5px 9px;
+.ingredient-btn:hover:not(:disabled) .ingredient-icon {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow:
+    0 18px 30px rgba(20, 35, 78, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.74);
+}
+
+.ingredient-btn.completed .ingredient-icon {
+  background: rgba(255, 255, 255, 0.92);
+  animation: matchedIconGlow 0.95s ease;
 }
 
 .slots-header {
@@ -795,41 +835,16 @@ function resolvePair(first, second) {
   font-weight: 800;
 }
 
-.preview-copy h5,
-.video-heading h5 {
+.preview-copy h5 {
   margin: 8px 0 0;
   font-size: 1rem;
   font-family: "Baloo 2", cursive;
 }
 
-.preview-copy p:last-child,
-.video-heading span {
+.preview-copy p:last-child {
   margin: 8px 0 0;
   color: #5f6d92;
   line-height: 1.55;
-}
-
-.video-shell {
-  margin-top: 14px;
-  border-radius: 22px;
-  border: 1px solid rgba(68, 89, 160, 0.12);
-  padding: 14px;
-  background: linear-gradient(180deg, rgba(251, 251, 255, 0.96), rgba(243, 246, 255, 0.92));
-  box-shadow: 0 12px 24px rgba(33, 52, 106, 0.08);
-}
-
-.video-frame {
-  margin-top: 12px;
-  border-radius: 16px;
-  overflow: hidden;
-  aspect-ratio: 16 / 9;
-  background: #101631;
-}
-
-.video-frame iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
 }
 
 .discoveries-panel ul {
@@ -1055,7 +1070,6 @@ function resolvePair(first, second) {
   border-color: rgba(143, 154, 227, 0.22);
 }
 
-.habit-lab--dark .panel-heading h4,
 .habit-lab--dark .discoveries-panel h4 {
   color: #f2f7ff;
 }
@@ -1077,8 +1091,15 @@ function resolvePair(first, second) {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.habit-lab--dark .ingredient-copy strong {
-  color: rgba(226, 234, 255, 0.95);
+.habit-lab--dark .ingredient-overlay {
+  background: linear-gradient(180deg, rgba(8, 12, 28, 0.04), rgba(8, 12, 28, 0.28));
+}
+
+.habit-lab--dark .ingredient-icon {
+  background: rgba(18, 28, 56, 0.82);
+  box-shadow:
+    0 16px 28px rgba(3, 7, 23, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .habit-lab--dark .clear-btn {
@@ -1177,20 +1198,6 @@ function resolvePair(first, second) {
   color: rgba(226, 234, 255, 0.95);
 }
 
-.habit-lab--dark .video-shell {
-  background: rgba(12, 16, 34, 0.9);
-  border-color: rgba(143, 154, 227, 0.2);
-}
-
-.habit-lab--dark .video-heading h5,
-.habit-lab--dark .video-heading span {
-  color: rgba(226, 234, 255, 0.92);
-}
-
-.habit-lab--dark .video-frame {
-  border-color: rgba(143, 154, 227, 0.25);
-}
-
 .habit-lab--dark .score span {
   color: rgba(198, 208, 240, 0.88);
 }
@@ -1216,16 +1223,28 @@ function resolvePair(first, second) {
 
 @keyframes unlockPop {
   0% {
-    transform: scale(0.94) translateY(6px);
-    opacity: 0.72;
+    transform: scale(0.88) rotate(-4deg);
+    opacity: 0.78;
   }
-  50% {
-    transform: scale(1.03) translateY(-2px);
+  35% {
+    transform: scale(1.08) rotate(3deg);
     opacity: 1;
   }
   100% {
-    transform: scale(1) translateY(0);
+    transform: scale(1) rotate(0deg);
     opacity: 1;
+  }
+}
+
+@keyframes matchedIconGlow {
+  0% {
+    transform: scale(0.88) rotate(-8deg);
+  }
+  45% {
+    transform: scale(1.12) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
   }
 }
 
@@ -1247,7 +1266,7 @@ function resolvePair(first, second) {
   }
 
   .ingredient-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .slots {

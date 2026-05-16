@@ -30,18 +30,14 @@
             <div class="chip-dot"></div>
             Healthy Kids Dashboard
           </div>
-          <h1>Hey, <em>Alex!</em> Ready to play?</h1>
+          <h1>Hey there! Ready to play?</h1>
           <div class="header-sub">Pick a game, collect healthy wins &amp; keep your streak!</div>
         </div>
 
         <div class="header-right">
-          <RouterLink
-            to="/parent-dashboard"
-            class="parent-dash-link"
-            aria-label="Open parent dashboard home"
-          >
-            <span class="svg-holder mini-svg parent-door-svg" v-html="icons.parentDoor"></span>
-            <span>Parents home</span>
+          <RouterLink to="/parent-dashboard" class="main-site-link">
+            <span class="svg-holder mini-svg" v-html="icons.home"></span>
+            Parents dashboard
           </RouterLink>
           <button
             type="button"
@@ -56,47 +52,32 @@
             <span class="svg-holder mini-svg" v-html="icons.calendar"></span>
             {{ todayLabel }}
           </div>
+          <div class="time-tag">
+            <span class="svg-holder mini-svg" v-html="icons.clock"></span>
+            {{ liveTime }}
+          </div>
           <button type="button" class="streak-tag" @click="celebrateStreak">
             <span class="svg-holder mini-svg flame-icon" v-html="icons.flame"></span>
-            5 day streak
           </button>
         </div>
       </header>
 
-      <section class="boost-strip" aria-label="Daily power ups">
+      <section class="boost-strip" aria-label="Meal check-in">
         <article
-          v-for="boost in powerUps"
-          :key="boost.label"
+          v-for="check in mealChecks"
+          :key="check.label"
           class="boost-pill"
-          :class="boost.tone"
-          @click="handleBoostClick(boost, $event)"
+          :class="[check.tone, { 'boost-pill--done': check.done }]"
+          @click="toggleMealCheck(check.label, $event)"
         >
           <div class="boost-icon">
-            <span class="svg-holder section-svg" v-html="boost.icon"></span>
+            <span class="meal-check-emoji" aria-hidden="true">{{ check.emoji }}</span>
           </div>
           <div>
-            <div class="boost-label">{{ boost.label }}</div>
-            <div class="boost-sub">{{ boost.helper }}</div>
+            <div class="boost-label">{{ check.label }}</div>
+            <div class="boost-sub">{{ check.helper }}</div>
           </div>
-          <strong>{{ boost.value }}</strong>
-        </article>
-      </section>
-
-      <section class="stats-row" aria-label="Health summary">
-        <article
-          v-for="stat in stats"
-          :key="stat.label"
-          class="stat-card"
-          :class="stat.theme"
-          @click="openStatsPage($event)"
-        >
-          <div class="stat-icon">
-            <span class="svg-holder stat-svg" v-html="stat.icon"></span>
-          </div>
-          <div class="stat-label">{{ stat.label }}</div>
-          <div class="stat-value">{{ stat.value }}</div>
-          <div class="stat-sub">{{ stat.helper }}</div>
-          <div class="prog-track"><div class="prog-fill" :style="{ width: stat.progress }"></div></div>
+          <strong>{{ check.done ? "Tap to remove" : "Tap to add" }}</strong>
         </article>
       </section>
 
@@ -104,7 +85,7 @@
         <div class="mission-card" @click="openBubbleMission">
           <div class="section-label">
             <span class="svg-holder section-svg" v-html="icons.target"></span>
-            Today's Mission
+            Game
           </div>
 
           <div class="mission-header">
@@ -114,9 +95,7 @@
             <div class="mission-title">Healthy Bubble Game</div>
           </div>
 
-          <div class="mission-desc">
-            Pop the target health words before they self-pop. Fast fingers win!
-          </div>
+          <div class="mission-desc">Pop the target health words before they self-pop. Fast fingers win!</div>
 
           <div class="tag-row">
             <span v-for="tag in missionTags" :key="tag.label" class="tag">
@@ -125,123 +104,14 @@
             </span>
           </div>
 
-          <button type="button" class="play-btn" @click="playNow">
+          <button type="button" class="play-btn" @click.stop="playNow">
             <span class="svg-holder button-svg" v-html="icons.play"></span>
             Play Now
             <span class="svg-holder button-svg" v-html="icons.arrowRight"></span>
           </button>
         </div>
 
-        <div class="wins-card" @click="openWinsPage">
-          <div class="section-label">
-            <span class="svg-holder section-svg" v-html="icons.trophy"></span>
-            Healthy Wins
-          </div>
-
-          <div
-            v-for="(win, index) in wins"
-            :key="win.label"
-            class="win-item"
-          >
-            <div class="win-icon" :class="`win-icon-${index + 1}`">
-              <span class="svg-holder win-svg" v-html="win.icon"></span>
-            </div>
-            <div>
-              <div class="win-title">{{ win.label }}</div>
-              <div class="win-sub">{{ win.helper }}</div>
-            </div>
-            <div class="win-check">
-              <span class="svg-holder check-svg" v-html="icons.check"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="meal-banner" @click="openMealsPage">
-          <div class="meal-float">
-            <span class="svg-holder float-svg" v-html="icons.meal1"></span>
-            <span class="svg-holder float-svg" v-html="icons.meal2"></span>
-            <span class="svg-holder float-svg" v-html="icons.meal3"></span>
-            <span class="svg-holder float-svg" v-html="icons.meal4"></span>
-          </div>
-
-          <div class="meal-text">
-            <div class="section-label">
-              <span class="svg-holder section-svg" v-html="icons.meal1"></span>
-              Meal Planner
-            </div>
-            <div class="meal-title">Build a bright food day!</div>
-            <div class="meal-sub">
-              Tap to see your playful breakfast, lunch, snack &amp; dinner plan.
-            </div>
-          </div>
-
-          <button type="button" class="meal-btn" @click="handleMealPlannerClick">
-            <span class="svg-holder button-svg" v-html="icons.grid"></span>
-            Open meal planner
-          </button>
-        </div>
-      </div>
-
-      <section class="game-section">
-        <div class="section-header">
-          <div>
-            <div class="section-label">
-              <span class="svg-holder section-svg" v-html="icons.gamepad"></span>
-              Game Corner
-            </div>
-            <div class="section-heading">Choose your adventure!</div>
-          </div>
-
-          <button type="button" class="see-all" @click="goToGameZone('bubble')">
-            See all
-            <span class="svg-holder link-svg" v-html="icons.arrowRight"></span>
-          </button>
-        </div>
-
-        <div class="games-row">
-          <button
-            v-for="game in gameCards"
-            :key="game.id"
-            type="button"
-            class="game-card"
-            @click="goToGameZone(game.id, $event)"
-          >
-            <div v-if="game.playing" class="active-badge">Playing</div>
-            <div class="game-icon">
-              <span class="svg-holder game-svg" v-html="game.icon"></span>
-            </div>
-            <div class="game-name">{{ game.name }}</div>
-            <div class="game-desc">{{ game.description }}</div>
-          </button>
-        </div>
-      </section>
-
-      <div class="bottom-row">
-        <div class="challenge-card" @click="openWinsPage">
-          <div class="section-label section-blue">
-            <span class="svg-holder section-svg" v-html="icons.star"></span>
-            Weekly Challenge
-          </div>
-          <div class="challenge-title">Veggie Champion</div>
-          <div class="challenge-sub">Eat 5 different veggies this week!</div>
-          <div class="xp-row"><span>XP Progress</span><span>340 / 500 XP</span></div>
-          <div class="xp-track"><div class="xp-bar"></div></div>
-
-          <div class="star-row">
-            <button
-              v-for="(earned, index) in stars"
-              :key="`star-${index}`"
-              type="button"
-              class="star-btn"
-              :class="{ earned }"
-              @click.stop="toggleStar(index, $event)"
-            >
-              <span class="svg-holder star-svg" v-html="icons.star"></span>
-            </button>
-          </div>
-        </div>
-
-        <div ref="hydrationCard" class="hydration-card" @click="openStatsPage">
+        <div ref="hydrationCard" class="hydration-card">
           <div class="hyd-ring"></div>
           <div class="hyd-ring"></div>
 
@@ -254,7 +124,7 @@
 
           <div class="drop-grid">
             <button
-              v-for="(filled, index) in drops"
+              v-for="(filled, index) in hydrationDrops"
               :key="`drop-${index}`"
               type="button"
               class="drop-btn"
@@ -274,29 +144,59 @@
       </div>
     </div>
 
+    <transition name="meal-toast">
+      <div v-if="mealToast" class="meal-toast" role="status" aria-live="polite">
+        {{ mealToast }}
+      </div>
+    </transition>
+
+    <transition name="launch-screen">
+      <div v-if="launchingGame" class="launch-screen" role="status" aria-live="polite">
+        <div class="launch-card">
+          <div class="launch-icon-wrap">
+            <span class="svg-holder launch-icon" v-html="icons.bubbleMission"></span>
+          </div>
+          <div class="launch-title">Opening Bubble Game...</div>
+          <div class="launch-sub">Get ready to play</div>
+        </div>
+      </div>
+    </transition>
+
     <KidsBottomNav />
   </div>
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import { RouterLink, useRouter } from "vue-router"
 import KidsBottomNav from "./kids/KidsBottomNav.vue"
 import { useKidsTheme } from "../composables/useKidsTheme.js"
+import { useKidsProgressStore } from "../stores/kidsProgressStore.js"
 
 const router = useRouter()
 const { isDarkMode, toggleDarkMode } = useKidsTheme()
+const kp = useKidsProgressStore()
 
 const confettiLayer = ref(null)
 const hydrationCard = ref(null)
-const stars = ref([true, true, true, false, false])
-const drops = ref([true, true, true, true, true, false, false, false])
 const fallingDrops = ref([])
+const mealToast = ref("")
+const liveTime = ref("")
+const launchingGame = ref(false)
 
 let nextFallingDropId = 1
 const activeRibbons = []
 
 let ribbonFrameId = 0
+let mealToastTimer = 0
+let liveTimeTimer = 0
+let launchTimer = 0
+
+onMounted(() => {
+  kp.hydrate()
+  updateLiveTime()
+  liveTimeTimer = window.setInterval(updateLiveTime, 1000)
+})
 
 const todayLabel = new Intl.DateTimeFormat("en-AU", {
   weekday: "short",
@@ -304,45 +204,31 @@ const todayLabel = new Intl.DateTimeFormat("en-AU", {
   month: "short",
 }).format(new Date())
 
+function updateLiveTime() {
+  liveTime.value = new Intl.DateTimeFormat("en-AU", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date())
+}
+
 const icons = {
-  avatar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
-  parentDoor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13 21h8v-9h-8z"/><path d="M3 21V4a1 1 0 0 1 1-1h7l5 5v13"/><circle cx="16.5" cy="13.5" r="1" fill="currentColor"/></svg>`,
+  avatar: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="30" fill="#FFE8B8"/><path d="M19 25C19 17.8203 24.8203 12 32 12C39.1797 12 45 17.8203 45 25V28H19V25Z" fill="#D97A00"/><circle cx="32" cy="28" r="12" fill="#FFD7B3"/><path d="M25 27C26.3333 25.4 28.4 24.6 31.2 24.6C34 24.6 36.2667 25.4 38 27" stroke="#7A3E00" stroke-width="2.8" stroke-linecap="round"/><circle cx="27.5" cy="29.5" r="1.6" fill="#7A3E00"/><circle cx="36.5" cy="29.5" r="1.6" fill="#7A3E00"/><path d="M28 34.5C29.1 36.1667 30.4333 37 32 37C33.5667 37 34.9 36.1667 36 34.5" stroke="#7A3E00" stroke-width="2.6" stroke-linecap="round"/><path d="M18 52C18.8 44.5333 23.4667 40.8 32 40.8C40.5333 40.8 45.2 44.5333 46 52" fill="#5B7CFA"/><path d="M18 52C18.8 44.5333 23.4667 40.8 32 40.8C40.5333 40.8 45.2 44.5333 46 52" stroke="#3B56D9" stroke-width="2.4" stroke-linecap="round"/><path d="M32 41V52" stroke="#D8E4FF" stroke-width="2.4" stroke-linecap="round"/><circle cx="32" cy="46" r="2.1" fill="#D8E4FF"/></svg>`,
   calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
   flame: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 4-4 6-4 10a4 4 0 0 0 8 0c0-4-4-6-4-10z"/><path d="M12 12c0 2-2 3-2 5a2 2 0 0 0 4 0c0-2-2-3-2-5z"/></svg>`,
   target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
   bubbleMission: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>`,
   play: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
   arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
-  trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
-  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  meal1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
-  meal2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="2"/></svg>`,
-  meal3: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>`,
-  meal4: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
-  grid: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
-  gamepad: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 12h.01"/><path d="M17 12h.01"/></svg>`,
-  bubbleCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>`,
-  explorerCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
-  smashCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-  star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
   drop: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L5 12a7 7 0 1 0 14 0L12 2z"/></svg>`,
   plusCircle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  home: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V21h14V9.8"/><path d="M9 21v-6h6v6"/></svg>`,
   moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>`,
   sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2.2M19.8 12H22M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg>`,
-  steps: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4v4l3 3-2 5-4-2-3 4H4"/><path d="M20 12v4l-2 4"/></svg>`,
-  sleep: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
-  smile: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
-  timer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="2"/></svg>`,
   bolt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
   message: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
 }
-
-const stats = [
-  { label: "Steps", value: "7,240", helper: "Move goal 72%", progress: "72%", theme: "sc-steps", icon: icons.steps },
-  { label: "Water", value: "5 / 8", helper: "Three more sips!", progress: "62%", theme: "sc-water", icon: icons.drop },
-  { label: "Sleep", value: "8.5h", helper: "Great bedtime win", progress: "90%", theme: "sc-sleep", icon: icons.sleep },
-  { label: "Mood", value: "Happy", helper: "Energy is high!", progress: "85%", theme: "sc-mood", icon: icons.smile },
-]
 
 const missionTags = [
   { label: "Color pop", icon: icons.target },
@@ -350,41 +236,33 @@ const missionTags = [
   { label: "Healthy words", icon: icons.message },
 ]
 
-const wins = [
-  { label: "3 healthy bites", helper: "Fruit and veggie streak", icon: icons.timer },
-  { label: "Water power", helper: "Sipping through the day", icon: icons.drop },
-  { label: "Sleep star", helper: "Strong bedtime routine", icon: icons.sleep },
-]
+const mealChecks = computed(() => [
+  {
+    label: "Breakfast",
+    helper: "Had breakfast",
+    emoji: "🍳",
+    tone: "boost-coral",
+    done: Boolean(kp.daily.meals.Breakfast),
+  },
+  {
+    label: "Lunch",
+    helper: "Had lunch",
+    emoji: "🥪",
+    tone: "boost-sky",
+    done: Boolean(kp.daily.meals.Lunch),
+  },
+  {
+    label: "Dinner",
+    helper: "Had dinner",
+    emoji: "🍽️",
+    tone: "boost-violet",
+    done: Boolean(kp.daily.meals.Dinner),
+  },
+])
 
-const powerUps = [
-  { label: "Rainbow bites", helper: "Fruit mission streak", value: "3 / 5", tone: "boost-coral", icon: icons.star },
-  { label: "Power splash", helper: "Hydration glow-up", value: "+80 XP", tone: "boost-sky", icon: icons.drop },
-  { label: "Dream spark", helper: "Lights out on time", value: "8.5h", tone: "boost-violet", icon: icons.sleep },
-]
-
-const gameCards = [
-  {
-    id: "bubble",
-    name: "Bubble Game",
-    description: "Pop target health words before they self-pop",
-    icon: icons.bubbleCard,
-    playing: true,
-  },
-  {
-    id: "explorer",
-    name: "Explorer Game",
-    description: "Pick matching healthy habit pairs",
-    icon: icons.explorerCard,
-    playing: false,
-  },
-  {
-    id: "smash",
-    name: "Smash Game",
-    description: "Drag and wiggle to build power",
-    icon: icons.smashCard,
-    playing: false,
-  },
-]
+const hydrationDrops = computed(() =>
+  Array.from({ length: 8 }, (_, index) => index < Math.min(8, kp.daily.waterGlasses)),
+)
 
 function ripple(event) {
   const el = event.currentTarget
@@ -399,12 +277,6 @@ function ripple(event) {
   rippleEl.style.top = `${event.clientY - rect.top - size / 2}px`
   el.appendChild(rippleEl)
   window.setTimeout(() => rippleEl.remove(), 700)
-}
-
-function safeRipple(event) {
-  if (event && typeof event === "object" && "currentTarget" in event) {
-    ripple(event)
-  }
 }
 
 function spawnConfetti(count, originRect) {
@@ -574,7 +446,8 @@ function fireConfetti() {
 
 function celebrateStreak(event) {
   ripple(event)
-  launchRibbonCelebration(34, event.currentTarget)
+  spawnConfetti(110, event.currentTarget.getBoundingClientRect())
+  launchRibbonCelebration(68, event.currentTarget)
 }
 
 function miniConfetti(element) {
@@ -605,26 +478,43 @@ function spawnWaterDrops(sourceElement, count = 16) {
   }, maxLifetime)
 }
 
-function toggleStar(index, event) {
-  stars.value[index] = !stars.value[index]
-  if (stars.value[index]) {
+function toggleMealCheck(label, event) {
+  ripple(event)
+  const wasDone = Boolean(kp.daily.meals[label])
+  kp.toggleMeal(label)
+  if (!wasDone) {
     miniConfetti(event.currentTarget)
-    launchRibbonCelebration(22, event.currentTarget)
+    showMealToast(`Great! ${label} added`)
+    return
   }
+  showMealToast(`${label} removed`)
+}
+
+function showMealToast(message) {
+  mealToast.value = message
+  if (mealToastTimer) {
+    window.clearTimeout(mealToastTimer)
+  }
+  mealToastTimer = window.setTimeout(() => {
+    mealToast.value = ""
+    mealToastTimer = 0
+  }, 1400)
 }
 
 function toggleDrop(index, event) {
-  drops.value[index] = !drops.value[index]
-  if (drops.value[index]) {
+  const currentCount = Math.min(8, kp.daily.waterGlasses)
+  const nextCount = index < currentCount ? index : index + 1
+  if (nextCount === currentCount) return
+  kp.addWater(nextCount - currentCount)
+  if (nextCount > currentCount) {
     spawnWaterDrops(hydrationCard.value, 14)
     miniConfetti(event.currentTarget)
   }
 }
 
 function logSip(event) {
-  const nextIndex = drops.value.findIndex(filled => !filled)
-  if (nextIndex !== -1) {
-    drops.value[nextIndex] = true
+  if (kp.daily.waterGlasses < 8) {
+    kp.addWater(1)
     spawnWaterDrops(hydrationCard.value, 18)
     miniConfetti(event.currentTarget)
   }
@@ -638,58 +528,44 @@ function goToGameZone(gameId, event) {
 }
 
 function openBubbleMission(event) {
-  goToGameZone("bubble", event)
-}
-
-function openMealsPage(event) {
-  safeRipple(event)
-  router.push("/kids-meals")
-}
-
-function openStatsPage(event) {
-  safeRipple(event)
-  router.push("/kids-stats")
-}
-
-function openWinsPage(event) {
-  safeRipple(event)
-  router.push("/kids-wins")
-}
-
-function handleBoostClick(boost, event) {
-  if (boost.tone === "boost-sky") {
-    openStatsPage(event)
-    return
-  }
-
-  if (boost.tone === "boost-coral") {
-    openWinsPage(event)
-    return
-  }
-
-  if (boost.tone === "boost-violet") {
-    openStatsPage(event)
-    return
-  }
-
-  safeRipple(event)
+  startGameLaunch("bubble", event)
 }
 
 function playNow(event) {
-  ripple(event)
-  fireConfetti()
-  router.push({ path: "/kids-game-zone", query: { game: "bubble" } })
+  startGameLaunch("bubble", event, { celebrate: true })
 }
 
-function handleMealPlannerClick(event) {
+function startGameLaunch(gameId, event, options = {}) {
+  if (launchingGame.value) return
   ripple(event)
-  router.push("/kids-meals")
+  if (options.celebrate) {
+    fireConfetti()
+  }
+  launchingGame.value = true
+  launchTimer = window.setTimeout(() => {
+    router.push({ path: "/kids-game-zone", query: gameId ? { game: gameId } : {} })
+  }, 260)
 }
 
 onBeforeUnmount(() => {
+  if (launchTimer) {
+    window.clearTimeout(launchTimer)
+    launchTimer = 0
+  }
+
+  if (liveTimeTimer) {
+    window.clearInterval(liveTimeTimer)
+    liveTimeTimer = 0
+  }
+
   if (ribbonFrameId) {
     window.cancelAnimationFrame(ribbonFrameId)
     ribbonFrameId = 0
+  }
+
+  if (mealToastTimer) {
+    window.clearTimeout(mealToastTimer)
+    mealToastTimer = 0
   }
 
   for (const ribbon of activeRibbons) {
@@ -918,12 +794,18 @@ onBeforeUnmount(() => {
 .header-text h1 em { font-style: normal; color: var(--coral); }
 .header-sub { font-size: 13px; color: var(--muted); font-weight: 500; margin-top: 2px; }
 
-.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+.header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 460px;
+}
 
-.parent-dash-link {
-  text-decoration: none;
-  background: linear-gradient(135deg, rgba(44, 201, 122, 0.2), rgba(59, 158, 255, 0.16));
-  border: 1.5px solid rgba(44, 140, 112, 0.32);
+.main-site-link {
+  background: linear-gradient(135deg, rgba(44, 201, 122, 0.16), rgba(30, 200, 200, 0.14));
+  border: 1.5px solid rgba(44, 201, 122, 0.22);
   border-radius: 999px;
   padding: 7px 12px;
   font-size: 12px;
@@ -932,24 +814,15 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 6px 16px rgba(34, 112, 94, 0.12);
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(44, 201, 122, 0.14);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, filter 0.25s;
 }
 
-.parent-dash-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(34, 112, 94, 0.18);
-}
-
-.parent-door-svg {
-  width: 15px;
-  height: 15px;
-}
-
-.dark-mode .parent-dash-link {
-  background: linear-gradient(135deg, rgba(44, 201, 122, 0.22), rgba(99, 155, 255, 0.16));
-  border-color: rgba(130, 206, 174, 0.35);
-  color: #f1f6ff;
+.main-site-link:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 22px rgba(44, 201, 122, 0.2);
+  filter: brightness(1.02);
 }
 
 .theme-toggle {
@@ -978,7 +851,8 @@ onBeforeUnmount(() => {
   color: #F8FAFF;
 }
 
-.date-tag {
+.date-tag,
+.time-tag {
   background: var(--bg);
   border: 1.5px solid var(--border);
   border-radius: 20px;
@@ -994,27 +868,20 @@ onBeforeUnmount(() => {
 .streak-tag {
   background: linear-gradient(135deg, #FFF8E8, #FFEEC8);
   border: 1.5px solid #FFD980;
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 12px;
-  font-weight: 700;
+  border-radius: 18px;
+  width: 42px;
+  height: 42px;
   color: #A06800;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
-  animation: streakPop 3s ease-in-out infinite 3s;
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
   border-style: solid;
 }
 
-@keyframes streakPop {
-  0%, 94%, 100% { transform: scale(1); }
-  96% { transform: scale(1.12) rotate(-4deg); }
-  98% { transform: scale(1.12) rotate(4deg); }
-}
-
-.streak-tag:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(255, 176, 32, 0.3); }
+.streak-tag:hover { box-shadow: 0 4px 14px rgba(255, 176, 32, 0.3); filter: brightness(1.03); }
 .flame-icon { animation: flameDance 0.35s ease-in-out infinite alternate; }
 @keyframes flameDance { from { transform: scaleY(1) rotate(-4deg); } to { transform: scaleY(1.15) rotate(4deg); } }
 
@@ -1089,6 +956,47 @@ onBeforeUnmount(() => {
   margin-left: auto;
   font-size: 13px;
   font-weight: 800;
+}
+
+.boost-pill--done {
+  border-color: rgba(44, 201, 122, 0.36);
+  box-shadow: 0 10px 26px rgba(44, 201, 122, 0.16);
+}
+
+.meal-toast {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  min-width: min(320px, calc(100vw - 32px));
+  text-align: center;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(44, 201, 122, 0.96), rgba(118, 233, 171, 0.96));
+  border: 1.5px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 18px 34px rgba(44, 201, 122, 0.28);
+  font-family: "Baloo 2", cursive;
+  font-size: 18px;
+  font-weight: 800;
+  color: #08361b;
+  pointer-events: none;
+}
+
+.meal-toast-enter-active,
+.meal-toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.meal-toast-enter-from,
+.meal-toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px) scale(0.98);
+}
+
+.meal-check-emoji {
+  font-size: 20px;
+  line-height: 1;
 }
 
 .boost-coral {
@@ -1329,12 +1237,12 @@ onBeforeUnmount(() => {
   box-shadow: 0 5px 18px rgba(255, 96, 88, 0.38);
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+  transition: box-shadow 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
 }
 
-.play-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(255, 96, 88, 0.45); }
+.play-btn:hover { box-shadow: 0 8px 22px rgba(255, 96, 88, 0.42); filter: brightness(1.01); }
 .play-btn:hover .button-svg:last-child :deep(svg) { transform: translateX(4px); }
-.play-btn:active { transform: scale(0.97); }
+.play-btn:active { box-shadow: 0 8px 22px rgba(255, 96, 88, 0.42); filter: brightness(1.01); }
 
 .play-btn::after {
   content: "";
@@ -1349,6 +1257,76 @@ onBeforeUnmount(() => {
   0% { box-shadow: 0 0 0 0 rgba(255, 96, 88, 0.4); }
   70% { box-shadow: 0 0 0 12px rgba(255, 96, 88, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 96, 88, 0); }
+}
+
+.launch-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(255, 176, 32, 0.14), transparent 32%),
+    radial-gradient(circle at bottom, rgba(59, 158, 255, 0.18), transparent 40%),
+    rgba(12, 16, 40, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.launch-card {
+  min-width: min(320px, calc(100vw - 40px));
+  padding: 24px 26px;
+  border-radius: 28px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(145deg, rgba(28, 32, 68, 0.96), rgba(52, 30, 93, 0.94));
+  box-shadow: 0 24px 70px rgba(10, 12, 28, 0.35);
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.launch-icon-wrap {
+  width: 70px;
+  height: 70px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: launchPulse 0.8s ease-in-out infinite alternate;
+}
+
+.launch-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 24px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.launch-sub {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(232, 237, 255, 0.78);
+}
+
+@keyframes launchPulse {
+  from { transform: scale(1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 24px rgba(59, 158, 255, 0.18); }
+  to { transform: scale(1.04); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 16px 32px rgba(255, 96, 88, 0.22); }
+}
+
+.launch-screen-enter-active,
+.launch-screen-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.launch-screen-enter-from,
+.launch-screen-leave-to {
+  opacity: 0;
+}
+
+.launch-screen-enter-from .launch-card,
+.launch-screen-leave-to .launch-card {
+  transform: translateY(16px) scale(0.96);
 }
 
 .wins-card {
@@ -1997,7 +1975,8 @@ onBeforeUnmount(() => {
   color: var(--ink2);
 }
 
-.dark-mode .date-tag {
+.dark-mode .date-tag,
+.dark-mode .time-tag {
   background: rgba(255, 255, 255, 0.04);
   color: var(--ink2);
 }
@@ -2026,6 +2005,18 @@ onBeforeUnmount(() => {
 
 .dark-mode .boost-violet {
   background: linear-gradient(145deg, rgba(52, 29, 90, 0.95), rgba(73, 32, 73, 0.92));
+}
+
+.dark-mode .meal-toast {
+  background: linear-gradient(135deg, rgba(11, 87, 53, 0.98), rgba(28, 143, 91, 0.96));
+  border-color: rgba(96, 235, 172, 0.22);
+  color: #d7ffe8;
+}
+
+.dark-mode .main-site-link {
+  background: linear-gradient(135deg, rgba(20, 94, 58, 0.9), rgba(16, 79, 79, 0.88));
+  border-color: rgba(96, 235, 172, 0.22);
+  color: #e7fff1;
 }
 
 .dark-mode .boost-pill strong,
@@ -2211,6 +2202,6 @@ onBeforeUnmount(() => {
   .meal-banner { flex-direction: column; gap: 14px; align-items: flex-start; }
   .nav-bar { width: calc(100% - 32px); justify-content: space-around; }
   .header { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
-  .header-right { width: 100%; align-items: flex-start; }
+  .header-right { width: 100%; max-width: none; justify-content: flex-start; }
 }
 </style>
