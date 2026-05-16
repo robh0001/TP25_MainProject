@@ -22,9 +22,11 @@ def response(status_code, body_dict):
         "statusCode": status_code,
         "headers": {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "http://localhost:5173"
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET,OPTIONS",
         },
-        "body": json.dumps(body_dict)
+        "body": json.dumps(body_dict, default=str),
     }
 
 
@@ -32,6 +34,11 @@ def lambda_handler(event, context):
     conn = None
 
     try:
+        method = event.get("requestContext", {}).get("http", {}).get("method", "GET")
+
+        if method == "OPTIONS":
+            return response(200, {"ok": True})
+
         path_params = event.get("pathParameters") or {}
         raw_username = path_params.get("username", "")
 
@@ -42,6 +49,7 @@ def lambda_handler(event, context):
 
         conn = get_conn()
         cur = conn.cursor()
+
         cur.execute(
             """
             SELECT
@@ -60,7 +68,10 @@ def lambda_handler(event, context):
                 progress_items,
                 next_action,
                 mission,
-                streak_days
+                streak_days,
+                roadmap_progress,
+                today_schedule,
+                planner_overrides
             FROM parent_profiles
             WHERE username = %s
             LIMIT 1
@@ -86,10 +97,14 @@ def lambda_handler(event, context):
             "supportStyle": row[9],
             "recommendations": row[10] or [],
             "dailyPlan": row[11] or {},
-            "progressItems": row[12] or [],
+            "progressItems": row[12] or {},
+
             "nextAction": row[13],
             "mission": row[14],
             "streakDays": row[15] or 0,
+            "roadmapProgress": row[16] or {},
+            "todaySchedule": row[17] or {},
+            "plannerOverrides": row[18] or {},
         }
 
         return response(200, profile)

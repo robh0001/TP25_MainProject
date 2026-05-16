@@ -475,11 +475,12 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useDynamicPlan } from '../composables/useDynamicPlan'
 
 const { state, savePlan } = useFamilyPlanStore()
+
 const {
   loading: planLoading,
   error: planError,
@@ -491,7 +492,9 @@ const TIME_ZONE = 'Australia/Melbourne'
 const LOCALE = 'en-AU'
 const DAY_LABEL_LENGTH = 3
 const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
 const API_BASE_URL = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
+const route = useRoute()
 
 const scheduleCategories = [
   { key: 'nutrition', label: 'Nutrition' },
@@ -506,6 +509,21 @@ const activeRoadmapWeek = ref(1)
 const selectedPlannerDay = ref(getTodayName())
 const isEditingPlanner = ref(false)
 const editablePlanner = ref({})
+const isSavingDashboard = ref(false)
+const dashboardSaveError = ref('')
+
+const showCelebration = computed(() => todayProgress.value === 100 && todayFullSchedule.value.length > 0)
+
+const confettiPieces = computed(() =>
+  Array.from({ length: 18 }, (_, index) => ({
+    id: index,
+    style: {
+      left: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 0.6}s`,
+      transform: `rotate(${Math.random() * 180}deg)`,
+    },
+  }))
+)
 
 const isSelectedPlannerDayToday = computed(() => {
   return activeRoadmapWeek.value === currentWeek.value &&
@@ -515,43 +533,157 @@ const isSelectedPlannerDayToday = computed(() => {
 const canModifySelectedPlannerDay = computed(() => isSelectedPlannerDayToday.value)
 
 function getTodayName() {
-  return new Date().toLocaleDateString(LOCALE, { weekday: 'long', timeZone: TIME_ZONE })
+  return new Date().toLocaleDateString(LOCALE, {
+    weekday: 'long',
+    timeZone: TIME_ZONE,
+  })
 }
 
-function getShortDayName(dayName) {
+function getShortDayName(dayName = '') {
   return dayName.slice(0, DAY_LABEL_LENGTH)
 }
 
-/** Convert a time string like "7:00 am" or "14:30" to a percentage of 6am-9pm (15h window) */
+function safeObject(value) {
+  if (!value || Array.isArray(value) || typeof value !== 'object') return {}
+  return value
+}
+
+function normalizeDashboardProfile(profile = {}) {
+  const progressItems = safeObject(profile.progressItems || profile.progress_items)
+
+  return {
+    ...profile,
+
+    username: profile.username || state.username || '',
+    userName: profile.username || state.userName || '',
+    user_name: profile.username || state.user_name || '',
+
+    childName: profile.childName ?? profile.child_name ?? state.childName,
+    child_name: profile.childName ?? profile.child_name ?? state.child_name,
+
+    parentName: profile.parentName ?? profile.parent_name ?? state.parentName,
+    parent_name: profile.parentName ?? profile.parent_name ?? state.parent_name,
+
+    dailyPlan: profile.dailyPlan ?? profile.daily_plan ?? state.dailyPlan ?? {},
+
+    progressItems,
+
+    roadmapProgress: safeObject(
+      profile.roadmapProgress ||
+      profile.roadmap_progress ||
+      progressItems.roadmapProgress ||
+      state.roadmapProgress
+    ),
+
+    todaySchedule: safeObject(
+      profile.todaySchedule ||
+      profile.today_schedule ||
+      progressItems.todaySchedule ||
+      state.todaySchedule
+    ),
+
+    plannerOverrides: safeObject(
+      profile.plannerOverrides ||
+      profile.planner_overrides ||
+      progressItems.plannerOverrides ||
+      state.plannerOverrides
+    ),
+
+    streakDays: profile.streakDays ?? profile.streak_days ?? state.streakDays ?? 0,
+    streak_days: profile.streakDays ?? profile.streak_days ?? state.streak_days ?? 0,
+
+    nextAction: profile.nextAction ?? profile.next_action ?? state.nextAction,
+    next_action: profile.nextAction ?? profile.next_action ?? state.next_action,
+
+    mission: profile.mission ?? state.mission,
+  }
+}
+
+async function fetchParentProfile(username) {
+  if (!username) throw new Error('Missing username')
+  if (!API_BASE_URL) throw new Error('Missing VITE_PARENT_PROFILES_API_BASE_URL')
+
+  const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(username)}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.error || `Profile load failed: ${response.status}`)
+  }
+
+  return data
+}
+
+async function loadDashboard(username) {
+  if (!username) return
+
+  localStorage.setItem('hk-parent-username', username)
+
+  savePlan({
+    ...state,
+    username,
+    userName: username,
+    user_name: username,
+  })
+
+  // Keep your existing dynamic plan loading
+  await fetchPlan(username)
+
+  // Then explicitly load the new dashboard persistence fields
+  const profile = await fetchParentProfile(username)
+  const normalizedProfile = normalizeDashboardProfile(profile)
+
+  savePlan({
+    ...state,
+    ...normalizedProfile,
+  })
+
+  activeRoadmapWeek.value = currentWeek.value
+  selectedPlannerDay.value = todayName.value
+}
+
 function slotTimePercent(timeStr) {
   if (!timeStr) return 0
-  const str = timeStr.toLowerCase().trim()
-  let h = 0, m = 0
+
+  const str = String(timeStr).toLowerCase().trim()
+  let h = 0
+  let m = 0
+
   const ampm = str.includes('am') || str.includes('pm')
+
   if (ampm) {
     const [timePart, period] = str.split(/\s*(am|pm)/i)
     const parts = timePart.trim().split(':')
-    h = parseInt(parts[0]) || 0
-    m = parseInt(parts[1]) || 0
+
+    h = parseInt(parts[0], 10) || 0
+    m = parseInt(parts[1], 10) || 0
+
     if (period === 'pm' && h !== 12) h += 12
     if (period === 'am' && h === 12) h = 0
   } else {
     const parts = str.split(':')
-    h = parseInt(parts[0]) || 0
-    m = parseInt(parts[1]) || 0
+    h = parseInt(parts[0], 10) || 0
+    m = parseInt(parts[1], 10) || 0
   }
+
   const totalMins = h * 60 + m
-  const startMins = 6 * 60  // 6am
-  const endMins = 21 * 60   // 9pm
+  const startMins = 6 * 60
+  const endMins = 21 * 60
+
   return Math.min(100, Math.max(0, ((totalMins - startMins) / (endMins - startMins)) * 100))
 }
 
-/** % of the current time through the day (6am-9pm) */
 const currentTimePercent = computed(() => {
   const now = new Date()
   const totalMins = now.getHours() * 60 + now.getMinutes()
   const startMins = 6 * 60
   const endMins = 21 * 60
+
   return Math.min(100, Math.max(0, ((totalMins - startMins) / (endMins - startMins)) * 100))
 })
 
@@ -560,66 +692,110 @@ function isUpcoming(slot) {
 }
 
 function catInitial(cat) {
-  return { nutrition: 'N', movement: 'M', sleep: 'S', routine: 'R', family: 'F' }[cat] || '·'
+  return {
+    nutrition: 'N',
+    movement: 'M',
+    sleep: 'S',
+    routine: 'R',
+    family: 'F',
+  }[cat] || '·'
 }
-
 
 function getCategoryLabel(category) {
-  return { nutrition: 'Nutrition', movement: 'Movement', sleep: 'Wind-down', routine: 'Routine', family: 'Family' }[category] || 'Routine'
+  return {
+    nutrition: 'Nutrition',
+    movement: 'Movement',
+    sleep: 'Wind-down',
+    routine: 'Routine',
+    family: 'Family',
+  }[category] || 'Routine'
 }
-
 
 function applyPlannerOverridesToSlot(slot) {
-  const overrides = state.plannerOverrides || {}
+  const overrides = safeObject(state.plannerOverrides)
   const edited = overrides[slot.id]
-  if (!edited) return slot
-  const category = edited.category || slot.category
-  return { ...slot, time: edited.time || slot.time, text: edited.text || slot.text, tip: edited.tip ?? slot.tip, category, categoryLabel: getCategoryLabel(category) }
-}
 
+  if (!edited) return slot
+
+  const category = edited.category || slot.category
+
+  return {
+    ...slot,
+    time: edited.time || slot.time,
+    text: edited.text || slot.text,
+    tip: edited.tip ?? slot.tip,
+    category,
+    categoryLabel: getCategoryLabel(category),
+  }
+}
 
 const childName = computed(() => state.childName || state.child_name || 'Your child')
 const streakDays = computed(() => state.streakDays || state.streak_days || 0)
 
 const timeOfDay = computed(() => {
   const h = new Date().getHours()
+
   if (h < 12) return 'morning'
   if (h < 17) return 'afternoon'
+
   return 'evening'
 })
 
 const todayName = computed(() => getTodayName())
 
-const fourWeekRoadmap = computed(() =>
-  buildRoadmapWeeks(state.roadmapProgress || {}).map(week => ({
+const fourWeekRoadmap = computed(() => {
+  const roadmapProgress = safeObject(state.roadmapProgress)
+
+  return buildRoadmapWeeks(roadmapProgress).map(week => ({
     ...week,
     dailyPlan: (week.dailyPlan || []).map(day => {
       const timeSlots = (day.timeSlots || []).map(applyPlannerOverridesToSlot)
-      const completed = timeSlots.filter(s => s.done).length
-      const progress = timeSlots.length ? Math.round((completed / timeSlots.length) * 100) : 0
-      return { ...day, timeSlots, completed, progress }
+      const completed = timeSlots.filter(slot => slot.done).length
+      const progress = timeSlots.length
+        ? Math.round((completed / timeSlots.length) * 100)
+        : 0
+
+      return {
+        ...day,
+        timeSlots,
+        completed,
+        progress,
+      }
     }),
   }))
-)
+})
 
 const isPlanReady = computed(() => fourWeekRoadmap.value.length > 0)
 
 const emptyRoadmapWeek = {
-  id: 1, week: 1, title: 'Loading...', summary: '', detail: '', parentTip: '',
-  actions: [], dailyPlan: [], dailyCompleted: 0, dailyTotal: 0,
-  weeklyCompleted: 0, totalItems: 0, completed: 0, progress: 0,
-  status: 'Not started', statusKey: 'not-started',
+  id: 1,
+  week: 1,
+  title: 'Loading...',
+  summary: '',
+  detail: '',
+  parentTip: '',
+  actions: [],
+  dailyPlan: [],
+  dailyCompleted: 0,
+  dailyTotal: 0,
+  weeklyCompleted: 0,
+  totalItems: 0,
+  completed: 0,
+  progress: 0,
+  status: 'Not started',
+  statusKey: 'not-started',
 }
 
 const selectedRoadmapWeek = computed(() =>
-  fourWeekRoadmap.value.find(w => w.id === activeRoadmapWeek.value)
+  fourWeekRoadmap.value.find(week => week.id === activeRoadmapWeek.value)
   || fourWeekRoadmap.value[0]
   || emptyRoadmapWeek
 )
 
 const currentWeek = computed(() => {
-  const first = fourWeekRoadmap.value.find(w => w.progress < 100)
-  return first?.week || fourWeekRoadmap.value[0]?.week || 1
+  const firstIncompleteWeek = fourWeekRoadmap.value.find(week => week.progress < 100)
+
+  return firstIncompleteWeek?.week || fourWeekRoadmap.value[0]?.week || 1
 })
 
 const currentFirstRoadmapDailyPlan = computed(() => {
@@ -637,6 +813,7 @@ const selectedPlannerDayData = computed(() => {
   const plan = selectedRoadmapWeek.value?.dailyPlan || []
   const selectedDay = plan.find(day => day.day === selectedPlannerDay.value)
   const monday = plan.find(day => day.day === 'Monday')
+
   const today = activeRoadmapWeek.value === currentWeek.value
     ? plan.find(day => day.day === todayName.value)
     : null
@@ -645,7 +822,12 @@ const selectedPlannerDayData = computed(() => {
     || today
     || monday
     || plan[0]
-    || { day: activeRoadmapWeek.value === currentWeek.value ? todayName.value : 'Monday', timeSlots: [], completed: 0, progress: 0 }
+    || {
+      day: activeRoadmapWeek.value === currentWeek.value ? todayName.value : 'Monday',
+      timeSlots: [],
+      completed: 0,
+      progress: 0,
+    }
 })
 
 const selectedWeekOpenItems = computed(() =>
@@ -653,17 +835,27 @@ const selectedWeekOpenItems = computed(() =>
 )
 
 const todayFullSchedule = computed(() => {
-  const week = fourWeekRoadmap.value.find(w => w.week === currentWeek.value)
-  const today = week?.dailyPlan?.find(d => d.day === todayName.value)
+  const week = fourWeekRoadmap.value.find(item => item.week === currentWeek.value)
+  const today = week?.dailyPlan?.find(day => day.day === todayName.value)
+
   return today?.timeSlots || []
 })
 
-const completedTodayCount = computed(() => todayFullSchedule.value.filter(s => s.done).length)
-const todayProgress = computed(() => todayFullSchedule.value.length ? Math.round((completedTodayCount.value / todayFullSchedule.value.length) * 100) : 0)
+const completedTodayCount = computed(() =>
+  todayFullSchedule.value.filter(slot => slot.done).length
+)
+
+const todayProgress = computed(() =>
+  todayFullSchedule.value.length
+    ? Math.round((completedTodayCount.value / todayFullSchedule.value.length) * 100)
+    : 0
+)
 
 const weeklyProgress = computed(() => {
-  const week = fourWeekRoadmap.value.find(w => w.week === currentWeek.value)
+  const week = fourWeekRoadmap.value.find(item => item.week === currentWeek.value)
+
   if (!week?.dailyPlan?.length) return []
+
   return week.dailyPlan.map(day => ({
     label: day.day.slice(0, DAY_LABEL_LENGTH),
     value: day.progress,
@@ -674,44 +866,98 @@ const weeklyProgress = computed(() => {
 
 const weeklyAverage = computed(() => {
   if (!weeklyProgress.value.length) return 0
-  return Math.round(weeklyProgress.value.reduce((s, d) => s + d.value, 0) / weeklyProgress.value.length)
+
+  return Math.round(
+    weeklyProgress.value.reduce((sum, day) => sum + day.value, 0) / weeklyProgress.value.length
+  )
 })
 
-const totalRoadmapActions = computed(() => fourWeekRoadmap.value.reduce((s, w) => s + w.totalItems, 0))
-const completedRoadmapActions = computed(() => fourWeekRoadmap.value.reduce((s, w) => s + w.completed, 0))
-const roadmapCompletion = computed(() => totalRoadmapActions.value ? Math.round((completedRoadmapActions.value / totalRoadmapActions.value) * 100) : 0)
+const totalRoadmapActions = computed(() =>
+  fourWeekRoadmap.value.reduce((sum, week) => sum + week.totalItems, 0)
+)
+
+const completedRoadmapActions = computed(() =>
+  fourWeekRoadmap.value.reduce((sum, week) => sum + week.completed, 0)
+)
+
+const roadmapCompletion = computed(() =>
+  totalRoadmapActions.value
+    ? Math.round((completedRoadmapActions.value / totalRoadmapActions.value) * 100)
+    : 0
+)
 
 const roadmapRingStyle = computed(() => {
-  const p = roadmapCompletion.value
-  const color = p === 100 ? '#327c70' : p > 0 ? '#e6865f' : 'rgba(22,48,43,.12)'
-  return { background: `conic-gradient(${color} ${p}%, rgba(23,32,51,0.07) ${p}%)` }
+  const progress = roadmapCompletion.value
+  const color = progress === 100
+    ? '#327c70'
+    : progress > 0
+      ? '#e6865f'
+      : 'rgba(22,48,43,.12)'
+
+  return {
+    background: `conic-gradient(${color} ${progress}%, rgba(23,32,51,0.07) ${progress}%)`,
+  }
 })
 
-
 function getCanonicalActionId(slotOrId) {
-  if (typeof slotOrId === 'string') return slotOrId.replace('today-schedule-', '')
-  return slotOrId?.sourceSlotId || slotOrId?.id?.replace('today-schedule-', '') || slotOrId?.id
+  if (slotOrId === null || slotOrId === undefined) return ''
+
+  if (typeof slotOrId === 'string' || typeof slotOrId === 'number') {
+    return String(slotOrId).replace('today-schedule-', '')
+  }
+
+  return String(
+    slotOrId.sourceSlotId ||
+    slotOrId.id ||
+    ''
+  ).replace('today-schedule-', '')
+}
+
+function buildProgressItems(updatedState) {
+  return {
+    ...(safeObject(updatedState.progressItems) || {}),
+    roadmapProgress: safeObject(updatedState.roadmapProgress),
+    todaySchedule: safeObject(updatedState.todaySchedule),
+    plannerOverrides: safeObject(updatedState.plannerOverrides),
+  }
 }
 
 function togglePlanAction(slotOrId) {
   const actionId = getCanonicalActionId(slotOrId)
+
   if (!actionId) return
-  const nextDone = !(state.roadmapProgress || {})[actionId]
-  saveAndPersist({
+
+  const currentRoadmapProgress = safeObject(state.roadmapProgress)
+  const currentTodaySchedule = safeObject(state.todaySchedule)
+
+  const nextDone = !currentRoadmapProgress[actionId]
+
+  const updatedState = {
     ...state,
-    roadmapProgress: { ...(state.roadmapProgress || {}), [actionId]: nextDone },
-    todaySchedule: { ...(state.todaySchedule || {}), [`today-schedule-${actionId}`]: nextDone },
-  })
+    roadmapProgress: {
+      ...currentRoadmapProgress,
+      [actionId]: nextDone,
+    },
+    todaySchedule: {
+      ...currentTodaySchedule,
+      [`today-schedule-${actionId}`]: nextDone,
+    },
+  }
+
+  updatedState.progressItems = buildProgressItems(updatedState)
+
+  saveAndPersist(updatedState)
 }
 
-function toggleTodayScheduleSlot(slot) { togglePlanAction(slot) }
+function toggleTodayScheduleSlot(slot) {
+  togglePlanAction(slot)
+}
 
 function toggleRoadmapDailyAction(actionId) {
   if (!canModifySelectedPlannerDay.value) return
 
   togglePlanAction(actionId)
 }
-
 
 function startEditingPlanner() {
   if (!canModifySelectedPlannerDay.value) return
@@ -731,42 +977,108 @@ function startEditingPlanner() {
   isEditingPlanner.value = true
 }
 
-function cancelEditingPlanner() { editablePlanner.value = {}; isEditingPlanner.value = false }
+function cancelEditingPlanner() {
+  editablePlanner.value = {}
+  isEditingPlanner.value = false
+}
 
 function saveEditedPlanner() {
-  saveAndPersist({ ...state, plannerOverrides: { ...(state.plannerOverrides || {}), ...editablePlanner.value } })
+  const updatedState = {
+    ...state,
+    plannerOverrides: {
+      ...safeObject(state.plannerOverrides),
+      ...safeObject(editablePlanner.value),
+    },
+  }
+
+  updatedState.progressItems = buildProgressItems(updatedState)
+
+  saveAndPersist(updatedState)
+
   editablePlanner.value = {}
   isEditingPlanner.value = false
 }
 
 function saveAndPersist(updatedState) {
+  dashboardSaveError.value = ''
+
   savePlan(updatedState)
-  persistDashboardUpdate(updatedState).catch(e => console.error('Sync failed:', e))
+
+  persistDashboardUpdate(updatedState).catch(error => {
+    dashboardSaveError.value = error.message || 'Dashboard sync failed'
+    console.error('Sync failed:', error)
+  })
 }
 
 async function persistDashboardUpdate(updatedState) {
   const username = updatedState.username || state.username
+
   if (!username) throw new Error('Missing username')
   if (!API_BASE_URL) throw new Error('Missing VITE_PARENT_PROFILES_API_BASE_URL')
-  const response = await fetch(`${API_BASE_URL}/parent-profiles/${encodeURIComponent(username)}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      dailyPlan: updatedState.dailyPlan ?? state.dailyPlan,
-      roadmapProgress: updatedState.roadmapProgress ?? state.roadmapProgress ?? {},
-      todaySchedule: updatedState.todaySchedule ?? state.todaySchedule ?? {},
-      plannerOverrides: updatedState.plannerOverrides ?? state.plannerOverrides ?? {},
-      streakDays: updatedState.streakDays ?? state.streakDays ?? 0,
-      nextAction: updatedState.nextAction ?? state.nextAction,
-      mission: updatedState.mission ?? state.mission,
-    }),
-  })
-  const data = await response.json().catch(() => ({}))
-  if (!response.ok) throw new Error(data.error || `Update failed: ${response.status}`)
-  return data
+
+  const roadmapProgress = safeObject(updatedState.roadmapProgress)
+  const todaySchedule = safeObject(updatedState.todaySchedule)
+  const plannerOverrides = safeObject(updatedState.plannerOverrides)
+
+  const progressItems = {
+    ...safeObject(updatedState.progressItems),
+    roadmapProgress,
+    todaySchedule,
+    plannerOverrides,
+  }
+
+  const payload = {
+    dailyPlan: updatedState.dailyPlan ?? state.dailyPlan ?? {},
+    progressItems,
+
+    // These match your new database columns
+    roadmapProgress,
+    todaySchedule,
+    plannerOverrides,
+
+    streakDays: updatedState.streakDays ?? state.streakDays ?? 0,
+    nextAction: updatedState.nextAction ?? state.nextAction,
+    mission: updatedState.mission ?? state.mission,
+  }
+
+  console.log('Saving dashboard update:', payload)
+
+  isSavingDashboard.value = true
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(username)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    const data = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+      throw new Error(data.error || `Update failed: ${response.status}`)
+    }
+
+    const normalizedResponse = normalizeDashboardProfile({
+      ...updatedState,
+      ...data,
+    })
+
+    savePlan({
+      ...state,
+      ...normalizedResponse,
+    })
+
+    return data
+  } finally {
+    isSavingDashboard.value = false
+  }
 }
 
-function onScroll() { isScrolled.value = window.scrollY > 40 }
+function onScroll() {
+  isScrolled.value = window.scrollY > 40
+}
 
 watch(currentWeek, (nextWeek, previousWeek) => {
   if (
@@ -777,22 +1089,40 @@ watch(currentWeek, (nextWeek, previousWeek) => {
   }
 }, { immediate: true })
 
-watch(activeRoadmapWeek, (weekId) => {
+watch(activeRoadmapWeek, weekId => {
   selectedPlannerDay.value = weekId === currentWeek.value ? todayName.value : 'Monday'
 })
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
-  if (state.username) {
-    fetchPlan(state.username).then(() => { activeRoadmapWeek.value = currentWeek.value
-      selectedPlannerDay.value = todayName.value })
+
+  const routeUsername =
+    route.query.username ||
+    route.params.username ||
+    ''
+
+  const savedUsername =
+    state.username ||
+    state.userName ||
+    state.user_name ||
+    localStorage.getItem('hk-parent-username') ||
+    ''
+
+  const username = String(routeUsername || savedUsername).trim()
+
+  if (username) {
+    loadDashboard(username).catch(error => {
+      console.error('Dashboard load failed:', error)
+    })
   }
 })
-onUnmounted(() => { window.removeEventListener('scroll', onScroll) })
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+})
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   --cream: #fffaf2;

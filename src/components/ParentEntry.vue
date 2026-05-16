@@ -130,7 +130,9 @@ import { useRouter, RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 
 const router = useRouter()
-const { savePlan, clearPlan } = useFamilyPlanStore()
+const { state, savePlan, clearPlan } = useFamilyPlanStore()
+
+const API_BASE_URL = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
 
 const isLoaded = ref(false)
 const newUsername = ref('')
@@ -145,7 +147,18 @@ onMounted(() => {
 })
 
 function normalizeUsername(value) {
-  return value.trim().toLowerCase().replace(/\s+/g, '')
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, '')
+}
+
+function saveUsernameSession(username) {
+  localStorage.setItem('hk-parent-username', username)
+
+  savePlan({
+    ...state,
+    username,
+    userName: username,
+    user_name: username,
+  })
 }
 
 async function startNewUser() {
@@ -156,16 +169,23 @@ async function startNewUser() {
     return
   }
 
+  if (!API_BASE_URL) {
+    newUserError.value = 'Missing API URL. Please check VITE_PARENT_PROFILES_API_BASE_URL.'
+    return
+  }
+
   const username = normalizeUsername(newUsername.value)
 
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/check-username?username=${encodeURIComponent(username)}`
+      `${API_BASE_URL}/check-username?username=${encodeURIComponent(username)}`
     )
 
-    if (!response.ok) throw new Error('Family code check failed')
+    const data = await response.json().catch(() => ({}))
 
-    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Family code check failed')
+    }
 
     if (!data.available) {
       newUserError.value = 'That family code is already taken. Please choose another one.'
@@ -173,9 +193,14 @@ async function startNewUser() {
     }
 
     clearPlan()
-    savePlan({ username })
-    router.push('/parent-quiz')
-  } catch {
+    saveUsernameSession(username)
+
+    router.push({
+      path: '/parent-quiz',
+      query: { username },
+    })
+  } catch (error) {
+    console.error('Family code check failed:', error)
     newUserError.value = 'Unable to check family code right now. Please try again.'
   }
 }
@@ -188,27 +213,55 @@ async function continueReturningUser() {
     return
   }
 
+  if (!API_BASE_URL) {
+    returningUserError.value = 'Missing API URL. Please check VITE_PARENT_PROFILES_API_BASE_URL.'
+    return
+  }
+
   const username = normalizeUsername(returningUsername.value)
 
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL}/${encodeURIComponent(username)}`
+      `${API_BASE_URL}/${encodeURIComponent(username)}`
     )
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
 
     if (response.status === 404) {
       returningUserError.value = 'We could not find that family plan. Check your code or start a new plan.'
       return
     }
 
-    if (!response.ok) throw new Error(data.error || 'Load failed')
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Load failed')
+    }
 
-    savePlan(data)
+    savePlan({
+      ...data,
+      username: data.username || username,
+      userName: data.userName || data.username || username,
+      user_name: data.user_name || data.username || username,
+
+      roadmapProgress: data.roadmapProgress || data.roadmap_progress || {},
+      roadmap_progress: data.roadmap_progress || data.roadmapProgress || {},
+
+      todaySchedule: data.todaySchedule || data.today_schedule || {},
+      today_schedule: data.today_schedule || data.todaySchedule || {},
+
+      plannerOverrides: data.plannerOverrides || data.planner_overrides || {},
+      planner_overrides: data.planner_overrides || data.plannerOverrides || {},
+    })
+
+    localStorage.setItem('hk-parent-username', username)
 
     const redirectPath = router.currentRoute.value.query.redirect
-    router.push(typeof redirectPath === 'string' ? redirectPath : '/parent-dashboard')
-  } catch {
+
+    router.push({
+      path: typeof redirectPath === 'string' ? redirectPath : '/parent-dashboard',
+      query: { username },
+    })
+  } catch (error) {
+    console.error('Returning profile load failed:', error)
     returningUserError.value = 'Unable to load your profile right now. Please try again.'
   }
 }

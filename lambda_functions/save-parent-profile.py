@@ -9,16 +9,17 @@ def normalize_username(username: str) -> str:
 
 def get_conn():
     return pg8000.connect(
-        host=os.environ["DB_HOST"],
+        host=os.environ["DB_HOST"].strip().strip('"').strip("'"),
         port=int(os.environ.get("DB_PORT", "5432")),
-        user=os.environ["DB_USER"],
-        password=os.environ["DB_PASSWORD"],
-        database=os.environ["DB_NAME"],
+        user=os.environ["DB_USER"].strip().strip('"').strip("'"),
+        password=os.environ["DB_PASSWORD"].strip().strip('"').strip("'"),
+        database=os.environ["DB_NAME"].strip().strip('"').strip("'"),
     )
 
 
 def parse_body(event):
     body = event.get("body")
+
     if not body:
         return {}
 
@@ -37,9 +38,11 @@ def response(status_code, body_dict):
         "statusCode": status_code,
         "headers": {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "http://localhost:5173"
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "POST,OPTIONS",
         },
-        "body": json.dumps(body_dict)
+        "body": json.dumps(body_dict, default=str),
     }
 
 
@@ -47,6 +50,11 @@ def lambda_handler(event, context):
     conn = None
 
     try:
+        method = event.get("requestContext", {}).get("http", {}).get("method", "POST")
+
+        if method == "OPTIONS":
+            return response(200, {"ok": True})
+
         payload = parse_body(event)
 
         raw_username = payload.get("username", "")
@@ -66,10 +74,16 @@ def lambda_handler(event, context):
         support_style = payload.get("supportStyle")
         recommendations = payload.get("recommendations", [])
         daily_plan = payload.get("dailyPlan", {})
-        progress_items = payload.get("progressItems", [])
+        progress_items = payload.get("progressItems", {})
+
         next_action = payload.get("nextAction")
         mission = payload.get("mission")
         streak_days = int(payload.get("streakDays", 0))
+
+        # New dashboard progress fields
+        roadmap_progress = payload.get("roadmapProgress", {})
+        today_schedule = payload.get("todaySchedule", {})
+        planner_overrides = payload.get("plannerOverrides", {})
 
         conn = get_conn()
         cur = conn.cursor()
@@ -92,14 +106,19 @@ def lambda_handler(event, context):
                 progress_items,
                 next_action,
                 mission,
-                streak_days
+                streak_days,
+                roadmap_progress,
+                today_schedule,
+                planner_overrides
             )
             VALUES (
                 %s, %s, %s, %s, %s,
                 %s::jsonb, %s::jsonb, %s, %s, %s,
                 %s::jsonb, %s::jsonb, %s::jsonb,
-                %s, %s, %s
+                %s, %s, %s,
+                %s::jsonb, %s::jsonb, %s::jsonb
             )
+            RETURNING username
             """,
             (
                 username,
@@ -118,15 +137,22 @@ def lambda_handler(event, context):
                 next_action,
                 mission,
                 streak_days,
+                json.dumps(roadmap_progress),
+                json.dumps(today_schedule),
+                json.dumps(planner_overrides),
             ),
         )
 
+        saved_row = cur.fetchone()
         conn.commit()
 
         return response(201, {
             "success": True,
             "message": "Parent profile saved successfully",
-            "username": username
+            "username": saved_row[0],
+            "roadmapProgress": roadmap_progress,
+            "todaySchedule": today_schedule,
+            "plannerOverrides": planner_overrides,
         })
 
     except Exception as e:

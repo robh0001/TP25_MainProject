@@ -19,6 +19,7 @@ def get_conn():
 
 def parse_body(event):
     body = event.get("body")
+
     if not body:
         return {}
 
@@ -37,9 +38,11 @@ def response(status_code, body_dict):
         "statusCode": status_code,
         "headers": {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "http://localhost:5173"
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "PUT,OPTIONS",
         },
-        "body": json.dumps(body_dict)
+        "body": json.dumps(body_dict, default=str),
     }
 
 
@@ -47,6 +50,11 @@ def lambda_handler(event, context):
     conn = None
 
     try:
+        method = event.get("requestContext", {}).get("http", {}).get("method", "PUT")
+
+        if method == "OPTIONS":
+            return response(200, {"ok": True})
+
         path_params = event.get("pathParameters") or {}
         raw_username = path_params.get("username", "")
 
@@ -62,18 +70,22 @@ def lambda_handler(event, context):
         next_action = payload.get("nextAction")
         mission = payload.get("mission")
 
+        # New dashboard progress fields
+        roadmap_progress = payload.get("roadmapProgress")
+        today_schedule = payload.get("todaySchedule")
+        planner_overrides = payload.get("plannerOverrides")
+
         conn = get_conn()
         cur = conn.cursor()
 
-        # First check profile exists
         cur.execute(
             "SELECT 1 FROM parent_profiles WHERE username = %s LIMIT 1",
             (username,)
         )
+
         if cur.fetchone() is None:
             return response(404, {"error": "profile not found"})
 
-        # Build dynamic update query
         updates = []
         values = []
 
@@ -84,6 +96,18 @@ def lambda_handler(event, context):
         if progress_items is not None:
             updates.append("progress_items = %s::jsonb")
             values.append(json.dumps(progress_items))
+
+        if roadmap_progress is not None:
+            updates.append("roadmap_progress = %s::jsonb")
+            values.append(json.dumps(roadmap_progress))
+
+        if today_schedule is not None:
+            updates.append("today_schedule = %s::jsonb")
+            values.append(json.dumps(today_schedule))
+
+        if planner_overrides is not None:
+            updates.append("planner_overrides = %s::jsonb")
+            values.append(json.dumps(planner_overrides))
 
         if streak_days is not None:
             updates.append("streak_days = %s")
@@ -106,8 +130,13 @@ def lambda_handler(event, context):
             UPDATE parent_profiles
             SET {", ".join(updates)}
             WHERE username = %s
-            RETURNING username
+            RETURNING
+                username,
+                roadmap_progress,
+                today_schedule,
+                planner_overrides
         """
+
         values.append(username)
 
         cur.execute(query, tuple(values))
@@ -117,12 +146,16 @@ def lambda_handler(event, context):
         return response(200, {
             "success": True,
             "message": "Parent profile updated successfully",
-            "username": updated_row[0]
+            "username": updated_row[0],
+            "roadmapProgress": updated_row[1] or {},
+            "todaySchedule": updated_row[2] or {},
+            "plannerOverrides": updated_row[3] or {},
         })
 
     except Exception as e:
         if conn:
             conn.rollback()
+
         return response(500, {"error": str(e)})
 
     finally:
