@@ -36,12 +36,6 @@ const routes = [
     meta: { requiresParentProfile: true },
   },
   {
-    path: '/parent-roadmap',
-    name: 'ParentRoadmap',
-    component: ParentRoadmapPage,
-    meta: { requiresParentProfile: true },
-  },
-  {
     path: '/parent-nutrition-tools',
     name: 'ParentNutritionTools',
     component: ParentNutritionToolsPage,
@@ -75,8 +69,8 @@ const routes = [
     component: KidsWinsPage,
   },
   {
-    path: '/satistics',
-    name: 'satistics',
+    path: '/statistics',
+    name: 'statistics',
     component: StatisticPage,
   },
   {

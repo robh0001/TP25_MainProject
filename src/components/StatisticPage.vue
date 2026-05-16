@@ -1,686 +1,1602 @@
 <template>
-    <div class="stats-page">
-  
-      <!-- Ambient background -->
-      <div class="bg" aria-hidden="true">
-        <div class="bg-blob blob-a"></div>
-        <div class="bg-blob blob-b"></div>
-        <div class="bg-blob blob-c"></div>
-        <div class="bg-grid"></div>
-      </div>
-  
-      <!-- Header -->
-      <header class="site-header">
-        <RouterLink to="/" class="brand">
-          <div class="brand-mark">
-            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.4"/>
-              <path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor"/>
-            </svg>
+  <div class="stats-page">
+        <header class="header" :class="{ scrolled: isScrolled }">
+        <div class="header-inner">
+          <RouterLink to="/" class="logo">
+            <div class="logo-icon">
+              <svg viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5" />
+                <path
+                  d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <span>HealthyKids</span>
+          </RouterLink>
+
+          <nav class="nav" aria-label="Nutrition page navigation">
+            <RouterLink to="/" class="nav-a">Home</RouterLink>
+            <RouterLink to="/parent-dashboard" class="nav-a">Dashboard</RouterLink>
+            <RouterLink to="/parent-nutrition-tools" class="nav-a">Nutrition</RouterLink>
+            <RouterLink to="/statistics" class="nav-a">Statistics</RouterLink>
+            <RouterLink to="/young-person-dashboard" class="nav-a">Kids view</RouterLink>
+          </nav>
+
+          <div class="nav-cta">
+            <RouterLink to="/parent-quiz" class="nav-link">Retake quiz</RouterLink>
+            <RouterLink to="/parent-dashboard" class="nav-btn">
+              Back to dashboard
+              <svg width="11" height="11" viewBox="0 0 12 12">
+                <path
+                  d="M2 6h8M7 3l3 3-3 3"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </RouterLink>
           </div>
-          <span class="brand-name">HealthyKids</span>
-        </RouterLink>
-        <nav class="nav-links">
-          <RouterLink to="/parent-dashboard">Dashboard</RouterLink>
-          <RouterLink to="/parent-roadmap">Roadmap</RouterLink>
-          <RouterLink to="/young-person-dashboard">Kids view</RouterLink>
-        </nav>
-        <RouterLink to="/parent-dashboard" class="back-btn">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Back
-        </RouterLink>
+        </div>
       </header>
-  
-      <main class="page-main">
-  
+    <main class="page-main">
+      <!-- Loading -->
+      <div v-if="insightsLoading" class="state-view">
+        <div class="leaf-spinner">
+          <svg viewBox="0 0 60 60" fill="none">
+            <path d="M30 8C17 18 14 28 30 52C46 28 43 18 30 8Z" fill="#276d45" opacity="0.15"/>
+            <path d="M30 8C17 18 14 28 30 52C46 28 43 18 30 8Z" stroke="#276d45" stroke-width="2" stroke-dasharray="120" stroke-dashoffset="120" class="leaf-draw"/>
+          </svg>
+        </div>
+        <p>Getting your insights ready...</p>
+      </div>
+
+      <!-- Error -->
+      <div v-else-if="insightsError" class="state-view state-error">
+        <p>{{ insightsError }}</p>
+        <button class="pill-btn" @click="fetchInsights">Try again</button>
+      </div>
+
+      <template v-else>
         <!-- Hero -->
         <section class="hero">
-          <div class="hero-left">
-            <div class="pill">
-              <span class="pill-dot"></span>
-              Health statistics · Australia
-            </div>
-            <h1 class="hero-title">Statistics</h1>
-            <p class="hero-sub">Showing data for <strong>{{ profileSummary }}</strong></p>
+          <div class="hero-copy" :class="{ 'is-visible': heroVisible }">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Australia · Children aged 5-12</p>
+            <h1>The health<br/>  <em>picture</em> for<br/>Australian kids</h1>
+            <p class="hero-sub">Select a topic below to explore the numbers - and what they mean for your family.</p>
           </div>
-          <div class="insight-card">
-            <p class="insight-eyebrow">Key insight</p>
-            <h2 class="insight-title">{{ assistantTitle }}</h2>
-            <p class="insight-body">{{ assistantMessage }}</p>
-            <div class="insight-pulse"></div>
-            <div class="insight-decoration" aria-hidden="true">
-              <svg viewBox="0 0 200 200" fill="none"><circle cx="100" cy="100" r="80" stroke="rgba(255,255,255,0.06)" stroke-width="1"/><circle cx="100" cy="100" r="55" stroke="rgba(255,255,255,0.06)" stroke-width="1"/><circle cx="100" cy="100" r="30" stroke="rgba(255,255,255,0.08)" stroke-width="1"/></svg>
-            </div>
-          </div>
-        </section>
-  
-        <!-- KPI Row -->
-        <section class="kpi-row">
-          <button
-            v-for="card in kpiCards"
-            :key="card.id"
-            class="kpi-tile"
-            :class="{ 'kpi-active': activeKpi === card.id, 'kpi-warn': card.warning }"
-            @click="activeKpi = activeKpi === card.id ? null : card.id"
-          >
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap" :class="card.iconBg">
-                <span class="kpi-icon">{{ card.icon }}</span>
-              </div>
-              <svg class="kpi-chevron" :class="{ rotated: activeKpi === card.id }" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <strong class="kpi-val">{{ card.value }}</strong>
-            <span class="kpi-label">{{ card.label }}</span>
-            <transition name="slide-note">
-              <p v-if="activeKpi === card.id" class="kpi-detail">{{ card.detail }}</p>
-            </transition>
-          </button>
-        </section>
-  
-        <!-- Filters -->
-        <section class="filter-bar">
-          <div class="filter-label-wrap">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            <span class="filter-label">Filter data</span>
-          </div>
-          <div class="filter-chips">
-            <label class="chip-select">
-              <span>Gender</span>
-              <select v-model="selectedGender">
-                <option value="all">All children</option>
-                <option value="boys">Boys</option>
-                <option value="girls">Girls</option>
-              </select>
-            </label>
-            <label class="chip-select">
-              <span>Activity type</span>
-              <select v-model="selectedActivity">
-                <option value="inactivity">Daily inactivity</option>
-                <option value="light">Light activity</option>
-                <option value="moderate_vigorous">Moderate & vigorous</option>
-              </select>
-            </label>
-            <label class="chip-select">
-              <span>Sleep period</span>
-              <select v-model="selectedSleep">
-                <option value="weeknight">Weeknight</option>
-                <option value="weekend">Weekend night</option>
-                <option value="overall">Per night avg</option>
-              </select>
-            </label>
-          </div>
-          <div class="filter-active-tag" v-if="selectedGender !== 'all'">
-            {{ selectedGender }}
-            <button @click="selectedGender = 'all'">×</button>
-          </div>
-        </section>
-  
-        <!-- Charts -->
-        <div class="charts-grid">
-  
-          <!-- BMI Distribution — label | bar | stat -->
-          <article class="chart-card bmi-card">
-            <div class="chart-head">
-              <div>
-                <span class="kicker">BMI distribution</span>
-                <h3>{{ trendLabel }} aged 5–12</h3>
-              </div>
-              <div class="chart-head-badge">
-                <span class="badge-dot badge-green"></span>
-                {{ bmiHealthyPct }}% healthy weight
-              </div>
-            </div>
-  
-            <div class="bmi-bars">
-              <div
-                v-for="item in bmiChartData"
-                :key="item.key"
-                class="bmi-row"
-                :class="{ 'bmi-selected': selectedBmi === item.key }"
-                @click="selectedBmi = selectedBmi === item.key ? null : item.key"
+
+          <div class="gender-toggle" :class="{ 'is-visible': heroVisible }">
+            <p class="toggle-label">Viewing data for</p>
+            <div class="toggle-pills">
+              <button
+                v-for="g in genders"
+                :key="g.value"
+                class="toggle-pill"
+                :class="{ active: selectedGender === g.value }"
+                @click="selectedGender = g.value"
               >
-                <!-- Label column -->
-                <div class="bmi-label-col">
-                  <span class="bmi-dot" :style="{ background: item.color }"></span>
-                  <span class="bmi-name">{{ item.label }}</span>
+                {{ g.label }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Explorer -->
+        <section class="insight-explorer">
+          <div class="explorer-tabs">
+            <button
+              v-for="(tab, i) in tabs"
+              :key="tab.key"
+              class="explorer-tab"
+              :class="{ active: activeTab === i }"
+              @click="setTab(i)"
+            >
+              <span class="tab-icon">{{ tab.icon }}</span>
+              <span class="tab-label">{{ tab.label }}</span>
+              <span class="tab-dot" :style="{ background: tab.color }"></span>
+            </button>
+          </div>
+
+          <transition name="panel-slide" mode="out-in">
+
+            <!-- BMI Panel -->
+            <div v-if="activeTab === 0" key="bmi" class="explorer-panel">
+              <div class="panel-intro">
+                <h2>{{ trendLabel }}'s weight picture</h2>
+                <p>Tap a category to learn more.</p>
+              </div>
+              <div class="bmi-layout">
+                <div class="ring-wrap">
+                  <svg class="ring-svg" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#eef1ec" stroke-width="18"/>
+                    <circle
+                      v-for="(seg, i) in bmiRingSegs"
+                      :key="seg.key"
+                      cx="100" cy="100" r="80" fill="none"
+                      :stroke="seg.color" stroke-width="18" stroke-linecap="round"
+                      :stroke-dasharray="`${seg.dash} 502`"
+                      :stroke-dashoffset="seg.offset"
+                      :style="{ transition: `stroke-dasharray 0.9s ease ${i*0.15}s, stroke-dashoffset 0.9s ease ${i*0.15}s` }"
+                      transform="rotate(-90 100 100)"
+                    />
+                    <text x="100" y="93" text-anchor="middle" class="ring-big">{{ combinedVal }}%</text>
+                    <text x="100" y="112" text-anchor="middle" class="ring-sub">above healthy</text>
+                  </svg>
                 </div>
-                <!-- Bar column -->
-                <div class="bmi-bar-col">
-                  <div class="bmi-track">
-                    <div
-                      class="bmi-fill"
-                      :style="{ width: bmiBarWidth(item) + '%', background: item.color }"
-                    ></div>
+                <div class="bmi-cards">
+                  <button
+                    v-for="item in bmiChartData"
+                    :key="item.key"
+                    class="bmi-cat-card"
+                    :class="{ active: selectedBmi === item.key }"
+                    :style="{ '--accent': item.color }"
+                    @click="selectedBmi = selectedBmi === item.key ? null : item.key"
+                  >
+                    <div class="cat-swatch" :style="{ background: item.color }"></div>
+                    <div class="cat-body">
+                      <span class="cat-name">{{ item.label }}</span>
+                      <strong class="cat-pct">{{ item.value }}%</strong>
+                      <span class="cat-count">{{ item.count }}k kids</span>
+                    </div>
+                    <div class="cat-arrow">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path :d="selectedBmi===item.key ? 'M4 6l4 4 4-4' : 'M6 4l4 4-4 4'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <transition name="expand-note">
+                      <div v-if="selectedBmi === item.key" class="cat-note">{{ bmiNoteFor(item) }}</div>
+                    </transition>
+                  </button>
+                </div>
+              </div>
+              <div class="affirmation-strip">
+                <svg class="aff-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <p>Small daily habits - a 20-minute walk, less screen time, earlier bedtimes - have the biggest long-term impact for kids in every category.</p>
+              </div>
+            </div>
+
+            <!-- Activity Panel -->
+            <div v-else-if="activeTab === 1" key="activity" class="explorer-panel">
+              <div class="panel-intro">
+                <h2>How active are kids really?</h2>
+                <p>Choose an activity type to explore.</p>
+              </div>
+              <div class="activity-type-pills">
+                <button
+                  v-for="a in activityTypes"
+                  :key="a.value"
+                  class="activity-pill"
+                  :class="{ active: selectedActivity === a.value }"
+                  @click="selectedActivity = a.value"
+                >{{ a.label }}</button>
+              </div>
+              <div class="activity-bars">
+                <div
+                  v-for="(item, i) in orderedActivityBands"
+                  :key="item.label"
+                  class="act-bar-card"
+                  :class="{ highlight: activityFocusBand && item.label === activityFocusBand.label }"
+                  :style="{ animationDelay: `${i * 0.07}s` }"
+                >
+                  <div class="act-bar-label">{{ shorten(item.label) }}</div>
+                  <div class="act-bar-track">
+                    <div class="act-bar-fill" :style="{ width: cleanBarWidth(item.value, activityMaxVal) + '%', background: actColor(item.value) }"></div>
                   </div>
+                  <div class="act-bar-pct">{{ item.value }}%</div>
+                  <div v-if="activityFocusBand && item.label === activityFocusBand.label" class="act-bar-badge">Most common</div>
                 </div>
-                <!-- Stat column -->
-                <div class="bmi-stat-col">
-                  <strong class="bmi-pct">{{ item.value }}%</strong>
-                  <span class="bmi-count">{{ item.count }}k children</span>
-                </div>
+              </div>
+              <div class="affirmation-strip">
+                <svg class="aff-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <p>{{ activityInsight }}</p>
               </div>
             </div>
-  
-            <transition name="slide-note">
-              <div v-if="selectedBmiItem" class="chart-note chart-note--bmi">
-                <div class="cn-icon">{{ selectedBmiIcon }}</div>
-                <div>
-                  <strong>{{ selectedBmiItem.label }}</strong>
-                  <p>{{ selectedBmiInsight }}</p>
+
+            <!-- Sleep Panel -->
+            <div v-else-if="activeTab === 2" key="sleep" class="explorer-panel">
+              <div class="panel-intro">
+                <h2>Are kids getting enough sleep?</h2>
+                <p>Choose a sleep period below.</p>
+              </div>
+              <div class="activity-type-pills">
+                <button
+                  v-for="s in sleepTypes"
+                  :key="s.value"
+                  class="activity-pill"
+                  :class="{ active: selectedSleep === s.value }"
+                  @click="selectedSleep = s.value"
+                >{{ s.label }}</button>
+              </div>
+              <div class="sleep-grid">
+                <div
+                  v-for="(item, i) in orderedSleepBands"
+                  :key="item.label"
+                  class="sleep-card"
+                  :class="{ 'sleep-card--good': isSleepTargetBand(item.label), 'sleep-card--low': isLowSleepBand(item.label) }"
+                  :style="{ animationDelay: `${i * 0.08}s` }"
+                >
+                  <div class="sleep-moon">
+                    <svg v-if="isSleepTargetBand(item.label)" width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg v-else width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                  </div>
+                  <strong class="sleep-pct">{{ item.value }}%</strong>
+                  <span class="sleep-label">{{ sleepShort(item.label) }}</span>
+                  <div v-if="isSleepTargetBand(item.label)" class="sleep-badge">Target ✓</div>
                 </div>
               </div>
-            </transition>
-  
-            <div class="bmi-source">Source: ABS National Health Survey 2017–18. Children aged 5–12.</div>
-          </article>
-  
-          <!-- Trend line chart -->
-          <article class="chart-card trend-card">
-            <div class="chart-head">
-              <div>
-                <span class="kicker">Trend over time</span>
-                <h3>Weight status 2010–2016</h3>
+              <div class="sleep-target-note">
+                <div class="target-bar">
+                  <div class="target-bar-fill" :style="{ width: sleepTargetPctNumber + '%' }"></div>
+                </div>
+                <p><strong>{{ sleepTargetPct }}%</strong> of kids reach the recommended 9-11 hours.</p>
+              </div>
+              <div class="affirmation-strip">
+                <svg class="aff-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                <p>A consistent bedtime routine - even 30 minutes earlier - can meaningfully improve kids' focus, mood, and health over time.</p>
               </div>
             </div>
-            <div class="line-wrap">
-              <svg viewBox="0 0 580 260" class="line-svg">
-                <line v-for="y in gridYs" :key="'g'+y" x1="52" :y1="tY(y)" x2="548" :y2="tY(y)" stroke="rgba(22,48,43,.07)" stroke-width="1"/>
-                <text v-for="y in gridYs" :key="'l'+y" x="44" :y="tY(y)+4" text-anchor="end" class="axis-lbl">{{ y }}%</text>
-                <path :d="areaPath('overweight_obese_6_13')" fill="rgba(224,122,82,.09)" />
-                <path :d="linePath('overweight_obese_6_13')" fill="none" stroke="#e07a52" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="trend-line" />
-                <path :d="linePath('obese_6_13')"            fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="trend-line" style="animation-delay:.2s"/>
-                <path :d="linePath('underweight_6_13')"      fill="none" stroke="#4a9d89" stroke-width="2"   stroke-dasharray="6 4" stroke-linecap="round" stroke-linejoin="round" class="trend-line" style="animation-delay:.4s"/>
-                <template v-for="metric in trendMetrics" :key="metric.key">
-                  <circle v-for="pt in trendPoints(metric.key)" :key="pt.year" :cx="pt.x" :cy="pt.y" r="5" :fill="metric.color" stroke="white" stroke-width="2.5" class="trend-dot" @mouseenter="trendHover = { metric, pt }" @mouseleave="trendHover = null"/>
-                </template>
-                <g v-if="trendHover">
-                  <line :x1="trendHover.pt.x" :x2="trendHover.pt.x" y1="20" y2="225" stroke="rgba(22,48,43,.12)" stroke-dasharray="4 3"/>
-                  <rect :x="ttX(trendHover.pt.x)" :y="Math.max(14, trendHover.pt.y - 56)" width="162" height="44" rx="10" fill="white" filter="url(#ttShadow)"/>
-                  <text :x="ttX(trendHover.pt.x)+13" :y="Math.max(14, trendHover.pt.y-56)+17" class="tt-label">{{ trendHover.metric.label }}</text>
-                  <text :x="ttX(trendHover.pt.x)+13" :y="Math.max(14, trendHover.pt.y-56)+35" class="tt-val">{{ trendHover.pt.year }} · {{ trendHover.pt.val }}%</text>
-                  <defs><filter id="ttShadow" x="-10%" y="-20%" width="120%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(22,48,43,.14)"/></filter></defs>
-                </g>
-                <text v-for="yr in trendYears" :key="'yr'+yr" :x="tX(yr)" y="249" text-anchor="middle" class="axis-lbl">{{ yr }}</text>
+
+            <!-- Trend Panel -->
+            <div v-else-if="activeTab === 3" key="trend" class="explorer-panel">
+              <div class="panel-intro">
+                <h2>How have things changed over time?</h2>
+                <p>Hover or tap the dots to see exact values.</p>
+              </div>
+              <div class="chart-scroll">
+                <svg viewBox="0 0 580 260" class="line-svg">
+                  <line v-for="y in gridYs" :key="'g'+y" x1="52" :y1="tY(y)" x2="548" :y2="tY(y)" class="grid-line"/>
+                  <text v-for="y in gridYs" :key="'l'+y" x="44" :y="tY(y)+4" text-anchor="end" class="axis-lbl">{{ y }}%</text>
+                  <path :d="areaPath('overweight_obese_6_13')" class="area-fill"/>
+                  <path :d="linePath('overweight_obese_6_13')" fill="none" stroke="#276d45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="trend-line"/>
+                  <path :d="linePath('obese_6_13')" fill="none" stroke="#7a5c1e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="trend-line" style="animation-delay:.2s"/>
+                  <path :d="linePath('underweight_6_13')" fill="none" stroke="#7aab8a" stroke-width="1.8" stroke-dasharray="6 4" stroke-linecap="round" stroke-linejoin="round" class="trend-line" style="animation-delay:.4s"/>
+                  <template v-for="metric in trendMetrics" :key="metric.key">
+                    <circle
+                      v-for="pt in trendPoints(metric.key)" :key="pt.year"
+                      :cx="pt.x" :cy="pt.y" r="5"
+                      :fill="metric.color" stroke="white" stroke-width="2.5"
+                      class="trend-dot"
+                      @mouseenter="trendHover = { metric, pt }"
+                      @mouseleave="trendHover = null"
+                    />
+                  </template>
+                  <g v-if="trendHover">
+                    <line :x1="trendHover.pt.x" :x2="trendHover.pt.x" y1="20" y2="225" class="hover-rule"/>
+                    <rect :x="ttX(trendHover.pt.x)" :y="Math.max(14, trendHover.pt.y-56)" width="158" height="44" rx="10" fill="white" filter="url(#sh)"/>
+                    <text :x="ttX(trendHover.pt.x)+12" :y="Math.max(14,trendHover.pt.y-56)+16" class="tt-label">{{ trendHover.metric.label }}</text>
+                    <text :x="ttX(trendHover.pt.x)+12" :y="Math.max(14,trendHover.pt.y-56)+34" class="tt-val">{{ trendHover.pt.year }} · {{ trendHover.pt.val }}%</text>
+                    <defs>
+                      <filter id="sh" x="-10%" y="-20%" width="120%" height="150%">
+                        <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(26,74,48,.14)"/>
+                      </filter>
+                    </defs>
+                  </g>
+                  <text v-for="yr in trendYears" :key="'yr'+yr" :x="tX(yr)" y="249" text-anchor="middle" class="axis-lbl">{{ yr }}</text>
+                </svg>
+              </div>
+              <div class="trend-legend">
+                <span v-for="m in trendMetrics" :key="m.key" class="leg-item">
+                  <i :style="{ background: m.color }"></i>{{ m.label }}
+                </span>
+              </div>
+            </div>
+
+          </transition>
+
+          <div class="step-nav">
+            <button
+              v-for="(tab, i) in tabs"
+              :key="i"
+              class="step-dot"
+              :class="{ active: activeTab === i }"
+              :style="activeTab === i ? { background: tab.color } : {}"
+              @click="setTab(i)"
+              :aria-label="tab.label"
+            ></button>
+          </div>
+        </section>
+
+        <!-- Quick facts -->
+        <section class="fact-strip">
+          <div
+            v-for="(fact, i) in quickFacts"
+            :key="i"
+            class="fact-card"
+            :style="{ '--c': fact.color, animationDelay: `${i * 0.1}s` }"
+          >
+            <div class="fact-icon-wrap" :style="{ color: fact.color }">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path :d="fact.svgPath" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <div class="trend-legend">
-              <span v-for="m in trendMetrics" :key="m.key" class="leg-item">
-                <i :style="{ background: m.color }"></i>{{ m.label }}
-              </span>
-            </div>
-          </article>
-  
-          <!-- Activity chart -->
-          <article class="chart-card activity-card">
-            <div class="chart-head">
-              <div>
-                <span class="kicker">Physical activity</span>
-                <h3>{{ activityLabel }}</h3>
-              </div>
-              <div class="chart-head-badge chart-head-badge--amber">
-                <span class="badge-dot badge-amber"></span>
-                {{ activityTopLabel }}
-              </div>
-            </div>
-            <div class="v-bars">
-              <div class="v-bar-yaxis">
-                <span v-for="y in activityYTicks" :key="y">{{ y }}%</span>
-              </div>
-              <div class="v-bar-plot">
-                <div
-                  v-for="item in activityBands"
-                  :key="item.label"
-                  class="v-bar-col"
-                  :class="{ 'v-bar-active': selectedActivityBand === item.label, 'v-bar-peak': item.value === activityMaxVal }"
-                  @mouseenter="selectedActivityBand = item.label"
-                  @mouseleave="selectedActivityBand = null"
-                >
-                  <span class="v-bar-val">{{ item.value }}%</span>
-                  <div class="v-bar-track">
-                    <div class="v-bar-fill" :style="{ height: actBarH(item.value, activityMaxVal) + '%', background: actColor(item.value) }"></div>
-                  </div>
-                  <span class="v-bar-lbl">{{ shorten(item.label) }}</span>
-                </div>
-              </div>
-            </div>
-            <transition name="slide-note">
-              <div v-if="selectedActivityBand" class="chart-note">
-                <strong>{{ selectedActivityBand }}</strong> — {{ selectedActivityBandValue }}% of children fall in this band.
-              </div>
-            </transition>
-          </article>
-  
-          <!-- Sleep chart -->
-          <article class="chart-card sleep-card">
-            <div class="chart-head">
-              <div>
-                <span class="kicker">Sleep patterns</span>
-                <h3>{{ sleepLabel }}</h3>
-              </div>
-              <div class="chart-head-badge chart-head-badge--indigo">
-                <span class="badge-dot badge-indigo"></span>
-                {{ sleepTargetPct }}% reach target
-              </div>
-            </div>
-            <div class="v-bars">
-              <div class="v-bar-yaxis">
-                <span v-for="y in sleepYTicks" :key="y">{{ y }}%</span>
-              </div>
-              <div class="v-bar-plot">
-                <div
-                  v-for="item in sleepBands"
-                  :key="item.label"
-                  class="v-bar-col"
-                  :class="{ 'v-bar-active': selectedSleepBand === item.label, 'v-bar-peak': item.value === sleepMaxVal }"
-                  @mouseenter="selectedSleepBand = item.label"
-                  @mouseleave="selectedSleepBand = null"
-                >
-                  <span class="v-bar-val">{{ item.value }}%</span>
-                  <div class="v-bar-track">
-                    <div class="v-bar-fill" :style="{ height: actBarH(item.value, sleepMaxVal) + '%', background: sleepColor(item.label) }"></div>
-                  </div>
-                  <span class="v-bar-lbl">{{ sleepShort(item.label) }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="sleep-rec">
-              <span class="sleep-rec-icon">ℹ️</span>
-              <p>{{ selectedSleepBand ? selectedSleepBand + ': ' + selectedSleepBandValue + '% of children.' : 'School-age children need 9–11 hrs of sleep per night for healthy development.' }}</p>
-            </div>
-          </article>
-  
-        </div>
-      </main>
-    </div>
-  </template>
-  
-  <script setup>
-  import { computed, ref, watch } from 'vue'
-  import { RouterLink } from 'vue-router'
-  
-  const selectedGender   = ref('all')
-  const selectedActivity = ref('inactivity')
-  const selectedSleep    = ref('weeknight')
-  const activeKpi            = ref(null)
-  const trendHover           = ref(null)
-  const selectedBmi          = ref(null)
-  const selectedActivityBand = ref(null)
-  const selectedSleepBand    = ref(null)
-  
-  const COLORS = {
-    underweight: '#4a9d89',
-    normal:      '#2d7060',
-    overweight:  '#e07a52',
-    obese:       '#dc2626',
+            <strong class="fact-num">{{ fact.num }}</strong>
+            <p class="fact-text">{{ fact.text }}</p>
+          </div>
+        </section>
+      </template>
+    </main>
+  </div>
+</template>
+
+<script setup>
+import { computed, onMounted, ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
+
+const API_BASE_URL = import.meta.env.VITE_PARENT_DATA_INSIGHTS_API_BASE_URL
+
+const selectedGender   = ref('all')
+const selectedActivity = ref('inactivity')
+const selectedSleep    = ref('weeknight')
+const selectedBmi      = ref(null)
+const trendHover       = ref(null)
+const activeTab        = ref(0)
+const heroVisible      = ref(false)
+
+const insightsLoading = ref(false)
+const insightsError   = ref('')
+const insightsData    = ref({
+  bmi:      { all: [], boys: [], girls: [] },
+  trend:    { all: [], boys: [], girls: [] },
+  activity: { inactivity: [], light: [], moderate_vigorous: [] },
+  sleep:    { weeknight: [], weekend: [], overall: [] },
+})
+
+const COLORS = {
+  underweight: '#7aab8a',
+  normal:      '#276d45',
+  overweight:  '#c4850a',
+  obese:       '#8b3a3a',
+}
+
+const trendMetrics = [
+  { key: 'overweight_obese_6_13', label: 'Overweight + obese', color: '#276d45' },
+  { key: 'obese_6_13',            label: 'Obese only',          color: '#7a5c1e' },
+  { key: 'underweight_6_13',      label: 'Underweight',         color: '#7aab8a' },
+]
+
+const genders = [
+  { value: 'all',   label: 'All children', icon: '' },
+  { value: 'boys',  label: 'Boys',         icon: '' },
+  { value: 'girls', label: 'Girls',        icon: '' },
+]
+
+const tabs = [
+  { key: 'bmi',      label: 'Weight',   icon: '', color: '#1e6640' },
+  { key: 'activity', label: 'Activity', icon: '', color: '#a86c00' },
+  { key: 'sleep',    label: 'Sleep',    icon: '', color: '#2d5f82' },
+  { key: 'trend',    label: 'Trend',    icon: '', color: '#6a9e7a' },
+]
+
+const activityTypes = [
+  { value: 'inactivity',        label: 'Inactivity',        icon: '' },
+  { value: 'light',             label: 'Light activity',    icon: '' },
+  { value: 'moderate_vigorous', label: 'Active & vigorous', icon: '' },
+]
+
+const sleepTypes = [
+  { value: 'weeknight', label: 'Weeknights', icon: '' },
+  { value: 'weekend',   label: 'Weekends',   icon: '' },
+  { value: 'overall',   label: 'Per night',  icon: '' },
+]
+
+const gridYs = [0, 10, 20, 30]
+
+onMounted(() => {
+  fetchInsights()
+  setTimeout(() => { heroVisible.value = true }, 80)
+})
+
+watch([selectedGender], () => { selectedBmi.value = null })
+
+function setTab(i) { activeTab.value = i; selectedBmi.value = null }
+
+async function fetchInsights() {
+  if (!API_BASE_URL) { insightsError.value = 'Missing VITE_PARENT_DATA_INSIGHTS_API_BASE_URL.'; return }
+  insightsLoading.value = true
+  insightsError.value = ''
+  try {
+    const res = await fetch(API_BASE_URL, { headers: { Accept: 'application/json' } })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || `API error ${res.status}`)
+    insightsData.value = normalise(data)
+  } catch (e) {
+    insightsError.value = e.message || 'Unable to load insights.'
+  } finally {
+    insightsLoading.value = false
   }
-  const BMI_ICONS = { underweight: '📉', normal: '✅', overweight: '⚠️', obese: '🔴' }
-  
-  const trendMetrics = [
-    { key: 'overweight_obese_6_13', label: 'Overweight + obese', color: '#e07a52' },
-    { key: 'obese_6_13',            label: 'Obese only',          color: '#dc2626' },
-    { key: 'underweight_6_13',      label: 'Underweight',         color: '#4a9d89' },
-  ]
-  
-  const defaultStats = {
-    bmi: {
-      all:   [
-        { key: 'underweight', label: 'Underweight',    count: 313.7,  value: 8.0  },
-        { key: 'normal',      label: 'Healthy weight', count: 2613.1, value: 67.0 },
-        { key: 'overweight',  label: 'Overweight',     count: 661.9,  value: 17.0 },
-        { key: 'obese',       label: 'Obese',          count: 314.4,  value: 8.1  },
-      ],
-      boys:  [
-        { key: 'underweight', label: 'Underweight',    count: 150.1,  value: 7.5  },
-        { key: 'normal',      label: 'Healthy weight', count: 1332.8, value: 66.5 },
-        { key: 'overweight',  label: 'Overweight',     count: 352.5,  value: 17.6 },
-        { key: 'obese',       label: 'Obese',          count: 169.6,  value: 8.5  },
-      ],
-      girls: [
-        { key: 'underweight', label: 'Underweight',    count: 162.5,  value: 8.6  },
-        { key: 'normal',      label: 'Healthy weight', count: 1279.2, value: 67.8 },
-        { key: 'overweight',  label: 'Overweight',     count: 306.3,  value: 16.2 },
-        { key: 'obese',       label: 'Obese',          count: 140.4,  value: 7.4  },
-      ],
-    },
+}
+
+function normalise(data) {
+  return {
+    bmi: { all: normBmi(data?.bmi?.all), boys: normBmi(data?.bmi?.boys), girls: normBmi(data?.bmi?.girls) },
     trend: {
-      all:   [
-        { year: 2010, underweight_6_13: 5.4, normal_6_13: 73.7, obese_6_13: 6.6,  overweight_obese_6_13: 20.9 },
-        { year: 2012, underweight_6_13: 5.0, normal_6_13: 71.1, obese_6_13: 7.0,  overweight_obese_6_13: 23.9 },
-        { year: 2014, underweight_6_13: 7.1, normal_6_13: 67.1, obese_6_13: 6.6,  overweight_obese_6_13: 25.8 },
-        { year: 2016, underweight_6_13: 6.8, normal_6_13: 66.3, obese_6_13: 6.6,  overweight_obese_6_13: 26.9 },
-      ],
-      boys:  [
-        { year: 2010, underweight_6_13: 6.5, normal_6_13: 73.4, obese_6_13: 6.5,  overweight_obese_6_13: 20.1 },
-        { year: 2012, underweight_6_13: 5.1, normal_6_13: 71.4, obese_6_13: 7.2,  overweight_obese_6_13: 23.4 },
-        { year: 2014, underweight_6_13: 6.8, normal_6_13: 67.3, obese_6_13: 7.3,  overweight_obese_6_13: 25.9 },
-        { year: 2016, underweight_6_13: 7.4, normal_6_13: 65.9, obese_6_13: 7.5,  overweight_obese_6_13: 26.8 },
-      ],
-      girls: [
-        { year: 2010, underweight_6_13: 4.2, normal_6_13: 74.1, obese_6_13: 6.6,  overweight_obese_6_13: 21.7 },
-        { year: 2012, underweight_6_13: 4.9, normal_6_13: 70.7, obese_6_13: 6.8,  overweight_obese_6_13: 24.4 },
-        { year: 2014, underweight_6_13: 7.5, normal_6_13: 66.9, obese_6_13: 5.8,  overweight_obese_6_13: 25.6 },
-        { year: 2016, underweight_6_13: 6.2, normal_6_13: 66.7, obese_6_13: 5.6,  overweight_obese_6_13: 27.0 },
-      ],
+      all:   Array.isArray(data?.trend?.all)   ? data.trend.all   : [],
+      boys:  Array.isArray(data?.trend?.boys)  ? data.trend.boys  : [],
+      girls: Array.isArray(data?.trend?.girls) ? data.trend.girls : [],
     },
     activity: {
-      inactivity:        [
-        { label: 'Less than 9 hours',         value: 17.1 },
-        { label: '9 to less than 10 hours',   value: 19.1 },
-        { label: '10 to less than 11 hours',  value: 17.7 },
-        { label: '11 to less than 12 hours',  value: 18.5 },
-        { label: '12 to less than 13 hours',  value: 11.5 },
-        { label: '13 to less than 14 hours',  value: 9.7  },
-        { label: '14 hours or more',          value: 6.4  },
-      ],
-      light:             [
-        { label: 'Less than 2 hours',         value: 6.2  },
-        { label: '2 to less than 3 hours',    value: 22.6 },
-        { label: '3 to less than 4 hours',    value: 44.3 },
-        { label: '4 hours or more',           value: 26.9 },
-      ],
-      moderate_vigorous: [
-        { label: 'Less than 30 minutes',      value: 22.2 },
-        { label: '30 to less than 60 minutes',value: 30.2 },
-        { label: '1 to less than 1.5 hours',  value: 24.9 },
-        { label: '1.5 to less than 2 hours',  value: 14.4 },
-        { label: '2 hours or more',           value: 8.3  },
-      ],
+      inactivity:        normVal(data?.activity?.inactivity),
+      light:             normVal(data?.activity?.light),
+      moderate_vigorous: normVal(data?.activity?.moderate_vigorous),
     },
     sleep: {
-      weeknight: [
-        { label: 'Less than 6 hours',        value: 2.1  },
-        { label: '6 to less than 7 hours',   value: 5.8  },
-        { label: '7 to less than 8 hours',   value: 22.2 },
-        { label: '8 to less than 9 hours',   value: 31.7 },
-        { label: '9 to less than 10 hours',  value: 29.8 },
-        { label: '10 hours or more',         value: 8.5  },
-      ],
-      weekend: [
-        { label: 'Less than 6 hours',        value: 3.6  },
-        { label: '6 to less than 7 hours',   value: 8.3  },
-        { label: '7 to less than 8 hours',   value: 19.8 },
-        { label: '8 to less than 9 hours',   value: 29.9 },
-        { label: '9 to less than 10 hours',  value: 26.5 },
-        { label: '10 hours or more',         value: 12.0 },
-      ],
-      overall: [
-        { label: 'Less than 6 hours',        value: 2.1  },
-        { label: '6 to less than 7 hours',   value: 5.9  },
-        { label: '7 to less than 8 hours',   value: 22.6 },
-        { label: '8 to less than 9 hours',   value: 33.2 },
-        { label: '9 to less than 10 hours',  value: 28.9 },
-        { label: '10 hours or more',         value: 7.3  },
-      ],
+      weeknight: normVal(data?.sleep?.weeknight),
+      weekend:   normVal(data?.sleep?.weekend),
+      overall:   normVal(data?.sleep?.overall),
     },
   }
-  
-  watch([selectedGender, selectedActivity, selectedSleep], () => {
-    selectedBmi.value = null; trendHover.value = null
-    selectedActivityBand.value = null; selectedSleepBand.value = null
+}
+function normBmi(rows) {
+  if (!Array.isArray(rows)) return []
+  return rows.map(r => ({ key: r.key, label: r.label || r.key, count: Number(r.count||0), value: Number(r.value||0) }))
+}
+function normVal(rows) {
+  if (!Array.isArray(rows)) return []
+  return rows.map(r => ({ label: r.label||'', value: Number(r.value||0) }))
+}
+
+const bmiChartData = computed(() =>
+  (insightsData.value.bmi[selectedGender.value] || []).map(item => ({ ...item, color: COLORS[item.key] || '#7aab8a' }))
+)
+const overweightVal = computed(() => bmiChartData.value.find(i => i.key==='overweight')?.value || 0)
+const obeseVal      = computed(() => bmiChartData.value.find(i => i.key==='obese')?.value || 0)
+const combinedVal   = computed(() => Math.round((overweightVal.value + obeseVal.value) * 10) / 10)
+const trendLabel    = computed(() =>
+  selectedGender.value==='boys' ? 'Boys' : selectedGender.value==='girls' ? 'Girls' : 'All children'
+)
+const trendRows     = computed(() => insightsData.value.trend[selectedGender.value] || [])
+const trendYears    = computed(() => trendRows.value.map(r => r.year))
+const activityBands = computed(() => insightsData.value.activity[selectedActivity.value] || [])
+const sleepBands    = computed(() => insightsData.value.sleep[selectedSleep.value] || [])
+const orderedActivityBands = computed(() => [...activityBands.value].sort((a,b) => actOrder(a.label)-actOrder(b.label)))
+const orderedSleepBands    = computed(() => [...sleepBands.value].sort((a,b) => sleepOrder(a.label)-sleepOrder(b.label)))
+const activityMaxVal       = computed(() => Math.max(...activityBands.value.map(i => i.value), 1))
+const activityFocusBand    = computed(() => {
+  if (!activityBands.value.length) return null
+  return activityBands.value.reduce((h,i) => i.value > h.value ? i : h)
+})
+const sleepTargetPct = computed(() =>
+  sleepBands.value.filter(i => /9 to less than 10|10 hours or more/i.test(i.label))
+    .reduce((s,i) => s+i.value, 0).toFixed(1)
+)
+const sleepTargetPctNumber = computed(() => Number(sleepTargetPct.value || 0))
+
+const bmiRingSegs = computed(() => {
+  const total = bmiChartData.value.reduce((s,i) => s+i.value, 0) || 100
+  const circ = 2 * Math.PI * 80
+  let offset = 0
+  return bmiChartData.value.map(item => {
+    const dash = (item.value / total) * circ
+    const seg = { key: item.key, color: item.color, dash, offset: -offset }
+    offset += dash
+    return seg
   })
-  
-  const bmiChartData   = computed(() => (defaultStats.bmi[selectedGender.value] || defaultStats.bmi.all).map(i => ({ ...i, color: COLORS[i.key] || '#4a9d89' })))
-  const bmiMax         = computed(() => Math.max(...bmiChartData.value.map(d => d.value), 1))
-  const bmiHealthyPct  = computed(() => bmiChartData.value.find(d => d.key === 'normal')?.value || 0)
-  const overweightVal  = computed(() => bmiChartData.value.find(d => d.key === 'overweight')?.value || 0)
-  const obeseVal       = computed(() => bmiChartData.value.find(d => d.key === 'obese')?.value || 0)
-  const combinedVal    = computed(() => Math.round((overweightVal.value + obeseVal.value) * 10) / 10)
-  const trendLabel     = computed(() => selectedGender.value === 'boys' ? 'Boys' : selectedGender.value === 'girls' ? 'Girls' : 'All children')
-  const profileSummary = computed(() => `${trendLabel.value}, Australia, ages 5–12`)
-  const assistantTitle = computed(() => combinedVal.value >= 27 ? 'This group needs targeted support.' : combinedVal.value >= 22 ? 'Healthy routines can help.' : 'Tracking better than average.')
-  const assistantMessage = computed(() => `For ${trendLabel.value.toLowerCase()}, about ${combinedVal.value}% are classified as overweight or obese. Use the activity and sleep charts below to identify practical opportunities.`)
-  const selectedBmiItem    = computed(() => bmiChartData.value.find(d => d.key === selectedBmi.value))
-  const selectedBmiIcon    = computed(() => BMI_ICONS[selectedBmi.value] || '📊')
-  const selectedBmiInsight = computed(() => { const i = selectedBmiItem.value; return i ? `${i.value}% of ${trendLabel.value.toLowerCase()} are in this category, representing approximately ${i.count}k children nationally.` : '' })
-  const trendRows  = computed(() => defaultStats.trend[selectedGender.value] || defaultStats.trend.all)
-  const trendYears = computed(() => trendRows.value.map(r => r.year))
-  const activityBands  = computed(() => defaultStats.activity[selectedActivity.value] || [])
-  const sleepBands     = computed(() => defaultStats.sleep[selectedSleep.value] || [])
-  const activityMaxVal = computed(() => Math.max(...activityBands.value.map(d => d.value), 1))
-  const sleepMaxVal    = computed(() => Math.max(...sleepBands.value.map(d => d.value), 1))
-  const activityLabel  = computed(() => selectedActivity.value === 'light' ? 'Light physical activity' : selectedActivity.value === 'moderate_vigorous' ? 'Moderate & vigorous activity' : 'Daily inactivity hours')
-  const sleepLabel     = computed(() => selectedSleep.value === 'weekend' ? 'Weekend night sleep' : selectedSleep.value === 'overall' ? 'Per night average' : 'Weeknight sleep')
-  const sleepTargetPct = computed(() => sleepBands.value.filter(b => /9 to less than 10|10 hours or more/i.test(b.label)).reduce((s, b) => s + b.value, 0).toFixed(1))
-  const activityTopLabel = computed(() => { if (!activityBands.value.length) return ''; const top = activityBands.value.reduce((a, b) => b.value > a.value ? b : a); return `${shorten(top.label)} most common` })
-  const selectedActivityBandValue = computed(() => activityBands.value.find(d => d.label === selectedActivityBand.value)?.value || 0)
-  const selectedSleepBandValue    = computed(() => sleepBands.value.find(d => d.label === selectedSleepBand.value)?.value || 0)
-  const activityYTicks = computed(() => { const m = activityMaxVal.value; return m > 40 ? [50,40,30,20,10,0] : m > 25 ? [40,30,20,10,0] : [30,20,10,0] })
-  const sleepYTicks    = computed(() => { const m = sleepMaxVal.value; return m > 28 ? [35,28,21,14,7,0] : [30,20,10,0] })
-  const kpiCards = computed(() => {
-    const normal   = bmiChartData.value.find(d => d.key === 'normal')?.value || 0
-    const lowAct   = defaultStats.activity.moderate_vigorous?.find(d => /less than 30/i.test(d.label))?.value || 0
-    const lowSleep = (defaultStats.sleep.weeknight?.filter(d => /Less than 6|6 to less than 7/i.test(d.label))?.reduce((s, d) => s + d.value, 0) || 0)
-    return [
-      { id: 'normal',     icon: '✅', iconBg: 'icon-green',  label: 'Healthy BMI range',          value: `${normal}%`,                       detail: `${normal}% of ${trendLabel.value.toLowerCase()} are in a healthy BMI range.` },
-      { id: 'overweight', icon: '⚖️', iconBg: 'icon-amber',  label: 'Overweight or obese',        value: `${combinedVal.value}%`,            warning: true, detail: 'Combined overweight and obese BMI categories for the selected group.' },
-      { id: 'activity',   icon: '🏃', iconBg: 'icon-coral',  label: '< 30 min moderate activity', value: `${lowAct}%`,                       detail: 'Proportion of children in the lowest moderate/vigorous activity band.' },
-      { id: 'sleep',      icon: '💤', iconBg: 'icon-indigo', label: '< 7 hrs sleep weeknights',   value: `${Math.round(lowSleep*10)/10}%`,   detail: 'Children sleeping under 7 hours on weeknights. Recommended is 9–11 hrs.' },
-    ]
-  })
-  
-  const gridYs = [0, 10, 20, 30]
-  function tX(year) { const y = trendYears.value; const i = y.indexOf(year); return 60 + (i / (y.length - 1)) * 478 }
-  function tY(val) { return 225 - (val / 35) * 190 }
-  function trendPoints(metric) { return trendRows.value.map(row => ({ x: tX(row.year), y: tY(row[metric]), val: row[metric], year: row.year })) }
-  function linePath(metric) { return trendPoints(metric).map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ') }
-  function areaPath(metric) { const pts = trendPoints(metric); const line = pts.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' '); return `${line} L${pts.at(-1).x},225 L${pts[0].x},225 Z` }
-  function ttX(x) { return x > 400 ? x - 172 : x + 14 }
-  function bmiBarWidth(item) { return Math.round((item.value / bmiMax.value) * 100) }
-  function actBarH(val, max) { return Math.max(4, (val / max) * 100) }
-  function actColor(val) { return val >= 35 ? '#4a9d89' : val >= 20 ? '#2d7060' : val >= 10 ? '#e07a52' : '#dc2626' }
-  function sleepColor(label) { return /9 to less than 10|10 hours or more/i.test(label) ? '#2d7060' : /8 to less than 9/i.test(label) ? '#4a9d89' : /7 to less than 8/i.test(label) ? '#e07a52' : '#dc2626' }
-  function shorten(label) { return label.replace('Less than','<').replace('to less than','–').replace(' hours','h').replace(' hour','h').replace(' minutes','min').replace(' or more','+') }
-  function sleepShort(label) { return shorten(label) }
-  </script>
-  
-  <style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-  
-  .stats-page {
-    --ink:        #1a2e24;
-    --ink-mid:    #3d5248;
-    --ink-muted:  #617a6d;
-    --sage:       #4a9d89;
-    --sage-dark:  #2d7060;
-    --sage-soft:  #e4f3ef;
-    --sage-pale:  #f0f9f6;
-    --coral:      #e07a52;
-    --coral-soft: #fceee6;
-    --bg:         #f2ede4;
-    --bg-card:    rgba(255, 252, 247, 0.88);
-    --border:     rgba(26, 46, 36, 0.09);
-    --border-mid: rgba(26, 46, 36, 0.14);
-    --shadow-sm:  0 2px 12px rgba(26,46,36,.06);
-    --shadow-md:  0 8px 28px rgba(26,46,36,.09);
-    --shadow-lg:  0 20px 56px rgba(26,46,36,.12);
-    --r-sm: 12px; --r-md: 20px; --r-lg: 28px;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    color: var(--ink);
-    background: var(--bg);
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
+})
+
+const quickFacts = computed(() => [
+  { svgPath: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z', num: `${combinedVal.value}%`, text: `of ${trendLabel.value.toLowerCase()} are above a healthy weight`, color: '#1e6640' },
+  { svgPath: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z', num: `${sleepTargetPct.value}%`, text: 'reach the recommended 9-11 hours of sleep per night', color: '#2d5f82' },
+  { svgPath: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z', num: `${activityFocusBand.value?.value||0}%`, text: `in the most common ${activityTypes.find(a=>a.value===selectedActivity.value)?.label.toLowerCase()} band`, color: '#a86c00' },
+])
+
+const activityInsight = computed(() => {
+  if (selectedActivity.value==='inactivity')
+    return 'Reducing inactive time - even by 30 minutes per day - is linked to better sleep and a healthier weight for children.'
+  if (selectedActivity.value==='light')
+    return 'Light activity like walking or playing outside counts! Every bit of movement helps build healthy habits early.'
+  return 'Vigorous play - running, swimming, team sports - is the most beneficial for heart health and mood.'
+})
+
+function tX(year) {
+  const years = trendYears.value
+  if (years.length <= 1) return 60
+  return 60 + (years.indexOf(year) / (years.length - 1)) * 478
+}
+function tY(value)  { return 225 - (Number(value||0) / 35) * 190 }
+function trendPoints(metric) {
+  return trendRows.value.map(row => ({ x: tX(row.year), y: tY(row[metric]), val: row[metric], year: row.year }))
+}
+function linePath(metric) {
+  const pts = trendPoints(metric)
+  if (!pts.length) return ''
+  return pts.map((p,i) => (i===0?`M${p.x},${p.y}`:`L${p.x},${p.y}`)).join(' ')
+}
+function areaPath(metric) {
+  const pts = trendPoints(metric)
+  if (!pts.length) return ''
+  const line = pts.map((p,i) => (i===0?`M${p.x},${p.y}`:`L${p.x},${p.y}`)).join(' ')
+  return `${line} L${pts.at(-1).x},225 L${pts[0].x},225 Z`
+}
+function ttX(x) { return x > 400 ? x - 170 : x + 14 }
+function cleanBarWidth(value, max) { return Math.max(4, (Number(value||0)/max)*100) }
+function actColor(value) {
+  if (value >= 35) return '#276d45'
+  if (value >= 20) return '#3a8f5e'
+  if (value >= 10) return '#c4850a'
+  return '#8b3a3a'
+}
+function shorten(label) {
+  return String(label||'').replace('Less than','<').replace('to less than','-')
+    .replace(' hours','h').replace(' hour','h').replace(' minutes','min').replace(' or more','+')
+}
+function sleepShort(label) { return shorten(label) }
+function bmiNoteFor(item) {
+  const map = {
+    underweight: 'Children here may benefit from nutritional support. A GP can give personalised guidance.',
+    normal:      'Great news - these kids are in a healthy weight range. Keeping current routines going is the key.',
+    overweight:  `${item.value}% of ${trendLabel.value.toLowerCase()} fall here. Small lifestyle changes can help reverse this trend.`,
+    obese:       `This is the highest-risk category. HealthyKids routines are built to support families with gradual, lasting changes.`,
   }
-  
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  a { color: inherit; text-decoration: none; }
-  button { font: inherit; cursor: pointer; border: none; background: none; }
-  select { font: inherit; }
-  
-  /* Background */
-  .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-  .bg-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.5; }
-  .blob-a { width: 680px; height: 680px; top: -180px; right: -160px; background: radial-gradient(circle, #b4dbd3 0%, transparent 70%); }
-  .blob-b { width: 480px; height: 480px; bottom: -60px; left: -100px; background: radial-gradient(circle, #edc9ad 0%, transparent 70%); }
-  .blob-c { width: 340px; height: 340px; top: 48%; left: 40%; background: radial-gradient(circle, #cce8e1 0%, transparent 70%); opacity: 0.35; }
-  .bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(26,46,36,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(26,46,36,.03) 1px, transparent 1px); background-size: 52px 52px; }
-  
-  /* Header */
-  .site-header { position: sticky; top: 0; z-index: 40; height: 66px; padding: 0 clamp(20px, 5vw, 60px); display: flex; align-items: center; justify-content: space-between; gap: 16px; background: rgba(242,237,228,.82); border-bottom: 1px solid var(--border); backdrop-filter: blur(24px); }
-  .brand { display: flex; align-items: center; gap: 10px; font-family: 'Fraunces', Georgia, serif; font-size: 1.18rem; font-weight: 400; letter-spacing: -0.03em; }
-  .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: white; border: 1px solid var(--border); box-shadow: var(--shadow-sm); color: var(--sage-dark); }
-  .brand-mark svg { width: 20px; height: 20px; }
-  .nav-links { display: flex; gap: 2px; }
-  .nav-links a { padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; color: var(--ink-muted); transition: background .15s, color .15s; }
-  .nav-links a:hover, .nav-links a.router-link-active { background: white; color: var(--ink); }
-  .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 999px; background: white; border: 1px solid var(--border); font-size: 0.82rem; font-weight: 700; color: var(--ink); box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s; }
-  .back-btn:hover { box-shadow: var(--shadow-md); transform: translateX(-2px); }
-  
-  /* Page layout */
-  .page-main { position: relative; z-index: 2; width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 36px 0 100px; }
-  
-  /* Hero */
-  .hero { display: grid; grid-template-columns: 1fr 400px; gap: 20px; margin-bottom: 22px; align-items: stretch; }
-  .hero-left { display: flex; flex-direction: column; justify-content: flex-end; padding: 4px 0; }
-  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 999px; border: 1px solid rgba(74,157,137,.3); background: rgba(74,157,137,.1); color: var(--sage-dark); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; width: fit-content; }
-  .pill-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); animation: pulse 2.2s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: .55; } }
-  .hero-title { font-family: 'Fraunces', Georgia, serif; font-size: clamp(3.8rem, 7.5vw, 6.4rem); font-weight: 300; line-height: 0.88; letter-spacing: -0.07em; color: var(--ink); }
-  .hero-sub { margin-top: 18px; color: var(--ink-muted); font-size: 1rem; line-height: 1.5; }
-  .hero-sub strong { color: var(--ink); font-weight: 700; }
-  
-  /* Insight card */
-  .insight-card { position: relative; overflow: hidden; padding: 32px; border-radius: var(--r-lg); background: linear-gradient(145deg, #1a2e24 0%, #254035 55%, #1e3a2f 100%); border: 1px solid rgba(255,255,255,.06); box-shadow: var(--shadow-lg); color: white; }
-  .insight-eyebrow { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 14px; }
-  .insight-title { font-family: 'Fraunces', Georgia, serif; font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 400; line-height: 1.15; letter-spacing: -0.04em; margin-bottom: 14px; }
-  .insight-body { color: rgba(255,255,255,.6); line-height: 1.7; font-size: 0.9rem; }
-  .insight-pulse { position: absolute; bottom: -70px; right: -70px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(74,157,137,.3) 0%, transparent 70%); animation: breathe 4s ease-in-out infinite; }
-  @keyframes breathe { 0%, 100% { transform: scale(1); opacity: .6; } 50% { transform: scale(1.25); opacity: 1; } }
-  .insight-decoration { position: absolute; top: -20px; right: -20px; width: 180px; height: 180px; opacity: 0.5; pointer-events: none; }
-  
-  /* KPI row */
-  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
-  .kpi-tile { padding: 22px 20px; border-radius: var(--r-md); background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm); text-align: left; display: flex; flex-direction: column; gap: 7px; transition: transform .2s, box-shadow .2s, background .2s, border-color .2s; }
-  .kpi-tile:hover, .kpi-active { transform: translateY(-3px); box-shadow: var(--shadow-md); background: white; border-color: var(--border-mid); }
-  .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-  .kpi-icon-wrap { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; font-size: 1.1rem; flex-shrink: 0; }
-  .icon-green  { background: var(--sage-soft); }
-  .icon-amber  { background: #fef3c7; }
-  .icon-coral  { background: var(--coral-soft); }
-  .icon-indigo { background: #eef2ff; }
-  .kpi-chevron { color: var(--ink-muted); opacity: 0.5; transition: transform .2s; }
-  .kpi-chevron.rotated { transform: rotate(180deg); opacity: 0.8; }
-  .kpi-val { font-family: 'Fraunces', Georgia, serif; font-size: 2.5rem; font-weight: 300; letter-spacing: -0.06em; color: var(--sage-dark); line-height: 1; }
-  .kpi-warn .kpi-val { color: var(--coral); }
-  .kpi-label { font-size: 0.76rem; font-weight: 700; color: var(--ink-muted); line-height: 1.35; }
-  .kpi-detail { padding-top: 12px; border-top: 1px solid var(--border); font-size: 0.81rem; color: var(--ink-muted); line-height: 1.6; }
-  
-  /* Filter bar */
-  .filter-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; padding: 14px 20px; border-radius: var(--r-md); background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-wrap: wrap; }
-  .filter-label-wrap { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
-  .filter-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); white-space: nowrap; }
-  .filter-label-wrap svg { color: var(--ink-muted); }
-  .filter-chips { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; }
-  .chip-select { display: flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 999px; background: white; border: 1px solid var(--border); cursor: pointer; transition: border-color .15s, box-shadow .15s; }
-  .chip-select:focus-within { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(74,157,137,.15); }
-  .chip-select span { font-size: 0.7rem; font-weight: 800; color: var(--ink-muted); white-space: nowrap; }
-  .chip-select select { border: none; outline: none; background: transparent; font-size: 0.82rem; font-weight: 700; color: var(--ink); cursor: pointer; }
-  .filter-active-tag { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--sage-soft); border: 1px solid rgba(74,157,137,.25); color: var(--sage-dark); font-size: 0.76rem; font-weight: 700; margin-left: auto; }
-  .filter-active-tag button { background: none; border: none; color: inherit; cursor: pointer; font-size: 1rem; line-height: 1; opacity: 0.7; }
-  
-  /* Charts grid */
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .bmi-card, .trend-card { grid-column: 1 / -1; }
-  .chart-card { padding: clamp(22px, 2.5vw, 30px); border-radius: var(--r-lg); background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-md); backdrop-filter: blur(16px); }
-  .chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-  .kicker { display: block; font-size: 0.67rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.13em; color: var(--sage-dark); margin-bottom: 5px; }
-  .chart-head h3 { font-family: 'Fraunces', Georgia, serif; font-size: clamp(1.3rem, 2vw, 1.6rem); font-weight: 400; letter-spacing: -0.04em; color: var(--ink); line-height: 1.15; }
-  .chart-head-badge { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 999px; background: var(--sage-soft); border: 1px solid rgba(74,157,137,.2); font-size: 0.78rem; font-weight: 700; color: var(--sage-dark); white-space: nowrap; flex-shrink: 0; }
-  .chart-head-badge--amber  { background: #fef3c7; border-color: rgba(217,119,6,.2); color: #92400e; }
-  .chart-head-badge--indigo { background: #eef2ff; border-color: rgba(99,102,241,.2); color: #4338ca; }
-  .badge-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .badge-green  { background: #2d7060; }
-  .badge-amber  { background: #d97706; }
-  .badge-indigo { background: #6366f1; }
-  
-  /* ── BMI bars: label | bar | stat ── */
-  .bmi-bars { display: flex; flex-direction: column; gap: 10px; }
-  
-  .bmi-row {
-    display: grid;
-    grid-template-columns: 155px 1fr 130px;
-    align-items: center;
-    gap: 18px;
-    padding: 14px 18px;
-    border-radius: var(--r-sm);
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: background .15s, border-color .15s, transform .18s, box-shadow .18s;
-  }
-  .bmi-row:hover        { background: white; border-color: var(--border); transform: translateX(4px); box-shadow: var(--shadow-sm); }
-  .bmi-selected         { background: white; border-color: var(--border-mid); box-shadow: var(--shadow-sm); }
-  
-  .bmi-label-col { display: flex; align-items: center; gap: 10px; }
-  .bmi-dot       { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-  .bmi-name      { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
-  
-  .bmi-bar-col   { flex: 1; }
-  .bmi-track     { height: 28px; border-radius: 999px; background: rgba(26,46,36,.07); overflow: hidden; }
-  .bmi-fill      { height: 100%; border-radius: inherit; transition: width 0.7s cubic-bezier(.34,1.56,.64,1); }
-  
-  .bmi-stat-col  { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-  .bmi-pct       { font-family: 'Fraunces', Georgia, serif; font-size: 1.6rem; font-weight: 300; color: var(--ink); letter-spacing: -0.04em; line-height: 1; }
-  .bmi-count     { font-size: 0.72rem; font-weight: 700; color: var(--ink-muted); }
-  
-  .chart-note { display: flex; align-items: flex-start; gap: 12px; margin-top: 14px; padding: 14px 18px; border-radius: var(--r-sm); background: var(--sage-soft); border: 1px solid rgba(74,157,137,.2); color: var(--ink); font-size: 0.86rem; line-height: 1.6; }
-  .chart-note--bmi .cn-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
-  .chart-note strong { display: block; font-size: 0.88rem; font-weight: 800; margin-bottom: 2px; }
-  .chart-note p { color: var(--ink-muted); margin: 0; }
-  .bmi-source { margin-top: 12px; font-size: 0.72rem; color: var(--ink-muted); opacity: 0.65; }
-  
-  /* Trend chart */
-  .line-wrap { overflow-x: auto; }
-  .line-svg { width: 100%; min-width: 480px; overflow: visible; display: block; }
-  .axis-lbl { fill: var(--ink-muted); font-size: 10.5px; font-weight: 700; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-  .trend-line { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: drawLine 1.6s ease forwards; }
-  @keyframes drawLine { to { stroke-dashoffset: 0; } }
-  .trend-dot { cursor: pointer; transition: r .15s; }
-  .trend-dot:hover { r: 7; }
-  .tt-label { fill: var(--ink-muted); font-size: 10px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; }
-  .tt-val   { fill: var(--ink);       font-size: 13px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; }
-  .trend-legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .leg-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--ink-muted); }
-  .leg-item i { width: 18px; height: 3px; border-radius: 999px; display: block; }
-  
-  /* Vertical bar charts */
-  .v-bars { display: grid; grid-template-columns: 40px 1fr; gap: 8px; min-height: 300px; }
-  .v-bar-yaxis { height: 240px; display: flex; flex-direction: column; justify-content: space-between; text-align: right; padding-bottom: 40px; font-size: 0.68rem; font-weight: 800; color: var(--ink-muted); }
-  .v-bar-plot { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 8px; align-items: end; border-bottom: 1.5px solid var(--border-mid); }
-  .v-bar-col { height: 280px; display: grid; grid-template-rows: 24px 1fr 44px; gap: 4px; align-items: end; text-align: center; cursor: pointer; }
-  .v-bar-val { font-size: 0.78rem; font-weight: 800; color: var(--ink-muted); transition: color .15s; display: block; }
-  .v-bar-active .v-bar-val, .v-bar-peak .v-bar-val { color: var(--ink); }
-  .v-bar-track { width: clamp(36px, 58%, 56px); height: 210px; margin: 0 auto; display: flex; align-items: flex-end; border-radius: 12px 12px 4px 4px; background: rgba(26,46,36,.07); overflow: hidden; }
-  .v-bar-fill { width: 100%; min-height: 6px; border-radius: inherit; transition: height .6s cubic-bezier(.34,1.56,.64,1), filter .15s; }
-  .v-bar-active .v-bar-fill { filter: saturate(1.15) brightness(1.04); }
-  .v-bar-peak .v-bar-fill { box-shadow: 0 -4px 12px rgba(0,0,0,.1); }
-  .v-bar-lbl { font-size: 0.68rem; font-weight: 700; color: var(--ink-muted); line-height: 1.3; display: flex; align-items: flex-start; justify-content: center; padding-top: 7px; }
-  
-  .sleep-rec { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 13px 16px; border-radius: var(--r-sm); background: var(--sage-pale); border: 1px solid rgba(74,157,137,.18); font-size: 0.86rem; color: var(--sage-dark); line-height: 1.6; font-weight: 600; }
-  .sleep-rec-icon { flex-shrink: 0; }
-  .sleep-rec p { margin: 0; }
-  
-  /* Transitions */
-  .slide-note-enter-active, .slide-note-leave-active { transition: opacity .2s, transform .2s; }
-  .slide-note-enter-from, .slide-note-leave-to { opacity: 0; transform: translateY(-6px); }
-  
-  /* Responsive */
-  @media (max-width: 1020px) {
-    .hero { grid-template-columns: 1fr; }
-    .kpi-row { grid-template-columns: repeat(2, 1fr); }
-    .charts-grid { grid-template-columns: 1fr; }
-    .bmi-card, .trend-card { grid-column: 1; }
-    .bmi-row { grid-template-columns: 130px 1fr 100px; gap: 12px; }
-  }
-  @media (max-width: 640px) {
-    .site-header { padding: 0 16px; }
-    .nav-links { display: none; }
-    .kpi-row { grid-template-columns: 1fr 1fr; }
-    .filter-bar { flex-direction: column; align-items: flex-start; }
-    .bmi-row { grid-template-columns: 110px 1fr 80px; gap: 10px; padding: 12px 14px; }
-    .bmi-name { font-size: 0.82rem; }
-    .bmi-pct { font-size: 1.3rem; }
-    .v-bar-plot { grid-auto-flow: column; grid-auto-columns: 64px; grid-template-columns: none; overflow-x: auto; }
-  }
-  </style>
+  return map[item.key] || `${item.value}% of ${trendLabel.value.toLowerCase()} are in this category.`
+}
+function actOrder(label) {
+  const t = String(label||'').toLowerCase()
+  if (t.includes('less than 30')) return 1; if (t.includes('30 to less than 60')) return 2
+  if (t.includes('1 to less than 1.5')) return 3; if (t.includes('1.5 to less than 2')) return 4
+  if (t.includes('2 hours or more')) return 5; if (t.includes('less than 9')) return 1
+  if (t.includes('9 to less than 10')) return 2; if (t.includes('10 to less than 11')) return 3
+  if (t.includes('11 to less than 12')) return 4; if (t.includes('12 to less than 13')) return 5
+  if (t.includes('13 to less than 14')) return 6; if (t.includes('14 hours or more')) return 7
+  if (t.includes('less than 2')) return 1; if (t.includes('2 to less than 3')) return 2
+  if (t.includes('3 to less than 4')) return 3; if (t.includes('4 hours or more')) return 4
+  return 99
+}
+function sleepOrder(label) {
+  const t = String(label||'').toLowerCase()
+  if (t.includes('less than 6')) return 1; if (t.includes('6 to less than 7')) return 2
+  if (t.includes('7 to less than 8')) return 3; if (t.includes('8 to less than 9')) return 4
+  if (t.includes('9 to less than 10')) return 5; if (t.includes('10 hours or more')) return 6
+  return 99
+}
+function isSleepTargetBand(label) { return /9 to less than 10|10 hours or more/i.test(label) }
+function isLowSleepBand(label)    { return /less than 6|6 to less than 7|7 to less than 8|8 to less than 9/i.test(label) }
+</script>
+
+<style scoped>
+
+.stats-page {
+  --bg:          #f2ede4;
+  --surface:     rgba(255, 252, 247, 0.95);
+  --surface-2:   rgba(255, 252, 247, 0.6);
+  --border:      rgba(18, 53, 47, 0.09);
+  --border-mid:  rgba(18, 53, 47, 0.15);
+  --ink:         #12352f;
+  --ink-2:       #64736d;
+  --ink-3:       #9aaba5;
+  --green:       #236b60;
+  --green-mid:   #327c70;
+  --green-light: #e4f0ed;
+  --green-pale:  #f0f7f5;
+  --pine:        #12352f;
+  --sage:        #5a9080;
+  --amber:       #d96d4d;
+  --amber-soft:  rgba(242, 138, 104, 0.12);
+  --sky:         #3a6b8a;
+  --sky-soft:    #eaf2f8;
+  --warn:        #8b3a3a;
+  --warn-soft:   rgba(220, 38, 38, 0.08);
+  --r:           14px;
+  --r-lg:        22px;
+  --r-xl:        32px;
+  --shadow:      0 2px 8px rgba(18, 53, 47, 0.06), 0 8px 28px rgba(18, 53, 47, 0.09);
+  --shadow-lift: 0 12px 40px rgba(18, 53, 47, 0.18);
+
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+a { color: inherit; text-decoration: none; }
+button { border: none; background: none; font: inherit; cursor: pointer; }
+
+
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.38;
+}
+.orb-1 { width: 680px; height: 680px; top: -200px; right: -160px; background: radial-gradient(circle, #b4d8cc, transparent 70%); }
+.orb-2 { width: 500px; height: 500px; bottom: -120px; left: -140px; background: radial-gradient(circle, #c8d8c8, transparent 70%); }
+.orb-3 { width: 320px; height: 320px; top: 50%; left: 42%; opacity: 0.2; background: radial-gradient(circle, #b8d0e4, transparent 70%); }
+
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 clamp(20px, 5vw, 56px);
+  background: rgba(242, 237, 228, 0.82);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.18rem;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--green);
+  box-shadow: 0 1px 4px rgba(18,53,47,.1);
+}
+.brand-icon svg { width: 19px; height: 19px; }
+
+.nav { display: flex; gap: 2px; }
+.nav a {
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: 0.84rem;
+  font-weight: 700;
+  transition: background .15s, color .15s;
+}
+.nav a:hover, .nav a.router-link-active { background: white; color: var(--ink); }
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(18,53,47,.07);
+  transition: box-shadow .18s, transform .18s;
+}
+.back-link:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+
+
+.page-main {
+  position: relative;
+  z-index: 2;
+  width: min(1140px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 40px 0 100px;
+}
+
+
+.state-view {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  text-align: center;
+  padding: 48px;
+  color: var(--ink-2);
+}
+.state-error { border-color: rgba(139,58,58,.15); background: var(--warn-soft); color: var(--warn); }
+.leaf-spinner svg { width: 56px; height: 56px; }
+.leaf-draw { animation: leafDraw 1.6s ease infinite alternate; }
+@keyframes leafDraw { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+.eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 288px;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+
+.hero-copy {
+  padding: 32px 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.hero-copy.is-visible { opacity: 1; transform: none; }
+
+.hero-copy h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2.2rem, 3.8vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.03;
+  letter-spacing: -0.05em;
+  color: var(--pine);
+  margin-bottom: 14px;
+}
+.hero-copy h1 em { font-style: italic; color: var(--green); }
+.hero-sub {
+  color: var(--ink-2);
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 480px;
+}
+
+.gender-toggle {
+  padding: 24px 26px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .6s .1s ease, transform .6s .1s ease;
+}
+.gender-toggle.is-visible { opacity: 1; transform: none; }
+
+.toggle-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+.toggle-pills { display: flex; flex-direction: column; gap: 8px; }
+.toggle-pill {
+  display: flex;
+  align-items: center;
+  padding: 11px 14px;
+  border-radius: var(--r);
+  background: rgba(255,252,247,.7);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  transition: all .18s ease;
+}
+.toggle-pill:hover { background: var(--green-pale); color: var(--ink); }
+.toggle-pill.active {
+  background: var(--green-pale);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+
+.insight-explorer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.explorer-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 252, 247, 0.6);
+}
+.explorer-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  border-bottom: 2.5px solid transparent;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.explorer-tab:hover { background: rgba(255,255,255,.7); color: var(--ink); }
+.explorer-tab.active { background: white; color: var(--ink); border-bottom-color: var(--green); }
+.tab-icon { font-size: 0.95rem; }
+.tab-dot { width: 5px; height: 5px; border-radius: 50%; opacity: 0; transition: opacity .2s; flex-shrink: 0; }
+.explorer-tab.active .tab-dot { opacity: 1; }
+
+.explorer-panel { padding: clamp(20px, 3vw, 34px); }
+
+.panel-intro { margin-bottom: 22px; }
+.panel-intro h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: var(--pine);
+  margin-bottom: 4px;
+}
+.panel-intro p { color: var(--ink-2); font-size: 0.96rem; line-height: 1.6; }
+
+/* Panel transitions */
+.panel-slide-enter-active { transition: opacity .32s ease, transform .32s ease; }
+.panel-slide-leave-active { transition: opacity .18s ease, transform .18s ease; }
+.panel-slide-enter-from { opacity: 0; transform: translateX(20px); }
+.panel-slide-leave-to   { opacity: 0; transform: translateX(-12px); }
+
+
+.bmi-layout { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+.ring-wrap { display: flex; justify-content: center; }
+.ring-svg { width: 200px; height: 200px; }
+.ring-big {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 30px;
+  font-weight: 400;
+  fill: var(--pine);
+}
+.ring-sub {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10.5px;
+  font-weight: 800;
+  fill: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+
+.bmi-cards { display: flex; flex-direction: column; gap: 9px; }
+.bmi-cat-card {
+  display: grid;
+  grid-template-columns: 9px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 252, 247, 0.7);
+  border: 1px solid var(--border);
+  text-align: left;
+  transition: all .22s ease;
+  position: relative;
+  overflow: hidden;
+}
+.bmi-cat-card:hover {
+  background: white;
+  box-shadow: var(--shadow);
+  transform: translateX(3px);
+}
+.bmi-cat-card.active {
+  border-color: var(--accent, var(--green));
+  background: white;
+  box-shadow: var(--shadow);
+}
+.cat-swatch { width: 9px; height: 44px; border-radius: 5px; flex-shrink: 0; }
+.cat-body { display: flex; flex-direction: column; gap: 2px; }
+.cat-name {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.cat-pct {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ink);
+}
+.cat-count { font-size: 0.78rem; font-weight: 600; color: var(--ink-3); }
+.cat-arrow { color: var(--ink-3); flex-shrink: 0; transition: color .2s; }
+.bmi-cat-card.active .cat-arrow { color: var(--accent, var(--green)); }
+.cat-note {
+  grid-column: 1 / -1;
+  padding: 11px 13px;
+  margin-top: 6px;
+  border-radius: var(--r);
+  background: var(--green-pale);
+  border: 1px solid rgba(35, 107, 96, 0.12);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+.expand-note-enter-active, .expand-note-leave-active { transition: opacity .22s ease, transform .22s ease; }
+.expand-note-enter-from, .expand-note-leave-to { opacity: 0; transform: translateY(-5px); }
+
+.affirmation-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-top: 20px;
+  padding: 14px 18px;
+  border-radius: var(--r-lg);
+  background: var(--amber-soft);
+  border: 1px solid rgba(242, 138, 104, 0.18);
+}
+.aff-icon { color: var(--amber); flex-shrink: 0; margin-top: 1px; }
+.affirmation-strip p {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.activity-type-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 20px; }
+.activity-pill {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(255,252,247,.8);
+  border: 1px solid var(--border);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  transition: all .18s ease;
+}
+.activity-pill:hover { background: white; color: var(--ink); box-shadow: var(--shadow); }
+.activity-pill.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.activity-bars { display: flex; flex-direction: column; gap: 9px; }
+.act-bar-card {
+  display: grid;
+  grid-template-columns: 108px 1fr 54px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 252, 247, 0.7);
+  border: 1px solid var(--border);
+  position: relative;
+  animation: fadeSlide .35s ease both;
+  transition: background .18s, box-shadow .18s;
+}
+.act-bar-card:hover { background: white; box-shadow: var(--shadow); }
+.act-bar-card.highlight {
+  border-color: rgba(217, 109, 77, 0.3);
+  background: var(--amber-soft);
+}
+@keyframes fadeSlide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+.act-bar-label { font-size: 0.82rem; font-weight: 700; color: var(--ink-2); }
+.act-bar-track { height: 8px; border-radius: 999px; background: rgba(18,53,47,.07); overflow: hidden; }
+.act-bar-fill { height: 100%; border-radius: inherit; transition: width .7s ease; }
+.act-bar-pct { font-size: 0.9rem; font-weight: 800; color: var(--ink); text-align: right; }
+.act-bar-badge {
+  position: absolute;
+  right: 62px;
+  top: -9px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--amber);
+  color: white;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.sleep-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.sleep-card {
+  padding: 18px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  border-radius: var(--r-lg);
+  text-align: center;
+  background: rgba(139,58,58,.05);
+  border: 1px solid rgba(139,58,58,.12);
+  color: var(--warn);
+  animation: fadeUp .35s ease both;
+  transition: transform .18s ease, box-shadow .18s ease;
+  position: relative;
+}
+.sleep-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.sleep-card--good {
+  background: rgba(35, 107, 96, 0.06);
+  border-color: rgba(35, 107, 96, 0.18);
+  color: var(--green);
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.sleep-moon { display: flex; align-items: center; justify-content: center; opacity: 0.75; }
+.sleep-pct {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1;
+}
+.sleep-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  opacity: 0.8;
+}
+.sleep-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-size: 0.66rem;
+  font-weight: 800;
+  white-space: nowrap;
+  letter-spacing: .04em;
+}
+.sleep-target-note { margin-bottom: 16px; }
+.target-bar { height: 7px; border-radius: 999px; background: rgba(18,53,47,.08); overflow: hidden; margin-bottom: 9px; }
+.target-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-mid), var(--green));
+  border-radius: inherit;
+  transition: width .8s ease;
+}
+.sleep-target-note p { font-size: 0.9rem; color: var(--ink-2); }
+.sleep-target-note strong { color: var(--green); font-weight: 700; }
+
+
+.chart-scroll { overflow-x: auto; margin-bottom: 16px; }
+.line-svg { width: 100%; min-width: 460px; display: block; overflow: visible; }
+.grid-line { stroke: rgba(18,53,47,.06); stroke-width: 1; }
+.area-fill { fill: rgba(35,107,96,.07); }
+.axis-lbl {
+  fill: var(--ink-3);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.trend-line { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: draw 1.4s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.trend-dot { cursor: pointer; transition: r .15s; }
+.trend-dot:hover { r: 7; }
+.hover-rule { stroke: rgba(18,53,47,.1); stroke-dasharray: 4 3; }
+.tt-label { fill: var(--ink-2); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px; font-weight: 800; }
+.tt-val   { fill: var(--ink);   font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px;   font-weight: 800; }
+.trend-legend { display: flex; flex-wrap: wrap; gap: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.leg-item { display: flex; align-items: center; gap: 8px; color: var(--ink-2); font-size: 0.82rem; font-weight: 700; }
+.leg-item i { width: 18px; height: 2.5px; display: block; border-radius: 999px; }
+
+
+.step-nav {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  padding: 18px 0 4px;
+  border-top: 1px solid var(--border);
+}
+.step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-mid); transition: all .2s ease; }
+.step-dot.active { transform: scale(1.45); }
+.step-dot:hover:not(.active) { background: var(--ink-3); transform: scale(1.2); }
+
+.fact-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.fact-card {
+  padding: 22px 20px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  animation: fadeSlide .45s ease both;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.fact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.fact-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r);
+  display: grid;
+  place-items: center;
+  background: var(--green-pale);
+  border: 1px solid rgba(35,107,96,.12);
+  margin-bottom: 14px;
+}
+.fact-num {
+  display: block;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 2.6rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--c, var(--green));
+  margin-bottom: 6px;
+}
+.fact-text {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.pill-btn {
+  padding: 10px 24px;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 800;
+  transition: background .18s, box-shadow .18s;
+}
+.pill-btn:hover { background: var(--green-mid); box-shadow: 0 4px 16px rgba(35,107,96,.28); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .bmi-layout { grid-template-columns: 1fr; }
+  .ring-wrap { display: none; }
+  .fact-strip { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .nav { display: none; }
+  .tab-label { display: none; }
+  .explorer-tab { padding: 14px 8px; }
+  .act-bar-card { grid-template-columns: 80px 1fr 44px; }
+  .fact-strip { grid-template-columns: 1fr; }
+  .sleep-grid { grid-template-columns: repeat(3, 1fr); }
+  .toggle-pills { flex-direction: row; flex-wrap: wrap; }
+}
+
+.stats-page {
+  --bg: #f5f6f5;
+  --surface: #ffffff;
+  --surface-2: #f0f2f0;
+  --border: rgba(26,74,48,.07);
+  --border-mid: rgba(26,74,48,.13);
+  --ink: #111c11;
+  --ink-2: #4d5e4d;
+  --ink-3: #8a9e8a;
+  --green: #1e6640;
+  --green-mid: #2e845a;
+  --green-light: #e3eeea;
+  --green-pale: #f0f7f3;
+  --pine: #132e20;
+  --sage: #6a9e7a;
+  --amber: #a86c00;
+  --amber-soft: #fdf4e3;
+  --sky: #2d5f82;
+  --sky-soft: #e8f1f8;
+  --warn: #7a3030;
+  --warn-soft: #f7eded;
+  --r: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --shadow: 0 1px 3px rgba(26,74,48,.05), 0 6px 20px rgba(26,74,48,.07);
+  --shadow-lift: 0 6px 28px rgba(26,74,48,.12);
+
+  position: relative; min-height: 100vh;
+  background: var(--bg); color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+a { color: inherit; text-decoration: none; }
+button { border: none; background: none; font: inherit; cursor: pointer; }
+
+/* ── Background ── */
+.bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4; }
+.orb-1 { width: 640px; height: 640px; top: -200px; right: -160px; background: radial-gradient(circle, #a8d8b8, transparent 70%); }
+.orb-2 { width: 480px; height: 480px; bottom: -100px; left: -120px; background: radial-gradient(circle, #c8dac8, transparent 70%); }
+.orb-3 { width: 300px; height: 300px; top: 55%; left: 45%; opacity: 0.25; background: radial-gradient(circle, #b8d4e8, transparent 70%); }
+
+/* ── Header ── */
+.site-header {
+  position: sticky; top: 0; z-index: 50; height: 60px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 0 clamp(16px, 5vw, 56px);
+  background: rgba(245,246,245,.92); border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+}
+.brand { display: flex; align-items: center; gap: 9px; font-family: 'Fraunces', serif; font-size: 1.05rem; letter-spacing: -0.02em; font-weight: 400; }
+.brand-icon { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: white; border: 1px solid var(--border); color: var(--green); box-shadow: 0 1px 4px rgba(26,74,48,.08); }
+.brand-icon svg { width: 17px; height: 17px; }
+.nav { display: flex; gap: 2px; }
+.nav a { padding: 5px 12px; border-radius: 8px; color: var(--ink-2); font-size: 0.82rem; font-weight: 500; transition: background .15s, color .15s; }
+.nav a:hover, .nav a.router-link-active { background: white; color: var(--ink); }
+.back-link {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 8px;
+  background: white; border: 1px solid var(--border);
+  font-size: 0.82rem; font-weight: 500; color: var(--ink-2);
+  box-shadow: 0 1px 3px rgba(26,74,48,.06);
+  transition: box-shadow .2s, color .2s;
+}
+.back-link:hover { box-shadow: var(--shadow); color: var(--ink); }
+
+/* ── Main ── */
+.page-main {
+  position: relative; z-index: 2;
+  width: min(1060px, calc(100% - 32px));
+  margin: 0 auto; padding: 40px 0 100px;
+}
+
+/* ── State views ── */
+.state-view {
+  min-height: 340px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  border-radius: var(--r-xl); background: var(--surface);
+  border: 1px solid var(--border); text-align: center; padding: 48px; color: var(--ink-2);
+}
+.state-error { border-color: rgba(139,58,58,.16); background: var(--warn-soft); color: var(--warn); }
+.leaf-spinner svg { width: 64px; height: 64px; animation: leafSpin 2s linear infinite; }
+.leaf-draw { animation: leafDraw 1.6s ease infinite alternate; }
+@keyframes leafDraw { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+@keyframes leafSpin { to { transform: rotate(360deg); } }
+
+/* ── Eyebrow ── */
+.eyebrow { font-size: 0.67rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+
+/* ── Hero ── */
+.hero { display: grid; grid-template-columns: 1fr 268px; gap: 20px; align-items: center; margin-bottom: 20px; }
+.hero-copy { opacity: 0; transform: translateY(14px); transition: opacity .55s ease, transform .55s ease; }
+.hero-copy.is-visible { opacity: 1; transform: none; }
+.hero-copy h1 { font-family: 'Fraunces', serif; font-size: clamp(2.1rem, 3.8vw, 3.4rem); font-weight: 300; line-height: 1.1; letter-spacing: -0.04em; color: var(--pine); margin-bottom: 12px; }
+.hero-copy h1 em { font-style: italic; color: var(--green); }
+.hero-sub { color: var(--ink-2); line-height: 1.65; font-size: 0.93rem; max-width: 440px; font-weight: 400; }
+
+.gender-toggle {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 18px 20px; box-shadow: var(--shadow);
+  opacity: 0; transform: translateY(14px); transition: opacity .55s .1s ease, transform .55s .1s ease;
+}
+.gender-toggle.is-visible { opacity: 1; transform: none; }
+.toggle-label { font-size: 0.67rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+.toggle-pills { display: flex; flex-direction: column; gap: 6px; }
+.toggle-pill {
+  display: flex; align-items: center;
+  padding: 9px 13px; border-radius: var(--r);
+  background: var(--surface-2); border: 1.5px solid transparent;
+  font-size: 0.86rem; font-weight: 500; color: var(--ink-2);
+  transition: all .15s ease;
+}
+.toggle-pill:hover { background: var(--green-pale); color: var(--ink); }
+.toggle-pill.active { background: var(--green-pale); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+/* ── Explorer ── */
+.insight-explorer {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--shadow);
+  overflow: hidden; margin-bottom: 20px;
+}
+.explorer-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.explorer-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 14px 10px; font-size: 0.82rem; font-weight: 500; color: var(--ink-2);
+  border-bottom: 2px solid transparent;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.explorer-tab:hover { background: rgba(255,255,255,.7); color: var(--ink); }
+.explorer-tab.active { background: var(--surface); color: var(--ink); border-bottom-color: var(--green); font-weight: 600; }
+.tab-icon { font-size: 0.95rem; }
+.tab-dot { width: 5px; height: 5px; border-radius: 50%; opacity: 0; transition: opacity .2s; flex-shrink: 0; }
+.explorer-tab.active .tab-dot { opacity: 1; }
+
+.explorer-panel { padding: clamp(18px, 2.8vw, 32px); }
+.panel-intro { margin-bottom: 20px; }
+.panel-intro h2 { font-family: 'Fraunces', serif; font-size: clamp(1.3rem, 2.2vw, 1.75rem); font-weight: 300; letter-spacing: -0.03em; color: var(--pine); margin-bottom: 3px; }
+.panel-intro p { color: var(--ink-3); font-size: 0.86rem; font-weight: 400; }
+
+.panel-slide-enter-active { transition: opacity .35s ease, transform .35s ease; }
+.panel-slide-leave-active { transition: opacity .2s ease, transform .2s ease; }
+.panel-slide-enter-from { opacity: 0; transform: translateX(24px); }
+.panel-slide-leave-to   { opacity: 0; transform: translateX(-16px); }
+
+/* ── BMI ── */
+.bmi-layout { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+.ring-wrap { display: flex; justify-content: center; }
+.ring-svg { width: 200px; height: 200px; }
+.ring-big { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 400; fill: var(--pine); }
+.ring-sub { font-family: 'Nunito', sans-serif; font-size: 10px; font-weight: 700; fill: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+
+.bmi-cards { display: flex; flex-direction: column; gap: 8px; }
+.bmi-cat-card {
+  display: grid; grid-template-columns: 8px 1fr auto;
+  align-items: center; gap: 14px;
+  padding: 13px 15px; border-radius: var(--r);
+  background: var(--surface-2); border: 1.5px solid transparent;
+  text-align: left; transition: all .2s ease; position: relative; overflow: hidden;
+}
+.bmi-cat-card:hover { background: white; box-shadow: var(--shadow); transform: translateX(2px); }
+.bmi-cat-card.active { border-color: var(--accent, var(--green)); background: white; box-shadow: var(--shadow); }
+.cat-swatch { width: 8px; height: 40px; border-radius: 4px; flex-shrink: 0; }
+.cat-body { display: flex; flex-direction: column; gap: 1px; }
+.cat-name { font-size: 0.72rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2); }
+.cat-pct { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 400; line-height: 1; color: var(--ink); }
+.cat-count { font-size: 0.74rem; font-weight: 400; color: var(--ink-3); }
+.cat-arrow { color: var(--ink-3); flex-shrink: 0; transition: color .2s; }
+.bmi-cat-card.active .cat-arrow { color: var(--accent, var(--green)); }
+.cat-note {
+  grid-column: 1 / -1; padding: 10px 12px; margin-top: 4px;
+  border-radius: 8px; background: var(--green-pale); border: 1px solid var(--border);
+  font-size: 0.84rem; line-height: 1.6; color: var(--ink-2); font-weight: 400;
+}
+.expand-note-enter-active, .expand-note-leave-active { transition: opacity .2s ease, transform .2s ease; }
+.expand-note-enter-from, .expand-note-leave-to { opacity: 0; transform: translateY(-4px); }
+
+/* ── Affirmation ── */
+.affirmation-strip {
+  display: flex; align-items: flex-start; gap: 11px;
+  margin-top: 18px; padding: 13px 16px;
+  border-radius: var(--r); background: var(--green-pale); border: 1px solid rgba(30,102,64,.12);
+}
+.aff-icon { color: var(--green); flex-shrink: 0; margin-top: 1px; }
+.affirmation-strip p { font-size: 0.85rem; line-height: 1.6; color: var(--ink-2); font-weight: 400; }
+
+/* ── Activity pills ── */
+.activity-type-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.activity-pill {
+  padding: 7px 15px; border-radius: var(--r);
+  background: var(--surface-2); border: 1.5px solid transparent;
+  font-size: 0.82rem; font-weight: 500; color: var(--ink-2);
+  transition: all .15s ease;
+}
+.activity-pill:hover { background: var(--green-pale); color: var(--ink); }
+.activity-pill.active { background: var(--green-pale); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+/* ── Activity bars ── */
+.activity-bars { display: flex; flex-direction: column; gap: 8px; }
+.act-bar-card {
+  display: grid; grid-template-columns: 100px 1fr 52px;
+  gap: 12px; align-items: center;
+  padding: 11px 14px; border-radius: var(--r);
+  background: var(--surface-2); border: 1.5px solid transparent;
+  animation: fadeSlide .35s ease both; position: relative;
+  transition: background .18s, box-shadow .18s;
+}
+.act-bar-card:hover { background: white; box-shadow: var(--shadow); }
+.act-bar-card.highlight { border-color: rgba(168,108,0,.25); background: var(--amber-soft); }
+@keyframes fadeSlide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+.act-bar-label { font-size: 0.79rem; font-weight: 500; color: var(--ink-2); }
+.act-bar-track { height: 8px; border-radius: 999px; background: rgba(26,74,48,.07); overflow: hidden; }
+.act-bar-fill { height: 100%; border-radius: inherit; transition: width .7s ease; }
+.act-bar-pct { font-size: 0.86rem; font-weight: 600; color: var(--ink); text-align: right; }
+.act-bar-badge {
+  position: absolute; right: 60px; top: -9px;
+  padding: 2px 9px; border-radius: 4px;
+  background: var(--amber); color: white;
+  font-size: 0.65rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+}
+
+.sleep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: 18px; }
+.sleep-card {
+  padding: 16px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  border-radius: var(--r-lg); text-align: center;
+  background: rgba(122,48,48,.05); border: 1px solid rgba(122,48,48,.1); color: var(--warn);
+  animation: fadeUp .35s ease both;
+  transition: transform .18s ease, box-shadow .18s ease; position: relative;
+}
+.sleep-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.sleep-card--good { background: rgba(30,102,64,.06); border-color: rgba(30,102,64,.16); color: var(--green); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.sleep-moon { display: flex; align-items: center; justify-content: center; opacity: 0.7; }
+.sleep-pct { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 300; line-height: 1; }
+.sleep-label { font-size: 0.7rem; font-weight: 500; letter-spacing: .03em; color: currentColor; opacity: 0.8; }
+.sleep-badge {
+  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+  padding: 2px 9px; border-radius: 4px;
+  background: var(--green); color: white;
+  font-size: 0.64rem; font-weight: 600; white-space: nowrap; letter-spacing: .04em;
+}
+.sleep-target-note { margin-bottom: 14px; }
+.target-bar { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-bottom: 8px; }
+.target-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green-mid), var(--green)); border-radius: inherit; transition: width .8s ease; }
+.sleep-target-note p { font-size: 0.85rem; color: var(--ink-2); font-weight: 400; }
+.sleep-target-note strong { color: var(--green); font-weight: 600; }
+
+
+.chart-scroll { overflow-x: auto; margin-bottom: 16px; }
+.line-svg { width: 100%; min-width: 460px; display: block; overflow: visible; }
+.grid-line { stroke: rgba(26,74,48,.06); stroke-width: 1; }
+.area-fill { fill: rgba(39,109,69,.07); }
+.axis-lbl { fill: var(--ink-3); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; }
+.trend-line { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: draw 1.4s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.trend-dot { cursor: pointer; transition: r .15s; }
+.trend-dot:hover { r: 7; }
+.hover-rule { stroke: rgba(26,74,48,.09); stroke-dasharray: 4 3; }
+.tt-label { fill: var(--ink-2); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; }
+.tt-val   { fill: var(--ink);   font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; }
+.trend-legend { display: flex; flex-wrap: wrap; gap: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.leg-item { display: flex; align-items: center; gap: 7px; color: var(--ink-2); font-size: 0.79rem; font-weight: 500; }
+.leg-item i { width: 16px; height: 2px; display: block; border-radius: 999px; }
+
+.step-nav { display: flex; justify-content: center; gap: 8px; padding: 16px 0 2px; border-top: 1px solid var(--border); }
+.step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-mid); transition: all .2s ease; }
+.step-dot.active { transform: scale(1.4); }
+.step-dot:hover:not(.active) { background: var(--ink-3); transform: scale(1.15); }
+
+.fact-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.fact-card {
+  padding: 20px 18px; border-radius: var(--r-lg);
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+  animation: fadeSlide .4s ease both;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.fact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.fact-icon-wrap {
+  width: 36px; height: 36px; border-radius: var(--r);
+  display: grid; place-items: center;
+  background: var(--green-pale);
+  margin-bottom: 12px;
+}
+.fact-num { display: block; font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 300; line-height: 1; letter-spacing: -0.04em; color: var(--c, var(--green)); margin-bottom: 5px; }
+.fact-text { font-size: 0.83rem; color: var(--ink-2); line-height: 1.55; font-weight: 400; }
+
+.pill-btn { padding: 9px 22px; border-radius: var(--r); background: var(--green); color: white; font-size: 0.86rem; font-weight: 600; transition: background .18s, box-shadow .18s; }
+.pill-btn:hover { background: var(--green-mid); box-shadow: 0 4px 14px rgba(30,102,64,.25); }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; }
+  .bmi-layout { grid-template-columns: 1fr; }
+  .ring-wrap { display: none; }
+  .fact-strip { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .nav { display: none; }
+  .tab-label { display: none; }
+  .explorer-tab { padding: 14px 8px; }
+  .act-bar-card { grid-template-columns: 80px 1fr 42px; }
+  .fact-strip { grid-template-columns: 1fr; }
+  .sleep-grid { grid-template-columns: repeat(3, 1fr); }
+  .toggle-pills { flex-direction: row; flex-wrap: wrap; }
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  width: 100%;
+  background: rgba(246, 239, 229, 0.88);
+  border-bottom: 1px solid rgba(18, 53, 47, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.header-inner {
+  width: min(1160px, calc(100% - 32px));
+  height: 82px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #12352f;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.28rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #236b60;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(35, 107, 96, 0.22);
+  box-shadow: 0 10px 24px rgba(18, 53, 47, 0.08);
+}
+
+.logo-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-a {
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: #52635d;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.nav-a:hover,
+.nav-a.router-link-active {
+  background: #ffffff;
+  color: #12352f;
+}
+
+.nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-link {
+  color: #52635d;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: #12352f;
+}
+
+.nav-btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #236b60;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 18px 38px rgba(35, 107, 96, 0.24);
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.nav-btn:hover {
+  transform: translateY(-1px);
+  background: #1d5d53;
+  box-shadow: 0 22px 44px rgba(35, 107, 96, 0.3);
+}
+</style>
