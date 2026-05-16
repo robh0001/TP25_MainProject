@@ -21,8 +21,9 @@
         </RouterLink>
         <nav class="nav">
           <RouterLink to="/" class="nav-a">Home</RouterLink>
-          <!-- <RouterLink to="/parent-entry" class="nav-a">New Plan</RouterLink> -->
+          <RouterLink to="/parent-dashboard" class="nav-a">Dashboard</RouterLink>
           <RouterLink to="/parent-nutrition-tools" class="nav-a">Nutrition</RouterLink>
+          <RouterLink to="/statistics" class="nav-a">Statistics</RouterLink>
           <RouterLink to="/young-person-dashboard" class="nav-a">Kids view</RouterLink>
         </nav>
         <div class="nav-cta">
@@ -97,7 +98,6 @@
             </div>
             <div class="mission-top">
               <div class="mission-eyebrow">Daily progress</div>
-              <div class="streak-pill">{{ streakDays }}-day streak <span>&#128293;</span></div>
             </div>
             <h2 class="mission-title">{{ completedTodayCount }} of {{ todayFullSchedule.length }} done today</h2>
             <p class="mission-desc">Check off actions as your family completes them throughout the day.</p>
@@ -108,10 +108,6 @@
             <div class="mp-track">
               <div class="mp-fill" :style="{ width: todayProgress + '%' }"></div>
             </div>
-            <button class="mission-btn" @click="completeMission">
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              Add to streak
-            </button>
           </div>
         </div>
       </section>
@@ -299,8 +295,14 @@
                 </div>
 
                 <div class="planner-actions">
-                  <button v-if="!isEditingPlanner" type="button" class="planner-edit-btn" @click="startEditingPlanner">
-                    Edit planner
+                  <button
+                    v-if="!isEditingPlanner"
+                    type="button"
+                    class="planner-edit-btn"
+                    :disabled="!canModifySelectedPlannerDay"
+                    @click="startEditingPlanner"
+                  >
+                    {{ canModifySelectedPlannerDay ? 'Edit today' : 'Editing locked' }}
                   </button>
 
                   <template v-else>
@@ -365,10 +367,19 @@
                     class="simple-slot"
                     :class="['slot-' + slot.category, { done: slot.done, editing: isEditingPlanner }]"
                   >
-                    <template v-if="!isEditingPlanner">
-                      <span class="slot-time">{{ slot.time }}</span>
-                      <label class="slot-action">
-                        <input type="checkbox" :checked="slot.done" @change="toggleRoadmapDailyAction(slot.id)" />
+                  <template v-if="!isEditingPlanner">
+                    <span class="slot-time">{{ slot.time }}</span>
+
+                    <label
+                      class="slot-action"
+                      :class="{ locked: !canModifySelectedPlannerDay }"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="slot.done"
+                        :disabled="!canModifySelectedPlannerDay"
+                        @change="toggleRoadmapDailyAction(slot.id)"
+                      />
                         <span class="slot-check" :class="{ done: slot.done }">
                           <svg v-if="slot.done" width="8" height="8" viewBox="0 0 10 10">
                             <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
@@ -381,7 +392,7 @@
                       </label>
                     </template>
 
-                    <template v-else>
+                    <template v-else-if="canModifySelectedPlannerDay">
                       <div class="slot-edit-form">
                         <div class="slot-edit-row">
                           <input v-model="editablePlanner[slot.id].time" class="slot-edit-input" type="text" placeholder="Time" />
@@ -397,7 +408,25 @@
                         <input v-model="editablePlanner[slot.id].tip" class="slot-edit-input" type="text" placeholder="Parent tip optional" />
                       </div>
                     </template>
+
+                    <template v-else>
+                      <span class="slot-time">{{ slot.time }}</span>
+                      <div class="slot-action locked">
+                        <span class="slot-check" :class="{ done: slot.done }">
+                          <svg v-if="slot.done" width="8" height="8" viewBox="0 0 10 10">
+                            <path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                          </svg>
+                        </span>
+
+                        <span class="slot-copy">
+                          <strong>{{ slot.text }}</strong>
+                          <small v-if="slot.tip || slot.detail">{{ slot.tip || slot.detail }}</small>
+                          <small class="slot-locked-note">Only today's actions can be updated.</small>
+                        </span>
+                      </div>
+                    </template>
                   </div>
+
 
                   <p v-if="!(selectedPlannerDayData.timeSlots || []).length" class="planner-empty">
                     No actions scheduled for this day.
@@ -455,7 +484,6 @@ const {
   loading: planLoading,
   error: planError,
   fetchPlan,
-  getTodaySlots,
   buildRoadmapWeeks,
 } = useDynamicPlan()
 
@@ -474,12 +502,17 @@ const scheduleCategories = [
 ]
 
 const isScrolled = ref(false)
-const showCelebration = ref(false)
 const activeRoadmapWeek = ref(1)
 const selectedPlannerDay = ref(getTodayName())
 const isEditingPlanner = ref(false)
 const editablePlanner = ref({})
 
+const isSelectedPlannerDayToday = computed(() => {
+  return activeRoadmapWeek.value === currentWeek.value &&
+    selectedPlannerDayData.value?.day === todayName.value
+})
+
+const canModifySelectedPlannerDay = computed(() => isSelectedPlannerDayToday.value)
 
 function getTodayName() {
   return new Date().toLocaleDateString(LOCALE, { weekday: 'long', timeZone: TIME_ZONE })
@@ -530,20 +563,6 @@ function catInitial(cat) {
   return { nutrition: 'N', movement: 'M', sleep: 'S', routine: 'R', family: 'F' }[cat] || '·'
 }
 
-function getProgressColorClass(progress) {
-  if (progress >= 80) return 'progress-green'
-  if (progress >= 60) return 'progress-lime'
-  if (progress >= 40) return 'progress-amber'
-  if (progress >= 20) return 'progress-orange'
-  return 'progress-red'
-}
-
-function getProgressStroke(progress) {
-  if (progress >= 80) return '#327c70'
-  if (progress >= 40) return '#e6865f'
-  if (progress >= 20) return '#d97706'
-  return 'rgba(255,255,255,.25)'
-}
 
 function getCategoryLabel(category) {
   return { nutrition: 'Nutrition', movement: 'Movement', sleep: 'Wind-down', routine: 'Routine', family: 'Family' }[category] || 'Routine'
@@ -668,25 +687,6 @@ const roadmapRingStyle = computed(() => {
   return { background: `conic-gradient(${color} ${p}%, rgba(23,32,51,0.07) ${p}%)` }
 })
 
-// Journey path visualisation
-const journeyPathColor = computed(() => {
-  const p = roadmapCompletion.value
-  return p > 0 ? '#e6865f' : 'rgba(22,48,43,0.08)'
-})
-
-const journeyFillDash = computed(() => {
-  // SVG path total length ~520 for our curve
-  const len = 520
-  const filled = (roadmapCompletion.value / 100) * len
-  return `${filled} ${len}`
-})
-
-const confettiPieces = computed(() =>
-  Array.from({ length: 16 }, (_, i) => ({
-    id: i,
-    style: { left: `${4 + i * 6}%`, animationDelay: `${i * 0.04}s`, transform: `rotate(${i * 22}deg)` },
-  }))
-)
 
 function getCanonicalActionId(slotOrId) {
   if (typeof slotOrId === 'string') return slotOrId.replace('today-schedule-', '')
@@ -705,21 +705,28 @@ function togglePlanAction(slotOrId) {
 }
 
 function toggleTodayScheduleSlot(slot) { togglePlanAction(slot) }
-function toggleRoadmapDailyAction(actionId) { togglePlanAction(actionId) }
 
-function completeMission() {
-  saveAndPersist({ ...state, streakDays: (state.streakDays || 0) + 1 })
-  showCelebration.value = true
-  setTimeout(() => { showCelebration.value = false }, 2000)
+function toggleRoadmapDailyAction(actionId) {
+  if (!canModifySelectedPlannerDay.value) return
+
+  togglePlanAction(actionId)
 }
 
+
 function startEditingPlanner() {
+  if (!canModifySelectedPlannerDay.value) return
+
   const editable = {}
-  selectedRoadmapWeek.value.dailyPlan.forEach(day => {
-    ;(day.timeSlots || []).forEach(slot => {
-      editable[slot.id] = { time: slot.time, text: slot.text, tip: slot.tip || slot.detail || '', category: slot.category }
-    })
+
+  ;(selectedPlannerDayData.value.timeSlots || []).forEach(slot => {
+    editable[slot.id] = {
+      time: slot.time,
+      text: slot.text,
+      tip: slot.tip || slot.detail || '',
+      category: slot.category,
+    }
   })
+
   editablePlanner.value = editable
   isEditingPlanner.value = true
 }
@@ -908,7 +915,7 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll) })
 .mission-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,114,95,.06); }
 .mission-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .mission-eyebrow { font-size: .62rem; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; color: var(--coral); }
-.streak-pill { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 999px; background: rgba(255,114,95,.12); border: 1px solid rgba(255,114,95,.22); font-size: .68rem; font-weight: 800; color: var(--coral-dark); }
+
 .mission-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 400; letter-spacing: -.02em; line-height: 1.2; color: var(--ink); margin-bottom: 8px; }
 .mission-desc { font-size: .82rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
 .mp-labels { display: flex; justify-content: space-between; font-size: .72rem; font-weight: 700; color: var(--muted); margin-bottom: 7px; }
@@ -1396,7 +1403,25 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll) })
   font-size: 0.78rem;
 }
 
-.planner-summary-card i,
+/* Week progress bar inside summary card */
+.planner-summary-card i {
+  display: block;
+  width: 100%;
+  height: 7px;
+  margin-top: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(22, 48, 43, 0.08);
+}
+
+.planner-summary-card i b {
+  display: block;
+  height: 100%;
+  max-width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--planner-sage), var(--planner-sage-dark));
+  transition: width 0.25s ease;
+}
 
 .day-picker-btn.today {
   border-color: rgba(245, 159, 122, 0.48);
@@ -1889,4 +1914,38 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll) })
   background: rgba(229, 244, 239, 0.74);
 }
 
+.planner-edit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(22, 48, 43, 0.18);
+  color: var(--planner-muted);
+  box-shadow: none;
+}
+
+.planner-edit-btn:disabled:hover {
+  transform: none;
+}
+
+.slot-action.locked {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.slot-action.locked .slot-check {
+  background: rgba(22, 48, 43, 0.06);
+}
+
+.slot-action input:disabled + .slot-check {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.slot-locked-note {
+  display: block;
+  margin-top: 4px;
+  color: var(--planner-coral-dark);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 800;
+}
 </style>
