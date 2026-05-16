@@ -9,10 +9,58 @@
   
 html {
   font-size: var(--hk-base-font-size);
+  overflow-x: hidden;
 }
   
 body {
+  margin: 0;
+  padding: 0;
   font-size: 1rem;
+  overflow-x: hidden;
+  background: #07140d;
+}
+
+/* =========================================================
+  Global Page Reset
+========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  overflow-x: hidden;
+  background: #07140d;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img,
+svg {
+  display: block;
 }
 
 /* =========================================================
@@ -2152,6 +2200,7 @@ body.hk-hover-to-read-active label:hover {
   color: var(--ink);
   background: #f7efe4;
   min-height: 100vh;
+  width: 100%;
 }
 
 /* Background */
