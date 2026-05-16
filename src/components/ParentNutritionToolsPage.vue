@@ -141,7 +141,10 @@
 
           <Transition name="fade-up">
             <div v-if="foodPredictionResult" class="score-result">
-              <div class="score-ring" :style="{ '--score-color': scoreColor(foodPredictionResult.health_score) }">
+              <div
+                class="score-ring"
+                :style="{ '--score-color': scoreColor(foodPredictionResult.health_score) }"
+              >
                 <svg viewBox="0 0 90 90" aria-hidden="true">
                   <circle cx="45" cy="45" r="35" class="ring-bg" />
                   <circle
@@ -161,14 +164,21 @@
                   {{ scoreVerdict(foodPredictionResult.health_score) }}
                 </span>
                 <p>{{ scoreTip(foodPredictionResult.health_score, foodPredictionResult.matched_food) }}</p>
-                <button type="button" class="clear-score" @click="clearAndReset">Score another food</button>
+                <button type="button" class="clear-score" @click="clearAndReset">
+                  Score another food
+                </button>
               </div>
             </div>
           </Transition>
 
           <div v-if="!foodPredictionResult && !foodPredictionLoading" class="example-row">
             <span>Try:</span>
-            <button v-for="food in exampleFoods" :key="food" type="button" @click="tryExample(food)">
+            <button
+              v-for="food in exampleFoods"
+              :key="food"
+              type="button"
+              @click="tryExample(food)"
+            >
               {{ food }}
             </button>
           </div>
@@ -191,7 +201,11 @@
             <label for="category-filter">Category</label>
             <select id="category-filter" v-model="selectedCategory">
               <option value="all">All categories</option>
-              <option v-for="category in categoryOptions" :key="category" :value="category">
+              <option
+                v-for="category in categoryOptions"
+                :key="category"
+                :value="category"
+              >
                 {{ category }}
               </option>
             </select>
@@ -201,7 +215,11 @@
             <label for="cuisine-filter">Cuisine</label>
             <select id="cuisine-filter" v-model="selectedCuisine">
               <option value="all">All cuisines</option>
-              <option v-for="cuisine in cuisineOptions" :key="cuisine" :value="cuisine">
+              <option
+                v-for="cuisine in cuisineOptions"
+                :key="cuisine"
+                :value="cuisine"
+              >
                 {{ cuisine }}
               </option>
             </select>
@@ -221,9 +239,12 @@
 
         <div class="controls-footer">
           <p>
-            Showing <strong>{{ filteredRecipes.length }}</strong> of <strong>{{ recipeCount }}</strong> recipes
+            Showing <strong>{{ filteredRecipes.length }}</strong> of
+            <strong>{{ recipeCount }}</strong> recipes
           </p>
-          <button v-if="hasActiveFilters" type="button" @click="resetFilters">Clear filters</button>
+          <button v-if="hasActiveFilters" type="button" @click="resetFilters">
+            Clear filters
+          </button>
         </div>
       </section>
 
@@ -261,15 +282,19 @@
             v-for="recipe in visibleRecipes"
             :key="recipe.id"
             class="recipe-card"
-            :class="{ open: openRecipeId === recipe.id }"
           >
-            <button type="button" class="recipe-card__top" @click="toggleRecipe(recipe.id)">
+            <button
+              type="button"
+              class="recipe-card__top"
+              @click="openRecipeModal(recipe)"
+            >
               <div class="recipe-main">
                 <span class="category-pill">{{ recipe.category || 'Recipe' }}</span>
                 <h3>{{ recipe.name }}</h3>
                 <p>{{ recipe.summary }}</p>
               </div>
-              <span class="expand-icon">{{ openRecipeId === recipe.id ? '-' : '+' }}</span>
+
+              <span class="expand-icon" aria-hidden="true">+</span>
             </button>
 
             <div class="recipe-meta">
@@ -277,31 +302,83 @@
               <span>{{ recipe.effortLabel }}</span>
               <span>{{ recipe.needLabel }}</span>
             </div>
-
-            <Transition name="expand-card">
-              <div v-if="openRecipeId === recipe.id" class="recipe-details">
-                <div v-if="recipe.ingredientsList.length" class="detail-block">
-                  <h4>Ingredients</h4>
-                  <ul>
-                    <li v-for="ingredient in recipe.ingredientsList" :key="ingredient">{{ ingredient }}</li>
-                  </ul>
-                </div>
-
-                <div v-if="recipe.stepList.length" class="detail-block">
-                  <h4>Steps</h4>
-                  <ol>
-                    <li v-for="step in recipe.stepList" :key="step">{{ step }}</li>
-                  </ol>
-                </div>
-
-                <div class="parent-tip">
-                  <strong>Parent tip:</strong>
-                  {{ recipe.parentTip }}
-                </div>
-              </div>
-            </Transition>
           </article>
         </div>
+
+        <Teleport to="body">
+          <Transition name="recipe-modal-fade">
+            <div
+              v-if="selectedRecipe"
+              class="recipe-modal-backdrop"
+              role="dialog"
+              aria-modal="true"
+              :aria-label="`${selectedRecipe.name} recipe details`"
+              @click.self="closeRecipeModal"
+            >
+              <div class="recipe-modal">
+                <button
+                  type="button"
+                  class="recipe-modal-close"
+                  aria-label="Close recipe details"
+                  @click="closeRecipeModal"
+                >
+                  ×
+                </button>
+
+                <div class="recipe-modal-head">
+                  <span class="category-pill">{{ selectedRecipe.category || 'Recipe' }}</span>
+
+                  <h2>{{ selectedRecipe.name }}</h2>
+
+                  <p>{{ selectedRecipe.summary }}</p>
+
+                  <div class="recipe-modal-meta">
+                    <span>{{ selectedRecipe.area || 'Family' }}</span>
+                    <span>{{ selectedRecipe.effortLabel }}</span>
+                    <span>{{ selectedRecipe.needLabel }}</span>
+                  </div>
+                </div>
+
+                <div class="recipe-modal-body">
+                  <section
+                    v-if="selectedRecipe.ingredientsList.length"
+                    class="recipe-modal-block"
+                  >
+                    <h3>Ingredients</h3>
+                    <ul>
+                      <li
+                        v-for="ingredient in selectedRecipe.ingredientsList"
+                        :key="ingredient"
+                      >
+                        {{ ingredient }}
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section
+                    v-if="selectedRecipe.stepList.length"
+                    class="recipe-modal-block"
+                  >
+                    <h3>Steps</h3>
+                    <ol>
+                      <li
+                        v-for="step in selectedRecipe.stepList"
+                        :key="step"
+                      >
+                        {{ step }}
+                      </li>
+                    </ol>
+                  </section>
+
+                  <section class="recipe-modal-tip">
+                    <strong>Parent tip:</strong>
+                    <span>{{ selectedRecipe.parentTip }}</span>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </Transition>
+        </Teleport>
 
         <div v-if="filteredRecipes.length > visibleLimit" class="load-more-wrap">
           <button type="button" class="load-more" @click="visibleLimit += 12">
@@ -322,7 +399,6 @@ import { useFoodHealthPredictor } from '../composables/useFoodHealthPredictor'
 const API_BASE = import.meta.env.VITE_NUTRITION_API_BASE_URL
 
 const { state } = useFamilyPlanStore()
-const concerns = computed(() => (Array.isArray(state.concerns) ? state.concerns : []))
 
 const recipes = ref([])
 const nutritionLoading = ref(false)
@@ -332,15 +408,11 @@ const searchQuery = ref('')
 const selectedCategory = ref('all')
 const selectedCuisine = ref('all')
 const selectedNeed = ref('all')
-const openRecipeId = ref(null)
+const selectedRecipe = ref(null)
 const visibleLimit = ref(12)
 const isScrolled = ref(false)
-
-function onScroll() {
-  isScrolled.value = window.scrollY > 40
-}
-
 const foodInput = ref('')
+
 const {
   loading: foodPredictionLoading,
   error: foodPredictionError,
@@ -398,7 +470,15 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+
+  if (typeof document !== 'undefined') {
+    document.body.classList.remove('recipe-modal-open')
+  }
 })
+
+function onScroll() {
+  isScrolled.value = window.scrollY > 40
+}
 
 async function fetchRecipes() {
   if (!API_BASE) {
@@ -479,8 +559,15 @@ function splitSteps(value) {
     .replace(/\s+/g, ' ')
     .trim()
 
-  const splitByNumber = cleaned.split(/(?:^|\s)(?:\d+\.|Step \d+:)/i).map(step => step.trim()).filter(Boolean)
-  const splitBySentence = cleaned.split(/\.\s+/).map(step => step.trim()).filter(Boolean)
+  const splitByNumber = cleaned
+    .split(/(?:^|\s)(?:\d+\.|Step \d+:)/i)
+    .map(step => step.trim())
+    .filter(Boolean)
+
+  const splitBySentence = cleaned
+    .split(/\.\s+/)
+    .map(step => step.trim())
+    .filter(Boolean)
 
   return (splitByNumber.length > 1 ? splitByNumber : splitBySentence)
     .map(step => (step.endsWith('.') ? step : `${step}.`))
@@ -546,12 +633,28 @@ function resetFilters() {
   selectedCategory.value = 'all'
   selectedCuisine.value = 'all'
   selectedNeed.value = 'all'
-  openRecipeId.value = null
+  selectedRecipe.value = null
   visibleLimit.value = 12
+
+  if (typeof document !== 'undefined') {
+    document.body.classList.remove('recipe-modal-open')
+  }
 }
 
-function toggleRecipe(id) {
-  openRecipeId.value = openRecipeId.value === id ? null : id
+function openRecipeModal(recipe) {
+  selectedRecipe.value = recipe
+
+  if (typeof document !== 'undefined') {
+    document.body.classList.add('recipe-modal-open')
+  }
+}
+
+function closeRecipeModal() {
+  selectedRecipe.value = null
+
+  if (typeof document !== 'undefined') {
+    document.body.classList.remove('recipe-modal-open')
+  }
 }
 
 function submitFoodPrediction() {
