@@ -611,8 +611,19 @@ const normalisedRecipes = computed(() => recipes.value.map(mapRecipe))
 
 const recipeCount = computed(() => normalisedRecipes.value.length)
 
-const categoryOptions = computed(() => uniqueValues(normalisedRecipes.value.map(recipe => recipe.category)))
-const cuisineOptions = computed(() => uniqueValues(normalisedRecipes.value.map(recipe => recipe.area)))
+const categoryOptions = computed(() => {
+  const base = selectedCuisine.value === 'all'
+    ? normalisedRecipes.value
+    : normalisedRecipes.value.filter(r => r.area === selectedCuisine.value)
+  return uniqueValues(base.map(r => r.category))
+})
+
+const cuisineOptions = computed(() => {
+  const base = selectedCategory.value === 'all'
+    ? normalisedRecipes.value
+    : normalisedRecipes.value.filter(r => r.category === selectedCategory.value)
+  return uniqueValues(base.map(r => r.area))
+})
 const categoryCount = computed(() => categoryOptions.value.length)
 const cuisineCount = computed(() => cuisineOptions.value.length)
 
@@ -648,6 +659,23 @@ watch(
   },
   { immediate: true }
 )
+
+
+watch(selectedCuisine, () => {
+  // If the currently selected category no longer exists for this cuisine, reset it
+  if (selectedCategory.value !== 'all' && !categoryOptions.value.includes(selectedCategory.value)) {
+    selectedCategory.value = 'all'
+  }
+  visibleLimit.value = 12
+})
+
+watch(selectedCategory, () => {
+  // If the currently selected cuisine no longer exists for this category, reset it
+  if (selectedCuisine.value !== 'all' && !cuisineOptions.value.includes(selectedCuisine.value)) {
+    selectedCuisine.value = 'all'
+  }
+  visibleLimit.value = 12
+})
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
@@ -751,23 +779,47 @@ function splitSteps(value) {
     .slice(0, 6)
 }
 
+const PROTEIN_CATEGORIES = new Set(['chicken', 'beef', 'pork', 'lamb', 'seafood', 'goat'])
+const FRUIT_VEG_CATEGORIES = new Set(['vegetarian', 'vegan', 'side dish', 'side', 'salad'])
+const LUNCHBOX_CATEGORIES = new Set([
+  'snack', 'lunch', 'appetizer', 'starter',
+  'world breakfast', 'south indian breakfast', 'indian breakfast', 'breakfast',
+])
+const QUICK_CATEGORIES = new Set([
+  'snack', 'appetizer', 'starter', 'breakfast',
+  'south indian breakfast', 'indian breakfast', 'world breakfast',
+])
+
 function detectNeeds(recipe) {
-  const text = `${recipe.name} ${recipe.category} ${recipe.ingredients}`.toLowerCase()
+  const text = `${recipe.name} ${recipe.ingredients}`.toLowerCase()
+  const cat = String(recipe.category).toLowerCase()
   const needs = []
 
-  if (/chicken|egg|paneer|tofu|soy|fish|beans|lentil|dal|yoghurt|yogurt|beef|mutton/.test(text)) {
+  if (
+    PROTEIN_CATEGORIES.has(cat) ||
+    /chicken|egg|paneer|tofu|soy chunk|fish|prawn|shrimp|crab|mussel|squid|salmon|tuna|lentil|dal|beans|legume|yoghurt|yogurt|beef|mutton|lamb|pork|turkey|mince|keema|cheese|cottage|meat|goat/.test(text)
+  ) {
     needs.push('protein')
   }
 
-  if (/vegetable|fruit|spinach|palak|carrot|peas|matar|tomato|lettuce|capsicum|beans|broccoli/.test(text)) {
+  if (
+    FRUIT_VEG_CATEGORIES.has(cat) ||
+    /vegetable|veggie|fruit|spinach|palak|carrot|peas|matar|tomato|lettuce|capsicum|broccoli|zucchini|courgette|onion|garlic|ginger|celery|leek|mushroom|pepper|aubergine|eggplant|cucumber|pumpkin|squash|corn|asparagus|kale|cabbage|cauliflower|beetroot|radish|turnip|apple|banana|mango|berry|lemon|lime|orange|avocado|coconut/.test(text)
+  ) {
     needs.push('fruit-veg')
   }
 
-  if (/wrap|sandwich|roll|burrito|dosa|idli|rice|pasta|noodle/.test(text)) {
+  if (
+    LUNCHBOX_CATEGORIES.has(cat) ||
+    /wrap|sandwich|roll|burrito|dosa|idli|rice|pasta|noodle|flatbread|tortilla|pita|roti|chapati|muffin|fritter|ball|bite|skewer|dumpling|spring roll|sushi|salad/.test(text)
+  ) {
     needs.push('lunchbox-safe')
   }
 
-  if (/quick|easy|simple|bread|toast|rice|egg/.test(text)) {
+  if (
+    QUICK_CATEGORIES.has(cat) ||
+    /quick|easy|simple|bread|toast|rice|egg|stir.?fry|pan.?fry|saut[eé]|grill|boil|steam|instant|ready|one.?pan|one.?pot|speedy|fast/.test(text)
+  ) {
     needs.push('quick')
   }
 

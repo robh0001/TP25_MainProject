@@ -1,50 +1,96 @@
 <template>
   <div class="stats-page">
-        <header class="header" :class="{ scrolled: isScrolled }">
-        <div class="header-inner">
-          <RouterLink to="/" class="logo">
-            <div class="logo-icon">
-              <svg viewBox="0 0 36 36" fill="none">
-                <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5" />
-                <path
-                  d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </div>
-            <span>HealthyKids</span>
+    <header class="header" :class="{ scrolled: isScrolled }" aria-label="HealthyKids statistics header">
+      <div class="header-inner">
+        <RouterLink
+          to="/"
+          class="logo"
+          aria-label="Go to HealthyKids home page"
+          data-hover-read-text="Go to HealthyKids home page"
+        >
+          <div class="logo-icon" aria-hidden="true">
+            <svg viewBox="0 0 36 36" fill="none" focusable="false">
+              <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5" />
+              <path
+                d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+          <span>HealthyKids</span>
+        </RouterLink>
+
+        <nav class="nav" aria-label="Statistics page navigation">
+          <RouterLink to="/" class="nav-a" data-hover-read-text="Go to home page">
+            Home
           </RouterLink>
 
-          <nav class="nav" aria-label="Nutrition page navigation">
-            <RouterLink to="/" class="nav-a">Home</RouterLink>
-            <RouterLink to="/parent-dashboard" class="nav-a">Dashboard</RouterLink>
-            <RouterLink to="/parent-nutrition-tools" class="nav-a">Nutrition</RouterLink>
-            <RouterLink to="/statistics" class="nav-a">Statistics</RouterLink>
-            <RouterLink to="/young-person-dashboard" class="nav-a">Kids view</RouterLink>
-          </nav>
+          <RouterLink to="/parent-dashboard" class="nav-a" data-hover-read-text="Go to parent dashboard">
+            Dashboard
+          </RouterLink>
 
-          <div class="nav-cta">
-            <RouterLink to="/parent-quiz" class="nav-link">Retake quiz</RouterLink>
-            <RouterLink to="/parent-dashboard" class="nav-btn">
-              Back to dashboard
-              <svg width="11" height="11" viewBox="0 0 12 12">
-                <path
-                  d="M2 6h8M7 3l3 3-3 3"
-                  stroke="currentColor"
-                  stroke-width="1.4"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </RouterLink>
-          </div>
+          <RouterLink to="/parent-nutrition-tools" class="nav-a" data-hover-read-text="Go to nutrition page">
+            Nutrition
+          </RouterLink>
+
+          <RouterLink
+            to="/statistics"
+            class="nav-a"
+            aria-current="page"
+            data-hover-read-text="Current page. Statistics."
+          >
+            Statistics
+          </RouterLink>
+
+          <RouterLink to="/young-person-dashboard" class="nav-a" data-hover-read-text="Go to kids view">
+            Kids view
+          </RouterLink>
+        </nav>
+
+        <div class="nav-cta">
+          <RouterLink
+            to="/parent-quiz"
+            class="nav-link"
+            data-hover-read-text="Retake the parent quiz"
+          >
+            Retake quiz
+          </RouterLink>
+
+          <RouterLink
+            to="/parent-dashboard"
+            class="nav-btn"
+            data-hover-read-text="Back to dashboard"
+          >
+            Back to dashboard
+            <svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 12 12">
+              <path
+                d="M2 6h8M7 3l3 3-3 3"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </RouterLink>
         </div>
-      </header>
-    <main class="page-main">
+      </div>
+    </header>
+    <main
+      id="main-content"
+      class="page-main"
+      aria-labelledby="stats-page-title"
+      aria-describedby="stats-page-description"
+    >
       <!-- Loading -->
-      <div v-if="insightsLoading" class="state-view">
-        <div class="leaf-spinner">
-          <svg viewBox="0 0 60 60" fill="none">
+      <div
+        v-if="insightsLoading"
+        class="state-view"
+        role="status"
+        aria-live="polite"
+        data-hover-read-text="Getting your insights ready."
+      >
+        <div class="leaf-spinner" aria-hidden="true">
+          <svg viewBox="0 0 60 60" fill="none" focusable="false">
             <path d="M30 8C17 18 14 28 30 52C46 28 43 18 30 8Z" fill="#276d45" opacity="0.15"/>
             <path d="M30 8C17 18 14 28 30 52C46 28 43 18 30 8Z" stroke="#276d45" stroke-width="2" stroke-dasharray="120" stroke-dashoffset="120" class="leaf-draw"/>
           </svg>
@@ -53,18 +99,50 @@
       </div>
 
       <!-- Error -->
-      <div v-else-if="insightsError" class="state-view state-error">
+      <div
+        v-else-if="insightsError"
+        class="state-view state-error"
+        role="alert"
+        aria-live="assertive"
+        :data-hover-read-text="`Could not load insights. ${insightsError}`"
+      >
         <p>{{ insightsError }}</p>
-        <button class="pill-btn" @click="fetchInsights">Try again</button>
+        <button
+          type="button"
+          class="pill-btn"
+          data-hover-read-text="Try loading insights again"
+          @click="fetchInsights"
+        >
+          Try again
+        </button>
       </div>
 
       <template v-else>
         <!-- Hero -->
         <section class="hero">
           <div class="hero-copy" :class="{ 'is-visible': heroVisible }">
-            <p class="eyebrow"><span class="eyebrow-dot"></span>Australia · Children aged 5-12</p>
-            <h1>The health<br/>  <em>picture</em> for<br/>Australian kids</h1>
-            <p class="hero-sub">Select a topic below to explore the numbers - and what they mean for your family.</p>
+            <p
+              class="eyebrow"
+              data-hover-read-text="Australia. Children aged 5 to 12."
+            >
+              <span class="eyebrow-dot" aria-hidden="true"></span>
+              Australia · Children aged 5-12
+            </p>
+
+            <h1
+              id="stats-page-title"
+              data-hover-read-text="The health picture for Australian kids"
+            >
+              The health<br/> <em>picture</em> for<br/>Australian kids
+            </h1>
+
+            <p
+              id="stats-page-description"
+              class="hero-sub"
+              data-hover-read-text="Select a topic below to explore the numbers and what they mean for your family."
+            >
+              Select a topic below to explore the numbers - and what they mean for your family.
+            </p>
           </div>
 
           <div class="gender-toggle" :class="{ 'is-visible': heroVisible }">
@@ -73,8 +151,11 @@
               <button
                 v-for="g in genders"
                 :key="g.value"
+                type="button"
                 class="toggle-pill"
                 :class="{ active: selectedGender === g.value }"
+                :aria-pressed="selectedGender === g.value ? 'true' : 'false'"
+                :data-hover-read-text="`${g.label}. ${selectedGender === g.value ? 'Selected' : 'Not selected'}. View statistics for ${g.label}.`"
                 @click="selectedGender = g.value"
               >
                 {{ g.label }}
@@ -89,13 +170,16 @@
             <button
               v-for="(tab, i) in tabs"
               :key="tab.key"
+              type="button"
               class="explorer-tab"
               :class="{ active: activeTab === i }"
+              :aria-pressed="activeTab === i ? 'true' : 'false'"
+              :data-hover-read-text="`${tab.label} section. ${activeTab === i ? 'Selected' : 'Not selected'}.`"
               @click="setTab(i)"
             >
-              <span class="tab-icon">{{ tab.icon }}</span>
+              <span class="tab-icon" aria-hidden="true">{{ tab.icon }}</span>
               <span class="tab-label">{{ tab.label }}</span>
-              <span class="tab-dot" :style="{ background: tab.color }"></span>
+              <span class="tab-dot" :style="{ background: tab.color }" aria-hidden="true"></span>
             </button>
           </div>
 
@@ -129,9 +213,13 @@
                   <button
                     v-for="item in bmiChartData"
                     :key="item.key"
+                    type="button"
                     class="bmi-cat-card"
                     :class="{ active: selectedBmi === item.key }"
                     :style="{ '--accent': item.color }"
+                    :aria-expanded="selectedBmi === item.key ? 'true' : 'false'"
+                    :aria-pressed="selectedBmi === item.key ? 'true' : 'false'"
+                    :data-hover-read-text="`${item.label}. ${item.value} percent. About ${item.count} thousand kids. ${selectedBmi === item.key ? bmiNoteFor(item) : 'Select to learn more.'}`"
                     @click="selectedBmi = selectedBmi === item.key ? null : item.key"
                   >
                     <div class="cat-swatch" :style="{ background: item.color }"></div>
@@ -141,7 +229,7 @@
                       <span class="cat-count">{{ item.count }}k kids</span>
                     </div>
                     <div class="cat-arrow">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path :d="selectedBmi===item.key ? 'M4 6l4 4 4-4' : 'M6 4l4 4-4 4'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </div>
@@ -167,10 +255,15 @@
                 <button
                   v-for="a in activityTypes"
                   :key="a.value"
+                  type="button"
                   class="activity-pill"
                   :class="{ active: selectedActivity === a.value }"
+                  :aria-pressed="selectedActivity === a.value ? 'true' : 'false'"
+                  :data-hover-read-text="`${a.label}. ${selectedActivity === a.value ? 'Selected' : 'Not selected'}.`"
                   @click="selectedActivity = a.value"
-                >{{ a.label }}</button>
+                >
+                  {{ a.label }}
+                </button>
               </div>
               <div class="activity-bars">
                 <div
@@ -179,6 +272,7 @@
                   class="act-bar-card"
                   :class="{ highlight: activityFocusBand && item.label === activityFocusBand.label }"
                   :style="{ animationDelay: `${i * 0.07}s` }"
+                  :data-hover-read-text="getActivityBandReadableText(item)"
                 >
                   <div class="act-bar-label">{{ shorten(item.label) }}</div>
                   <div class="act-bar-track">
@@ -204,10 +298,15 @@
                 <button
                   v-for="s in sleepTypes"
                   :key="s.value"
+                  type="button"
                   class="activity-pill"
                   :class="{ active: selectedSleep === s.value }"
+                  :aria-pressed="selectedSleep === s.value ? 'true' : 'false'"
+                  :data-hover-read-text="`${s.label}. ${selectedSleep === s.value ? 'Selected' : 'Not selected'}.`"
                   @click="selectedSleep = s.value"
-                >{{ s.label }}</button>
+                >
+                  {{ s.label }}
+                </button>
               </div>
               <div class="sleep-grid">
                 <div
@@ -216,6 +315,7 @@
                   class="sleep-card"
                   :class="{ 'sleep-card--good': isSleepTargetBand(item.label), 'sleep-card--low': isLowSleepBand(item.label) }"
                   :style="{ animationDelay: `${i * 0.08}s` }"
+                  :data-hover-read-text="getSleepBandReadableText(item)"
                 >
                   <div class="sleep-moon">
                     <svg v-if="isSleepTargetBand(item.label)" width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -254,12 +354,23 @@
                   <path :d="linePath('underweight_6_13')" fill="none" stroke="#7aab8a" stroke-width="1.8" stroke-dasharray="6 4" stroke-linecap="round" stroke-linejoin="round" class="trend-line" style="animation-delay:.4s"/>
                   <template v-for="metric in trendMetrics" :key="metric.key">
                     <circle
-                      v-for="pt in trendPoints(metric.key)" :key="pt.year"
-                      :cx="pt.x" :cy="pt.y" r="5"
-                      :fill="metric.color" stroke="white" stroke-width="2.5"
+                      v-for="pt in trendPoints(metric.key)"
+                      :key="pt.year"
+                      :cx="pt.x"
+                      :cy="pt.y"
+                      r="5"
+                      :fill="metric.color"
+                      stroke="white"
+                      stroke-width="2.5"
                       class="trend-dot"
+                      tabindex="0"
+                      role="img"
+                      :aria-label="getTrendPointReadableText(metric, pt)"
+                      :data-hover-read-text="getTrendPointReadableText(metric, pt)"
                       @mouseenter="trendHover = { metric, pt }"
                       @mouseleave="trendHover = null"
+                      @focus="trendHover = { metric, pt }"
+                      @blur="trendHover = null"
                     />
                   </template>
                   <g v-if="trendHover">
@@ -289,11 +400,14 @@
             <button
               v-for="(tab, i) in tabs"
               :key="i"
+              type="button"
               class="step-dot"
               :class="{ active: activeTab === i }"
               :style="activeTab === i ? { background: tab.color } : {}"
+              :aria-label="`${tab.label} section${activeTab === i ? ', selected' : ''}`"
+              :aria-current="activeTab === i ? 'step' : undefined"
+              :data-hover-read-text="`${tab.label} section${activeTab === i ? ', selected' : ''}`"
               @click="setTab(i)"
-              :aria-label="tab.label"
             ></button>
           </div>
         </section>
@@ -305,9 +419,10 @@
             :key="i"
             class="fact-card"
             :style="{ '--c': fact.color, animationDelay: `${i * 0.1}s` }"
+            :data-hover-read-text="`${fact.num}. ${fact.text}`"
           >
             <div class="fact-icon-wrap" :style="{ color: fact.color }">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path :d="fact.svgPath" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
@@ -552,6 +667,25 @@ function sleepOrder(label) {
 }
 function isSleepTargetBand(label) { return /9 to less than 10|10 hours or more/i.test(label) }
 function isLowSleepBand(label)    { return /less than 6|6 to less than 7|7 to less than 8|8 to less than 9/i.test(label) }
+
+function getActivityBandReadableText(item) {
+  const mostCommon = activityFocusBand.value && item.label === activityFocusBand.value.label
+  return `${shorten(item.label)}. ${item.value} percent.${mostCommon ? ' Most common activity band.' : ''}`
+}
+
+function getSleepBandReadableText(item) {
+  const target = isSleepTargetBand(item.label)
+  const low = isLowSleepBand(item.label)
+
+  if (target) return `${sleepShort(item.label)}. ${item.value} percent. This is within the recommended sleep target.`
+  if (low) return `${sleepShort(item.label)}. ${item.value} percent. This is below the recommended sleep target.`
+
+  return `${sleepShort(item.label)}. ${item.value} percent.`
+}
+
+function getTrendPointReadableText(metric, pt) {
+  return `${metric.label}. ${pt.year}. ${pt.val} percent.`
+}
 </script>
 
 <style scoped>
@@ -1598,5 +1732,95 @@ button { border: none; background: none; font: inherit; cursor: pointer; }
   transform: translateY(-1px);
   background: #1d5d53;
   box-shadow: 0 22px 44px rgba(35, 107, 96, 0.3);
+}
+
+/* Accessibility helpers */
+.stats-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* Active nav contrast */
+.stats-page .nav-a.router-link-active,
+.stats-page .nav-a[aria-current='page'] {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--green), var(--pine));
+  box-shadow: 0 8px 22px rgba(18, 53, 47, 0.2);
+}
+
+.stats-page .nav-a.router-link-active:hover,
+.stats-page .nav-a[aria-current='page']:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--green), var(--pine));
+}
+
+.stats-page .nav-btn,
+.stats-page .nav-btn:visited,
+.stats-page .nav-btn:hover,
+.stats-page .nav-btn:focus {
+  color: #ffffff;
+}
+
+.stats-page .nav-btn svg {
+  color: #ffffff;
+}
+
+/* Keyboard focus visibility */
+.stats-page .logo:focus-visible,
+.stats-page .nav-a:focus-visible,
+.stats-page .nav-link:focus-visible,
+.stats-page .nav-btn:focus-visible,
+.stats-page .pill-btn:focus-visible,
+.stats-page .toggle-pill:focus-visible,
+.stats-page .explorer-tab:focus-visible,
+.stats-page .bmi-cat-card:focus-visible,
+.stats-page .activity-pill:focus-visible,
+.stats-page .step-dot:focus-visible,
+.stats-page .trend-dot:focus-visible {
+  outline: 3px solid rgba(35, 107, 96, 0.38);
+  outline-offset: 4px;
+}
+
+/* Make tiny step dots easier to keyboard focus/click */
+.stats-page .step-dot {
+  width: 12px;
+  height: 12px;
+  min-width: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.stats-page .step-dot::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.35;
+}
+
+.stats-page .step-dot.active::before {
+  opacity: 1;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .stats-page *,
+  .stats-page *::before,
+  .stats-page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 </style>
