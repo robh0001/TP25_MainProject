@@ -3,9 +3,10 @@ import { useHoverToRead } from './useHoverToRead'
 import { useSpeechSynthesis } from './useSpeechSynthesis'
 
 const READABLE_SELECTOR =
-  'p, h1, h2, h3, h4, h5, h6, li, button, a, label, .card, .suggestion-card, [data-hover-read-text]'
+  'p, h1, h2, h3, h4, h5, h6, li, button, a, label, input:not([type="password"]), textarea, select, .card, .suggestion-card, [data-hover-read-text]'
+
 const IGNORE_SELECTOR =
-  'script, style, svg, path, input, textarea, select, option, [aria-hidden="true"], [data-hover-read-ignore="true"], [data-hover-read-ignore="true"] *'
+  'script, style, svg, path, option, [aria-hidden="true"], [data-hover-read-ignore="true"], [data-hover-read-ignore="true"] *'
 
 let listenersAttached = false
 
@@ -18,8 +19,26 @@ export function useHoverSpeechReader() {
   function getReadableText(element) {
     if (!element) return ''
 
+    const customText = element.getAttribute('data-hover-read-text')
     const ariaLabel = element.getAttribute('aria-label')
-    const text = ariaLabel || element.innerText || element.textContent || ''
+    const placeholder = element.getAttribute('placeholder')
+
+    let text = ''
+
+    if (customText) {
+      text = customText
+    } else if (ariaLabel) {
+      text = ariaLabel
+    } else if (placeholder) {
+      text = placeholder
+    } else if (element.tagName === 'SELECT') {
+      const selectedOption = element.options[element.selectedIndex]
+      text = selectedOption
+        ? `Selected option: ${selectedOption.textContent}`
+        : ''
+    } else {
+      text = element.innerText || element.textContent || ''
+    }
 
     return text.replace(/\s+/g, ' ').trim()
   }
@@ -39,16 +58,16 @@ export function useHoverSpeechReader() {
 
   function handleMouseOver(event) {
     if (!isHoverToReadEnabled.value) return
-  
+
     if (event.target.closest(IGNORE_SELECTOR)) return
-  
+
     const target = event.target.closest(READABLE_SELECTOR)
-  
+
     if (!target || target === lastElement) return
     if (!isValidReadableTarget(target)) return
-  
+
     const text = getReadableText(target)
-  
+
     lastElement = target
     speakText(text)
   }

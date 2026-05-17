@@ -1,7 +1,7 @@
 <template>
   <div class="entry-page" :class="{ loaded: isLoaded }">
     <!-- Background -->
-    <div class="entry-bg">
+    <div class="entry-bg" aria-hidden="true">
       <img
         class="entry-bg__img"
         src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=2400&q=90"
@@ -13,10 +13,10 @@
     </div>
 
     <!-- Header -->
-    <header class="entry-site-header">
-      <RouterLink to="/" class="entry-brand">
-        <div class="entry-brand-icon">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <header class="entry-site-header" aria-label="HealthyKids site header">
+      <RouterLink to="/" class="entry-brand" aria-label="Go to HealthyKids home page">
+        <div class="entry-brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
             <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
             <path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor" />
             <path
@@ -32,41 +32,45 @@
         <span>HealthyKids</span>
       </RouterLink>
 
-      <RouterLink to="/" class="entry-header-btn">
+      <RouterLink to="/" class="entry-header-btn" aria-label="Go back to home page">
         Back home
       </RouterLink>
     </header>
 
     <!-- Main -->
-    <main class="entry-main">
-      <section class="entry-card">
+    <main class="entry-main" id="main-content">
+      <section class="entry-card" aria-labelledby="entry-page-title">
         <div class="entry-intro">
-          <p class="entry-step-kicker">
-            <span class="entry-kicker-dot"></span>
+          <p class="entry-step-kicker" aria-label="Parent access">
+            <span class="entry-kicker-dot" aria-hidden="true"></span>
             Parent access
           </p>
 
-          <h1>
+          <h1 id="entry-page-title">
             Let's build a calmer
             <span>family routine.</span>
           </h1>
 
-          <p class="entry-intro-text">
+          <p class="entry-intro-text" id="entry-page-description">
             Start a new plan or open your saved family dashboard.
           </p>
         </div>
 
-        <div class="entry-options">
+        <div class="entry-options" aria-label="Parent access options">
           <!-- New parent -->
-          <article class="entry-path-card entry-path-card--new">
-            <div class="entry-path-icon entry-path-icon--new">
+          <article
+            class="entry-path-card entry-path-card--new"
+            aria-labelledby="new-parent-title"
+            aria-describedby="new-parent-description"
+          >
+            <div class="entry-path-icon entry-path-icon--new" aria-hidden="true">
               <span>&#127804;</span>
             </div>
 
-            <h2>New parent</h2>
-            <p>Create your family plan.</p>
+            <h2 id="new-parent-title">New parent</h2>
+            <p id="new-parent-description">Create your family plan.</p>
 
-            <div class="entry-form-block">
+            <form class="entry-form-block" @submit.prevent="startNewUser" novalidate>
               <label for="new-username">Family code</label>
               <input
                 id="new-username"
@@ -74,28 +78,51 @@
                 type="text"
                 placeholder="e.g. sunnyfamily01"
                 autocomplete="off"
+                inputmode="text"
+                aria-label="New family code. Example: sunnyfamily01"
+                data-hover-read-text="Family code. Enter a simple code for your new family plan. Example: sunnyfamily01."
+                :aria-invalid="newUserError ? 'true' : 'false'"
+                :aria-describedby="newUserError ? 'new-username-error entry-code-help' : 'entry-code-help'"
               />
-
-              <p v-if="newUserError" class="entry-form-error">
-                {{ newUserError }}
+              <p id="entry-code-help" class="entry-sr-only">
+                Choose a simple family code without personal details.
               </p>
 
-              <button type="button" class="entry-btn-primary" @click="startNewUser">
+              <p
+                v-if="newUserError"
+                id="new-username-error"
+                class="entry-form-error"
+                role="alert"
+                aria-live="assertive"
+                :data-hover-read-text="newUserError"
+              >
+                {{ newUserError }}
+              </p>     
+
+              <button
+                type="submit"
+                class="entry-btn-primary"
+                :aria-busy="false"
+              >
                 Start new plan
               </button>
-            </div>
+            </form>
           </article>
 
           <!-- Returning parent -->
-          <article class="entry-path-card entry-path-card--return">
-            <div class="entry-path-icon entry-path-icon--return">
+          <article
+            class="entry-path-card entry-path-card--return"
+            aria-labelledby="returning-parent-title"
+            aria-describedby="returning-parent-description"
+          >
+            <div class="entry-path-icon entry-path-icon--return" aria-hidden="true">
               <span>&#128273;</span>
             </div>
 
-            <h2>Returning parent</h2>
-            <p>Continue your progress.</p>
+            <h2 id="returning-parent-title">Returning parent</h2>
+            <p id="returning-parent-description">Continue your progress.</p>
 
-            <div class="entry-form-block">
+            <form class="entry-form-block" @submit.prevent="continueReturningUser" novalidate>
               <label for="returning-username">Family code</label>
               <input
                 id="returning-username"
@@ -103,16 +130,35 @@
                 type="text"
                 placeholder="Enter your code"
                 autocomplete="off"
+                inputmode="text"
+                aria-label="Returning family code. Enter your saved family code."
+                data-hover-read-text="Family code. Enter your saved family code to open your dashboard."
+                :aria-invalid="returningUserError ? 'true' : 'false'"
+                :aria-describedby="returningUserError ? 'returning-username-error returning-code-help' : 'returning-code-help'"
               />
+              <p id="returning-code-help" class="entry-sr-only">
+                Enter the family code you used when creating your plan.
+              </p>
 
-              <p v-if="returningUserError" class="entry-form-error">
+              <p
+                v-if="returningUserError"
+                id="returning-username-error"
+                class="entry-form-error"
+                role="alert"
+                aria-live="assertive"
+                :data-hover-read-text="returningUserError"
+              >
                 {{ returningUserError }}
               </p>
 
-              <button type="button" class="entry-btn-secondary" @click="continueReturningUser">
+              <button
+                type="submit"
+                class="entry-btn-secondary"
+                :aria-busy="false"
+              >
                 Open dashboard
               </button>
-            </div>
+            </form>
           </article>
         </div>
 
@@ -128,6 +174,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
+import { useHoverToRead } from '../composables/useHoverToRead'
+import { useSpeechSynthesis } from '../composables/useSpeechSynthesis'
 
 const router = useRouter()
 const { state, savePlan, clearPlan } = useFamilyPlanStore()
@@ -139,6 +187,17 @@ const newUsername = ref('')
 const returningUsername = ref('')
 const newUserError = ref('')
 const returningUserError = ref('')
+
+const { isHoverToReadEnabled } = useHoverToRead()
+const { speakText } = useSpeechSynthesis()
+
+function announceFormError(message) {
+  if (!message) return
+
+  if (isHoverToReadEnabled.value) {
+    speakText(message)
+  }
+}
 
 onMounted(() => {
   setTimeout(() => {
@@ -165,7 +224,9 @@ async function startNewUser() {
   newUserError.value = ''
 
   if (!newUsername.value) {
-    newUserError.value = 'Please choose a family code before continuing.'
+    const message = 'Please choose a family code before continuing.'
+    newUserError.value = message
+    announceFormError(message)
     return
   }
 
@@ -188,7 +249,9 @@ async function startNewUser() {
     }
 
     if (!data.available) {
-      newUserError.value = 'That family code is already taken. Please choose another one.'
+      const message = 'That family code is already taken. Please choose another one.'
+      newUserError.value = message
+      announceFormError(message)
       return
     }
 
@@ -228,7 +291,9 @@ async function continueReturningUser() {
     const data = await response.json().catch(() => ({}))
 
     if (response.status === 404) {
-      returningUserError.value = 'We could not find that family plan. Check your code or start a new plan.'
+      const message = 'We could not find that family plan. Check your code or start a new plan.'
+      returningUserError.value = message
+      announceFormError(message)
       return
     }
 
