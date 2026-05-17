@@ -3,8 +3,7 @@ import { useHoverToRead } from './useHoverToRead'
 import { useSpeechSynthesis } from './useSpeechSynthesis'
 
 const READABLE_SELECTOR =
-  'p, h1, h2, h3, h4, h5, h6, li, button, a, label, span, article, section, .card, .suggestion-card'
-
+  'p, h1, h2, h3, h4, h5, h6, li, button, a, label, .card, .suggestion-card, [data-hover-read-text]'
 const IGNORE_SELECTOR =
   'script, style, svg, path, input, textarea, select, option, [aria-hidden="true"], [data-hover-read-ignore="true"], [data-hover-read-ignore="true"] *'
 
