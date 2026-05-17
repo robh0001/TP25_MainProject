@@ -1551,6 +1551,102 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   }
 }
 
+.nutrition-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+}
+.nutrition-page .nav-a.router-link-active,
+.nutrition-page .nav-a[aria-current='page'] {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--nk-sage-dark), #17483f);
+  box-shadow: 0 8px 22px rgba(18, 53, 47, 0.2);
+}
+
+.nutrition-page .nav-a.router-link-active:hover,
+.nutrition-page .nav-a[aria-current='page']:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--nk-sage-dark), #17483f);
+}
+.nutrition-page .nav-btn {
+  color: #ffffff;
+}
+
+.nutrition-page .nav-btn:hover {
+  color: #ffffff;
+}
+
+.nutrition-page .nav-btn svg {
+  color: #ffffff;
+}
+.nutrition-page .logo:focus-visible,
+.nutrition-page .nav-a:focus-visible,
+.nutrition-page .nav-link:focus-visible,
+.nutrition-page .nav-btn:focus-visible,
+.nutrition-page .quick-chip:focus-visible,
+.nutrition-page .recipe-card__top:focus-visible,
+.nutrition-page .controls-footer button:focus-visible,
+.nutrition-page .state-card button:focus-visible,
+.nutrition-page .load-more:focus-visible,
+.nutrition-page .clear-score:focus-visible,
+.nutrition-page .candidate-row button:focus-visible,
+.nutrition-page .example-row button:focus-visible,
+.nutrition-page .score-input-row button:focus-visible {
+  outline: 3px solid rgba(95, 174, 155, 0.45);
+  outline-offset: 4px;
+}
+
+.nutrition-page input:focus-visible,
+.nutrition-page select:focus-visible {
+  outline: 3px solid rgba(95, 174, 155, 0.28);
+  outline-offset: 2px;
+}
+.nutrition-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nutrition-page *,
+  .nutrition-page *::before,
+  .nutrition-page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+@media (max-width: 900px) {
+  .nutrition-page .header-inner {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .nutrition-page .nav {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .nutrition-page .nav-link {
+    display: none;
+  }
+
+  .nutrition-page .nav-btn {
+    height: 36px;
+    padding: 0 13px;
+    font-size: 0.78rem;
+  }
+
+  .nutrition-page .logo {
+    font-size: 1.05rem;
+  }
+}
 .recipe-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1602,6 +1698,11 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
 .recipe-modal-close:hover {
   transform: translateY(-1px);
   background: #ffffff;
+}
+
+.recipe-modal-close:focus-visible {
+  outline: 3px solid rgba(95, 174, 155, 0.45);
+  outline-offset: 4px;
 }
 
 .recipe-modal-head {
