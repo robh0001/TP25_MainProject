@@ -3278,6 +3278,31 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   }
 }
 
+.quiz-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+}
+
+.quiz-field-label {
+  display: block;
+  margin: 0 0 10px;
+  color: var(--ink, #172033);
+  font-weight: 900;
+}
+
+.quiz-form-error:focus {
+  outline: 3px solid rgba(255, 114, 95, 0.35);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
 /* =========================================================
   HealthyKids HomePage
   Component: HomePage.vue

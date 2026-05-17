@@ -1,6 +1,6 @@
 <template>
   <div class="quiz-page">
-    <div class="quiz-bg">
+    <div class="quiz-bg" aria-hidden="true">
       <img
         class="quiz-bg__img"
         src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=90"
@@ -11,8 +11,8 @@
       <div class="quiz-bg__grain"></div>
     </div>
 
-    <header class="quiz-site-header">
-      <RouterLink to="/" class="quiz-brand">
+    <header class="quiz-site-header" aria-label="HealthyKids quiz header">
+      <RouterLink to="/" class="quiz-brand" aria-label="Go to HealthyKids home page">
         <span class="quiz-brand-icon" aria-hidden="true">
           <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
@@ -33,26 +33,41 @@
         <span>HealthyKids</span>
       </RouterLink>
 
-      <RouterLink to="/parent-entry" class="quiz-header-btn">
-        <span>&#8592;</span> Parent access
+      <RouterLink to="/parent-entry" class="quiz-header-btn" aria-label="Go back to parent access page">
+        <span aria-hidden="true">&#8592;</span> Parent access
       </RouterLink>
     </header>
 
-    <main class="quiz-main">
-      <section class="quiz-card" id="quiz-form">
+    <main class="quiz-main" id="main-content">
+      <section
+        class="quiz-card"
+        id="quiz-form"
+        aria-labelledby="quiz-page-title"
+        aria-describedby="quiz-page-description"
+      >
         <div class="quiz-intro">
-          <p class="quiz-step-kicker">
-            <span class="quiz-kicker-dot"></span>
+          <p
+            class="quiz-step-kicker"
+            :aria-label="`Step ${currentStep + 1} of ${steps.length}`"
+            :data-hover-read-text="`Step ${currentStep + 1} of ${steps.length}`"
+          >
+            <span class="quiz-kicker-dot" aria-hidden="true"></span>
             Step {{ currentStep + 1 }} of {{ steps.length }}
           </p>
+          <h1 id="quiz-page-title">{{ isRetakeMode ? 'Review your routine' : 'Personalise your routine' }}</h1>
 
-          <h1>{{ isRetakeMode ? 'Review your routine' : 'Personalise your routine' }}</h1>
-
-          <p class="quiz-intro-text">
+          <p class="quiz-intro-text" id="quiz-page-description">
             {{ activeStep.subtitle }}
           </p>
 
-          <div class="quiz-progress-track" aria-hidden="true">
+          <div
+            class="quiz-progress-track"
+            role="progressbar"
+            :aria-valuenow="currentStep + 1"
+            aria-valuemin="1"
+            :aria-valuemax="steps.length"
+            :aria-label="`Quiz progress: step ${currentStep + 1} of ${steps.length}`"
+          >
             <div
               class="quiz-progress-fill"
               :style="{ width: `${((currentStep + 1) / steps.length) * 100}%` }"
@@ -70,122 +85,236 @@
                 id="username"
                 v-model.trim="form.username"
                 :disabled="hasFamilyCode"
+                type="text"
+                autocomplete="off"
+                inputmode="text"
                 placeholder="e.g. sunnyfamily01"
+                data-hover-read-text="Family code. Enter a simple family code. Example sunny family zero one."
+                :aria-invalid="errorMessage && !form.username ? 'true' : 'false'"
+                aria-describedby="username-help"
               />
+              <p id="username-help" class="quiz-sr-only">
+                Enter a simple family code using letters, numbers, underscores, or hyphens.
+              </p>
             </div>
 
             <div class="quiz-form-group">
               <label for="child-age">Child age range</label>
-              <select id="child-age" v-model="form.ageRange">
+              <select
+                id="child-age"
+                v-model="form.ageRange"
+                data-hover-read-text="Child age range. Select the age range for your child."
+                :aria-invalid="errorMessage && !form.ageRange ? 'true' : 'false'"
+                aria-describedby="child-age-help"
+              >
                 <option disabled value="">Select age range</option>
                 <option>5-7 years</option>
                 <option>8-10 years</option>
                 <option>11-12 years</option>
               </select>
+              <p id="child-age-help" class="quiz-sr-only">
+                Choose one age range for the child this plan is for.
+              </p>
             </div>
 
             <div class="quiz-form-group quiz-full-row">
               <label for="routine-type">Current family routine</label>
-              <select id="routine-type" v-model="form.routineType">
+              <select
+                id="routine-type"
+                v-model="form.routineType"
+                data-hover-read-text="Current family routine. Choose the option that best describes your routine."
+                :aria-invalid="errorMessage && !form.routineType ? 'true' : 'false'"
+                aria-describedby="routine-type-help"
+              >
                 <option disabled value="">Choose one</option>
                 <option>Mostly structured</option>
                 <option>Busy and sometimes inconsistent</option>
                 <option>Very busy and hard to manage</option>
               </select>
+              <p id="routine-type-help" class="quiz-sr-only">
+                Choose the option that best describes your current family routine.
+              </p>
             </div>
           </div>
 
           <div v-if="currentStep === 1" class="quiz-form-grid">
             <div class="quiz-form-group quiz-full-row">
-              <label>Priority areas</label>
-              <div class="quiz-chip-grid">
+              <p id="habit-options-label" class="quiz-field-label">Priority areas</p>
+
+              <div
+                class="quiz-chip-grid"
+                role="group"
+                aria-labelledby="habit-options-label"
+                aria-describedby="habit-options-help"
+              >
                 <button
                   v-for="habit in habitOptions"
                   :key="habit"
                   type="button"
                   class="quiz-option-chip"
                   :class="{ selected: form.habits.includes(habit) }"
+                  :aria-pressed="form.habits.includes(habit) ? 'true' : 'false'"
+                  :data-hover-read-text="`${habit}. ${form.habits.includes(habit) ? 'Selected' : 'Not selected'}. Click to toggle.`"
                   @click="toggleSelection(form.habits, habit)"
                 >
                   {{ habit }}
                 </button>
               </div>
+
+              <p id="habit-options-help" class="quiz-sr-only">
+                Select one or more priority areas that need support.
+              </p>
             </div>
           </div>
 
           <div v-if="currentStep === 2" class="quiz-form-grid">
             <div class="quiz-form-group quiz-full-row">
-              <label>Key concerns</label>
-              <div class="quiz-chip-grid">
+              <p id="concern-options-label" class="quiz-field-label">Key concerns</p>
+
+              <div
+                class="quiz-chip-grid"
+                role="group"
+                aria-labelledby="concern-options-label"
+                aria-describedby="concern-options-help"
+              >
                 <button
                   v-for="concern in concernOptions"
                   :key="concern"
                   type="button"
                   class="quiz-option-chip"
                   :class="{ selected: form.concerns.includes(concern) }"
+                  :aria-pressed="form.concerns.includes(concern) ? 'true' : 'false'"
+                  :data-hover-read-text="`${concern}. ${form.concerns.includes(concern) ? 'Selected' : 'Not selected'}. Click to toggle.`"
                   @click="toggleSelection(form.concerns, concern)"
                 >
                   {{ concern }}
                 </button>
               </div>
+
+              <p id="concern-options-help" class="quiz-sr-only">
+                Select one or more concerns you want help with.
+              </p>
             </div>
 
             <div class="quiz-form-group">
               <label for="confidence">Confidence level</label>
-              <select id="confidence" v-model="form.confidence">
+              <select
+                id="confidence"
+                v-model="form.confidence"
+                data-hover-read-text="Confidence level. Select how supported you currently feel."
+                :aria-invalid="errorMessage && !form.confidence ? 'true' : 'false'"
+                aria-describedby="confidence-help"
+              >
                 <option disabled value="">Choose one</option>
                 <option>I feel confident</option>
                 <option>I know what to do but struggle to stay consistent</option>
                 <option>I need simple guidance and structure</option>
               </select>
+              <p id="confidence-help" class="quiz-sr-only">
+                Choose the option that best describes how confident you feel.
+              </p>
             </div>
 
             <div class="quiz-form-group">
               <label for="support-style">Preferred guidance style</label>
-              <select id="support-style" v-model="form.supportStyle">
+              <select
+                id="support-style"
+                v-model="form.supportStyle"
+                data-hover-read-text="Preferred guidance style. Select the kind of support that would help most."
+                :aria-invalid="errorMessage && !form.supportStyle ? 'true' : 'false'"
+                aria-describedby="support-style-help"
+              >
                 <option disabled value="">Choose one</option>
                 <option>Small daily actions</option>
                 <option>Structured weekly plan</option>
-                <option>Visual reminders</option>
                 <option>Low-conflict routine strategies</option>
               </select>
+              <p id="support-style-help" class="quiz-sr-only">
+                Choose the support style that would be most useful for your family.
+              </p>
             </div>
           </div>
 
-          <div v-if="currentStep === 3" class="quiz-preview-card">
-            <p class="quiz-card-kicker">Summary</p>
+          <div
+              v-if="currentStep === 3"
+              class="quiz-preview-card"
+              role="region"
+              aria-labelledby="quiz-summary-title"
+              :data-hover-read-text="reviewSummaryText"
+            >
+              <p
+                id="quiz-summary-title"
+                class="quiz-card-kicker"
+                data-hover-read-text="Summary of your family plan answers."
+              >
+                Summary
+              </p>
 
-            <div class="quiz-review-grid">
-              <div>
-                <span>Family code</span>
-                <strong>{{ form.username || 'Not provided' }}</strong>
-              </div>
+              <div class="quiz-review-grid" role="list" aria-label="Review your plan answers">
+                <div
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`Family code: ${form.username || 'Not provided'}`"
+                  :data-hover-read-text="`Family code: ${form.username || 'Not provided'}`"
+                >
+                  <span aria-hidden="true">Family code</span>
+                  <strong aria-hidden="true">{{ form.username || 'Not provided' }}</strong>
+                </div>
 
-              <div>
-                <span>Routine</span>
-                <strong>{{ form.routineType || 'Not selected' }}</strong>
-              </div>
+                <div
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`Routine: ${form.routineType || 'Not selected'}`"
+                  :data-hover-read-text="`Routine: ${form.routineType || 'Not selected'}`"
+                >
+                  <span aria-hidden="true">Routine</span>
+                  <strong aria-hidden="true">{{ form.routineType || 'Not selected' }}</strong>
+                </div>
 
-              <div>
-                <span>Priority areas</span>
-                <strong>{{ form.habits.length ? form.habits.join(', ') : 'None selected' }}</strong>
-              </div>
+                <div
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`Priority areas: ${form.habits.length ? form.habits.join(', ') : 'None selected'}`"
+                  :data-hover-read-text="`Priority areas: ${form.habits.length ? form.habits.join(', ') : 'None selected'}`"
+                >
+                  <span aria-hidden="true">Priority areas</span>
+                  <strong aria-hidden="true">
+                    {{ form.habits.length ? form.habits.join(', ') : 'None selected' }}
+                  </strong>
+                </div>
 
-              <div>
-                <span>Guidance style</span>
-                <strong>{{ form.supportStyle || 'Not selected' }}</strong>
+                <div
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`Guidance style: ${form.supportStyle || 'Not selected'}`"
+                  :data-hover-read-text="`Guidance style: ${form.supportStyle || 'Not selected'}`"
+                >
+                  <span aria-hidden="true">Guidance style</span>
+                  <strong aria-hidden="true">{{ form.supportStyle || 'Not selected' }}</strong>
+                </div>
               </div>
             </div>
-          </div>
 
-          <p v-if="errorMessage" class="quiz-form-error">{{ errorMessage }}</p>
+          <p
+            v-if="errorMessage"
+            id="quiz-form-error"
+            class="quiz-form-error"
+            role="alert"
+            aria-live="assertive"
+            tabindex="-1"
+            :data-hover-read-text="errorMessage"
+          >
+            {{ errorMessage }}
+          </p>
 
-          <div class="quiz-wizard-actions">
+          <div class="quiz-wizard-actions" aria-label="Quiz navigation controls">
             <button
               v-if="currentStep > 0"
               type="button"
               class="quiz-outline-btn"
               :disabled="saving"
+              :aria-disabled="saving ? 'true' : 'false'"
+              data-hover-read-text="Go back to the previous quiz step."
               @click="currentStep -= 1"
             >
               Back
@@ -196,6 +325,8 @@
               type="button"
               class="quiz-primary-btn"
               :disabled="saving"
+              :aria-disabled="saving ? 'true' : 'false'"
+              data-hover-read-text="Go to the next quiz step."
               @click="goNext"
             >
               Next
@@ -206,6 +337,9 @@
               type="button"
               class="quiz-primary-btn"
               :disabled="saving"
+              :aria-disabled="saving ? 'true' : 'false'"
+              :aria-busy="saving ? 'true' : 'false'"
+              :data-hover-read-text="saving ? 'Saving your plan. Please wait.' : isRetakeMode ? 'Update my plan.' : 'Generate my plan.'"
               @click="submitQuiz"
             >
               {{
@@ -224,9 +358,11 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
+import { useHoverToRead } from '../composables/useHoverToRead'
+import { useSpeechSynthesis } from '../composables/useSpeechSynthesis'
 
 const router = useRouter()
 const { state, savePlan } = useFamilyPlanStore()
@@ -290,6 +426,35 @@ const saving = ref(false)
 const activeStep = computed(() => steps[currentStep.value])
 const hasFamilyCode = computed(() => Boolean(state.username))
 
+const reviewSummaryText = computed(() => {
+  const familyCode = form.username || 'Not provided'
+  const routine = form.routineType || 'Not selected'
+  const priorities = form.habits.length ? form.habits.join(', ') : 'None selected'
+  const guidance = form.supportStyle || 'Not selected'
+
+  return `Summary. Family code: ${familyCode}. Routine: ${routine}. Priority areas: ${priorities}. Guidance style: ${guidance}.`
+})
+
+const { isHoverToReadEnabled } = useHoverToRead()
+const { speakText } = useSpeechSynthesis()
+
+function setError(message) {
+  errorMessage.value = message
+
+  nextTick(() => {
+    const errorElement = document.getElementById('quiz-form-error')
+    errorElement?.focus?.()
+  })
+
+  if (isHoverToReadEnabled.value) {
+    speakText(message)
+  }
+}
+
+function clearError() {
+  errorMessage.value = ''
+}
+
 const isRetakeMode = computed(() =>
   Boolean(
     state.username &&
@@ -323,51 +488,52 @@ function isValidUsername(username) {
 }
 
 function validateStep() {
+  clearError()
   errorMessage.value = ''
 
   if (currentStep.value === 0) {
     if (!form.username) {
-      errorMessage.value = 'Please enter a family code.'
+      setError('Please enter a family code.')
       return false
     }
 
     if (!isValidUsername(form.username)) {
-      errorMessage.value =
-        'Family code must be 3-24 characters and can only include letters, numbers, underscores, or hyphens.'
+      
+        setError('Family code must be 3-24 characters and can only include letters, numbers, underscores, or hyphens.')
       return false
     }
 
     if (!form.ageRange) {
-      errorMessage.value = "Please select your child's age range."
+      setError("Please select your child's age range.")
       return false
     }
 
     if (!form.routineType) {
-      errorMessage.value = 'Please select your family routine type.'
+      setError('Please select your family routine type.')
       return false
     }
   }
 
   if (currentStep.value === 1) {
     if (!form.habits.length) {
-      errorMessage.value = 'Please select at least one habit to support.'
+      setError('Please select at least one habit to support.')
       return false
     }
   }
 
   if (currentStep.value === 2) {
     if (!form.concerns.length) {
-      errorMessage.value = 'Please select at least one parent concern.'
+      setError('Please select at least one parent concern.')
       return false
     }
 
     if (!form.confidence) {
-      errorMessage.value = 'Please select how supported you currently feel.'
+      setError('Please select how supported you currently feel.')
       return false
     }
 
     if (!form.supportStyle) {
-      errorMessage.value = 'Please select the type of support that would help most.'
+      setError('Please select the type of support that would help most.')
       return false
     }
   }
@@ -778,12 +944,12 @@ async function submitQuiz() {
   if (!validateStep() || saving.value) return
 
   if (!API_BASE) {
-    errorMessage.value = 'Missing VITE_PARENT_PROFILES_API_BASE_URL.'
+    setError('Missing VITE_PARENT_PROFILES_API_BASE_URL.')
     return
   }
 
   saving.value = true
-  errorMessage.value = ''
+  clearError()
 
   const payload = buildPayload()
 
@@ -792,8 +958,7 @@ async function submitQuiz() {
 
     if (!response.ok) {
       if (response.status === 409) {
-        errorMessage.value =
-          'That family code is already taken. Please use your existing family code or choose another one.'
+        setError('That family code is already taken. Please use your existing family code or choose another one.')
         return
       }
 
@@ -803,8 +968,7 @@ async function submitQuiz() {
     savePlan(payload)
     router.push('/parent-dashboard')
   } catch {
-    errorMessage.value =
-      'Something went wrong while saving your plan. Please try again in a moment.'
+    setError('Something went wrong while saving your plan. Please try again in a moment.')
   } finally {
     saving.value = false
   }
