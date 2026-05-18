@@ -1,3 +1,31 @@
+<!--
+  ParentEntryPage.vue
+
+  Parent entry page for HealthyKids.
+
+  Main features:
+  - Shows the brand header and back home link.
+  - Provides access for new and returning parents.
+  - Lets new parents create a plan with a family code.
+  - Checks whether the family code is available.
+  - Lets returning parents reopen a saved dashboard.
+  - Loads saved profiles from the parent profiles API.
+  - Stores family code/profile data in the shared family plan store.
+  - Redirects users to the quiz, dashboard, or requested redirect page.
+
+  API requirement:
+  - Requires VITE_PARENT_PROFILES_API_BASE_URL.
+  - Checks new codes with GET /check-username?username={familyCode}.
+  - Loads returning profiles with GET /{familyCode}.
+  - Shows clear errors if the API URL is missing or the profile is not found.
+
+  Accessibility:
+  - Uses aria-labels, aria-labelledby, aria-describedby, aria-invalid, role="alert", and aria-live.
+  - Uses proper form labels and keyboard-friendly links/buttons.
+  - Supports hover-to-read with data-hover-read-text.
+  - Hides decorative visuals with aria-hidden="true".
+-->
+
 <template>
   <div class="entry-page" :class="{ loaded: isLoaded }">
     <!-- Background -->
@@ -14,6 +42,7 @@
 
     <!-- Header -->
     <header class="entry-site-header" aria-label="HealthyKids site header">
+      <!-- HealthyKids brand link that returns users to the home page -->
       <RouterLink to="/" class="entry-brand" aria-label="Go to HealthyKids home page">
         <div class="entry-brand-icon" aria-hidden="true">
           <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
@@ -32,6 +61,7 @@
         <span>HealthyKids</span>
       </RouterLink>
 
+      <!-- Secondary header action to return to the landing page -->
       <RouterLink to="/" class="entry-header-btn" aria-label="Go back to home page">
         Back home
       </RouterLink>
@@ -39,7 +69,9 @@
 
     <!-- Main -->
     <main class="entry-main" id="main-content">
+      <!-- Main card containing both new and returning parent options -->
       <section class="entry-card" aria-labelledby="entry-page-title">
+        <!-- Introductory text for the parent access page -->
         <div class="entry-intro">
           <p class="entry-step-kicker" aria-label="Parent access">
             <span class="entry-kicker-dot" aria-hidden="true"></span>
@@ -56,6 +88,7 @@
           </p>
         </div>
 
+        <!-- Two parent access paths: new parent and returning parent -->
         <div class="entry-options" aria-label="Parent access options">
           <!-- New parent -->
           <article
@@ -63,6 +96,7 @@
             aria-labelledby="new-parent-title"
             aria-describedby="new-parent-description"
           >
+            <!-- Decorative icon for the new parent option -->
             <div class="entry-path-icon entry-path-icon--new" aria-hidden="true">
               <span>&#127804;</span>
             </div>
@@ -70,6 +104,7 @@
             <h2 id="new-parent-title">New parent</h2>
             <p id="new-parent-description">Create your family plan.</p>
 
+            <!-- Form for creating a new family plan -->
             <form class="entry-form-block" @submit.prevent="startNewUser" novalidate>
               <label for="new-username">Family code</label>
               <input
@@ -84,10 +119,13 @@
                 :aria-invalid="newUserError ? 'true' : 'false'"
                 :aria-describedby="newUserError ? 'new-username-error entry-code-help' : 'entry-code-help'"
               />
+
+              <!-- Screen-reader-only guidance for the new family code field -->
               <p id="entry-code-help" class="entry-sr-only">
                 Choose a simple family code without personal details.
               </p>
 
+              <!-- Validation error shown when the new family code is missing or unavailable -->
               <p
                 v-if="newUserError"
                 id="new-username-error"
@@ -115,6 +153,7 @@
             aria-labelledby="returning-parent-title"
             aria-describedby="returning-parent-description"
           >
+            <!-- Decorative icon for the returning parent option -->
             <div class="entry-path-icon entry-path-icon--return" aria-hidden="true">
               <span>&#128273;</span>
             </div>
@@ -122,6 +161,7 @@
             <h2 id="returning-parent-title">Returning parent</h2>
             <p id="returning-parent-description">Continue your progress.</p>
 
+            <!-- Form for loading an existing family dashboard -->
             <form class="entry-form-block" @submit.prevent="continueReturningUser" novalidate>
               <label for="returning-username">Family code</label>
               <input
@@ -136,10 +176,13 @@
                 :aria-invalid="returningUserError ? 'true' : 'false'"
                 :aria-describedby="returningUserError ? 'returning-username-error returning-code-help' : 'returning-code-help'"
               />
+
+              <!-- Screen-reader-only guidance for the returning family code field -->
               <p id="returning-code-help" class="entry-sr-only">
                 Enter the family code you used when creating your plan.
               </p>
 
+              <!-- Validation or loading error for returning users -->
               <p
                 v-if="returningUserError"
                 id="returning-username-error"
@@ -162,12 +205,14 @@
           </article>
         </div>
 
+        <!-- Privacy note reminding users not to use personal details -->
         <p class="entry-privacy-note">
           Use a simple code you can remember. No personal details needed.
         </p>
       </section>
     </main>
 
+    <!-- Footer copied from the home page style for visual consistency -->
     <footer
       class="home-footer entry-home-footer"
       aria-label="Website footer"
@@ -201,20 +246,37 @@ import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useHoverToRead } from '../composables/useHoverToRead'
 import { useSpeechSynthesis } from '../composables/useSpeechSynthesis'
 
+// Gives access to Vue Router navigation.
 const router = useRouter()
+
+// Gives access to the shared family plan store.
 const { state, savePlan, clearPlan } = useFamilyPlanStore()
 
+// Parent profile API base URL from the Vite environment variables.
 const API_BASE_URL = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
 
+// Controls the entry page loaded animation.
 const isLoaded = ref(false)
+
+// Stores the new family code typed by a new parent.
 const newUsername = ref('')
+
+// Stores the family code typed by a returning parent.
 const returningUsername = ref('')
+
+// Stores validation or API errors for the new parent form.
 const newUserError = ref('')
+
+// Stores validation or API errors for the returning parent form.
 const returningUserError = ref('')
 
+// Reads whether the hover-to-read accessibility feature is enabled.
 const { isHoverToReadEnabled } = useHoverToRead()
+
+// Provides text-to-speech output for form error messages.
 const { speakText } = useSpeechSynthesis()
 
+// Announces form errors aloud when hover-to-read is enabled.
 function announceFormError(message) {
   if (!message) return
 
@@ -223,16 +285,19 @@ function announceFormError(message) {
   }
 }
 
+// Starts the page entrance animation after the component mounts.
 onMounted(() => {
   setTimeout(() => {
     isLoaded.value = true
   }, 80)
 })
 
+// Normalises the family code so spacing and casing stay consistent.
 function normalizeUsername(value) {
   return String(value || '').trim().toLowerCase().replace(/\s+/g, '')
 }
 
+// Saves the family code locally and updates the shared family plan store.
 function saveUsernameSession(username) {
   localStorage.setItem('hk-parent-username', username)
 
@@ -244,6 +309,7 @@ function saveUsernameSession(username) {
   })
 }
 
+// Starts the flow for a new parent after checking whether the family code is available.
 async function startNewUser() {
   newUserError.value = ''
 
@@ -292,6 +358,7 @@ async function startNewUser() {
   }
 }
 
+// Loads an existing family profile and sends the returning parent to the dashboard.
 async function continueReturningUser() {
   returningUserError.value = ''
 

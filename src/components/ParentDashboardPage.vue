@@ -1,5 +1,24 @@
+<!--
+  ParentDashboardPage.vue
+
+  Creates the HealthyKids parent dashboard. It loads a saved family plan, shows today's schedule,
+  meal actions, movement actions, the 4-week planner, and basic settings.
+
+  API requirement:
+  - Requires VITE_PARENT_PROFILES_API_BASE_URL.
+  - Uses GET /{familyCode} to load the saved profile.
+  - Uses PUT /{familyCode} to save progress and planner updates.
+
+  Accessibility:
+  - Uses aria-labels, aria-live, role="status", role="alert", and role="progressbar".
+  - Uses aria-pressed for selected tabs, weeks, and days.
+  - Uses aria-disabled for locked planner controls.
+  - Uses data-hover-read-text for hover-to-read support.
+-->
+
 <template>
   <div class="dashboard-page">
+    <!-- Decorative dashboard background -->
     <div class="dashboard-page-bg" aria-hidden="true">
       <div class="dashboard-bg-orb dashboard-bg-orb-1"></div>
       <div class="dashboard-bg-orb dashboard-bg-orb-2"></div>
@@ -14,6 +33,7 @@
       aria-label="HealthyKids dashboard header"
     >
       <div class="dashboard-header-inner">
+        <!-- HealthyKids logo link -->
         <RouterLink
           to="/"
           class="dashboard-logo"
@@ -32,6 +52,7 @@
           <span>HealthyKids</span>
         </RouterLink>
 
+        <!-- Main dashboard navigation -->
         <nav class="dashboard-nav" aria-label="Dashboard page navigation">
           <RouterLink to="/" class="dashboard-nav-a" data-hover-read-text="Go to home page">
             Home
@@ -71,6 +92,7 @@
           </RouterLink>
         </nav>
 
+        <!-- Header action buttons -->
         <div class="dashboard-nav-cta">
           <RouterLink
             to="/parent-quiz"
@@ -112,6 +134,7 @@
       <p class="dashboard-state-msg">Loading your personalised family plan...</p>
     </div>
 
+    <!-- Error state shown when the dashboard plan cannot load -->
     <div
       v-else-if="planError"
       class="dashboard-state-screen"
@@ -130,6 +153,7 @@
       </button>
     </div>
 
+    <!-- Empty state shown when there is no saved family plan yet -->
     <div
       v-else-if="!isPlanReady"
       class="dashboard-state-screen"
@@ -141,6 +165,7 @@
       <RouterLink to="/parent-quiz" class="dashboard-nav-btn">Complete quiz</RouterLink>
     </div>
 
+    <!-- Main dashboard content appears once the plan is ready -->
     <main
       v-else
       id="main-content"
@@ -150,6 +175,7 @@
       <div class="dashboard-layout">
         <!-- SIDEBAR -->
         <aside class="dashboard-sidebar" aria-label="Dashboard sidebar">
+          <!-- Parent welcome and family code display -->
           <div class="dashboard-sidebar-welcome">
             <p class="dashboard-sidebar-greeting">Welcome back,</p>
             <h1
@@ -162,6 +188,7 @@
             <div class="dashboard-sidebar-accent"></div>
           </div>
 
+          <!-- Current date badge -->
           <div
             class="dashboard-sidebar-date-badge"
             :data-hover-read-text="`Today is ${selectedDateLabel}`"
@@ -175,6 +202,7 @@
             {{ selectedDateLabel }}
           </div>
 
+          <!-- Sidebar tab controls -->
           <nav class="dashboard-sidebar-nav" aria-label="Dashboard sections">
             <button
               v-for="tab in sidebarTabs"
@@ -197,6 +225,7 @@
             </button>
           </nav>
 
+          <!-- Optional streak summary -->
           <div class="dashboard-sidebar-streak" v-if="streakDays > 0">
             <span class="dashboard-streak-flame">🔥</span>
             <div>
@@ -215,6 +244,7 @@
           <!-- TAB HEADER -->
           <div class="dashboard-content-header">
             <div class="dashboard-content-header-text">
+              <!-- Dynamic tab category label -->
               <div
                 class="dashboard-content-eyebrow"
                 :data-hover-read-text="activeTabReadableTitle"
@@ -227,6 +257,7 @@
                 <template v-else>Account</template>
               </div>
 
+              <!-- Dynamic tab heading -->
               <h2
                 id="dashboard-section-title"
                 class="dashboard-content-title"
@@ -239,6 +270,7 @@
                 <template v-else>Settings</template>
               </h2>
 
+              <!-- Dynamic tab description -->
               <p
                 id="dashboard-section-description"
                 class="dashboard-content-subtitle"
@@ -397,6 +429,8 @@
               </div>
             </div>
           </div>
+
+            <!-- Full list of today's schedule actions -->
             <label
               v-for="slot in todayFullSchedule"
               :key="slot.id"
@@ -439,6 +473,7 @@
 
           <!-- MEAL TAB -->
           <div v-else-if="activeDashboardTab === 'meal'" class="dashboard-slot-list">
+            <!-- Shows only nutrition actions from today's schedule -->
             <label
               v-for="slot in todayFullSchedule.filter(s => s.category === 'nutrition')"
               :key="slot.id"
@@ -484,6 +519,7 @@
 
           <!-- ACTIVITY TAB -->
           <div v-else-if="activeDashboardTab === 'activity'" class="dashboard-slot-list">
+            <!-- Shows only movement actions from today's schedule -->
             <label
               v-for="slot in todayFullSchedule.filter(s => s.category === 'movement')"
               :key="slot.id"
@@ -537,6 +573,7 @@
                   <strong>{{ currentWeek }}/4 active</strong>
                 </div>
 
+                <!-- Buttons for switching between roadmap weeks -->
                 <button
                   v-for="week in fourWeekRoadmap"
                   :key="week.id"
@@ -570,6 +607,7 @@
                     </p>
                   </div>
 
+                  <!-- Planner edit controls -->
                   <div class="dashboard-week-actions">
                     <button
                       v-if="!isEditingPlanner"
@@ -607,6 +645,7 @@
 
                 <!-- STATS ROW -->
                 <div class="dashboard-week-stats" aria-label="Selected week progress summary">
+                  <!-- Weekly completion percentage -->
                   <div
                     class="dashboard-stat-card"
                     :data-hover-read-text="`Week progress is ${selectedRoadmapWeek.progress} percent`"
@@ -618,6 +657,7 @@
                     </div>
                   </div>
 
+                  <!-- Completed action count -->
                   <div
                     class="dashboard-stat-card"
                     :data-hover-read-text="`${selectedRoadmapWeek.completed} of ${selectedRoadmapWeek.totalItems} actions completed`"
@@ -627,6 +667,7 @@
                     <p class="dashboard-stat-sub">of {{ selectedRoadmapWeek.totalItems }} actions</p>
                   </div>
 
+                  <!-- Remaining action count -->
                   <div
                     class="dashboard-stat-card"
                     :data-hover-read-text="`${selectedWeekOpenItems} actions remaining`"
@@ -680,6 +721,7 @@
                     <div class="dashboard-daily-score">{{ selectedPlannerDayData.progress || 0 }}%</div>
                   </div>
 
+                  <!-- Daily planner actions for the selected day -->
                   <div class="dashboard-daily-slots">
                     <div
                       v-for="slot in selectedPlannerDayData.timeSlots || []"
@@ -694,6 +736,7 @@
                         }
                       ]"
                     >
+                      <!-- Read-only checklist mode -->
                       <template v-if="!isEditingPlanner">
                         <span class="dashboard-slot-time">{{ slot.time }}</span>
 
@@ -730,6 +773,7 @@
                         </label>
                       </template>
 
+                      <!-- Editable mode for today's planner actions -->
                       <template v-else-if="canModifySelectedPlannerDay">
                         <div class="dashboard-slot-edit">
                           <div class="dashboard-slot-edit-row">
@@ -776,6 +820,7 @@
                         </div>
                       </template>
 
+                      <!-- Locked view when the selected planner day is not today -->
                       <template v-else>
                         <span class="dashboard-slot-time">{{ slot.time }}</span>
 
@@ -813,6 +858,7 @@
 
           <!-- SETTINGS TAB -->
           <div v-else class="dashboard-settings-tab">
+            <!-- Displays the active family code -->
             <div class="dashboard-settings-block">
               <h3 class="dashboard-settings-block-title">Family code</h3>
               <p
@@ -854,6 +900,7 @@
         </section>
       </div>
 
+      <!-- Dashboard footer -->
       <footer
         class="dashboard-inner-footer"
         aria-label="Website footer"
@@ -887,9 +934,11 @@ import { RouterLink, useRoute } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useDynamicPlan } from '../composables/useDynamicPlan'
 
+// Shared family plan store and dynamic plan helpers.
 const { state, savePlan } = useFamilyPlanStore()
 const { loading: planLoading, error: planError, fetchPlan, buildRoadmapWeeks } = useDynamicPlan()
 
+// Date, locale, and API configuration.
 const TIME_ZONE = 'Australia/Melbourne'
 const LOCALE = 'en-AU'
 const DAY_LABEL_LENGTH = 3
@@ -897,6 +946,7 @@ const DAY_ORDER = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'
 const API_BASE_URL = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
 const route = useRoute()
 
+// UI state for scrolling, dashboard tabs, planner editing, and saving.
 const isScrolled = ref(false)
 const activeRoadmapWeek = ref(1)
 const selectedPlannerDay = ref(getTodayName())
@@ -907,6 +957,7 @@ const dashboardSaveError = ref('')
 const activeDashboardTab = ref('today')
 const showPlannerBackTop = ref(false)
 
+// Categories used in today's timeline and action labels.
 const scheduleCategories = [
   { key: 'nutrition', label: 'Nutrition' },
   { key: 'movement', label: 'Movement' },
@@ -915,6 +966,7 @@ const scheduleCategories = [
   { key: 'family', label: 'Family time' },
 ]
 
+// Sidebar tab definitions, including inline SVG icons.
 const sidebarTabs = [
   {
     key: 'today',
@@ -943,23 +995,28 @@ const sidebarTabs = [
   },
 ]
 
+// Returns today's weekday name using the configured timezone.
 function getTodayName() {
   return new Date().toLocaleDateString(LOCALE, { weekday: 'long', timeZone: TIME_ZONE })
 }
 
+// Returns a shortened day label such as Mon, Tue, or Wed.
 function getShortDayName(dayName = '') {
   return dayName.slice(0, DAY_LABEL_LENGTH)
 }
 
+// Safely returns an object, or an empty object when the value is invalid.
 function safeObject(value) {
   if (!value || Array.isArray(value) || typeof value !== 'object') return {}
   return value
 }
 
+// Converts internal category keys into user-facing labels.
 function getCategoryLabel(category) {
   return { nutrition: 'Nutrition', movement: 'Movement', sleep: 'Wind-down', routine: 'Routine', family: 'Family' }[category] || 'Routine'
 }
 
+// Normalises API profile fields so both camelCase and snake_case responses work.
 function normalizeDashboardProfile(profile = {}) {
   const progressItems = safeObject(profile.progressItems || profile.progress_items)
   return {
@@ -984,6 +1041,7 @@ function normalizeDashboardProfile(profile = {}) {
   }
 }
 
+// Loads the saved parent profile from the parent profiles API.
 async function fetchParentProfile(username) {
   if (!username) throw new Error('Missing username')
   if (!API_BASE_URL) throw new Error('Missing VITE_PARENT_PROFILES_API_BASE_URL')
@@ -993,6 +1051,7 @@ async function fetchParentProfile(username) {
   return data
 }
 
+// Loads the dashboard plan and profile for the selected family code.
 async function loadDashboard(username) {
   if (!username) return
   localStorage.setItem('hk-parent-username', username)
@@ -1005,6 +1064,7 @@ async function loadDashboard(username) {
   selectedPlannerDay.value = todayName.value
 }
 
+// Applies saved planner edits to a generated slot without changing the original slot shape.
 function applyPlannerOverridesToSlot(slot) {
   const overrides = safeObject(state.plannerOverrides)
   const edited = overrides[slot.id]
@@ -1013,10 +1073,12 @@ function applyPlannerOverridesToSlot(slot) {
   return { ...slot, time: edited.time || slot.time, text: edited.text || slot.text, tip: edited.tip ?? slot.tip, category, categoryLabel: getCategoryLabel(category) }
 }
 
+// Basic family and streak display values.
 const childName = computed(() => state.childName || state.child_name || 'Your child')
 const streakDays = computed(() => state.streakDays || state.streak_days || 0)
 const todayName = computed(() => getTodayName())
 
+// Builds the 4-week roadmap and calculates day-level progress.
 const fourWeekRoadmap = computed(() => {
   const roadmapProgress = safeObject(state.roadmapProgress)
   return buildRoadmapWeeks(roadmapProgress).map(week => ({
@@ -1029,6 +1091,8 @@ const fourWeekRoadmap = computed(() => {
     }),
   }))
 })
+
+// Converts a time string into a percentage position on the daily timeline.
 function slotTimePercent(timeStr) {
   if (!timeStr) return 0
 
@@ -1060,9 +1124,11 @@ function slotTimePercent(timeStr) {
   )
 }
 
+// Timer value used to refresh the current-time marker.
 const nowTick = ref(Date.now())
 let nowTimer = null
 
+// Calculates where the current time should appear on the day timeline.
 const currentTimePercent = computed(() => {
   nowTick.value
 
@@ -1077,10 +1143,12 @@ const currentTimePercent = computed(() => {
   )
 })
 
+// Identifies upcoming timeline items.
 function isUpcoming(slot) {
   return !slot.done && slotTimePercent(slot.time) >= currentTimePercent.value - 4
 }
 
+// Returns a one-letter category marker for timeline nodes.
 function catInitial(category) {
   return {
     nutrition: 'N',
@@ -1092,19 +1160,24 @@ function catInitial(category) {
 }
 
 
+// Checks whether the roadmap has been generated.
 const isPlanReady = computed(() => fourWeekRoadmap.value.length > 0)
 
+// Fallback week used before roadmap data is available.
 const emptyRoadmapWeek = { id: 1, week: 1, title: 'Loading...', summary: '', detail: '', parentTip: '', actions: [], dailyPlan: [], dailyCompleted: 0, dailyTotal: 0, weeklyCompleted: 0, totalItems: 0, completed: 0, progress: 0, status: 'Not started', statusKey: 'not-started' }
 
+// Currently selected roadmap week.
 const selectedRoadmapWeek = computed(() =>
   fourWeekRoadmap.value.find(week => week.id === activeRoadmapWeek.value) || fourWeekRoadmap.value[0] || emptyRoadmapWeek
 )
 
+// Finds the first incomplete week and treats it as the active/current week.
 const currentWeek = computed(() => {
   const firstIncompleteWeek = fourWeekRoadmap.value.find(week => week.progress < 100)
   return firstIncompleteWeek?.week || fourWeekRoadmap.value[0]?.week || 1
 })
 
+// Sorts the selected week's daily plan in Monday-to-Sunday order.
 const currentFirstRoadmapDailyPlan = computed(() => {
   const plan = selectedRoadmapWeek.value?.dailyPlan || []
   return [...plan].sort((a, b) => {
@@ -1114,6 +1187,7 @@ const currentFirstRoadmapDailyPlan = computed(() => {
   })
 })
 
+// Gets the selected planner day, falling back to today, Monday, or the first available day.
 const selectedPlannerDayData = computed(() => {
   const plan = selectedRoadmapWeek.value?.dailyPlan || []
   const selectedDay = plan.find(day => day.day === selectedPlannerDay.value)
@@ -1122,25 +1196,33 @@ const selectedPlannerDayData = computed(() => {
   return selectedDay || today || monday || plan[0] || { day: activeRoadmapWeek.value === currentWeek.value ? todayName.value : 'Monday', timeSlots: [], completed: 0, progress: 0 }
 })
 
+// Number of unfinished actions in the selected week.
 const selectedWeekOpenItems = computed(() => Math.max(0, (selectedRoadmapWeek.value?.totalItems || 0) - (selectedRoadmapWeek.value?.completed || 0)))
 
+// Checks whether the selected planner day is today.
 const isSelectedPlannerDayToday = computed(() =>
   activeRoadmapWeek.value === currentWeek.value && selectedPlannerDayData.value?.day === todayName.value
 )
 
+// Only today's planner actions can be edited or toggled.
 const canModifySelectedPlannerDay = computed(() => isSelectedPlannerDayToday.value)
 
+// Today's full schedule from the current week.
 const todayFullSchedule = computed(() => {
   const week = fourWeekRoadmap.value.find(item => item.week === currentWeek.value)
   const today = week?.dailyPlan?.find(day => day.day === todayName.value)
   return today?.timeSlots || []
 })
 
+// Completed action count for today.
 const completedTodayCount = computed(() => todayFullSchedule.value.filter(slot => slot.done).length)
 
+// Completion percentage for today's progress ring.
 const todayProgress = computed(() =>
   todayFullSchedule.value.length ? Math.round((completedTodayCount.value / todayFullSchedule.value.length) * 100) : 0
 )
+
+// Accessible title for the current tab.
 const activeTabReadableTitle = computed(() => {
   if (activeDashboardTab.value === 'today') return "Today's plan"
   if (activeDashboardTab.value === 'meal') return 'Meal plan'
@@ -1149,6 +1231,7 @@ const activeTabReadableTitle = computed(() => {
   return 'Settings'
 })
 
+// Accessible description for the current tab.
 const activeTabReadableDescription = computed(() => {
   if (activeDashboardTab.value === 'today') return "Your child's personalised schedule for today."
   if (activeDashboardTab.value === 'meal') return "Nutrition-focused actions from today's family plan."
@@ -1157,6 +1240,7 @@ const activeTabReadableDescription = computed(() => {
   return 'Manage your dashboard and family plan.'
 })
 
+// Builds readable text for hover-to-read and assistive features.
 function getSlotReadableText(slot) {
   const status = slot.done ? 'Completed' : 'Not completed'
   const category = getCategoryLabel(slot.category)
@@ -1165,10 +1249,12 @@ function getSlotReadableText(slot) {
   return `${status}. ${slot.time}. ${category}. ${slot.text}. ${detail}`
 }
 
+// Builds readable summary text for a roadmap week.
 function getWeekReadableText(week) {
   return `Week ${week.week}. ${week.title || week.focus || `Week ${week.week}`}. ${week.progress} percent complete.`
 }
 
+// Builds readable summary text for a roadmap day.
 function getDayReadableText(day) {
   const todayText =
     activeRoadmapWeek.value === currentWeek.value && day.day === todayName.value
@@ -1178,16 +1264,19 @@ function getDayReadableText(day) {
   return `${todayText}${day.day}. ${day.progress} percent complete.`
 }
 
+// Converts different slot ID formats into one canonical action ID.
 function getCanonicalActionId(slotOrId) {
   if (slotOrId === null || slotOrId === undefined) return ''
   if (typeof slotOrId === 'string' || typeof slotOrId === 'number') return String(slotOrId).replace('today-schedule-', '')
   return String(slotOrId.sourceSlotId || slotOrId.id || '').replace('today-schedule-', '')
 }
 
+// Combines progress, today schedule, and planner overrides into progressItems.
 function buildProgressItems(updatedState) {
   return { ...(safeObject(updatedState.progressItems) || {}), roadmapProgress: safeObject(updatedState.roadmapProgress), todaySchedule: safeObject(updatedState.todaySchedule), plannerOverrides: safeObject(updatedState.plannerOverrides) }
 }
 
+// Toggles a roadmap or today action and persists the updated progress.
 function togglePlanAction(slotOrId) {
   const actionId = getCanonicalActionId(slotOrId)
   if (!actionId) return
@@ -1199,9 +1288,13 @@ function togglePlanAction(slotOrId) {
   saveAndPersist(updatedState)
 }
 
+// Toggles an action from today's schedule.
 function toggleTodayScheduleSlot(slot) { togglePlanAction(slot) }
+
+// Toggles a roadmap action only when the selected planner day is today.
 function toggleRoadmapDailyAction(actionId) { if (!canModifySelectedPlannerDay.value) return; togglePlanAction(actionId) }
 
+// Starts editing the selected planner day.
 function startEditingPlanner() {
   if (!canModifySelectedPlannerDay.value) return
   const editable = {}
@@ -1212,8 +1305,10 @@ function startEditingPlanner() {
   isEditingPlanner.value = true
 }
 
+// Cancels planner editing and clears temporary edits.
 function cancelEditingPlanner() { editablePlanner.value = {}; isEditingPlanner.value = false }
 
+// Saves planner edits as overrides and persists them.
 function saveEditedPlanner() {
   const updatedState = { ...state, plannerOverrides: { ...safeObject(state.plannerOverrides), ...safeObject(editablePlanner.value) } }
   updatedState.progressItems = buildProgressItems(updatedState)
@@ -1222,12 +1317,14 @@ function saveEditedPlanner() {
   isEditingPlanner.value = false
 }
 
+// Saves updates locally first, then syncs them to the backend.
 function saveAndPersist(updatedState) {
   dashboardSaveError.value = ''
   savePlan(updatedState)
   persistDashboardUpdate(updatedState).catch(error => { dashboardSaveError.value = error.message || 'Dashboard sync failed'; console.error('Sync failed:', error) })
 }
 
+// Persists dashboard progress and planner updates to the parent profile API.
 async function persistDashboardUpdate(updatedState) {
   const username = updatedState.username || state.username
   if (!username) throw new Error('Missing username')
@@ -1248,6 +1345,7 @@ async function persistDashboardUpdate(updatedState) {
   } finally { isSavingDashboard.value = false }
 }
 
+// Tracks page scroll for header styling and planner back-to-top visibility.
 function onScroll() {
   const hasScrolled = window.scrollY > 120
 
@@ -1255,6 +1353,7 @@ function onScroll() {
   showPlannerBackTop.value = activeDashboardTab.value === 'progress' && hasScrolled
 }
 
+// Current family code from store or localStorage.
 const familyCode = computed(() =>
   state.username ||
   state.userName ||
@@ -1263,26 +1362,33 @@ const familyCode = computed(() =>
   'Family'
 )
 
+// Display name shown in the dashboard sidebar.
 const parentDisplayName = computed(() => familyCode.value)
 
+// Formatted date label for the sidebar.
 const selectedDateLabel = computed(() =>
   new Date().toLocaleDateString(LOCALE, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric', timeZone: TIME_ZONE })
 )
 
+// Smoothly scrolls the page to the top.
 function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
+// Keeps the active roadmap week aligned with the current incomplete week.
 watch(currentWeek, (nextWeek, previousWeek) => {
   if (activeRoadmapWeek.value === previousWeek || !fourWeekRoadmap.value.some(week => week.id === activeRoadmapWeek.value)) {
     activeRoadmapWeek.value = nextWeek
   }
 }, { immediate: true })
 
+// Resets the selected planner day when the active roadmap week changes.
 watch(activeRoadmapWeek, weekId => { selectedPlannerDay.value = weekId === currentWeek.value ? todayName.value : 'Monday' })
 
+// Updates back-to-top button visibility when switching dashboard tabs.
 watch(activeDashboardTab, tab => {
   showPlannerBackTop.value = tab === 'progress' && window.scrollY > 120
 })
 
+// Sets up scroll tracking, loads the dashboard, and starts the current-time timer.
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   const routeUsername = route.query.username || route.params.username || ''
@@ -1294,6 +1400,7 @@ onMounted(() => {
 }, 60_000)
 })
 
+// Cleans up event listeners and timers when leaving the page.
 onUnmounted(() => { window.removeEventListener('scroll', onScroll) 
 if (nowTimer) window.clearInterval(nowTimer)
 })

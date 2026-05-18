@@ -1,5 +1,23 @@
+<!--
+  ParentNutritionToolsPage.vue
+
+  Creates the HealthyKids nutrition tools page. Parents can browse recipes, filter meal ideas,
+  open recipe details, and score foods using the food health predictor.
+
+  API requirement:
+  - Requires VITE_NUTRITION_API_BASE_URL.
+  - Uses GET /recipes to load recipe data.
+  - Food scoring is handled by useFoodHealthPredictor.
+
+  Accessibility:
+  - Uses aria-labels, aria-live, role="alert", role="status", and role="dialog".
+  - Uses data-hover-read-text for hover-to-read support.
+  - Marks decorative images, icons, and SVGs as aria-hidden where appropriate.
+-->
+  
 <template>
   <div class="nutrition-page">
+    <!-- Decorative background image and overlay layers -->
     <div class="page-bg" aria-hidden="true">
       <img
         class="page-bg__img"
@@ -11,8 +29,10 @@
       <div class="page-bg__grain"></div>
     </div>
 
+    <!-- Page header with logo, navigation, and dashboard actions -->
     <header class="header" :class="{ scrolled: isScrolled }" aria-label="HealthyKids nutrition header">
       <div class="header-inner">
+        <!-- HealthyKids logo link -->
         <RouterLink
           to="/"
           class="logo"
@@ -31,6 +51,7 @@
           <span>HealthyKids</span>
         </RouterLink>
 
+        <!-- Main navigation links -->
         <nav class="nav" aria-label="Nutrition page navigation">
           <RouterLink to="/" class="nav-a" data-hover-read-text="Go to home page">
             Home
@@ -58,6 +79,7 @@
           </RouterLink>
         </nav>
 
+        <!-- Header call-to-action links -->
         <div class="nav-cta">
           <RouterLink
             to="/parent-quiz"
@@ -87,23 +109,28 @@
       </div>
     </header>
 
+    <!-- Main nutrition page content -->
     <main
       id="main-content"
       class="page-main"
       aria-labelledby="nutrition-page-title"
       aria-describedby="nutrition-page-description"
     >
+      <!-- Hero section with quick filters and food scorer -->
       <section class="hero-card" aria-label="Nutrition tools overview">
         <div class="hero-copy">
+          <!-- Small section label -->
           <p class="eyebrow" data-hover-read-text="Nutrition support">
             <span class="eyebrow-dot" aria-hidden="true"></span>
             Nutrition support
           </p>
 
+          <!-- Main page heading -->
           <h1 id="nutrition-page-title" data-hover-read-text="Simple meal ideas for today.">
             Simple meal ideas for today.
           </h1>
 
+          <!-- Page description -->
           <p
             id="nutrition-page-description"
             class="hero-text"
@@ -112,6 +139,7 @@
             Browse recipes from your database, filter by what your family needs, and use the food scorer when you want a quick check.
           </p>
 
+          <!-- Quick filter chips -->
           <div class="hero-actions" role="group" aria-label="Quick recipe filters">
             <button
               v-for="shortcut in quickStarts"
@@ -127,6 +155,7 @@
             </button>
           </div>
 
+          <!-- Recipe summary counts -->
           <div
             class="summary-row"
             aria-label="Recipe summary"
@@ -147,6 +176,7 @@
           </div>
         </div>
 
+        <!-- Food scorer card -->
         <aside
           class="score-card"
           aria-labelledby="food-scorer-title"
@@ -163,6 +193,7 @@
             Type one food and get a quick health score.
           </p>
 
+          <!-- Food scorer input and submit button -->
           <div class="score-input-row">
             <div class="score-input-wrap">
               <label for="food-score-input" class="nutrition-sr-only">Food to score</label>
@@ -195,6 +226,7 @@
             </button>
           </div>
 
+          <!-- Food scorer error message -->
           <p
             v-if="foodPredictionError"
             class="score-error"
@@ -205,6 +237,7 @@
             {{ foodPredictionError }}
           </p>
 
+          <!-- Suggested food matches -->
           <div
             v-if="foodPredictionCandidates.length"
             class="candidate-row"
@@ -223,6 +256,7 @@
             </button>
           </div>
 
+          <!-- Food score result -->
           <Transition name="fade-up">
             <div
               v-if="foodPredictionResult"
@@ -268,6 +302,7 @@
             </div>
           </Transition>
 
+          <!-- Example foods shown before scoring -->
           <div
             v-if="!foodPredictionResult && !foodPredictionLoading"
             class="example-row"
@@ -288,11 +323,13 @@
         </aside>
       </section>
 
+      <!-- Search and filter controls -->
       <section
         class="controls-card"
         aria-labelledby="recipe-filter-title"
         aria-describedby="recipe-filter-description"
       >
+        <!-- Recipe search field -->
         <div class="search-box">
           <label for="recipe-search">Find a recipe</label>
           <input
@@ -309,6 +346,7 @@
           </p>
         </div>
 
+        <!-- Filter dropdowns -->
         <div class="filter-grid">
           <div class="filter-field">
             <label for="category-filter">Category</label>
@@ -366,6 +404,7 @@
           </div>
         </div>
 
+        <!-- Filter summary and clear button -->
         <div class="controls-footer" aria-live="polite">
           <p
             id="recipe-filter-description"
@@ -387,6 +426,7 @@
         <h2 id="recipe-filter-title" class="nutrition-sr-only">Recipe filters</h2>
       </section>
 
+      <!-- Loading state -->
       <section
         v-if="nutritionLoading"
         class="state-card"
@@ -399,6 +439,7 @@
         <p>Fetching nutrition options from your database.</p>
       </section>
 
+      <!-- Error state -->
       <section
         v-else-if="nutritionError"
         class="state-card error-state"
@@ -414,6 +455,7 @@
         </button>
       </section>
 
+      <!-- Empty search/filter result state -->
       <section
         v-else-if="filteredRecipes.length === 0"
         class="state-card"
@@ -429,6 +471,7 @@
         </button>
       </section>
 
+      <!-- Recipe results section -->
       <section v-else class="recipe-section" aria-labelledby="recipe-section-title">
         <div class="section-heading">
           <div>
@@ -443,6 +486,7 @@
           </p>
         </div>
 
+        <!-- Recipe card grid -->
         <div class="recipe-grid">
           <article
             v-for="recipe in visibleRecipes"
@@ -474,6 +518,7 @@
           </article>
         </div>
 
+        <!-- Loads more recipes into the visible list -->
         <div v-if="filteredRecipes.length > visibleLimit" class="load-more-wrap">
           <button
             type="button"
@@ -487,6 +532,7 @@
       </section>
     </main>
 
+    <!-- Recipe detail modal -->
     <Teleport to="body">
       <Transition name="recipe-modal-fade">
         <div
@@ -532,6 +578,7 @@
             </div>
 
             <div class="recipe-modal-body">
+              <!-- Recipe ingredients -->
               <div v-if="selectedRecipe.ingredientsList.length" class="recipe-modal-block">
                 <h3>Ingredients</h3>
                 <ul>
@@ -541,6 +588,7 @@
                 </ul>
               </div>
 
+              <!-- Recipe method steps -->
               <div v-if="selectedRecipe.stepList.length" class="recipe-modal-block">
                 <h3>Steps</h3>
                 <ol>
@@ -550,6 +598,7 @@
                 </ol>
               </div>
 
+              <!-- Parent-friendly recipe tip -->
               <div class="recipe-modal-tip" :data-hover-read-text="`Parent tip. ${selectedRecipe.parentTip}`">
                 <strong>Parent tip:</strong>
                 <span>{{ selectedRecipe.parentTip }}</span>
@@ -560,6 +609,7 @@
       </Transition>
     </Teleport>
 
+    <!-- Floating scroll-to-top button -->
     <button
       v-show="isScrolled"
       type="button"
@@ -613,15 +663,21 @@ import { RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useFoodHealthPredictor } from '../composables/useFoodHealthPredictor'
 
+// Nutrition API base URL from the Vite environment file.
 const API_BASE = import.meta.env.VITE_NUTRITION_API_BASE_URL
 
+// Shared family plan state.
 const { state } = useFamilyPlanStore()
+
+// Parent concerns from the family plan store.
 const concerns = computed(() => (Array.isArray(state.concerns) ? state.concerns : []))
 
+// Recipe loading state.
 const recipes = ref([])
 const nutritionLoading = ref(false)
 const nutritionError = ref('')
 
+// Search, filter, modal, and scroll state.
 const searchQuery = ref('')
 const selectedCategory = ref('all')
 const selectedCuisine = ref('all')
@@ -630,6 +686,7 @@ const selectedRecipe = ref(null)
 const visibleLimit = ref(12)
 const isScrolled = ref(false)
 
+// Tracks page scroll so the header and back-to-top button can update.
 function onScroll() {
   const scrollTop =
     window.scrollY ||
@@ -640,7 +697,10 @@ function onScroll() {
   isScrolled.value = scrollTop > 40
 }
 
+// Food scorer input value.
 const foodInput = ref('')
+
+// Food health predictor state and actions.
 const {
   loading: foodPredictionLoading,
   error: foodPredictionError,
@@ -650,18 +710,23 @@ const {
   clearPrediction,
 } = useFoodHealthPredictor()
 
+// Example foods shown before the user scores a food.
 const exampleFoods = ['banana', 'white bread', 'greek yoghurt', 'milo']
 
+// Quick filter chips shown in the hero section.
 const quickStarts = computed(() => [
   { id: 'all', label: 'All ideas', category: 'all', cuisine: 'all', need: 'all' },
   { id: 'quick', label: 'Quick meals', category: 'all', cuisine: 'all', need: 'quick' },
   { id: 'lunchbox', label: 'Lunchbox friendly', category: 'all', cuisine: 'all', need: 'lunchbox-safe' },
 ])
 
+// Recipes converted into a consistent frontend format.
 const normalisedRecipes = computed(() => recipes.value.map(mapRecipe))
 
+// Total number of normalised recipes.
 const recipeCount = computed(() => normalisedRecipes.value.length)
 
+// Category options update based on the selected cuisine.
 const categoryOptions = computed(() => {
   const base = selectedCuisine.value === 'all'
     ? normalisedRecipes.value
@@ -669,15 +734,19 @@ const categoryOptions = computed(() => {
   return uniqueValues(base.map(r => r.category))
 })
 
+// Cuisine options update based on the selected category.
 const cuisineOptions = computed(() => {
   const base = selectedCategory.value === 'all'
     ? normalisedRecipes.value
     : normalisedRecipes.value.filter(r => r.category === selectedCategory.value)
   return uniqueValues(base.map(r => r.area))
 })
+
+// Summary counts for filter options.
 const categoryCount = computed(() => categoryOptions.value.length)
 const cuisineCount = computed(() => cuisineOptions.value.length)
 
+// Checks whether any recipe filters are active.
 const hasActiveFilters = computed(() =>
   searchQuery.value ||
   selectedCategory.value !== 'all' ||
@@ -685,6 +754,7 @@ const hasActiveFilters = computed(() =>
   selectedNeed.value !== 'all'
 )
 
+// Applies search, category, cuisine, and family-need filters.
 const filteredRecipes = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
 
@@ -700,6 +770,7 @@ const filteredRecipes = computed(() => {
   })
 })
 
+// Smoothly scrolls the page back to the top.
 function scrollToTop() {
   window.scrollTo({
     top: 0,
@@ -707,8 +778,10 @@ function scrollToTop() {
   })
 }
 
+// Limits how many filtered recipes are displayed at once.
 const visibleRecipes = computed(() => filteredRecipes.value.slice(0, visibleLimit.value))
 
+// Adds or removes the body class when the recipe modal opens or closes.
 watch(
   selectedRecipe,
   recipe => {
@@ -719,6 +792,7 @@ watch(
 )
 
 
+// Resets category if it no longer exists after cuisine changes.
 watch(selectedCuisine, () => {
   // If the currently selected category no longer exists for this cuisine, reset it
   if (selectedCategory.value !== 'all' && !categoryOptions.value.includes(selectedCategory.value)) {
@@ -727,6 +801,7 @@ watch(selectedCuisine, () => {
   visibleLimit.value = 12
 })
 
+// Resets cuisine if it no longer exists after category changes.
 watch(selectedCategory, () => {
   // If the currently selected cuisine no longer exists for this category, reset it
   if (selectedCuisine.value !== 'all' && !cuisineOptions.value.includes(selectedCuisine.value)) {
@@ -735,6 +810,7 @@ watch(selectedCategory, () => {
   visibleLimit.value = 12
 })
 
+// Sets up page listeners and loads recipes when the component mounts.
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('keydown', handleRecipeModalKeydown)
@@ -744,6 +820,7 @@ onMounted(() => {
   fetchRecipes()
 })
 
+// Cleans up listeners and modal body class when leaving the page.
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('keydown', handleRecipeModalKeydown)
@@ -753,6 +830,7 @@ onUnmounted(() => {
   }
 })
 
+// Fetches recipe data from the nutrition API.
 async function fetchRecipes() {
   if (!API_BASE) {
     nutritionError.value = 'Missing VITE_NUTRITION_API_BASE_URL. Add it to your .env file.'
@@ -778,6 +856,7 @@ async function fetchRecipes() {
   }
 }
 
+// Converts one backend recipe object into the format used by the page.
 function mapRecipe(recipe) {
   const name = recipe.name || recipe.recipe_name || 'Recipe idea'
   const area = recipe.area || recipe.cuisine_area || 'Family'
@@ -813,6 +892,7 @@ function mapRecipe(recipe) {
   }
 }
 
+// Splits ingredient text into a short list.
 function splitList(value) {
   if (!value) return []
 
@@ -824,6 +904,7 @@ function splitList(value) {
     .slice(0, 10)
 }
 
+// Splits recipe steps into a readable ordered list.
 function splitSteps(value) {
   if (!value) return []
 
@@ -840,6 +921,7 @@ function splitSteps(value) {
     .slice(0, 6)
 }
 
+// Category groups used to infer recipe needs.
 const PROTEIN_CATEGORIES = new Set(['chicken', 'beef', 'pork', 'lamb', 'seafood', 'goat'])
 const FRUIT_VEG_CATEGORIES = new Set(['vegetarian', 'vegan', 'side dish', 'side', 'salad'])
 const LUNCHBOX_CATEGORIES = new Set([
@@ -851,6 +933,7 @@ const QUICK_CATEGORIES = new Set([
   'south indian breakfast', 'indian breakfast', 'world breakfast',
 ])
 
+// Detects family needs such as protein, fruit and veg, lunchbox-friendly, or quick.
 function detectNeeds(recipe) {
   const text = `${recipe.name} ${recipe.ingredients}`.toLowerCase()
   const cat = String(recipe.category).toLowerCase()
@@ -887,17 +970,20 @@ function detectNeeds(recipe) {
   return needs.length ? [...new Set(needs)] : ['family-friendly']
 }
 
+// Estimates whether a recipe is quick, medium, or plan-ahead.
 function detectEffort(ingredientsList, stepList) {
   if (ingredientsList.length <= 5 && stepList.length <= 4) return 'quick'
   if (ingredientsList.length <= 9 && stepList.length <= 6) return 'medium'
   return 'plan-ahead'
 }
 
+// Builds the short recipe card summary.
 function buildSummary(area, category, ingredientsList) {
   const ingredientsText = ingredientsList.slice(0, 3).join(', ')
   return `${area} ${category.toLowerCase()} idea${ingredientsText ? ` with ${ingredientsText}` : ''}.`
 }
 
+// Builds a parent-friendly tip based on recipe need and effort.
 function buildParentTip(needs, effort) {
   if (needs.includes('lunchbox-safe')) return 'Pack sauces or wet ingredients separately so the meal stays fresh.'
   if (needs.includes('protein')) return 'Serve a small portion first, then offer more if your child is still hungry.'
@@ -906,10 +992,12 @@ function buildParentTip(needs, effort) {
   return 'Keep the first attempt simple and repeat it before adding more changes.'
 }
 
+// Returns sorted unique values for dropdown filters.
 function uniqueValues(values) {
   return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b))
 }
 
+// Applies a quick-start recipe filter.
 function applyQuickStart(shortcut) {
   selectedCategory.value = shortcut.category
   selectedCuisine.value = shortcut.cuisine
@@ -918,6 +1006,7 @@ function applyQuickStart(shortcut) {
   visibleLimit.value = 12
 }
 
+// Clears all recipe filters and closes any selected recipe.
 function resetFilters() {
   searchQuery.value = ''
   selectedCategory.value = 'all'
@@ -927,55 +1016,66 @@ function resetFilters() {
   visibleLimit.value = 12
 }
 
+// Opens the recipe detail modal.
 function openRecipePopup(recipe) {
   selectedRecipe.value = recipe
 }
 
+// Closes the recipe detail modal.
 function closeRecipePopup() {
   selectedRecipe.value = null
 }
 
+// Closes the recipe modal when Escape is pressed.
 function handleRecipeModalKeydown(event) {
   if (event.key === 'Escape' && selectedRecipe.value) {
     closeRecipePopup()
   }
 }
 
+// Sends the typed food to the food health predictor.
 function submitFoodPrediction() {
   if (foodInput.value.trim()) predictFood(foodInput.value.trim())
 }
 
+// Uses a suggested candidate as the food scorer input.
 function chooseFoodCandidate(candidate) {
   foodInput.value = candidate
   predictFood(candidate)
 }
 
+// Scores one of the example foods.
 function tryExample(food) {
   foodInput.value = food
   predictFood(food)
 }
 
+// Clears the food scorer input and result.
 function clearAndReset() {
   foodInput.value = ''
   clearPrediction()
 }
 
+// Returns the CSS class for a food score.
 function scoreClass(score) {
   if (score >= 70) return 'score-good'
   if (score >= 40) return 'score-mid'
   return 'score-low'
 }
 
+// Returns the ring colour for a food score.
 function scoreColor(score) {
   if (score >= 70) return '#327c70'
   if (score >= 40) return '#e6865f'
   return '#dc2626'
 }
 
+// Converts a score into SVG stroke length.
 function scoreArc(score) {
   return Math.max(0, Math.min(100, score)) * 2.2
 }
 
+// Returns a short verdict for a food score.
 function scoreVerdict(score) {
   if (score >= 80) return 'Excellent'
   if (score >= 65) return 'Good'
@@ -984,12 +1084,14 @@ function scoreVerdict(score) {
   return 'Low'
 }
 
+// Returns a parent-friendly score tip.
 function scoreTip(score, food) {
   if (score >= 70) return `${food} is a strong everyday option.`
   if (score >= 40) return `${food} can work sometimes. Pair it with fruit, vegetables, protein, or water.`
   return `${food} is better kept as an occasional treat rather than a regular option.`
 }
 
+// Creates a safe DOM id for recipe headings and modal labels.
 function recipeDomId(recipe) {
   return String(recipe?.id || recipe?.name || 'recipe')
     .toLowerCase()
@@ -997,10 +1099,12 @@ function recipeDomId(recipe) {
     .replace(/(^-|-$)/g, '')
 }
 
+// Builds readable recipe text for hover-to-read.
 function getRecipeReadableText(recipe) {
   return `${recipe.name}. ${recipe.category || 'Recipe'}. ${recipe.area || 'Family cuisine'}. ${recipe.effortLabel}. ${recipe.needLabel}. ${recipe.summary}`.replace(/\s+/g, ' ').trim()
 }
 
+// Builds readable food score text for hover-to-read and screen readers.
 function getFoodScoreReadableText(result) {
   const score = Math.round(result.health_score)
   const verdict = scoreVerdict(result.health_score)

@@ -1,5 +1,25 @@
+<!--
+  ParentQuizPage.vue
+
+  Creates the HealthyKids parent quiz page. Parents answer a short multi-step quiz to create
+  or update a personalised family routine plan.
+
+  API requirement:
+  - Requires VITE_PARENT_PROFILES_API_BASE_URL.
+  - Uses POST /parent-profiles to create a new parent profile.
+  - Uses PUT /{familyCode} to update an existing parent profile.
+  - Falls back between create and update when needed.
+
+  Accessibility:
+  - Uses aria-labels, aria-describedby, role="progressbar", role="alert", and aria-live.
+  - Uses aria-pressed for selectable chips.
+  - Uses data-hover-read-text for hover-to-read support.
+  - Moves focus to validation errors when they appear.
+-->
+
 <template>
   <div class="quiz-page">
+    <!-- Decorative background image and overlay layers -->
     <div class="quiz-bg" aria-hidden="true">
       <img
         class="quiz-bg__img"
@@ -11,6 +31,7 @@
       <div class="quiz-bg__grain"></div>
     </div>
 
+    <!-- Header with HealthyKids logo and parent access link -->
     <header class="quiz-site-header" aria-label="HealthyKids quiz header">
       <RouterLink to="/" class="quiz-brand" aria-label="Go to HealthyKids home page">
         <span class="quiz-brand-icon" aria-hidden="true">
@@ -38,6 +59,7 @@
       </RouterLink>
     </header>
 
+    <!-- Main quiz content -->
     <main class="quiz-main" id="main-content">
       <section
         class="quiz-card"
@@ -45,6 +67,7 @@
         aria-labelledby="quiz-page-title"
         aria-describedby="quiz-page-description"
       >
+        <!-- Quiz intro, step label, and progress bar -->
         <div class="quiz-intro">
           <p
             class="quiz-step-kicker"
@@ -60,6 +83,7 @@
             {{ activeStep.subtitle }}
           </p>
 
+          <!-- Visual and accessible progress indicator -->
           <div
             class="quiz-progress-track"
             role="progressbar"
@@ -75,9 +99,11 @@
           </div>
         </div>
 
+        <!-- Main quiz form panel -->
         <div class="quiz-form-panel">
           <h2>{{ activeStep.title }}</h2>
 
+          <!-- Step 1: family basics -->
           <div v-if="currentStep === 0" class="quiz-form-grid">
             <div class="quiz-form-group">
               <label for="username">Family code</label>
@@ -137,6 +163,7 @@
             </div>
           </div>
 
+          <!-- Step 2: priority habit areas -->
           <div v-if="currentStep === 1" class="quiz-form-grid">
             <div class="quiz-form-group quiz-full-row">
               <p id="habit-options-label" class="quiz-field-label">Priority areas</p>
@@ -167,6 +194,7 @@
             </div>
           </div>
 
+          <!-- Step 3: parent concerns and support style -->
           <div v-if="currentStep === 2" class="quiz-form-grid">
             <div class="quiz-form-group quiz-full-row">
               <p id="concern-options-label" class="quiz-field-label">Key concerns</p>
@@ -235,6 +263,7 @@
             </div>
           </div>
 
+          <!-- Step 4: review summary before saving -->
           <div
               v-if="currentStep === 3"
               class="quiz-preview-card"
@@ -295,6 +324,7 @@
               </div>
             </div>
 
+          <!-- Validation and save error message -->
           <p
             v-if="errorMessage"
             id="quiz-form-error"
@@ -307,6 +337,7 @@
             {{ errorMessage }}
           </p>
 
+          <!-- Wizard navigation buttons -->
           <div class="quiz-wizard-actions" aria-label="Quiz navigation controls">
             <button
               v-if="currentStep > 0"
@@ -355,6 +386,7 @@
       </section>
     </main>
 
+    <!-- Footer copied from the home page styling -->
     <footer
       class="home-footer quiz-home-footer"
       aria-label="Website footer"
@@ -388,11 +420,14 @@ import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useHoverToRead } from '../composables/useHoverToRead'
 import { useSpeechSynthesis } from '../composables/useSpeechSynthesis'
 
+// Router and shared family plan store.
 const router = useRouter()
 const { state, savePlan } = useFamilyPlanStore()
 
+// Parent profile API base URL from the Vite environment file.
 const API_BASE = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
 
+// Main quiz form state.
 const form = reactive({
   username: state.username || '',
   ageRange: state.ageRange || '',
@@ -403,6 +438,7 @@ const form = reactive({
   supportStyle: state.supportStyle || '',
 })
 
+// Quiz step labels and descriptions.
 const steps = [
   {
     title: 'Family basics',
@@ -422,6 +458,7 @@ const steps = [
   },
 ]
 
+// Habit choices shown as selectable chips.
 const habitOptions = [
   'Balanced meals',
   'Healthier snacks',
@@ -432,6 +469,7 @@ const habitOptions = [
   'Screen time balance',
 ]
 
+// Parent concern choices shown as selectable chips.
 const concernOptions = [
   'My child is not active enough',
   'My child prefers screens over outdoor activity',
@@ -443,13 +481,18 @@ const concernOptions = [
   'I am not sure what the right approach is',
 ]
 
+// Current quiz progress and save state.
 const currentStep = ref(0)
 const errorMessage = ref('')
 const saving = ref(false)
 
+// Active step data used by the template.
 const activeStep = computed(() => steps[currentStep.value])
+
+// Prevents family code editing when it already exists in the store.
 const hasFamilyCode = computed(() => Boolean(state.username))
 
+// Readable review summary for hover-to-read.
 const reviewSummaryText = computed(() => {
   const familyCode = form.username || 'Not provided'
   const routine = form.routineType || 'Not selected'
@@ -459,9 +502,11 @@ const reviewSummaryText = computed(() => {
   return `Summary. Family code: ${familyCode}. Routine: ${routine}. Priority areas: ${priorities}. Guidance style: ${guidance}.`
 })
 
+// Hover-to-read and speech helpers for error feedback.
 const { isHoverToReadEnabled } = useHoverToRead()
 const { speakText } = useSpeechSynthesis()
 
+// Sets an error message, focuses it, and optionally reads it aloud.
 function setError(message) {
   errorMessage.value = message
 
@@ -475,10 +520,12 @@ function setError(message) {
   }
 }
 
+// Clears the current form error.
 function clearError() {
   errorMessage.value = ''
 }
 
+// Checks whether the quiz is updating an existing plan instead of creating a new one.
 const isRetakeMode = computed(() =>
   Boolean(
     state.username &&
@@ -496,6 +543,7 @@ const isRetakeMode = computed(() =>
   )
 )
 
+// Adds or removes a selected chip value.
 function toggleSelection(list, value) {
   const index = list.indexOf(value)
 
@@ -507,10 +555,12 @@ function toggleSelection(list, value) {
   list.splice(index, 1)
 }
 
+// Validates the family code format.
 function isValidUsername(username) {
   return /^[a-zA-Z0-9_-]{3,24}$/.test(username)
 }
 
+// Validates the current quiz step before moving forward or submitting.
 function validateStep() {
   clearError()
   errorMessage.value = ''
@@ -565,15 +615,18 @@ function validateStep() {
   return true
 }
 
+// Moves to the next step if the current step is valid.
 function goNext() {
   if (!validateStep()) return
   currentStep.value += 1
 }
 
+// Removes duplicate and empty strings from generated arrays.
 function uniqueStrings(values) {
   return [...new Set(values.filter(Boolean))]
 }
 
+// Builds task and tracker suggestions from selected habits, concerns, routine type, and support style.
 function buildTaskPool() {
   const tasks = []
   const trackerItems = []
@@ -751,6 +804,7 @@ function buildTaskPool() {
   }
 }
 
+// Builds a simple daily plan for each day of the week.
 function buildDailyPlan(taskPool) {
   const pool = taskPool.tasks.length
     ? taskPool.tasks
@@ -783,6 +837,7 @@ function buildDailyPlan(taskPool) {
   }, {})
 }
 
+// Builds checklist-style progress items for the dashboard.
 function buildProgressItems(taskPool) {
   const items = taskPool.trackerItems.length
     ? taskPool.trackerItems
@@ -800,6 +855,7 @@ function buildProgressItems(taskPool) {
   }))
 }
 
+// Creates personalised recommendations based on quiz answers.
 function createRecommendations() {
   const recommendations = []
 
@@ -872,10 +928,12 @@ function createRecommendations() {
   return recommendations.slice(0, 4)
 }
 
+// Chooses the next suggested dashboard action.
 function createNextAction(taskPool) {
   return taskPool.tasks[0] || 'Complete one healthy family habit today.'
 }
 
+// Creates the main mission text for the dashboard.
 function createMission() {
   if (form.habits.includes('Daily movement')) {
     return 'Complete one short movement activity today before screen time.'
@@ -896,6 +954,7 @@ function createMission() {
   return 'Complete one healthy habit win today.'
 }
 
+// Combines all quiz answers and generated plan data into one API payload.
 function buildPayload() {
   const taskPool = buildTaskPool()
 
@@ -916,6 +975,7 @@ function buildPayload() {
   }
 }
 
+// Fetch helper that returns both the raw response and parsed JSON data.
 async function requestJson(url, options) {
   const response = await fetch(url, options)
   const data = await response.json().catch(() => ({}))
@@ -926,6 +986,7 @@ async function requestJson(url, options) {
   }
 }
 
+// Creates a new parent profile.
 async function createProfile(payload) {
   return requestJson(`${API_BASE}/parent-profiles`, {
     method: 'POST',
@@ -934,6 +995,7 @@ async function createProfile(payload) {
   })
 }
 
+// Updates an existing parent profile using the family code.
 async function updateProfile(payload) {
   const encodedUsername = encodeURIComponent(payload.username)
 
@@ -944,6 +1006,7 @@ async function updateProfile(payload) {
   })
 }
 
+// Saves the profile by updating or creating depending on quiz mode and API response.
 async function saveProfile(payload) {
   if (isRetakeMode.value) {
     const updateResult = await updateProfile(payload)
@@ -964,6 +1027,7 @@ async function saveProfile(payload) {
   return createResult
 }
 
+// Final quiz submission handler.
 async function submitQuiz() {
   if (!validateStep() || saving.value) return
 

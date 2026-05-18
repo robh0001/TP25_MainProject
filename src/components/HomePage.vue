@@ -1,7 +1,27 @@
+<!--
+  HomePage.vue
+
+  Main HealthyKids landing page.
+
+  Main features:
+  - Shows the brand header and parent portal link.
+  - Displays animated background particles, waves, and hero text.
+  - Highlights the rotating headline and "families" underline.
+  - Explains the website and links users to the parent entry page.
+  - Shows quick trust pills, SDG 3 footer, and team attribution.
+
+  Accessibility:
+  - Uses aria-labels for key landmarks and actions.
+  - Supports hover-to-read with data-hover-read-text.
+  - Hides decorative visuals with aria-hidden="true".
+  - Uses keyboard-friendly RouterLink and button elements.
+  - Uses an accessible onboarding modal with dialog, aria-modal, focus handling, and Escape close.
+-->
+
 <template>
   <div class="home-page" :class="{ 'home-loaded': isLoaded }" @mousemove="onMouseMove">
 
-    <!-- Background -->
+    <!-- Background image and overlay layers -->
     <div class="home-bg" data-hover-read-ignore="true" aria-hidden="true">
       <img
         class="home-bg-img"
@@ -39,13 +59,14 @@
       <path class="wave wave-3" d="M0,120 C240,60 480,180 720,120 C960,60 1200,180 1440,120 L1440,140 L0,140 Z"></path>
     </svg>
     
-    <!-- Header -->
+    <!-- Header with logo and parent portal link -->
     <header class="home-header" aria-label="Website header">
       <RouterLink
         to="/"
         class="home-logo"
         aria-label="Go to HealthyKids home page"
       >
+        <!-- Decorative HealthyKids logo icon -->
         <div class="home-logo-icon" aria-hidden="true">
           <svg
             viewBox="0 0 36 36"
@@ -63,6 +84,7 @@
         <span class="home-logo-text">HealthyKids</span>
       </RouterLink>
 
+      <!-- Header shortcut to the parent portal -->
       <RouterLink
         to="/parent-entry"
         class="home-header-pill"
@@ -81,13 +103,14 @@
       </RouterLink>
     </header>
 
-    <!-- Main -->
+    <!-- Main landing page content -->
     <main
       class="home-main"
       aria-label="HealthyKids home page introduction"
     >
       <div class="home-copy">
 
+        <!-- Small location and year label above the headline -->
         <div
           class="home-eyebrow"
           aria-label="Australia 2026"
@@ -97,6 +120,7 @@
           Australia · 2026
         </div>
 
+        <!-- Hero headline with rotating first word -->
         <h1
           class="home-headline"
           aria-label="Healthier families start here."
@@ -110,6 +134,8 @@
           <span class="home-headline-line home-headline-line-2">
             <span class="home-line-2-word">
                 families
+
+                <!-- Decorative underline below the word families -->
                 <svg
                   class="home-families-underline-svg"
                   viewBox="0 0 240 16"
@@ -132,10 +158,13 @@
           <span class="home-headline-line home-headline-line-3">start here.</span>
         </h1>
         
+        <!-- Short description of the HealthyKids platform -->
         <p class="home-sub">
           A personalised health plan for children aged 5-12,
           built around nutrition, movement, sleep and daily routine.
         </p>
+
+        <!-- Moving feature ticker for key HealthyKids benefits -->
         <div
           class="home-tag-ticker"
           role="region"
@@ -156,6 +185,8 @@
             </div>
           </div>
         </div>
+
+        <!-- Main call-to-action button -->
         <div
           class="home-ctas"
           aria-label="Primary actions"
@@ -172,6 +203,7 @@
           </RouterLink>
         </div>
 
+        <!-- Quick highlight pills below the CTA -->
         <div
           class="home-pills"
           aria-label="HealthyKids quick highlights"
@@ -209,6 +241,7 @@
 
     <!-- Footer bar -->
     <footer class="home-footer-shell" aria-label="Website footer">
+      <!-- Decorative footer wave SVG -->
       <svg
         class="home-footer-waves"
         viewBox="0 0 1200 96"
@@ -217,6 +250,7 @@
         aria-hidden="true"
       >
         <defs>
+          <!-- Main footer wave gradient -->
           <linearGradient id="homeFootMainGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="rgba(94, 234, 212, 0.38)" />
             <stop offset="18%" stop-color="rgba(34, 197, 94, 0.22)" />
@@ -224,6 +258,7 @@
             <stop offset="100%" stop-color="rgba(3, 12, 8, 0.96)" />
           </linearGradient>
 
+          <!-- Background wave gradient -->
           <linearGradient id="homeFootBackWaveGrad" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stop-color="rgba(45, 212, 191, 0.14)" />
             <stop offset="35%" stop-color="rgba(74, 222, 128, 0.2)" />
@@ -231,24 +266,28 @@
             <stop offset="100%" stop-color="rgba(45, 212, 191, 0.12)" />
           </linearGradient>
 
+          <!-- Soft footer glow on the left side -->
           <radialGradient id="homeFootGlowA" cx="22%" cy="28%" r="55%">
             <stop offset="0%" stop-color="rgba(167, 243, 208, 0.35)" />
             <stop offset="55%" stop-color="rgba(74, 222, 128, 0.08)" />
             <stop offset="100%" stop-color="rgba(74, 222, 128, 0)" />
           </radialGradient>
 
+          <!-- Soft footer glow on the right side -->
           <radialGradient id="homeFootGlowB" cx="82%" cy="22%" r="48%">
             <stop offset="0%" stop-color="rgba(103, 232, 249, 0.28)" />
             <stop offset="60%" stop-color="rgba(45, 212, 191, 0.06)" />
             <stop offset="100%" stop-color="rgba(45, 212, 191, 0)" />
           </radialGradient>
 
+          <!-- Light stroke gradient used on the top edge of the wave -->
           <linearGradient id="homeFootRimLight" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="rgba(255, 255, 255, 0.45)" />
             <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
           </linearGradient>
         </defs>
 
+        <!-- Solid plate below the wave to avoid visual gaps -->
         <rect
           class="home-footer-wave-plate"
           x="-400"
@@ -258,6 +297,7 @@
           fill="#050f0b"
         />
 
+        <!-- Back wave layer -->
         <g class="home-footer-wave-parallax">
           <path
             fill="url(#homeFootBackWaveGrad)"
@@ -265,11 +305,13 @@
           />
         </g>
 
+        <!-- Glow layer above the footer wave -->
         <g class="home-footer-wave-aurora-wrap">
           <rect class="home-footer-wave-aurora" x="0" y="0" width="1200" height="96" fill="url(#homeFootGlowA)" />
           <rect class="home-footer-wave-aurora home-footer-wave-aurora--b" x="0" y="0" width="1200" height="96" fill="url(#homeFootGlowB)" />
         </g>
 
+        <!-- Main moving footer wave layer -->
         <g class="home-footer-wave-motion">
           <path
             class="home-footer-wave-fill"
@@ -301,12 +343,15 @@
             stroke-linecap="round"
             d="M0 48 C195 26 395 68 595 40 C795 14 995 56 1200 36"
           />
+
+          <!-- Small decorative bubbles on the footer wave -->
           <circle class="home-footer-wave-bubble home-footer-wave-bubble--a" cx="168" cy="36" r="2.2" fill="rgba(236, 253, 245, 0.55)" />
           <circle class="home-footer-wave-bubble home-footer-wave-bubble--b" cx="612" cy="30" r="1.6" fill="rgba(165, 243, 252, 0.45)" />
           <circle class="home-footer-wave-bubble home-footer-wave-bubble--c" cx="972" cy="34" r="1.8" fill="rgba(190, 242, 100, 0.4)" />
         </g>
       </svg>
 
+      <!-- Footer text content -->
       <div class="home-footer">
         <div
           class="home-footer-left"
@@ -328,6 +373,8 @@
         </div>
       </div>
     </footer>
+
+    <!-- Onboarding modal is teleported to the body so it can sit above the full page layout -->
     <Teleport to="body">
         <div
           v-if="showOnboarding"
@@ -335,6 +382,7 @@
           role="presentation"
           @click.self="closeOnboarding"
         >
+          <!-- Accessible onboarding dialog -->
           <div
             ref="onboardingDialogEl"
             class="onboarding-dialog"
@@ -347,6 +395,8 @@
             <div class="onboarding-head">
               <p class="onboarding-kicker">Quick tour · about 3 minutes</p>
               <h2 id="onboarding-title" class="onboarding-title">{{ currentOnboardingStep.title }}</h2>
+
+              <!-- Visual progress dots for onboarding steps -->
               <div class="onboarding-progress" aria-hidden="true">
                 <span
                   v-for="(_, i) in onboardingSteps"
@@ -356,7 +406,10 @@
                 ></span>
               </div>
             </div>
+
             <p class="onboarding-body">{{ currentOnboardingStep.body }}</p>
+
+            <!-- Onboarding navigation actions -->
             <div class="onboarding-actions">
               <button type="button" class="ob-btn ob-btn--ghost" @click="closeOnboarding">Close</button>
               <div class="ob-btn-row">
@@ -397,15 +450,28 @@ import { RouterLink } from "vue-router"
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue"
 
 
+// Controls the initial loaded animation class on the page wrapper.
 const isLoaded = ref(false)
+
+// Stores normalised mouse position for the background parallax movement.
 const mouse = reactive({ x: 0, y: 0 })
+
+// Stores the magnetic movement offset for the main CTA button.
 const ctaOffset = reactive({ x: 0, y: 0 })
 
+// Words used in the animated first line of the hero headline.
 const cycleWords = ["Healthier", "Happier", "Stronger", "Brighter", "Active"]
+
+// Tracks the currently active word in the rotating headline.
 const cycleIndex = ref(0)
+
+// Returns the currently displayed headline word.
 const cycleWord = computed(() => cycleWords[cycleIndex.value])
+
+// Stores the interval ID so it can be cleared when the component unmounts.
 let cycleTimer = 0
 
+// Decorative spark particle data used by the floating background animation.
 const sparks = Array.from({ length: 28 }, (_, i) => ({
   id: i,
   left: Math.random() * 100,
@@ -415,14 +481,17 @@ const sparks = Array.from({ length: 28 }, (_, i) => ({
   duration: 4 + Math.random() * 6,
 }))
 
+// Animated counter values for page statistics.
 const counters = reactive({
   families: 0,
   ageMin: 0,
   ageMax: 0,
 })
 
+// Final target values for the animated counters.
 const targetCounters = { families: 12000, ageMin: 5, ageMax: 12 }
 
+// Feature phrases shown in the moving ticker.
 const tickerPhrases = [
   'Nutrition made simple',
   'Hydration habits',
@@ -435,8 +504,10 @@ const tickerPhrases = [
   'Tune it to your child',
 ]
 
+// Duplicates ticker phrases so the ticker animation can loop continuously.
 const tickerLoop = computed(() => [...tickerPhrases, ...tickerPhrases])
 
+// Text content for each onboarding modal step.
 const onboardingSteps = [
   {
     title: "Welcome to HealthyKids",
@@ -465,42 +536,55 @@ const onboardingSteps = [
   },
 ]
 
+// Controls whether the onboarding modal is visible.
 const showOnboarding = ref(false)
+
+// Tracks which onboarding step is currently displayed.
 const onboardingStepIndex = ref(0)
+
+// Reference to the onboarding dialog element for focus handling.
 const onboardingDialogEl = ref(null)
 
+// Returns the onboarding step currently being shown.
 const currentOnboardingStep = computed(() => onboardingSteps[onboardingStepIndex.value])
 
+// Opens the onboarding modal from the first step and focuses the dialog.
 function openOnboarding() {
   onboardingStepIndex.value = 0
   showOnboarding.value = true
   nextTick(() => onboardingDialogEl.value?.focus?.())
 }
 
+// Closes the onboarding modal.
 function closeOnboarding() {
   showOnboarding.value = false
 }
 
+// Moves to the next onboarding step when possible.
 function nextOnboarding() {
   if (onboardingStepIndex.value < onboardingSteps.length - 1) {
     onboardingStepIndex.value += 1
   }
 }
 
+// Moves to the previous onboarding step when possible.
 function prevOnboarding() {
   if (onboardingStepIndex.value > 0) {
     onboardingStepIndex.value -= 1
   }
 }
 
+// Calculates the background image transform for the parallax effect.
 const bgParallaxStyle = computed(() => ({
   transform: `scale(1.08) translate(${mouse.x * -10}px, ${mouse.y * -10}px)`,
 }))
 
+// Calculates the CTA button transform for the magnetic hover effect.
 const ctaMagneticStyle = computed(() => ({
   transform: `translate(${ctaOffset.x}px, ${ctaOffset.y}px)`,
 }))
 
+// Updates the mouse position values used by the parallax background.
 function onMouseMove(e) {
   const w = window.innerWidth || 1
   const h = window.innerHeight || 1
@@ -508,6 +592,7 @@ function onMouseMove(e) {
   mouse.y = (e.clientY / h) * 2 - 1
 }
 
+// Updates the CTA offset to create a magnetic hover effect.
 function onCtaMove(e) {
   const target = e.currentTarget
   if (!target) return
@@ -518,19 +603,24 @@ function onCtaMove(e) {
   ctaOffset.y = (e.clientY - cy) * 0.22
 }
 
+// Resets the CTA magnetic offset when the mouse leaves the button.
 function onCtaLeave() {
   ctaOffset.x = 0
   ctaOffset.y = 0
 }
 
+// Formats large numbers into shorter readable text.
 function formatNumber(n) {
   if (n >= 1000) return `${Math.round(n / 100) / 10}k`
   return Math.round(n).toString()
 }
 
+// Animates one counter value from its current value to a target value.
 function runCounter(target, key, duration = 1800) {
   const start = performance.now()
   const from = counters[key]
+
+  // Runs one animation frame for the counter animation.
   function tick(now) {
     const t = Math.min(1, (now - start) / duration)
     const eased = 1 - Math.pow(1 - t, 3)
@@ -541,6 +631,7 @@ function runCounter(target, key, duration = 1800) {
   requestAnimationFrame(tick)
 }
 
+// Starts the page entrance animation, counters, and rotating headline word.
 onMounted(() => {
   setTimeout(() => {
     isLoaded.value = true
@@ -555,12 +646,13 @@ onMounted(() => {
 })
 
 
-
+// Locks the page scroll when the onboarding modal is open.
 watch(showOnboarding, open => {
   if (typeof document === "undefined") return
   document.documentElement.classList.toggle("hk-onboarding-lock", open)
 })
 
+// Clears the headline timer and removes the onboarding lock class before leaving the page.
 onBeforeUnmount(() => {
   if (cycleTimer) window.clearInterval(cycleTimer)
   document.documentElement.classList.remove("hk-onboarding-lock")
