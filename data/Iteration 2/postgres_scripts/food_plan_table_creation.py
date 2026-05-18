@@ -1,6 +1,29 @@
+"""
+Nutrition Plan Seed Script
+
+This script connects to PostgreSQL/RDS, creates the nutrition_plan table,
+inserts a 4-week meal plan dataset, and prints the inserted rows for verification.
+
+Main responsibilities:
+- Connects to the PostgreSQL database using psycopg2.
+- Creates the nutrition_plan table.
+- Inserts breakfast, lunch, dinner, and snack records for 4 weeks.
+- Stores nutrition values such as calories, protein, carbohydrates, fat, fibre, sodium, calcium, and iron.
+- Commits the table creation and insert operations.
+- Prints all inserted nutrition_plan rows for checking.
+- Closes the cursor and database connection after completion.
+
+Required variables expected before running:
+- db_host
+- db_name
+- db_user
+- db_pass
+"""
+
 import psycopg2
 
 
+# Open a connection to the PostgreSQL/RDS database.
 connection = psycopg2.connect(
         host=db_host,
         database=db_name,
@@ -11,8 +34,10 @@ connection = psycopg2.connect(
 
 print("Connected successfully")
 
+# Create a cursor so SQL commands can be executed.
 cursor = connection.cursor()
 
+# Create the nutrition_plan table used by the family plan dashboard.
 cursor.execute("""
 CREATE TABLE nutrition_plan (
     id SERIAL PRIMARY KEY,
@@ -34,6 +59,7 @@ CREATE TABLE nutrition_plan (
 connection.commit()
 
 
+# Insert the 4-week nutrition plan dataset into the table.
 cursor.execute("""
                INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, description, calories, protein_g, carbohydrates_g, fat_g, fibre_g, sodium_mg, calcium_mg, iron_mg) 
                
@@ -504,12 +530,15 @@ INSERT INTO nutrition_plan (week_number, day_number, meal_type, meal_name, descr
                
 connection.commit()    
         
+# Read all inserted rows to confirm that the seed operation worked.
 cursor.execute("SELECT * FROM nutrition_plan;")
 rows = cursor.fetchall()
 
+# Print each inserted nutrition record for verification.
 for row in rows:
     print(row)
 
 
+# Close database resources after the script finishes.
 cursor.close()
 connection.close()
