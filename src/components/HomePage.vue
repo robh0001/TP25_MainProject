@@ -319,12 +319,12 @@
 
         <div
           class="home-footer-right"
-          aria-label="UN Sustainable Development Goal 3, Good Health and Wellbeing. Developed by Team Syrbyx."
+          aria-label="UN Sustainable Development Goal 3, Good Health and Wellbeing. Developed by Team SYRBYX."
           data-hover-read-text
         >
           <span>UN SDG 3 · Good Health &amp; Wellbeing</span>
           <span class="home-footer-divider" aria-hidden="true">·</span>
-          <span>Developed by Team Syrbyx</span>
+          <span>Developed by Team SYRBYX</span>
         </div>
       </div>
     </footer>
