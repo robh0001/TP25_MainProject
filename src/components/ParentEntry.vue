@@ -167,6 +167,30 @@
         </p>
       </section>
     </main>
+
+    <footer
+      class="home-footer entry-home-footer"
+      aria-label="Website footer"
+    >
+      <div
+        class="home-footer-left"
+        aria-label="Supporting families across Australia"
+        data-hover-read-text
+      >
+        <span class="home-live-dot" aria-hidden="true"></span>
+        Supporting families across Australia
+      </div>
+
+      <div
+        class="home-footer-right"
+        aria-label="UN Sustainable Development Goal 3, Good Health and Wellbeing. Developed by Team Syrbyx."
+        data-hover-read-text
+      >
+        <span>UN SDG 3 · Good Health &amp; Wellbeing</span>
+        <span class="home-footer-divider" aria-hidden="true">·</span>
+        <span>Developed by Team Syrbyx</span>
+      </div>
+    </footer>
   </div>
 </template>
 

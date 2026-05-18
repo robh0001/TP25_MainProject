@@ -1875,6 +1875,58 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
     flex-direction: column;
   }
 }
+
+.nutrition-scroll-top-btn {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 9999;
+
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  color: #ffffff;
+  background: linear-gradient(135deg, #327c70, #62b88f);
+  box-shadow: 0 16px 38px rgba(24, 84, 72, 0.28);
+
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.nutrition-scroll-top-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 46px rgba(24, 84, 72, 0.36);
+  background: linear-gradient(135deg, #25695f, #4ea77f);
+}
+
+.nutrition-scroll-top-btn:active {
+  transform: translateY(-1px);
+}
+
+.nutrition-scroll-top-btn:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.95);
+  outline-offset: 4px;
+}
+
+@media (max-width: 640px) {
+  .nutrition-scroll-top-btn {
+    right: 18px;
+    bottom: 18px;
+    width: 44px;
+    height: 44px;
+  }
+}
 /* =========================================================
   HealthyKids Chatbot 
   Component: ChatbotWidget.vue
@@ -2788,6 +2840,100 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   clip: rect(0, 0, 0, 0);
 }
 
+.entry-page {
+  --entry-header-height: 68px;
+  --entry-footer-height: 58px;
+
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.entry-page .entry-site-header {
+  flex: 0 0 var(--entry-header-height);
+  height: var(--entry-header-height);
+}
+
+.entry-page .entry-main {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  padding: 10px clamp(22px, 5vw, 64px) 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entry-page .entry-card {
+  max-height: calc(100vh - var(--entry-header-height) - var(--entry-footer-height) - 28px);
+  overflow: visible;
+}
+
+.entry-page .home-footer.entry-home-footer {
+  position: relative;
+  flex: 0 0 var(--entry-footer-height);
+  z-index: 20;
+
+  left: auto;
+  right: auto;
+  bottom: auto;
+
+  width: 100%;
+  min-height: var(--entry-footer-height);
+  padding: 0 clamp(22px, 3.5vw + 10px, 52px);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  background-color: rgba(5, 15, 11, 0.92);
+  background-image:
+    radial-gradient(ellipse at 22% 0%, rgba(167, 243, 208, 0.14), transparent 42%),
+    radial-gradient(ellipse at 82% 0%, rgba(103, 232, 249, 0.08), transparent 42%),
+    linear-gradient(
+      180deg,
+      rgba(3, 14, 10, 0.94) 0%,
+      rgba(4, 10, 6, 0.98) 44%,
+      rgba(2, 8, 5, 1) 100%
+    );
+
+  border-top: 1px solid rgba(134, 239, 172, 0.14);
+  box-shadow:
+    0 -1px 0 rgba(134, 239, 172, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  opacity: 1;
+  transform: none;
+}
+
+.entry-page .home-footer.entry-home-footer::before {
+  display: none;
+}
+
+.entry-page .home-footer-left,
+.entry-page .home-footer-right {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 900px) {
+  .entry-page {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .entry-page .entry-main {
+    min-height: auto;
+    padding-bottom: 24px;
+  }
+
+  .entry-page .entry-card {
+    max-height: none;
+  }
+}
 /* =========================================================
   HealthyKids Parent Quiz 
   Component: ParentQuizPage.vue
@@ -3403,7 +3549,118 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   outline-offset: 4px;
   border-radius: 10px;
 }
+.quiz-page {
+  --quiz-header-height: 68px;
+  --quiz-footer-height: 58px;
 
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.quiz-page .quiz-site-header {
+  flex: 0 0 var(--quiz-header-height);
+  height: var(--quiz-header-height);
+}
+
+.quiz-page .quiz-main {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  padding-bottom: 18px;
+}
+
+.quiz-page .quiz-card {
+  max-height: calc(100vh - var(--quiz-header-height) - var(--quiz-footer-height) - 32px);
+  overflow: auto;
+}
+
+.quiz-page .home-footer.quiz-home-footer {
+  position: relative;
+  flex: 0 0 var(--quiz-footer-height);
+  z-index: 20;
+
+  left: auto;
+  right: auto;
+  bottom: auto;
+
+  width: 100%;
+  min-height: var(--quiz-footer-height);
+  padding: 0 clamp(22px, 3.5vw + 10px, 52px);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  background-color: rgba(5, 15, 11, 0.92);
+  background-image:
+    radial-gradient(ellipse at 22% 0%, rgba(167, 243, 208, 0.14), transparent 42%),
+    radial-gradient(ellipse at 82% 0%, rgba(103, 232, 249, 0.08), transparent 42%),
+    linear-gradient(
+      180deg,
+      rgba(3, 14, 10, 0.94) 0%,
+      rgba(4, 10, 6, 0.98) 44%,
+      rgba(2, 8, 5, 1) 100%
+    );
+
+  border-top: 1px solid rgba(134, 239, 172, 0.14);
+  box-shadow:
+    0 -1px 0 rgba(134, 239, 172, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  opacity: 1;
+  transform: none;
+}
+
+.quiz-page .home-footer.quiz-home-footer::before {
+  display: none;
+}
+
+.quiz-page .home-footer-left,
+.quiz-page .home-footer-right {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 900px) {
+  .quiz-page {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .quiz-page .quiz-main {
+    min-height: auto;
+    padding-bottom: 24px;
+  }
+
+  .quiz-page .quiz-card {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .quiz-page .home-footer.quiz-home-footer {
+    flex-basis: auto;
+    min-height: auto;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .quiz-page .home-footer-right {
+    flex-wrap: wrap;
+    text-align: left;
+  }
+
+  .quiz-page .home-footer-divider {
+    display: none;
+  }
+}
 /* =========================================================
   HealthyKids HomePage
   Component: HomePage.vue
@@ -5762,6 +6019,7 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
 .dashboard-nav-btn svg {
   color: #ffffff;
 }
+
 
 /* =========================================================
   HealthyKids Kids Buddy Character
