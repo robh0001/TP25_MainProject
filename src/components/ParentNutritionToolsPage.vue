@@ -559,6 +559,25 @@
         </div>
       </Transition>
     </Teleport>
+
+    <button
+      v-show="isScrolled"
+      type="button"
+      class="nutrition-scroll-top-btn"
+      aria-label="Back to top"
+      data-hover-read-text="Back to top"
+      @click="scrollToTop"
+    >
+      <svg aria-hidden="true" width="15" height="15" viewBox="0 0 14 14" fill="none">
+        <path
+          d="M7 12V2M3 6l4-4 4 4"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
   </div>
 </template>
 
@@ -586,7 +605,13 @@ const visibleLimit = ref(12)
 const isScrolled = ref(false)
 
 function onScroll() {
-  isScrolled.value = window.scrollY > 40
+  const scrollTop =
+    window.scrollY ||
+    document.documentElement.scrollTop ||
+    document.body.scrollTop ||
+    0
+
+  isScrolled.value = scrollTop > 40
 }
 
 const foodInput = ref('')
@@ -649,6 +674,13 @@ const filteredRecipes = computed(() => {
   })
 })
 
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
+
 const visibleRecipes = computed(() => filteredRecipes.value.slice(0, visibleLimit.value))
 
 watch(
@@ -680,6 +712,9 @@ watch(selectedCategory, () => {
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('keydown', handleRecipeModalKeydown)
+
+  onScroll()
+
   fetchRecipes()
 })
 

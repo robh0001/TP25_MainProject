@@ -141,9 +141,11 @@ const messages = ref([
   }
 ]);
 
+const NAV_OFFSET_TOP = 96;
+
 const position = ref({
-  x: window.innerWidth - 155,
-  y: window.innerHeight - 245
+  x: window.innerWidth - WIDGET_SIZE - 24,
+  y: NAV_OFFSET_TOP
 });
 
 const isDragging = ref(false);
