@@ -8396,3 +8396,2576 @@ html.hk-onboarding-lock {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* =========================================================
+  HealthyKids Kids Dashboard
+  Component: KidsDashboardPage.vue
+  Prefix: kids-dashboard-
+========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.kids-dashboard-page {
+  --coral: #FF6058;
+  --sky: #3B9EFF;
+  --mint: #2CC97A;
+  --amber: #FFB020;
+  --violet: #9B72FF;
+  --rose: #FF7EB3;
+  --teal: #1EC8C8;
+  --ink: #18192B;
+  --ink2: #444562;
+  --muted: #9395A8;
+  --border: #EEEEF5;
+  --white: #FFFFFF;
+  --bg: #F4F5FB;
+  --card-shadow: 0 2px 16px rgba(24, 25, 43, 0.07);
+  --card-shadow-hover: 0 12px 40px rgba(24, 25, 43, 0.13);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-strong: #FFFFFF;
+  --surface-soft: rgba(255, 255, 255, 0.7);
+  --nav-bg: #18192B;
+  --nav-text: rgba(255, 255, 255, 0.25);
+  --hero-glow-1: rgba(255, 176, 32, 0.26);
+  --hero-glow-2: rgba(59, 158, 255, 0.18);
+  --hero-glow-3: rgba(155, 114, 255, 0.2);
+  font-family: "DM Sans", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  min-height: 100vh;
+  padding-bottom: 78px;
+  position: relative;
+}
+
+.kids-dashboard-page.kids-dashboard-dark-mode {
+  --ink: #F7F8FF;
+  --ink2: #C3C7EA;
+  --muted: #98A0D0;
+  --border: rgba(143, 154, 227, 0.18);
+  --white: #12162B;
+  --bg: #090E1F;
+  --card-shadow: 0 10px 30px rgba(3, 7, 23, 0.42);
+  --card-shadow-hover: 0 18px 46px rgba(3, 7, 23, 0.5);
+  --surface: rgba(18, 22, 43, 0.92);
+  --surface-strong: #171C35;
+  --surface-soft: rgba(26, 32, 59, 0.8);
+  --nav-bg: rgba(7, 10, 24, 0.92);
+  --nav-text: rgba(233, 237, 255, 0.44);
+  --hero-glow-1: rgba(255, 126, 179, 0.24);
+  --hero-glow-2: rgba(59, 158, 255, 0.22);
+  --hero-glow-3: rgba(155, 114, 255, 0.24);
+}
+
+.kids-dashboard-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(59, 158, 255, 0.07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(155, 114, 255, 0.07) 0%, transparent 50%),
+    radial-gradient(circle at 50% 95%, rgba(44, 201, 122, 0.06) 0%, transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+  animation: bgShift 12s ease-in-out infinite alternate;
+}
+
+@keyframes bgShift {
+  from { background-position: 0% 0%, 100% 100%, 50% 100%; }
+  to { background-position: 5% 5%, 95% 95%, 55% 98%; }
+}
+
+/* === KIDS SKY (day / night) === */
+.kids-dashboard-kids-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.kids-dashboard-sky-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #ffe6c2 0%, #ffd1b5 22%, #c8e6ff 60%, #e8f4ff 100%);
+  transition: background 1.1s ease, opacity 1.1s ease;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sky-gradient {
+  background: linear-gradient(180deg, #05071c 0%, #0e1037 32%, #1a1855 62%, #2a1a6b 100%);
+}
+
+.kids-dashboard-sky-aurora {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 18% 16%, rgba(255, 209, 102, 0.5), transparent 42%),
+    radial-gradient(ellipse at 78% 14%, rgba(255, 150, 100, 0.32), transparent 38%),
+    radial-gradient(ellipse at 50% 78%, rgba(108, 217, 255, 0.28), transparent 45%);
+  transition: background 1s ease;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sky-aurora {
+  background:
+    radial-gradient(ellipse at 22% 14%, rgba(108, 75, 255, 0.5), transparent 45%),
+    radial-gradient(ellipse at 80% 22%, rgba(58, 200, 255, 0.3), transparent 42%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 95, 162, 0.18), transparent 48%);
+}
+
+.kids-dashboard-celestial {
+  position: absolute;
+  width: clamp(150px, 18vw, 240px);
+  height: clamp(150px, 18vw, 240px);
+  right: 6%;
+  transition: top 1.4s cubic-bezier(0.34, 1.1, 0.64, 1), opacity 0.9s ease;
+}
+
+.kids-dashboard-sun-body {
+  top: -180px;
+  opacity: 0;
+}
+
+.kids-dashboard-page:not(.kids-dashboard-dark-mode) .kids-dashboard-sun-body {
+  top: 6%;
+  opacity: 1;
+}
+
+.kids-dashboard-sun-core,
+.kids-dashboard-moon-core {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.kids-dashboard-sun-core {
+  background: radial-gradient(circle at 35% 35%, #fffae3, #ffd166 50%, #ff9a3e 100%);
+  box-shadow: 0 0 80px rgba(255, 209, 102, 0.55), inset 0 0 18px rgba(255, 255, 255, 0.5);
+  animation: kidsSunPulse 4.5s ease-in-out infinite alternate;
+}
+
+.kids-dashboard-sun-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 209, 102, 0.45) 30%, transparent 70%);
+  filter: blur(18px);
+  animation: kidsSunSpin 24s linear infinite;
+}
+
+.kids-dashboard-sun-ring {
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 209, 102, 0.35);
+  animation: kidsSunSpin 40s linear infinite reverse;
+}
+
+@keyframes kidsSunPulse {
+  from { transform: scale(1); filter: brightness(1); }
+  to   { transform: scale(1.04); filter: brightness(1.1); }
+}
+
+@keyframes kidsSunSpin {
+  to { transform: rotate(360deg); }
+}
+
+.kids-dashboard-moon-body {
+  top: -200px;
+  opacity: 0;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-moon-body {
+  top: 6%;
+  opacity: 1;
+}
+
+.kids-dashboard-moon-core {
+  background: radial-gradient(circle at 30% 28%, #fdfdff, #c8cbf8 65%, #6c4bff 100%);
+  box-shadow: 0 0 90px rgba(155, 134, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.35);
+  animation: kidsMoonGlow 5s ease-in-out infinite alternate;
+}
+
+.kids-dashboard-moon-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155, 134, 255, 0.42) 30%, transparent 70%);
+  filter: blur(22px);
+}
+
+.kids-dashboard-crater {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(108, 75, 255, 0.55), rgba(50, 30, 110, 0.85));
+  box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.kids-dashboard-crater-1 { width: 18%; height: 18%; top: 25%; left: 30%; }
+.kids-dashboard-crater-2 { width: 12%; height: 12%; top: 55%; left: 55%; }
+.kids-dashboard-crater-3 { width: 9%;  height: 9%;  top: 38%; left: 60%; }
+
+@keyframes kidsMoonGlow {
+  from { transform: scale(1); filter: brightness(1); }
+  to   { transform: scale(1.03); filter: brightness(1.12); }
+}
+
+.kids-dashboard-sky-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sky-stars { opacity: 1; }
+
+.kids-dashboard-sky-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
+  animation: kidsStarTwinkle 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes kidsStarTwinkle {
+  from { opacity: 0.25; transform: scale(0.8); }
+  to   { opacity: 1;    transform: scale(1.3); }
+}
+
+.kids-dashboard-sky-shoot {
+  position: absolute;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 60%, #fff 80%, rgba(255, 255, 255, 0));
+  border-radius: 999px;
+  opacity: 0;
+  transform: rotate(-22deg);
+  animation: kidsShoot 9s linear infinite;
+}
+
+@keyframes kidsShoot {
+  0%   { opacity: 0; transform: translate(-20px, 0) rotate(-22deg); }
+  6%   { opacity: 1; }
+  12%  { opacity: 0; transform: translate(240px, 90px) rotate(-22deg); }
+  100% { opacity: 0; transform: translate(240px, 90px) rotate(-22deg); }
+}
+
+.kids-dashboard-sky-clouds {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1s ease, filter 1s ease;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sky-clouds { opacity: 0.18; filter: blur(1.5px); }
+
+.kids-dashboard-sky-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  filter: blur(0.4px);
+  box-shadow:
+    20px -8px 0 0 rgba(255, 255, 255, 0.9),
+    40px 5px 0 -3px rgba(255, 255, 255, 0.85),
+    -18px 6px 0 -4px rgba(255, 255, 255, 0.8);
+}
+
+.kids-dashboard-sky-cloud-1 { width: 120px; height: 30px; top: 14%; left: 6%;  animation: kidsCloudDrift 42s linear infinite; }
+.kids-dashboard-sky-cloud-2 { width: 86px;  height: 22px; top: 24%; left: 28%; animation: kidsCloudDrift 56s linear infinite reverse; animation-delay: -8s; }
+.kids-dashboard-sky-cloud-3 { width: 110px; height: 28px; top: 10%; left: 52%; animation: kidsCloudDrift 48s linear infinite; animation-delay: -16s; }
+.kids-dashboard-sky-cloud-4 { width: 76px;  height: 20px; top: 36%; left: 12%; animation: kidsCloudDrift 64s linear infinite reverse; animation-delay: -22s; }
+
+@keyframes kidsCloudDrift {
+  from { transform: translateX(-12vw); }
+  to   { transform: translateX(115vw); }
+}
+
+.kids-dashboard-sky-hills {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 22vh;
+  min-height: 140px;
+  opacity: 0.85;
+  transition: opacity 0.8s ease;
+}
+
+.kids-dashboard-hill-back  { fill: rgba(180, 200, 230, 0.7); transition: fill 0.8s ease; }
+.kids-dashboard-hill-front { fill: rgba(125, 155, 210, 0.85); transition: fill 0.8s ease; }
+
+.kids-dashboard-dark-mode .kids-dashboard-hill-back  { fill: rgba(36, 36, 88, 0.85); }
+.kids-dashboard-dark-mode .kids-dashboard-hill-front { fill: rgba(14, 14, 42, 0.96); }
+
+.kids-dashboard-dash-blobs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.kids-dashboard-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  mix-blend-mode: screen;
+}
+
+.kids-dashboard-blob-a {
+  width: 320px; height: 320px;
+  left: -80px; top: 12%;
+  background: radial-gradient(circle, rgba(59, 158, 255, 0.45), rgba(59, 158, 255, 0) 70%);
+  animation: blobDriftA 18s ease-in-out infinite alternate;
+}
+
+.kids-dashboard-blob-b {
+  width: 380px; height: 380px;
+  right: -110px; top: 35%;
+  background: radial-gradient(circle, rgba(155, 114, 255, 0.4), rgba(155, 114, 255, 0) 70%);
+  animation: blobDriftB 22s ease-in-out infinite alternate;
+}
+
+.kids-dashboard-blob-c {
+  width: 260px; height: 260px;
+  left: 30%; bottom: -100px;
+  background: radial-gradient(circle, rgba(44, 201, 122, 0.4), rgba(44, 201, 122, 0) 70%);
+  animation: blobDriftC 20s ease-in-out infinite alternate;
+}
+
+.kids-dashboard-blob-d {
+  width: 240px; height: 240px;
+  right: 18%; top: 4%;
+  background: radial-gradient(circle, rgba(255, 176, 32, 0.36), rgba(255, 176, 32, 0) 70%);
+  animation: blobDriftD 24s ease-in-out infinite alternate;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-blob { opacity: 0.45; }
+
+@keyframes blobDriftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(40px, 30px, 0) scale(1.08); }
+}
+
+@keyframes blobDriftB {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-50px, -40px, 0) scale(1.1); }
+}
+
+@keyframes blobDriftC {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(60px, -50px, 0) scale(1.12); }
+}
+
+@keyframes blobDriftD {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-30px, 50px, 0) scale(1.06); }
+}
+
+.kids-dashboard-dash-sparkles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kids-dashboard-spark {
+  position: absolute;
+  font-size: 16px;
+  opacity: 0.35;
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.18));
+}
+
+.kids-dashboard-spark-a { left: 8%;  top: 22%; animation: sparkDrift 9s ease-in-out infinite; }
+.kids-dashboard-spark-b { right: 12%; top: 40%; animation: sparkDrift 11s ease-in-out 1.4s infinite; }
+.kids-dashboard-spark-c { left: 42%; bottom: 16%; animation: sparkDrift 12s ease-in-out 0.7s infinite; }
+.kids-dashboard-spark-d { right: 30%; bottom: 28%; animation: sparkDrift 10.5s ease-in-out 2s infinite; }
+
+@keyframes sparkDrift {
+  0%, 100% { transform: translateY(0) rotate(0); opacity: 0.18; }
+  50% { transform: translateY(-14px) rotate(15deg); opacity: 0.6; }
+}
+
+.kids-dashboard-dash {
+  position: relative;
+  z-index: 1;
+  width: min(1280px, calc(100% - 120px));
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 22px) clamp(14px, 3.5vw, 20px) clamp(30px, 5vw, 38px);
+}
+
+.kids-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border-radius: 22px;
+  padding: 15px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--card-shadow);
+  border: 1.5px solid var(--border);
+  animation: headerDrop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+
+@keyframes headerDrop {
+  from { transform: translateY(-40px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.kids-dashboard-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 18%, var(--hero-glow-1) 0%, transparent 24%),
+    radial-gradient(circle at 84% 16%, var(--hero-glow-2) 0%, transparent 30%),
+    radial-gradient(circle at 52% 112%, var(--hero-glow-3) 0%, transparent 34%);
+  pointer-events: none;
+}
+
+.kids-dashboard-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--coral), var(--amber), var(--mint), var(--sky), var(--violet), var(--rose));
+  background-size: 400% 100%;
+  animation: gradientWave 4s linear infinite;
+}
+
+@keyframes gradientWave { 0% { background-position: 0%; } 100% { background-position: 400%; } }
+
+.kids-dashboard-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.kids-dashboard-avatar-zone {
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  animation: avatarBreathe 4.6s ease-in-out infinite;
+}
+
+.kids-dashboard-avatar {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(145deg, #FFE4C8, #FFCBA4);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 18px rgba(255, 176, 32, 0.3);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-avatar:hover { transform: rotate(-8deg) scale(1.1); }
+
+@keyframes avatarBreathe {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-3px) rotate(1.2deg); }
+}
+
+.kids-dashboard-orbit-ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 22px;
+  border: 2px dashed rgba(255, 176, 32, 0.35);
+  animation: orbitSpin 6s linear infinite;
+}
+
+@keyframes orbitSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+.kids-dashboard-orbit-dot {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--amber);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px var(--amber);
+}
+
+.kids-dashboard-header-text { flex: 1; margin-left: 11px; }
+
+.kids-dashboard-greeting-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #F0FFF8;
+  border: 1.5px solid #C2F0D8;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mint);
+  margin-bottom: 5px;
+  animation: chipFadeIn 0.5s ease 0.4s both;
+}
+
+@keyframes chipFadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+.kids-dashboard-chip-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--mint);
+  border-radius: 50%;
+  animation: dotBlink 1.4s ease-in-out infinite;
+}
+
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.5); }
+}
+
+.kids-dashboard-header-text h1 {
+  font-family: "Baloo 2", cursive;
+  font-size: clamp(18px, 2.8vw, 21px);
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.1;
+  animation: textReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+@keyframes textReveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0% 0 0); } }
+
+.kids-dashboard-header-text h1 em { font-style: normal; color: var(--coral); }
+.kids-dashboard-header-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+.kids-dashboard-header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.kids-dashboard-main-site-link {
+  background: linear-gradient(135deg, rgba(44, 201, 122, 0.16), rgba(30, 200, 200, 0.14));
+  border: 1.5px solid rgba(44, 201, 122, 0.22);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(44, 201, 122, 0.14);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, filter 0.25s;
+}
+
+.kids-dashboard-main-site-link:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 22px rgba(44, 201, 122, 0.2);
+  filter: brightness(1.02);
+}
+
+.kids-dashboard-theme-toggle {
+  background: linear-gradient(135deg, rgba(59, 158, 255, 0.15), rgba(155, 114, 255, 0.18));
+  border: 1.5px solid rgba(115, 131, 255, 0.2);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, background 0.25s;
+  box-shadow: 0 6px 18px rgba(76, 104, 255, 0.14);
+}
+
+.kids-dashboard-theme-toggle:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 22px rgba(76, 104, 255, 0.22);
+}
+
+.kids-dashboard-theme-toggle[aria-pressed="true"] {
+  background: linear-gradient(135deg, rgba(19, 27, 66, 0.96), rgba(62, 37, 112, 0.96));
+  color: #F8FAFF;
+}
+
+.kids-dashboard-date-tag,
+.kids-dashboard-time-tag {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.kids-dashboard-streak-tag {
+  background: linear-gradient(135deg, #FFF8E8, #FFEEC8);
+  border: 1.5px solid #FFD980;
+  border-radius: 15px;
+  width: 38px;
+  height: 38px;
+  color: #A06800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+  border-style: solid;
+}
+
+.kids-dashboard-streak-tag:hover { box-shadow: 0 4px 14px rgba(255, 176, 32, 0.3); filter: brightness(1.03); }
+.kids-dashboard-flame-icon { animation: flameDance 0.35s ease-in-out infinite alternate; }
+@keyframes flameDance { from { transform: scaleY(1) rotate(-4deg); } to { transform: scaleY(1.15) rotate(4deg); } }
+
+.kids-dashboard-meal-day-panel {
+  margin-bottom: 12px;
+  padding: 11px 12px 10px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(255, 176, 32, 0.26);
+  background:
+    linear-gradient(165deg, rgba(255, 253, 248, 0.98) 0%, rgba(255, 251, 242, 0.96) 38%, rgba(242, 246, 255, 0.55) 100%);
+  box-shadow:
+    0 10px 32px rgba(255, 149, 92, 0.09),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.kids-dashboard-meal-day-head {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(24, 25, 43, 0.07);
+}
+
+.kids-dashboard-meal-day-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kids-dashboard-meal-day-svg svg{
+  width: 20px;
+  height: 20px;
+  color: #e89400;
+  flex-shrink: 0;
+}
+
+.kids-dashboard-meal-day-title {
+  font-family: "Baloo 2", cursive;
+  font-size: clamp(14px, 3.6vw, 15px);
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.kids-dashboard-meal-day-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 3px 0 0;
+  line-height: 1.35;
+}
+
+.kids-dashboard-boost-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.kids-dashboard-boost-pill {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgba(24, 25, 43, 0.06);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: floatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kids-dashboard-boost-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, transparent 48%);
+  opacity: 0.75;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kids-dashboard-boost-pill:active {
+  transform: none;
+}
+
+.kids-dashboard-boost-strip .kids-dashboard-boost-pill:nth-child(2) { animation-delay: 0.08s; }
+.kids-dashboard-boost-strip .kids-dashboard-boost-pill:nth-child(3) { animation-delay: 0.16s; }
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.kids-dashboard-boost-icon,
+.kids-dashboard-boost-copy,
+.kids-dashboard-boost-action {
+  position: relative;
+  z-index: 1;
+}
+
+.kids-dashboard-boost-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 2px 8px rgba(24, 25, 43, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  backdrop-filter: blur(8px);
+}
+
+.kids-dashboard-boost-copy {
+  width: 100%;
+  min-width: 0;
+}
+
+.kids-dashboard-boost-label {
+  font-family: "Baloo 2", cursive;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+}
+
+.kids-dashboard-boost-sub {
+  font-size: 9px;
+  color: rgba(24, 25, 43, 0.62);
+  font-weight: 600;
+  margin-top: 2px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.kids-dashboard-boost-action {
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(24, 25, 43, 0.1);
+  color: rgba(24, 25, 43, 0.72);
+}
+
+.kids-dashboard-boost-pill--done {
+  border-color: rgba(44, 201, 122, 0.42);
+  box-shadow:
+    0 4px 18px rgba(44, 201, 122, 0.14),
+    inset 0 0 0 1px rgba(44, 201, 122, 0.06);
+}
+
+.kids-dashboard-boost-pill--done .kids-dashboard-boost-action {
+  background: rgba(44, 201, 122, 0.2);
+  border-color: rgba(44, 201, 122, 0.38);
+  color: #065c34;
+}
+
+.kids-dashboard-boost-pill--done .kids-dashboard-boost-sub {
+  color: rgba(6, 92, 52, 0.78);
+  font-weight: 700;
+}
+
+.kids-dashboard-meal-toast {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  min-width: min(320px, calc(100vw - 32px));
+  text-align: center;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(44, 201, 122, 0.96), rgba(118, 233, 171, 0.96));
+  border: 1.5px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 18px 34px rgba(44, 201, 122, 0.28);
+  font-family: "Baloo 2", cursive;
+  font-size: 18px;
+  font-weight: 800;
+  color: #08361b;
+  pointer-events: none;
+}
+
+.kids-dashboard-meal-toast-enter-active,
+.kids-dashboard-meal-toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.kids-dashboard-meal-toast-enter-from,
+.kids-dashboard-meal-toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px) scale(0.98);
+}
+
+.kids-dashboard-meal-check-emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.kids-dashboard-boost-coral {
+  background: linear-gradient(155deg, #fffbf7 0%, #fff0e8 36%, #ffd8ca 100%);
+  border-color: rgba(255, 107, 84, 0.38);
+}
+
+.kids-dashboard-boost-sky {
+  background: linear-gradient(155deg, #f7fbff 0%, #ebf5fc 38%, #dbeefa 100%);
+  border-color: rgba(59, 158, 255, 0.4);
+}
+
+.kids-dashboard-boost-violet {
+  background: linear-gradient(155deg, #fbfaff 0%, #f2ebff 40%, #e6dcf9 100%);
+  border-color: rgba(139, 92, 246, 0.34);
+}
+
+.kids-dashboard-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.kids-dashboard-stat-card {
+  background: var(--surface);
+  border-radius: 22px;
+  padding: 16px 14px;
+  box-shadow: var(--card-shadow);
+  border: 1.5px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s;
+}
+
+.kids-dashboard-stat-card:hover { transform: translateY(-7px) scale(1.03); box-shadow: var(--card-shadow-hover); }
+.kids-dashboard-stat-card:nth-child(1) { animation: flipInLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both; }
+.kids-dashboard-stat-card:nth-child(2) { animation: dropBounceIn 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both; }
+.kids-dashboard-stat-card:nth-child(3) { animation: scalePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both; }
+.kids-dashboard-stat-card:nth-child(4) { animation: flipInRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both; }
+
+@keyframes flipInLeft { from { transform: rotateY(-60deg) translateX(-20px); opacity: 0; } to { transform: rotateY(0) translateX(0); opacity: 1; } }
+@keyframes dropBounceIn { from { transform: translateY(-40px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+@keyframes scalePop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes flipInRight { from { transform: rotateY(60deg) translateX(20px); opacity: 0; } to { transform: rotateY(0) translateX(0); opacity: 1; } }
+
+.kids-dashboard-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 11px;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-stat-card:hover .kids-dashboard-stat-icon { transform: rotate(12deg) scale(1.15); }
+.kids-dashboard-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 3px; }
+.kids-dashboard-stat-value { font-family: "Baloo 2", cursive; font-size: 25px; font-weight: 800; line-height: 1; color: var(--ink); }
+.kids-dashboard-stat-sub { font-size: 11px; font-weight: 600; margin-top: 3px; }
+
+.kids-dashboard-prog-track { background: #F0F1F8; border-radius: 10px; height: 6px; margin-top: 10px; overflow: hidden; }
+
+.kids-dashboard-prog-fill {
+  height: 100%;
+  border-radius: 10px;
+  position: relative;
+  animation: barGrow 1.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s both;
+}
+
+@keyframes barGrow { from { width: 0 !important; } }
+
+.kids-dashboard-prog-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  animation: travelShimmer 2.2s ease-in-out 1.5s infinite;
+}
+
+@keyframes travelShimmer {
+  0% { left: -30%; opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { left: 110%; opacity: 0; }
+}
+
+.kids-dashboard-sc-steps { background: linear-gradient(160deg, rgba(255, 240, 238, 0.96), rgba(255, 255, 255, 0.92)); }
+.kids-dashboard-sc-steps .kids-dashboard-stat-icon { background: #FFF0EE; }
+.kids-dashboard-sc-steps .kids-dashboard-prog-fill { background: linear-gradient(90deg, #FFA8A4, var(--coral)); }
+.kids-dashboard-sc-steps .kids-dashboard-stat-sub { color: var(--coral); }
+
+.kids-dashboard-sc-water { background: linear-gradient(160deg, rgba(234, 243, 255, 0.96), rgba(255, 255, 255, 0.92)); }
+.kids-dashboard-sc-water .kids-dashboard-stat-icon { background: #EAF3FF; }
+.kids-dashboard-sc-water .kids-dashboard-prog-fill { background: linear-gradient(90deg, #82C4FF, var(--sky)); }
+.kids-dashboard-sc-water .kids-dashboard-stat-sub { color: var(--sky); }
+
+.kids-dashboard-sc-sleep { background: linear-gradient(160deg, rgba(242, 238, 255, 0.96), rgba(255, 255, 255, 0.92)); }
+.kids-dashboard-sc-sleep .kids-dashboard-stat-icon { background: #F2EEFF; }
+.kids-dashboard-sc-sleep .kids-dashboard-prog-fill { background: linear-gradient(90deg, #C3ACFF, var(--violet)); }
+.kids-dashboard-sc-sleep .kids-dashboard-stat-sub { color: var(--violet); }
+
+.kids-dashboard-sc-mood { background: linear-gradient(160deg, rgba(238, 255, 245, 0.96), rgba(255, 255, 255, 0.92)); }
+.kids-dashboard-sc-mood .kids-dashboard-stat-icon { background: #EEFFF5; }
+.kids-dashboard-sc-mood .kids-dashboard-prog-fill { background: linear-gradient(90deg, #7DE8A8, var(--mint)); }
+.kids-dashboard-sc-mood .kids-dashboard-stat-sub { color: var(--mint); }
+
+.kids-dashboard-stat-card::before {
+  content: "";
+  position: absolute;
+  right: -18px;
+  bottom: -18px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  opacity: 0.06;
+  transition: transform 0.4s ease, opacity 0.4s;
+}
+
+.kids-dashboard-sc-steps::before { background: var(--coral); }
+.kids-dashboard-sc-water::before { background: var(--sky); }
+.kids-dashboard-sc-sleep::before { background: var(--violet); }
+.kids-dashboard-sc-mood::before { background: var(--mint); }
+.kids-dashboard-stat-card:hover::before { transform: scale(2.5); opacity: 0.09; }
+
+.kids-dashboard-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.kids-dashboard-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kids-dashboard-games-tiles {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 246, 255, 0.98));
+  border-radius: 18px;
+  padding: 13px 14px;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--card-shadow);
+  animation: floatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+.kids-dashboard-game-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+@media (min-width: 560px) {
+  .kids-dashboard-game-tile-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.kids-dashboard-game-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, border-color 0.25s, background 0.25s;
+}
+
+.kids-dashboard-game-tile:active {
+  transform: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .kids-dashboard-game-tile:hover {
+    transform: translateY(-2px);
+    border-color: rgba(115, 131, 255, 0.32);
+    box-shadow: 0 8px 20px rgba(60, 80, 180, 0.12);
+  }
+}
+
+.kids-dashboard-game-tile-emoji {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  background: linear-gradient(145deg, #FFFFFF, #F2F1FF);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 10px rgba(70, 92, 200, 0.1);
+  flex-shrink: 0;
+}
+
+.kids-dashboard-game-tile-copy {
+  flex: 0 1 auto;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  text-align: center;
+}
+
+.kids-dashboard-game-tile-copy strong {
+  font-family: "Baloo 2", cursive;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.kids-dashboard-game-tile-copy span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.kids-dashboard-game-tile-arrow {
+  font-family: "Baloo 2", cursive;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--muted);
+  transition: transform 0.25s ease, color 0.25s ease;
+  line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .kids-dashboard-game-tile:hover .kids-dashboard-game-tile-arrow {
+    transform: translateX(4px);
+    color: var(--ink);
+  }
+}
+
+.kids-dashboard-game-tile.kids-dashboard-tile-bubble {
+  background: linear-gradient(145deg, rgba(59, 158, 255, 0.1), rgba(255, 255, 255, 0.95));
+  border-color: rgba(59, 158, 255, 0.22);
+}
+
+.kids-dashboard-game-tile.kids-dashboard-tile-explorer {
+  background: linear-gradient(145deg, rgba(44, 201, 122, 0.12), rgba(255, 255, 255, 0.95));
+  border-color: rgba(44, 201, 122, 0.22);
+}
+
+.kids-dashboard-game-tile.kids-dashboard-tile-humit {
+  background: linear-gradient(145deg, rgba(155, 114, 255, 0.14), rgba(79, 209, 255, 0.12));
+  border-color: rgba(124, 92, 255, 0.28);
+}
+
+.kids-dashboard-game-tile.kids-dashboard-tile-smash {
+  background: linear-gradient(145deg, rgba(255, 96, 88, 0.1), rgba(255, 248, 245, 0.95));
+  border-color: rgba(255, 96, 88, 0.22);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-games-tiles {
+  background: linear-gradient(145deg, rgba(20, 24, 50, 0.96), rgba(14, 18, 40, 0.96));
+  backdrop-filter: blur(18px);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-game-tile {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(143, 154, 227, 0.22);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-game-tile.kids-dashboard-tile-bubble {
+  background: linear-gradient(145deg, rgba(28, 56, 100, 0.7), rgba(16, 20, 44, 0.85));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-game-tile.kids-dashboard-tile-explorer {
+  background: linear-gradient(145deg, rgba(20, 60, 44, 0.72), rgba(14, 22, 36, 0.88));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-game-tile.kids-dashboard-tile-humit {
+  background: linear-gradient(145deg, rgba(90, 70, 160, 0.72), rgba(28, 90, 120, 0.82));
+  border-color: rgba(160, 190, 255, 0.35);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-game-tile.kids-dashboard-tile-smash {
+  background: linear-gradient(145deg, rgba(82, 26, 42, 0.7), rgba(20, 16, 36, 0.88));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-game-tile-emoji {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 14px rgba(3, 7, 23, 0.45);
+}
+
+.kids-dashboard-launch-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(255, 176, 32, 0.18), transparent 32%),
+    radial-gradient(circle at bottom, rgba(59, 158, 255, 0.22), transparent 40%),
+    rgba(8, 12, 32, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.kids-dashboard-launch-card {
+  min-width: min(360px, calc(100vw - 32px));
+  max-width: 420px;
+  padding: 28px 32px;
+  border-radius: 32px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(155deg, rgba(48, 36, 110, 0.96), rgba(22, 26, 64, 0.96));
+  box-shadow: 0 30px 80px rgba(8, 10, 32, 0.45);
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.kids-dashboard-launch-screen.kids-dashboard-tone-bubble .kids-dashboard-launch-card {
+  background: linear-gradient(155deg, rgba(50, 102, 200, 0.96), rgba(34, 56, 130, 0.96));
+}
+.kids-dashboard-launch-screen.kids-dashboard-tone-explorer .kids-dashboard-launch-card {
+  background: linear-gradient(155deg, rgba(28, 130, 90, 0.96), rgba(22, 70, 56, 0.96));
+}
+.kids-dashboard-launch-screen.kids-dashboard-tone-smash .kids-dashboard-launch-card {
+  background: linear-gradient(155deg, rgba(196, 60, 110, 0.96), rgba(110, 26, 78, 0.96));
+}
+.kids-dashboard-launch-screen.kids-dashboard-tone-humit .kids-dashboard-launch-card {
+  background: linear-gradient(155deg, rgba(124, 92, 255, 0.96), rgba(40, 160, 210, 0.96));
+}
+.kids-dashboard-launch-screen.kids-dashboard-tone-games .kids-dashboard-launch-card {
+  background: linear-gradient(155deg, rgba(225, 132, 56, 0.96), rgba(160, 48, 110, 0.96));
+}
+
+.kids-dashboard-launch-icon-wrap {
+  width: 86px;
+  height: 86px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: launchPulse 0.85s ease-in-out infinite alternate;
+}
+
+.kids-dashboard-launch-emoji {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.kids-dashboard-launch-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 26px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.kids-dashboard-launch-sub {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(232, 237, 255, 0.86);
+}
+
+.kids-dashboard-launch-loader {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kids-dashboard-launch-loader span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  animation: launchDot 1.1s ease-in-out infinite;
+}
+
+.kids-dashboard-launch-loader span:nth-child(2) { animation-delay: 0.18s; }
+.kids-dashboard-launch-loader span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes launchPulse {
+  from { transform: scale(1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 26px rgba(59, 158, 255, 0.22); }
+  to { transform: scale(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 18px 36px rgba(255, 176, 32, 0.28); }
+}
+
+@keyframes launchDot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+.kids-dashboard-launch-screen-enter-active,
+.kids-dashboard-launch-screen-leave-active {
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.kids-dashboard-launch-screen-enter-from,
+.kids-dashboard-launch-screen-leave-to {
+  opacity: 0;
+}
+
+.kids-dashboard-launch-screen-enter-from .kids-dashboard-launch-card,
+.kids-dashboard-launch-screen-leave-to .kids-dashboard-launch-card {
+  transform: translateY(20px) scale(0.94);
+}
+
+.kids-dashboard-wins-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(245, 247, 255, 0.98));
+  border-radius: 26px;
+  padding: 22px;
+  box-shadow: var(--card-shadow);
+  border: 1.5px solid var(--border);
+  animation: winsReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+}
+
+@keyframes winsReveal {
+  from { transform: translateX(30px) rotate(1.5deg); opacity: 0; }
+  to { transform: translateX(0) rotate(0); opacity: 1; }
+}
+
+.kids-dashboard-win-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 16px;
+  margin-bottom: 7px;
+  background: var(--surface-soft);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-win-item:nth-child(2):hover { transform: scale(1.03); background: #FFF4F3; border-color: #FFD0CC; }
+.kids-dashboard-win-item:nth-child(3):hover { transform: scale(1.03); background: #F0F8FF; border-color: #BBDCFF; }
+.kids-dashboard-win-item:nth-child(4):hover { transform: scale(1.03); background: #F0F7FF; border-color: #D4CAFF; }
+
+.kids-dashboard-win-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-win-item:hover .kids-dashboard-win-icon { transform: rotate(-10deg) scale(1.18); }
+.kids-dashboard-win-icon-1 { background: #FFF0EE; }
+.kids-dashboard-win-icon-2 { background: #EAF3FF; }
+.kids-dashboard-win-icon-3 { background: #F2EEFF; }
+
+.kids-dashboard-win-title { font-size: 13px; font-weight: 700; color: var(--ink); }
+.kids-dashboard-win-sub { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+.kids-dashboard-win-check {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0) rotate(-90deg);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.kids-dashboard-win-item:hover .kids-dashboard-win-check { opacity: 1; transform: scale(1) rotate(0deg); }
+
+.kids-dashboard-meal-banner {
+  grid-column: 1 / -1;
+  background: linear-gradient(130deg, #FFFBF0, #FFF4D6);
+  border-radius: 26px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--card-shadow);
+  border: 1.5px solid #FFE8A0;
+  animation: mealBannerIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes mealBannerIn {
+  from { transform: scaleX(0.85) translateY(15px); opacity: 0; transform-origin: left center; }
+  to { transform: scaleX(1) translateY(0); opacity: 1; }
+}
+
+.kids-dashboard-meal-float {
+  position: absolute;
+  right: 180px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 10px;
+  opacity: 0.18;
+}
+
+.kids-dashboard-meal-float .kids-dashboard-float-svg svg {
+  width: 28px;
+  height: 28px;
+  color: #D97A00;
+  animation: floatBob 3s ease-in-out infinite;
+}
+
+.kids-dashboard-meal-float .kids-dashboard-float-svg:nth-child(2) svg { animation-delay: 0.4s; }
+.kids-dashboard-meal-float .kids-dashboard-float-svg:nth-child(3) svg { animation-delay: 0.8s; }
+.kids-dashboard-meal-float .kids-dashboard-float-svg:nth-child(4) svg { animation-delay: 1.2s; }
+
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-8px) rotate(5deg); }
+}
+
+.kids-dashboard-meal-text .kids-dashboard-section-label { color: #B07800; }
+.kids-dashboard-meal-title { font-family: "Baloo 2", cursive; font-size: 20px; font-weight: 800; color: #6B3A00; margin-bottom: 3px; }
+.kids-dashboard-meal-sub { font-size: 13px; color: #A07020; font-weight: 500; }
+
+.kids-dashboard-meal-btn {
+  background: linear-gradient(135deg, var(--amber), #FFD060);
+  color: #6B3A00;
+  border: none;
+  border-radius: 16px;
+  padding: 13px 20px;
+  font-family: "Baloo 2", cursive;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 5px 18px rgba(255, 176, 32, 0.35);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.kids-dashboard-meal-btn:hover { transform: translateY(-4px) scale(1.04); box-shadow: 0 8px 24px rgba(255, 176, 32, 0.45); }
+.kids-dashboard-meal-btn:hover .kids-dashboard-button-svg svg { transform: rotate(360deg); }
+
+.kids-dashboard-game-section {
+  margin-bottom: 14px;
+  animation: fadeLift 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+}
+
+@keyframes fadeLift { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.kids-dashboard-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.kids-dashboard-section-heading { font-family: "Baloo 2", cursive; font-size: 18px; font-weight: 800; color: var(--ink); }
+
+.kids-dashboard-see-all {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sky);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  transition: gap 0.25s;
+  background: transparent;
+  border: 0;
+}
+
+.kids-dashboard-see-all:hover { gap: 6px; }
+
+.kids-dashboard-games-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+.kids-dashboard-game-card {
+  background: var(--surface);
+  border-radius: 22px;
+  padding: 18px 16px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s, border-color 0.3s;
+  text-align: left;
+}
+
+.kids-dashboard-game-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: var(--card-shadow-hover); }
+.kids-dashboard-game-card:nth-child(1) { --gc: var(--coral); --gc-light: #FFF0EE; }
+.kids-dashboard-game-card:nth-child(2) { --gc: var(--sky); --gc-light: #EAF3FF; }
+.kids-dashboard-game-card:nth-child(3) { --gc: var(--violet); --gc-light: #F2EEFF; }
+.kids-dashboard-game-card:hover { border-color: var(--gc); }
+
+.kids-dashboard-game-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gc-light);
+  border-radius: 22px;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 0;
+}
+
+.kids-dashboard-game-card:hover::before { transform: scaleY(1); }
+.kids-dashboard-game-card > * { position: relative; z-index: 1; }
+
+.kids-dashboard-game-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: var(--gc-light);
+}
+
+.kids-dashboard-game-card:hover .kids-dashboard-game-icon { transform: scale(1.2) rotate(-10deg); }
+.kids-dashboard-game-name { font-family: "Baloo 2", cursive; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.kids-dashboard-game-desc { font-size: 11px; color: var(--muted); font-weight: 500; line-height: 1.4; }
+
+.kids-dashboard-active-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--coral);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  animation: badgePulseScale 1.6s ease-in-out infinite;
+}
+
+@keyframes badgePulseScale { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+.kids-dashboard-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  animation: fadeLift 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+}
+
+.kids-dashboard-challenge-card {
+  background: linear-gradient(145deg, #EEF5FF, #E0EEFF);
+  border-radius: 26px;
+  padding: 22px;
+  border: 1.5px solid rgba(59, 158, 255, 0.2);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.kids-dashboard-challenge-card::before {
+  content: "";
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  width: 120px;
+  height: 120px;
+  border: 16px solid rgba(59, 158, 255, 0.07);
+  border-radius: 50%;
+  animation: ringExpand 4s ease-out infinite;
+}
+
+.kids-dashboard-challenge-card::after {
+  content: "";
+  position: absolute;
+  right: -50px;
+  bottom: -50px;
+  width: 160px;
+  height: 160px;
+  border: 10px solid rgba(59, 158, 255, 0.05);
+  border-radius: 50%;
+  animation: ringExpand 4s ease-out 0.8s infinite;
+}
+
+@keyframes ringExpand { 0% { transform: scale(0.6); opacity: 0.8; } 100% { transform: scale(1.4); opacity: 0; } }
+
+.kids-dashboard-section-blue { color: var(--sky); }
+.kids-dashboard-challenge-title { font-family: "Baloo 2", cursive; font-size: 18px; font-weight: 800; color: #1A3A6E; margin-bottom: 3px; }
+.kids-dashboard-challenge-sub { font-size: 12px; color: #4A70A8; font-weight: 500; margin-bottom: 14px; }
+.kids-dashboard-xp-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #3060A0; margin-bottom: 5px; }
+.kids-dashboard-xp-track { background: rgba(59, 158, 255, 0.15); border-radius: 10px; height: 10px; overflow: hidden; position: relative; }
+
+.kids-dashboard-xp-bar {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--sky), #74C4FF);
+  width: 68%;
+  animation: barGrow 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1s both;
+  position: relative;
+  overflow: hidden;
+}
+
+.kids-dashboard-xp-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  animation: travelShimmer 2.5s ease-in-out 2s infinite;
+}
+
+.kids-dashboard-star-row { display: flex; gap: 5px; margin-top: 10px; }
+
+.kids-dashboard-star-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-star-btn:hover { transform: scale(1.3) rotate(10deg); }
+.kids-dashboard-star-btn.kids-dashboard-earned { background: linear-gradient(135deg, var(--amber), #FFD060); }
+.kids-dashboard-star-btn.kids-dashboard-earned .kids-dashboard-star-svg svg { color: #6B3A00; fill: currentColor; }
+.kids-dashboard-star-btn:not(.kids-dashboard-earned) .kids-dashboard-star-svg svg { color: #D0D2E0; fill: none; }
+
+.kids-dashboard-hydration-card {
+  background: linear-gradient(145deg, #EDFFF6, #D8FFED);
+  border-radius: 20px;
+  padding: 17px;
+  border: 1.5px solid rgba(44, 201, 122, 0.2);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.kids-dashboard-hyd-ring {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 10px solid rgba(44, 201, 122, 0.1);
+  animation: hydRipple 3s ease-out infinite;
+}
+
+.kids-dashboard-hyd-ring:nth-child(2) { width: 120px; height: 120px; animation: hydRipple 3s ease-out 0.7s infinite; }
+@keyframes hydRipple { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+.kids-dashboard-section-green { color: var(--mint); }
+.kids-dashboard-hydration-title { font-family: "Baloo 2", cursive; font-size: 16px; font-weight: 800; color: #0A4A28; margin-bottom: 3px; }
+.kids-dashboard-hydration-sub { font-size: 11px; color: #3A8060; font-weight: 500; margin-bottom: 11px; }
+
+.kids-dashboard-hyd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+
+.kids-dashboard-sip-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(59, 158, 255, 0.16), rgba(44, 201, 122, 0.18));
+  border: 1.5px solid rgba(44, 201, 122, 0.28);
+  color: #0A4A28;
+  font-family: "Baloo 2", cursive;
+  font-weight: 800;
+  font-size: 12px;
+  box-shadow: 0 3px 10px rgba(44, 201, 122, 0.16);
+}
+
+.kids-dashboard-sip-counter-emoji { font-size: 12px; line-height: 1; }
+.kids-dashboard-sip-counter-num { font-variant-numeric: tabular-nums; min-width: 14px; text-align: center; }
+
+.kids-dashboard-drop-grid { display: flex; gap: 6px; flex-wrap: wrap; position: relative; z-index: 1; }
+.kids-dashboard-drop-emoji {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 2px rgba(11, 60, 36, 0.35));
+}
+
+.kids-dashboard-drop-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(44, 201, 122, 0.2);
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-drop-btn:hover { transform: scale(1.3) translateY(-5px); box-shadow: 0 6px 16px rgba(44, 201, 122, 0.3); }
+.kids-dashboard-drop-btn .kids-dashboard-drop-svg svg { color: #B0E8CC; }
+.kids-dashboard-drop-btn.kids-dashboard-filled { background: linear-gradient(135deg, #60EBAC, var(--mint)); border-color: transparent; }
+.kids-dashboard-drop-btn.kids-dashboard-filled .kids-dashboard-drop-svg svg { color: white; }
+
+.kids-dashboard-hyd-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.kids-dashboard-log-sip-btn {
+  flex: 1 1 auto;
+  padding: 7px;
+  background: white;
+  border: 2px dashed rgba(44, 201, 122, 0.4);
+  border-radius: 11px;
+  font-family: "Baloo 2", cursive;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mint);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-log-sip-btn:hover {
+  background: rgba(44, 201, 122, 0.1);
+  border-style: solid;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 201, 122, 0.2);
+}
+
+.kids-dashboard-log-sip-btn:hover .kids-dashboard-button-svg svg { transform: scale(1.4) rotate(20deg); }
+
+.kids-dashboard-reset-glass-btn {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border-radius: 11px;
+  border: 1.5px solid rgba(255, 96, 88, 0.34);
+  background: rgba(255, 96, 88, 0.08);
+  color: #B7271F;
+  font-family: "Baloo 2", cursive;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, background 0.25s, opacity 0.2s;
+}
+
+.kids-dashboard-reset-glass-btn:hover {
+  background: rgba(255, 96, 88, 0.16);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(255, 96, 88, 0.22);
+}
+
+.kids-dashboard-reset-glass-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-reset-glass-btn {
+  background: rgba(255, 96, 88, 0.18);
+  border-color: rgba(255, 126, 113, 0.42);
+  color: #FFD7D2;
+}
+
+.kids-dashboard-nav-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--nav-bg);
+  border-radius: 30px;
+  padding: 10px 16px;
+  display: flex;
+  gap: 4px;
+  box-shadow: 0 12px 40px rgba(24, 25, 43, 0.25);
+  z-index: 100;
+  animation: navUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1s both;
+}
+
+@keyframes navUp {
+  from { transform: translateX(-50%) translateY(70px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+.kids-dashboard-nav-item {
+  width: 50px;
+  height: 50px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 2px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  background: transparent;
+  border: 0;
+}
+
+.kids-dashboard-nav-item span {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--nav-text);
+  transition: color 0.3s;
+}
+
+.kids-dashboard-nav-item:hover .kids-dashboard-nav-svg svg { color: rgba(255, 255, 255, 0.7); transform: translateY(-3px) scale(1.15); }
+.kids-dashboard-nav-item.kids-dashboard-active { background: rgba(255, 255, 255, 0.12); }
+.kids-dashboard-nav-item.kids-dashboard-active .kids-dashboard-nav-svg svg { color: white; transform: translateY(-2px); }
+.kids-dashboard-nav-item.kids-dashboard-active span { color: rgba(255, 255, 255, 0.6); }
+
+.kids-dashboard-nav-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  background: var(--coral);
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  animation: dotBlink 1.5s ease-in-out infinite;
+}
+
+#confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+  perspective: 1200px;
+  contain: layout paint;
+}
+
+@keyframes confFall {
+  0% {
+    transform: translateY(-10px) rotate(0);
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(800deg);
+    opacity: 0;
+  }
+}
+
+@keyframes ripOut {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.kids-dashboard-water-fall-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9500;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.kids-dashboard-fall-drop {
+  --drop-size: 14px;
+  --drop-drift: 0px;
+  position: absolute;
+  top: -40px;
+  width: calc(var(--drop-size) * 0.72);
+  height: calc(var(--drop-size) * 1.45);
+  border-radius: 60% 60% 70% 70%;
+  background: linear-gradient(
+    180deg,
+    rgba(225, 246, 255, 0.98) 0%,
+    rgba(110, 201, 255, 0.95) 52%,
+    rgba(40, 153, 255, 0.88) 100%
+  );
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    0 10px 20px rgba(59, 158, 255, 0.22);
+  transform-origin: center top;
+  animation: fallDrop linear forwards;
+}
+
+.kids-dashboard-fall-drop::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 1px);
+  transform: translateX(-50%);
+  width: calc(var(--drop-size) * 0.34);
+  height: calc(var(--drop-size) * 0.5);
+  border-radius: 100% 100% 0 0;
+  background: linear-gradient(
+    180deg,
+    rgba(225, 246, 255, 0.95),
+    rgba(110, 201, 255, 0.8)
+  );
+}
+
+@keyframes fallDrop {
+  0% {
+    transform: translate3d(0, -8vh, 0) scale(0.7) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.95;
+  }
+
+  72% {
+    transform: translate3d(var(--drop-drift), 74vh, 0) scale(1) rotate(10deg);
+    opacity: 0.96;
+  }
+
+  86% {
+    transform: translate3d(calc(var(--drop-drift) * 0.8), 84vh, 0) scale(1.12, 0.84) rotate(-6deg);
+    opacity: 0.92;
+  }
+
+  100% {
+    transform: translate3d(calc(var(--drop-drift) * 0.7), 92vh, 0) scale(1.3, 0.44) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+@keyframes confFall {
+  0% {
+    transform: translateY(-10px) rotate(0);
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(800deg);
+    opacity: 0;
+  }
+}
+
+@keyframes ripOut {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.kids-dashboard-conf-piece {
+  position: absolute;
+  border-radius: 2px;
+  animation: confFall linear forwards;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kids-dashboard-cele-ribbon {
+  --ribbon-start: #FF7A72;
+  --ribbon-end: #FFB96B;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 999px 999px 20px 20px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 18px 22px rgba(16, 24, 40, 0.2));
+  pointer-events: none;
+}
+
+.kids-dashboard-cele-ribbon::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 16px;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, var(--ribbon-start), var(--ribbon-end)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+    inset 4px 0 9px rgba(255, 255, 255, 0.18),
+    inset -5px 0 12px rgba(15, 23, 42, 0.16);
+}
+
+.kids-dashboard-cele-ribbon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 52%;
+  height: 22px;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(
+      135deg,
+      transparent 48%,
+      rgba(255, 255, 255, 0.1) 49%,
+      rgba(255, 255, 255, 0.1) 51%,
+      transparent 52%
+    ),
+    linear-gradient(135deg, var(--ribbon-start), var(--ribbon-end));
+  clip-path: polygon(0 0, 100% 0, 70% 100%, 50% 68%, 30% 100%);
+  filter: brightness(1.02);
+}
+
+.kids-dashboard-cele-ribbon > span {
+  display: none;
+}
+
+.kids-dashboard-rip {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripOut 0.6s ease-out forwards;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+.kids-dashboard-svg-holder {
+  display: inline-flex;
+}
+
+.kids-dashboard-avatar-svg svg {
+  width: 26px;
+  height: 26px;
+  color: #D97A00;
+}
+
+.kids-dashboard-mini-svg svg {
+  width: 12px;
+  height: 12px;
+}
+
+.kids-dashboard-stat-svg svg {
+  width: 20px;
+  height: 20px;
+}
+
+.kids-dashboard-section-svg svg,
+.kids-dashboard-tag-svg svg {
+  width: 10px;
+  height: 10px;
+}
+
+.kids-dashboard-mission-svg svg {
+  width: 24px;
+  height: 24px;
+  color: var(--coral);
+}
+
+.kids-dashboard-button-svg svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kids-dashboard-win-svg svg {
+  width: 19px;
+  height: 19px;
+}
+
+.kids-dashboard-check-svg svg {
+  width: 12px;
+  height: 12px;
+  color: white;
+}
+
+.kids-dashboard-link-svg svg {
+  width: 12px;
+  height: 12px;
+}
+
+.kids-dashboard-game-svg svg {
+  width: 24px;
+  height: 24px;
+  color: var(--gc);
+}
+
+.kids-dashboard-star-svg svg{
+  width: 14px;
+  height: 14px;
+}
+
+.kids-dashboard-drop-svg svg {
+  width: 14px;
+  height: 14px;
+  transition: color 0.3s;
+}
+
+.kids-dashboard-nav-svg svg {
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 255, 255, 0.38);
+  transition: color 0.3s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dark mode overrides */
+.kids-dashboard-dark-mode .kids-dashboard-greeting-chip {
+  background: rgba(44, 201, 122, 0.12);
+  border-color: rgba(44, 201, 122, 0.26);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-header-sub,
+.kids-dashboard-dark-mode .kids-dashboard-section-label,
+.kids-dashboard-dark-mode .kids-dashboard-stat-label,
+.kids-dashboard-dark-mode .kids-dashboard-stat-sub,
+.kids-dashboard-dark-mode .kids-dashboard-mission-desc,
+.kids-dashboard-dark-mode .kids-dashboard-game-desc,
+.kids-dashboard-dark-mode .kids-dashboard-win-sub,
+.kids-dashboard-dark-mode .kids-dashboard-meal-sub,
+.kids-dashboard-dark-mode .kids-dashboard-challenge-sub,
+.kids-dashboard-dark-mode .kids-dashboard-hydration-sub,
+.kids-dashboard-dark-mode .kids-dashboard-boost-sub {
+  color: var(--ink2);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-date-tag,
+.kids-dashboard-dark-mode .kids-dashboard-time-tag {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink2);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-streak-tag {
+  background: linear-gradient(135deg, rgba(255, 176, 32, 0.18), rgba(255, 126, 179, 0.18));
+  border-color: rgba(255, 176, 32, 0.3);
+  color: #FFD98E;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-day-panel {
+  border-color: rgba(255, 184, 108, 0.16);
+  background: linear-gradient(
+    165deg,
+    rgba(26, 30, 52, 0.96) 0%,
+    rgba(18, 22, 44, 0.94) 55%,
+    rgba(22, 26, 56, 0.92) 100%
+  );
+  box-shadow:
+    0 14px 42px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-day-head {
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-day-svg svg {
+  color: #ffd98e;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-day-sub {
+  color: var(--muted);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-pill::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+  opacity: 1;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-icon {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-action {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(236, 240, 255, 0.88);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-pill--done .kids-dashboard-boost-action {
+  background: rgba(44, 201, 122, 0.22);
+  border-color: rgba(96, 235, 172, 0.38);
+  color: #b8ffd9;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-pill--done .kids-dashboard-boost-sub {
+  color: rgba(152, 242, 191, 0.92);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-pill,
+.kids-dashboard-dark-mode .kids-dashboard-stat-card,
+.kids-dashboard-dark-mode .kids-dashboard-mission-card,
+.kids-dashboard-dark-mode .kids-dashboard-wins-card,
+.kids-dashboard-dark-mode .kids-dashboard-game-card {
+  backdrop-filter: blur(18px);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-coral {
+  background: linear-gradient(145deg, rgba(53, 25, 38, 0.95), rgba(35, 29, 59, 0.92));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-sky {
+  background: linear-gradient(145deg, rgba(15, 41, 78, 0.95), rgba(13, 57, 74, 0.92));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-violet {
+  background: linear-gradient(145deg, rgba(52, 29, 90, 0.95), rgba(73, 32, 73, 0.92));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-toast {
+  background: linear-gradient(135deg, rgba(11, 87, 53, 0.98), rgba(28, 143, 91, 0.96));
+  border-color: rgba(96, 235, 172, 0.22);
+  color: #d7ffe8;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-main-site-link {
+  background: linear-gradient(135deg, rgba(20, 94, 58, 0.9), rgba(16, 79, 79, 0.88));
+  border-color: rgba(96, 235, 172, 0.22);
+  color: #e7fff1;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-boost-label,
+.kids-dashboard-dark-mode .kids-dashboard-meal-day-title,
+.kids-dashboard-dark-mode .kids-dashboard-stat-value,
+.kids-dashboard-dark-mode .kids-dashboard-mission-title,
+.kids-dashboard-dark-mode .kids-dashboard-win-title,
+.kids-dashboard-dark-mode .kids-dashboard-meal-title,
+.kids-dashboard-dark-mode .kids-dashboard-game-name,
+.kids-dashboard-dark-mode .kids-dashboard-section-heading,
+.kids-dashboard-dark-mode .kids-dashboard-challenge-title,
+.kids-dashboard-dark-mode .kids-dashboard-hydration-title {
+  color: var(--ink);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-steps {
+  background: linear-gradient(145deg, rgba(65, 26, 34, 0.96), rgba(27, 22, 45, 0.96));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-water {
+  background: linear-gradient(145deg, rgba(15, 40, 72, 0.96), rgba(17, 25, 49, 0.96));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-sleep {
+  background: linear-gradient(145deg, rgba(45, 28, 82, 0.96), rgba(23, 24, 52, 0.96));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-mood {
+  background: linear-gradient(145deg, rgba(15, 60, 46, 0.96), rgba(16, 33, 46, 0.96));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-prog-track,
+.kids-dashboard-dark-mode .kids-dashboard-xp-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-tag,
+.kids-dashboard-dark-mode .kids-dashboard-win-item {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink2);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-tag-svg svg,
+.kids-dashboard-dark-mode .kids-dashboard-section-svg svg,
+.kids-dashboard-dark-mode .kids-dashboard-mini-svg svg,
+.kids-dashboard-dark-mode .kids-dashboard-win-svg svg,
+.kids-dashboard-dark-mode .kids-dashboard-link-svg svg {
+  color: var(--ink);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-avatar-svg svg {
+  color: #FFD98E;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-stat-svg svg {
+  color: currentColor;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-steps .kids-dashboard-stat-icon {
+  background: rgba(255, 96, 88, 0.16);
+  color: #FFB8B2;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-water .kids-dashboard-stat-icon {
+  background: rgba(59, 158, 255, 0.18);
+  color: #9FD2FF;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-sleep .kids-dashboard-stat-icon {
+  background: rgba(155, 114, 255, 0.2);
+  color: #D2B7FF;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sc-mood .kids-dashboard-stat-icon {
+  background: rgba(44, 201, 122, 0.18);
+  color: #98F2BF;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-tag:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-mission-card {
+  background: linear-gradient(145deg, rgba(41, 23, 34, 0.98), rgba(21, 26, 53, 0.96));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-wins-card {
+  background: linear-gradient(145deg, rgba(22, 28, 53, 0.98), rgba(20, 22, 43, 0.96));
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-banner {
+  background: linear-gradient(145deg, rgba(61, 40, 13, 0.94), rgba(40, 24, 8, 0.96));
+  border-color: rgba(255, 208, 96, 0.24);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-text .kids-dashboard-section-label,
+.kids-dashboard-dark-mode .kids-dashboard-meal-title,
+.kids-dashboard-dark-mode .kids-dashboard-meal-sub {
+  color: #FFE0A1;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-meal-btn {
+  color: #2F1800;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-challenge-card {
+  background: linear-gradient(145deg, rgba(15, 39, 74, 0.98), rgba(19, 24, 54, 0.96));
+  border-color: rgba(116, 196, 255, 0.2);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-challenge-title,
+.kids-dashboard-dark-mode .kids-dashboard-challenge-sub,
+.kids-dashboard-dark-mode .kids-dashboard-xp-row {
+  color: #D8E8FF;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-button-svg svg,
+.kids-dashboard-dark-mode .kids-dashboard-drop-svg svg,
+.kids-dashboard-dark-mode .kids-dashboard-star-svg svg {
+  color: currentColor;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-hydration-card {
+  background: linear-gradient(145deg, rgba(11, 66, 43, 0.96), rgba(10, 29, 36, 0.96));
+  border-color: rgba(96, 235, 172, 0.24);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-hydration-title,
+.kids-dashboard-dark-mode .kids-dashboard-hydration-sub {
+  color: #D7FFE8;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-sip-counter {
+  background: linear-gradient(135deg, rgba(59, 158, 255, 0.22), rgba(44, 201, 122, 0.24));
+  border-color: rgba(96, 235, 172, 0.32);
+  color: #E7FFF1;
+  box-shadow: 0 6px 18px rgba(3, 24, 14, 0.32);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-drop-btn,
+.kids-dashboard-dark-mode .kids-dashboard-star-btn,
+.kids-dashboard-dark-mode .kids-dashboard-log-sip-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-drop-btn .kids-dashboard-drop-svg svg {
+  color: rgba(215, 255, 232, 0.68);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-drop-btn.kids-dashboard-filled {
+  color: #08150F;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-drop-btn.kids-dashboard-filled .kids-dashboard-drop-svg svg {
+  color: #FFFFFF;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-star-btn.kids-dashboard-earned {
+  color: #3A2300;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-star-btn:not(.kids-dashboard-earned) .kids-dashboard-star-svg svg {
+  color: rgba(220, 226, 255, 0.42);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-log-sip-btn {
+  border-color: rgba(96, 235, 172, 0.32);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-active-badge {
+  color: #FFFFFF;
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-nav-svg svg {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.kids-dashboard-dark-mode .kids-dashboard-nav-item.kids-dashboard-active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Lite / reduced-motion & Save-Data */
+.kids-dashboard-page--lite .kids-dashboard-dash-blobs,
+.kids-dashboard-page--lite .kids-dashboard-dash-sparkles {
+  display: none !important;
+}
+
+.kids-dashboard-page--lite .kids-dashboard-blob,
+.kids-dashboard-page--lite .kids-dashboard-sky-cloud,
+.kids-dashboard-page--lite .kids-dashboard-spark,
+.kids-dashboard-page--lite .kids-dashboard-avatar-zone,
+.kids-dashboard-page--lite .kids-dashboard-orbit-ring,
+.kids-dashboard-page--lite .kids-dashboard-sun-core,
+.kids-dashboard-page--lite .kids-dashboard-sun-halo,
+.kids-dashboard-page--lite .kids-dashboard-sun-ring,
+.kids-dashboard-page--lite .kids-dashboard-moon-core,
+.kids-dashboard-page--lite .kids-dashboard-moon-halo,
+.kids-dashboard-page--lite .kids-dashboard-sky-star,
+.kids-dashboard-page--lite .kids-dashboard-sky-shoot {
+  animation: none !important;
+}
+
+.kids-dashboard-page--lite .kids-dashboard-fall-drop {
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+.kids-dashboard-page--lite .kids-dashboard-header,
+.kids-dashboard-page--lite .kids-dashboard-boost-pill,
+.kids-dashboard-page--lite .kids-dashboard-games-tiles,
+.kids-dashboard-page--lite .kids-dashboard-hydration-card {
+  backdrop-filter: none !important;
+}
+
+/* Accessibility panel support: responds to --hk-font-scale from useTextResize(). */
+.kids-dashboard-page {
+  --kids-dashboard-font-scale: var(--hk-font-scale, 1);
+}
+
+.kids-dashboard-page :is(
+  .kids-dashboard-header-text h1,
+  .kids-dashboard-header-sub,
+  .kids-dashboard-main-site-link,
+  .kids-dashboard-date-tag,
+  .kids-dashboard-time-tag,
+  .kids-dashboard-meal-day-title,
+  .kids-dashboard-meal-day-sub,
+  .kids-dashboard-section-label,
+  .kids-dashboard-boost-label,
+  .kids-dashboard-boost-sub,
+  .kids-dashboard-boost-action,
+  .kids-dashboard-game-tile-copy strong,
+  .kids-dashboard-game-tile-copy span,
+  .kids-dashboard-hydration-title,
+  .kids-dashboard-hydration-sub,
+  .kids-dashboard-sip-counter,
+  .kids-dashboard-log-sip-btn,
+  .kids-dashboard-reset-glass-btn,
+  .kids-dashboard-meal-toast,
+  .kids-dashboard-launch-title,
+  .kids-dashboard-launch-sub
+) {
+  font-size: calc(var(--kids-dashboard-original-font-size, 1em) * var(--kids-dashboard-font-scale)) !important;
+}
+
+.kids-dashboard-header-text h1 {
+  --kids-dashboard-original-font-size: clamp(18px, 2.8vw, 21px);
+}
+
+.kids-dashboard-header-sub {
+  --kids-dashboard-original-font-size: 12px;
+}
+
+.kids-dashboard-main-site-link,
+.kids-dashboard-date-tag,
+.kids-dashboard-time-tag {
+  --kids-dashboard-original-font-size: 11px;
+}
+
+.kids-dashboard-meal-day-title {
+  --kids-dashboard-original-font-size: clamp(14px, 3.6vw, 15px);
+}
+
+.kids-dashboard-meal-day-sub {
+  --kids-dashboard-original-font-size: 10px;
+}
+
+.kids-dashboard-section-label {
+  --kids-dashboard-original-font-size: 9px;
+}
+
+.kids-dashboard-boost-label {
+  --kids-dashboard-original-font-size: 13px;
+}
+
+.kids-dashboard-boost-sub {
+  --kids-dashboard-original-font-size: 9px;
+}
+
+.kids-dashboard-boost-action {
+  --kids-dashboard-original-font-size: 8px;
+}
+
+.kids-dashboard-game-tile-copy strong {
+  --kids-dashboard-original-font-size: 13px;
+}
+
+.kids-dashboard-game-tile-copy span {
+  --kids-dashboard-original-font-size: 10px;
+}
+
+.kids-dashboard-hydration-title {
+  --kids-dashboard-original-font-size: 16px;
+}
+
+.kids-dashboard-hydration-sub {
+  --kids-dashboard-original-font-size: 11px;
+}
+
+.kids-dashboard-sip-counter,
+.kids-dashboard-log-sip-btn,
+.kids-dashboard-reset-glass-btn {
+  --kids-dashboard-original-font-size: 12px;
+}
+
+.kids-dashboard-meal-toast {
+  --kids-dashboard-original-font-size: 18px;
+}
+
+.kids-dashboard-launch-title {
+  --kids-dashboard-original-font-size: 26px;
+}
+
+.kids-dashboard-launch-sub {
+  --kids-dashboard-original-font-size: 14px;
+}
+
+.kids-dashboard-page [data-hover-read-text]:focus-visible {
+  outline: 3px solid rgba(59, 158, 255, 0.85);
+  outline-offset: 4px;
+}
+
+/* Merged mobile rules */
+@media (max-width: 740px) {
+  .kids-dashboard-dash {
+    width: min(100%, calc(100% - 20px));
+  }
+
+  .kids-dashboard-boost-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .kids-dashboard-stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .kids-dashboard-main-grid,
+  .kids-dashboard-bottom-row,
+  .kids-dashboard-games-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .kids-dashboard-meal-float {
+    display: none;
+  }
+
+  .kids-dashboard-meal-banner {
+    flex-direction: column;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .kids-dashboard-nav-bar {
+    width: calc(100% - 32px);
+    justify-content: space-around;
+  }
+
+  .kids-dashboard-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .kids-dashboard-header-right {
+    width: 100%;
+    max-width: none;
+    justify-content: flex-start;
+  }
+}
