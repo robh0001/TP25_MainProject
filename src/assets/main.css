@@ -3492,7 +3492,7 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 32px 52px;
+  padding: 26px 52px;
   opacity: 0;
   transform: translateY(-10px);
   transition:
@@ -3560,7 +3560,7 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   grid-template-columns: minmax(0, 580px) 1fr;
   align-items: center;
   gap: 40px;
-  padding: 0 52px;
+  padding: 72px 52px 56px;
   margin: 0 auto;
 }
 
@@ -3577,7 +3577,8 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   height: 30px;
   padding: 0 13px;
   border-radius: 999px;
-  margin-bottom: 28px;
+  margin-top: 8px;
+  margin-bottom: 24px;
   color: #86efac;
   background: rgba(34, 197, 94, 0.13);
   border: 1px solid rgba(134, 239, 172, 0.22);
@@ -3961,8 +3962,12 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
 @media (max-width: 1000px) {
   .home-main {
     grid-template-columns: 1fr;
-    align-items: flex-end;
-    padding: 0 32px 80px;
+    align-items: center;
+    padding: 76px 32px 84px;
+  }
+
+  .home-stats {
+    display: none;
   }
 
   .home-stats {
@@ -3980,7 +3985,7 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   }
 
   .home-main {
-    padding: 0 22px 96px;
+    padding: 112px 22px 110px;
   }
 
   .home-footer {
@@ -4017,6 +4022,193 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
   }
 }
 
+/* Floating sparks */
+.float-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.spark-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(134, 239, 172, 0.35));
+  opacity: 0.55;
+  animation: sparkFloat 7s ease-in-out infinite;
+}
+
+@keyframes sparkFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.35; }
+  50% { transform: translateY(-18px) scale(1.15); opacity: 0.75; }
+}
+
+/* Wave divider */
+.wave-divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: clamp(90px, 14vh, 140px);
+  z-index: 5;
+  pointer-events: none;
+  color: rgba(4, 10, 6, 0.92);
+}
+
+.wave {
+  opacity: 0.55;
+  animation: waveBob 10s ease-in-out infinite;
+}
+
+.wave-2 { animation-delay: -2s; opacity: 0.42; }
+.wave-3 { animation-delay: -4s; opacity: 0.28; }
+
+@keyframes waveBob {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-2%); }
+}
+
+.home-morph-line {
+  display: block;
+  min-height: 0.95em;
+}
+
+.home-morph-word {
+  display: inline-block;
+}
+
+.home-morph-enter-active,
+.morph-leave-active {
+  transition: opacity 0.38s ease, transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-morph-enter-from {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.home-morph-leave-to {
+  opacity: 0;
+  transform: translateY(-14px);
+}
+
+.home-line-2-word {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.17em;
+}
+.home-families-underline-svg {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: 0;
+  height: clamp(14px, 0.28em, 30px);
+  overflow: visible;
+  pointer-events: none;
+  color: rgba(167, 243, 208, 0.95);
+}
+
+.home-families-underline-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+/* =========================================================
+  Home Feature Scroll Ticker
+========================================================= */
+
+.home-tag-ticker {
+  align-self: flex-start;
+  width: 100%;
+  max-width: min(46rem, calc(100vw - 80px));
+  margin-bottom: 1.8rem;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.55s 0.62s ease,
+    transform 0.55s 0.62s ease;
+}
+
+.home-loaded .home-tag-ticker {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.home-tag-ticker-mask {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid rgba(134, 239, 172, 0.24);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(34, 197, 94, 0.16),
+      rgba(14, 165, 233, 0.12),
+      rgba(168, 85, 247, 0.10),
+      rgba(34, 197, 94, 0.16)
+    );
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.home-tag-ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  width: max-content;
+  padding: 14px 24px;
+  will-change: transform;
+  animation: homeTagTickerMove 22s linear infinite;
+}
+
+.home-tag-ticker-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.home-tag-ticker-chip::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4ade80, #22d3ee);
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+}
+
+@keyframes homeTagTickerMove {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.home-tag-ticker-chip:nth-child(3n + 1)::before {
+  background: linear-gradient(135deg, #4ade80, #16a34a);
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+}
+
+.home-tag-ticker-chip:nth-child(3n + 2)::before {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+}
+
+.home-tag-ticker-chip:nth-child(3n + 3)::before {
+  background: linear-gradient(135deg, #fbbf24, #fb7185);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.42);
+}
 /* =========================================================
    HealthyKids Parent Dashboard
    Prefix: dashboard-
@@ -5569,4 +5761,246 @@ body.hk-hover-to-read-active [data-hover-read-text]:hover {
 
 .dashboard-nav-btn svg {
   color: #ffffff;
+}
+
+/* =========================================================
+  HealthyKids Kids Buddy Character
+  Component: KidsBuddyCharacter.vue
+========================================================= */
+.kbuddy {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.kbuddy-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.kbuddy-character {
+  transform-origin: 120px 230px;
+  animation: kbBounce 2.2s ease-in-out infinite;
+}
+
+@keyframes kbBounce {
+  0%, 100% { transform: translateY(0)    rotate(-2deg) scale(1, 1); }
+  25%      { transform: translateY(-2px) rotate(-2deg) scale(1.05, 0.94); }
+  50%      { transform: translateY(-10px) rotate(2deg)  scale(0.98, 1.04); }
+  75%      { transform: translateY(-2px) rotate(2deg)  scale(1.04, 0.96); }
+}
+
+
+.kbuddy-body {
+  transform-origin: 120px 200px;
+  animation: kbTilt 2.8s ease-in-out infinite;
+}
+
+@keyframes kbTilt {
+  0%, 100% { transform: rotate(0); }
+  50%      { transform: rotate(2deg); }
+}
+
+.kbuddy-belly {
+  transform-origin: 120px 136px;
+  animation: kbBelly 1.1s ease-in-out infinite;
+}
+
+@keyframes kbBelly {
+  0%, 100% { transform: scale(1, 1); }
+  50%      { transform: scale(1.03, 0.98); }
+}
+
+.kbuddy-shadow ellipse {
+  transform-origin: 120px 240px;
+  transform-box: fill-box;
+  animation: kbShadow 2.2s ease-in-out infinite;
+}
+
+@keyframes kbShadow {
+  0%, 100% { transform: scale(1);    opacity: 0.2; }
+  50%      { transform: scale(0.66); opacity: 0.1; }
+}
+
+.kbuddy-leg-left {
+  transform-origin: 92px 200px;
+  animation: kbKickLeft 1.6s ease-in-out infinite;
+}
+.kbuddy-leg-right {
+  transform-origin: 148px 200px;
+  animation: kbKickRight 1.6s ease-in-out infinite;
+}
+
+@keyframes kbKickLeft {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-12deg); }
+}
+
+@keyframes kbKickRight {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(12deg); }
+}
+
+.kbuddy-stem {
+  transform-origin: 120px 36px;
+  animation: kbStemFlop 1.8s ease-in-out infinite;
+}
+
+@keyframes kbStemFlop {
+  0%, 100% { transform: rotate(-6deg); }
+  50%      { transform: rotate(8deg); }
+}
+
+.kbuddy-leaf {
+  transform-origin: 144px 18px;
+  animation: kbLeafFlap 1s ease-in-out infinite;
+}
+
+@keyframes kbLeafFlap {
+  0%, 100% { transform: rotate(-4deg) scaleX(1); }
+  50%      { transform: rotate(10deg) scaleX(0.95); }
+}
+
+.kbuddy-brows .brow {
+  transform-origin: center;
+  animation: kbBrows 3.6s ease-in-out infinite;
+}
+
+@keyframes kbBrows {
+  0%, 70%, 100% { transform: translateY(0); }
+  20%           { transform: translateY(-4px); }
+  45%           { transform: translateY(2px); }
+}
+
+.kbuddy-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kbBlink 3.6s ease-in-out infinite;
+}
+
+@keyframes kbBlink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  94%, 96%      { transform: scaleY(0.1); }
+}
+
+.kbuddy-pupil-wrap {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kbPupilDance 3.4s ease-in-out infinite;
+}
+
+@keyframes kbPupilDance {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-2px, 1px); }
+  40%  { transform: translate(2px, -1px); }
+  60%  { transform: translate(0, 2px); }
+  80%  { transform: translate(-1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+.kbuddy-pupil {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kbPupilSize 2.6s ease-in-out infinite;
+}
+
+@keyframes kbPupilSize {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
+.kbuddy-mouth-shape {
+  transform-box: fill-box;
+  transform-origin: 50% 30%;
+  animation: kbTalk 1.1s ease-in-out infinite;
+}
+
+@keyframes kbTalk {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.7); }
+}
+
+.kbuddy-tongue {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: kbTongue 3.6s ease-in-out infinite;
+}
+
+@keyframes kbTongue {
+  0%, 78%, 100% { transform: translateY(0)  scaleY(1); }
+  84%, 92%      { transform: translateY(6px) scaleY(1.3); }
+}
+
+.kbuddy-teeth {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kbTeeth 4s ease-in-out infinite;
+}
+
+@keyframes kbTeeth {
+  0%, 30%, 100% { opacity: 0; transform: scaleY(0.4); }
+  40%, 60%      { opacity: 0.95; transform: scaleY(1); }
+}
+
+.kbuddy-cheeks circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kbCheeks 2.2s ease-in-out infinite;
+}
+
+@keyframes kbCheeks {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.14); }
+}
+
+.kbuddy-arm-left {
+  transform-origin: 44px 158px;
+  animation: kbArmLeft 1.4s ease-in-out infinite;
+}
+.kbuddy-arm-right {
+  transform-origin: 196px 158px;
+  animation: kbArmRight 1.4s ease-in-out infinite;
+}
+
+@keyframes kbArmLeft {
+  0%, 100% { transform: rotate(-8deg); }
+  50%      { transform: rotate(28deg); }
+}
+
+@keyframes kbArmRight {
+  0%, 100% { transform: rotate(16deg); }
+  50%      { transform: rotate(-22deg); }
+}
+
+.kbuddy-heart {
+  transform-origin: 44px 70px;
+  animation: kbHeart 4.6s ease-in-out infinite;
+  opacity: 0;
+}
+
+@keyframes kbHeart {
+  0%, 70%, 100% { opacity: 0; transform: translateY(0)    scale(0.4); }
+  80%, 88%      { opacity: 1; transform: translateY(-14px) scale(1.05); }
+  95%           { opacity: 0; transform: translateY(-22px) scale(0.7); }
+}
+
+.kbuddy-sparkle {
+  font-size: 18px;
+  opacity: 0;
+  animation: kbSparkle 3s ease-in-out infinite;
+}
+
+.kbuddy-sparkle.s1 { animation-delay: 0s; }
+.kbuddy-sparkle.s2 { animation-delay: 0.7s; }
+.kbuddy-sparkle.s3 { animation-delay: 1.4s; }
+.kbuddy-sparkle.s4 { animation-delay: 2.1s; }
+
+@keyframes kbSparkle {
+  0%, 100% { opacity: 0; transform: translateY(0)   rotate(0)    scale(0.5); }
+  35%, 60% { opacity: 1; transform: translateY(-6px) rotate(15deg) scale(1.1); }
+  85%      { opacity: 0; transform: translateY(-12px) rotate(-10deg) scale(0.6); }
 }

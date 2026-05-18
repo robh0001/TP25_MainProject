@@ -1,6 +1,78 @@
 <template>
-  <div class="kids-html-dashboard" :class="{ 'dark-mode': isDarkMode }">
+  <div
+    class="kids-html-dashboard"
+    :class="{ 'dark-mode': isDarkMode, 'kids-html-dashboard--lite': motionLite }"
+  >
     <div id="confetti-layer" ref="confettiLayer"></div>
+
+    <div class="kids-sky" aria-hidden="true">
+      <div class="sky-gradient"></div>
+      <div class="sky-aurora"></div>
+
+      <div class="celestial sun-body">
+        <div class="sun-core"></div>
+        <div class="sun-halo"></div>
+        <div class="sun-ring"></div>
+      </div>
+
+      <div class="celestial moon-body">
+        <div class="moon-core">
+          <span class="crater crater-1"></span>
+          <span class="crater crater-2"></span>
+          <span class="crater crater-3"></span>
+        </div>
+        <div class="moon-halo"></div>
+      </div>
+
+      <div class="sky-stars">
+        <span
+          v-for="star in skyStars"
+          :key="`sky-star-${star.id}`"
+          class="sky-star"
+          :style="{
+            left: `${star.left}%`,
+            top: `${star.top}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            animationDelay: `${star.delay}s`,
+            animationDuration: `${star.duration}s`,
+          }"
+        ></span>
+        <span
+          v-for="shoot in shootingStars"
+          :key="`sky-shoot-${shoot.id}`"
+          class="sky-shoot"
+          :style="{ left: `${shoot.left}%`, top: `${shoot.top}%`, animationDelay: `${shoot.delay}s` }"
+        ></span>
+      </div>
+
+      <div class="sky-clouds">
+        <span class="sky-cloud sky-cloud-1"></span>
+        <span class="sky-cloud sky-cloud-2"></span>
+        <span class="sky-cloud sky-cloud-3"></span>
+        <span class="sky-cloud sky-cloud-4"></span>
+      </div>
+
+      <svg class="sky-hills" viewBox="0 0 1440 220" preserveAspectRatio="none">
+        <path class="hill-back" d="M0,170 L160,120 L320,160 L520,90 L720,150 L920,100 L1140,160 L1300,120 L1440,150 L1440,220 L0,220 Z"/>
+        <path class="hill-front" d="M0,220 L120,170 L300,210 L480,170 L660,205 L840,170 L1020,210 L1220,175 L1440,205 L1440,220 L0,220 Z"/>
+      </svg>
+    </div>
+
+    <div class="dash-blobs" aria-hidden="true">
+      <span class="blob blob-a"></span>
+      <span class="blob blob-b"></span>
+      <span class="blob blob-c"></span>
+      <span class="blob blob-d"></span>
+    </div>
+
+    <div class="dash-sparkles" aria-hidden="true">
+      <span class="spark spark-a">✨</span>
+      <span class="spark spark-b">⭐</span>
+      <span class="spark spark-c">💫</span>
+      <span class="spark spark-d">✨</span>
+    </div>
+
     <div class="water-fall-layer">
       <span
         v-for="drop in fallingDrops"
@@ -26,10 +98,6 @@
         </div>
 
         <div class="header-text">
-          <div class="greeting-chip">
-            <div class="chip-dot"></div>
-            Healthy Kids Dashboard
-          </div>
           <h1>Hey there! Ready to play?</h1>
           <div class="header-sub">Pick a game, collect healthy wins &amp; keep your streak!</div>
         </div>
@@ -39,15 +107,6 @@
             <span class="svg-holder mini-svg" v-html="icons.home"></span>
             Parents dashboard
           </RouterLink>
-          <button
-            type="button"
-            class="theme-toggle"
-            :aria-pressed="isDarkMode"
-            @click="toggleDarkMode"
-          >
-            <span class="svg-holder mini-svg" v-html="isDarkMode ? icons.sun : icons.moon"></span>
-            {{ isDarkMode ? "Light glow" : "Dark sky" }}
-          </button>
           <div class="date-tag">
             <span class="svg-holder mini-svg" v-html="icons.calendar"></span>
             {{ todayLabel }}
@@ -62,65 +121,79 @@
         </div>
       </header>
 
-      <section class="boost-strip" aria-label="Meal check-in">
-        <article
-          v-for="check in mealChecks"
-          :key="check.label"
-          class="boost-pill"
-          :class="[check.tone, { 'boost-pill--done': check.done }]"
-          @click="toggleMealCheck(check.label, $event)"
-        >
-          <div class="boost-icon">
-            <span class="meal-check-emoji" aria-hidden="true">{{ check.emoji }}</span>
+      <section class="meal-day-panel" aria-labelledby="meal-day-title">
+        <header class="meal-day-head">
+          <div class="meal-day-heading">
+            <span class="svg-holder meal-day-svg" aria-hidden="true" v-html="icons.sun"></span>
+            <div>
+              <h2 id="meal-day-title" class="meal-day-title">Today's meals</h2>
+              <p class="meal-day-sub">Tap when you eat — we save it for today</p>
+            </div>
           </div>
-          <div>
-            <div class="boost-label">{{ check.label }}</div>
-            <div class="boost-sub">{{ check.helper }}</div>
-          </div>
-          <strong>{{ check.done ? "Tap to remove" : "Tap to add" }}</strong>
-        </article>
+        </header>
+
+        <div class="boost-strip" role="group" aria-label="Breakfast, lunch, and dinner">
+          <article
+            v-for="check in mealChecks"
+            :key="check.label"
+            class="boost-pill"
+            :class="[check.tone, { 'boost-pill--done': check.done }]"
+            @click="toggleMealCheck(check.label, $event)"
+          >
+            <div class="boost-icon">
+              <span class="meal-check-emoji" aria-hidden="true">{{ check.emoji }}</span>
+            </div>
+            <div class="boost-copy">
+              <div class="boost-label">{{ check.label }}</div>
+              <div class="boost-sub">{{ check.helper }}</div>
+            </div>
+            <span class="boost-action">{{ check.actionLabel }}</span>
+          </article>
+        </div>
       </section>
 
       <div class="main-grid">
-        <div class="mission-card" @click="openBubbleMission">
+        <section class="games-tiles" aria-label="Pick a game">
           <div class="section-label">
             <span class="svg-holder section-svg" v-html="icons.target"></span>
-            Game
+            Games
           </div>
 
-          <div class="mission-header">
-            <div class="mission-icon-wrap">
-              <span class="svg-holder mission-svg" v-html="icons.bubbleMission"></span>
-            </div>
-            <div class="mission-title">Healthy Bubble Game</div>
+          <div class="game-tile-grid">
+            <button
+              v-for="tile in gameTiles"
+              :key="tile.id"
+              type="button"
+              class="game-tile"
+              :class="tile.tone"
+              @click="launchTile(tile.launchKey)"
+            >
+              <span class="game-tile-emoji" aria-hidden="true">{{ tile.emoji }}</span>
+              <div class="game-tile-copy">
+                <strong>{{ tile.title }}</strong>
+                <span>{{ tile.short }}</span>
+              </div>
+              <span class="game-tile-arrow" aria-hidden="true">→</span>
+            </button>
           </div>
-
-          <div class="mission-desc">Pop the target health words before they self-pop. Fast fingers win!</div>
-
-          <div class="tag-row">
-            <span v-for="tag in missionTags" :key="tag.label" class="tag">
-              <span class="svg-holder tag-svg" v-html="tag.icon"></span>
-              {{ tag.label }}
-            </span>
-          </div>
-
-          <button type="button" class="play-btn" @click.stop="playNow">
-            <span class="svg-holder button-svg" v-html="icons.play"></span>
-            Play Now
-            <span class="svg-holder button-svg" v-html="icons.arrowRight"></span>
-          </button>
-        </div>
+        </section>
 
         <div ref="hydrationCard" class="hydration-card">
           <div class="hyd-ring"></div>
           <div class="hyd-ring"></div>
 
-          <div class="section-label section-green">
-            <span class="svg-holder section-svg" v-html="icons.drop"></span>
-            Hydration Tracker
+          <div class="hyd-header">
+            <div class="section-label section-green">
+              <span class="svg-holder section-svg" v-html="icons.drop"></span>
+              Hydration Tracker
+            </div>
+            <div class="sip-counter" aria-live="polite" :title="`Glasses logged today`">
+              <span class="sip-counter-emoji" aria-hidden="true">🥛</span>
+              <span class="sip-counter-num">{{ glassCount }}</span>
+            </div>
           </div>
           <div class="hydration-title">Stay super hydrated!</div>
-          <div class="hydration-sub">Tap a drop to log your sip</div>
+          <div class="hydration-sub">Tap a drop to log your glass</div>
 
           <div class="drop-grid">
             <button
@@ -130,16 +203,28 @@
               class="drop-btn"
               :class="{ filled }"
               :title="`Sip ${index + 1}`"
+              :aria-pressed="filled"
               @click.stop="toggleDrop(index, $event)"
             >
-              <span class="svg-holder drop-svg" v-html="icons.drop"></span>
+              <span v-if="filled" class="drop-emoji" aria-hidden="true">💧</span>
+              <span v-else class="svg-holder drop-svg" v-html="icons.drop"></span>
             </button>
           </div>
 
-          <button type="button" class="log-sip-btn" @click.stop="logSip">
-            <span class="svg-holder button-svg" v-html="icons.plusCircle"></span>
-            Log another sip
-          </button>
+          <div class="hyd-actions">
+            <button type="button" class="log-sip-btn" @click.stop="logGlass">
+              <span class="svg-holder button-svg" v-html="icons.plusCircle"></span>
+              Log another glass
+            </button>
+            <button
+              type="button"
+              class="reset-glass-btn"
+              :disabled="glassCount === 0"
+              @click.stop="resetGlasses"
+            >
+              Reset
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -151,38 +236,62 @@
     </transition>
 
     <transition name="launch-screen">
-      <div v-if="launchingGame" class="launch-screen" role="status" aria-live="polite">
+      <div
+        v-if="launching"
+        class="launch-screen"
+        :class="launchTone"
+        role="status"
+        aria-live="polite"
+      >
         <div class="launch-card">
-          <div class="launch-icon-wrap">
-            <span class="svg-holder launch-icon" v-html="icons.bubbleMission"></span>
+          <div class="launch-icon-wrap" aria-hidden="true">
+            <span class="launch-emoji">{{ launchEmoji }}</span>
           </div>
-          <div class="launch-title">Opening Bubble Game...</div>
-          <div class="launch-sub">Get ready to play</div>
+          <div class="launch-title">{{ launchTitle }}</div>
+          <div class="launch-sub">{{ launchSub }}</div>
+          <div class="launch-loader" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
         </div>
       </div>
     </transition>
 
     <KidsBottomNav />
+
+    <KidsThemeFloater :is-dark-mode="isDarkMode" @toggle-theme="toggleDarkMode" />
   </div>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
-import { RouterLink, useRouter } from "vue-router"
+import { RouterLink } from "vue-router"
 import KidsBottomNav from "./kids/KidsBottomNav.vue"
+import KidsThemeFloater from "./kids/KidsThemeFloater.vue"
 import { useKidsTheme } from "../composables/useKidsTheme.js"
 import { useKidsProgressStore } from "../stores/kidsProgressStore.js"
+import { useGameLaunch } from "../composables/useGameLaunch.js"
+import { useKidsPerf } from "../composables/useKidsPerf.js"
 
-const router = useRouter()
 const { isDarkMode, toggleDarkMode } = useKidsTheme()
 const kp = useKidsProgressStore()
+const { motionLite, syncKidsPerf, fx } = useKidsPerf()
+const {
+  launching,
+  launchTitle,
+  launchSub,
+  launchEmoji,
+  launchTone,
+  startGameLaunch,
+} = useGameLaunch()
 
 const confettiLayer = ref(null)
 const hydrationCard = ref(null)
 const fallingDrops = ref([])
 const mealToast = ref("")
 const liveTime = ref("")
-const launchingGame = ref(false)
+
+const skyStars = ref([])
+const shootingStars = ref([])
 
 let nextFallingDropId = 1
 const activeRibbons = []
@@ -190,12 +299,84 @@ const activeRibbons = []
 let ribbonFrameId = 0
 let mealToastTimer = 0
 let liveTimeTimer = 0
-let launchTimer = 0
+let motionMediaListener = null
+let visibilityListener = null
+
+function buildAmbientStars(count) {
+  return Array.from({ length: count }, (_, id) => ({
+    id,
+    left: Math.random() * 100,
+    top: Math.random() * 70,
+    size: 1 + Math.random() * 2.4,
+    delay: Math.random() * 4,
+    duration: 1.8 + Math.random() * 3.4,
+  }))
+}
+
+function buildShootingStars(count) {
+  return Array.from({ length: count }, (_, id) => ({
+    id,
+    left: 12 + Math.random() * 70,
+    top: 8 + Math.random() * 40,
+    delay: id * 6 + Math.random() * 4,
+  }))
+}
+
+function initAmbientLayers() {
+  syncKidsPerf()
+  if (motionLite.value) {
+    skyStars.value = []
+    shootingStars.value = []
+    return
+  }
+
+  const coarsePointer =
+    typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches
+  const starCount = coarsePointer ? 18 : 30
+  skyStars.value = buildAmbientStars(starCount)
+  shootingStars.value = buildShootingStars(2)
+}
+
+function startLiveClock() {
+  if (liveTimeTimer || typeof window === "undefined") return
+  liveTimeTimer = window.setInterval(updateLiveTime, 1000)
+}
+
+function stopLiveClock() {
+  if (!liveTimeTimer) return
+  window.clearInterval(liveTimeTimer)
+  liveTimeTimer = 0
+}
+
+function onVisibilityChange() {
+  if (typeof document === "undefined") return
+  if (document.hidden) {
+    stopLiveClock()
+    return
+  }
+  updateLiveTime()
+  startLiveClock()
+}
 
 onMounted(() => {
+  syncKidsPerf()
+  initAmbientLayers()
+
+  if (typeof window !== "undefined") {
+    motionMediaListener = () => {
+      syncKidsPerf()
+      initAmbientLayers()
+    }
+    window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", motionMediaListener)
+    navigator.connection?.addEventListener?.("change", motionMediaListener)
+
+    visibilityListener = onVisibilityChange
+    document.addEventListener("visibilitychange", visibilityListener)
+  }
+
   kp.hydrate()
   updateLiveTime()
-  liveTimeTimer = window.setInterval(updateLiveTime, 1000)
+  startLiveClock()
 })
 
 const todayLabel = new Intl.DateTimeFormat("en-AU", {
@@ -230,39 +411,76 @@ const icons = {
   message: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
 }
 
-const missionTags = [
-  { label: "Color pop", icon: icons.target },
-  { label: "Quick taps", icon: icons.bolt },
-  { label: "Healthy words", icon: icons.message },
+const gameTiles = [
+  {
+    id: "bubble",
+    launchKey: "bubble",
+    title: "Bubble Game",
+    short: "Pop healthy words fast",
+    emoji: "🫧",
+    tone: "tile-bubble",
+  },
+  {
+    id: "explorer",
+    launchKey: "explorer",
+    title: "Explorer Game",
+    short: "Match bright healthy pairs",
+    emoji: "🧭",
+    tone: "tile-explorer",
+  },
+  {
+    id: "humit",
+    launchKey: "humit",
+    title: "Hum It!",
+    short: "Your hum powers your creature",
+    emoji: "🎵",
+    tone: "tile-humit",
+  },
+  {
+    id: "smash",
+    launchKey: "smash",
+    title: "Routine Rumble",
+    short: "Smash healthy routines",
+    emoji: "🎈",
+    tone: "tile-smash",
+  },
 ]
 
 const mealChecks = computed(() => [
   {
     label: "Breakfast",
-    helper: "Had breakfast",
+    helper: kp.daily.meals.Breakfast ? "Saved for today" : "Not logged yet",
+    actionLabel: kp.daily.meals.Breakfast ? "Undo" : "Add",
     emoji: "🍳",
     tone: "boost-coral",
     done: Boolean(kp.daily.meals.Breakfast),
   },
   {
     label: "Lunch",
-    helper: "Had lunch",
+    helper: kp.daily.meals.Lunch ? "Saved for today" : "Not logged yet",
+    actionLabel: kp.daily.meals.Lunch ? "Undo" : "Add",
     emoji: "🥪",
     tone: "boost-sky",
     done: Boolean(kp.daily.meals.Lunch),
   },
   {
     label: "Dinner",
-    helper: "Had dinner",
+    helper: kp.daily.meals.Dinner ? "Saved for today" : "Not logged yet",
+    actionLabel: kp.daily.meals.Dinner ? "Undo" : "Add",
     emoji: "🍽️",
     tone: "boost-violet",
     done: Boolean(kp.daily.meals.Dinner),
   },
 ])
 
+const GLASS_GOAL = 8
+const GLASS_MAX = 50
+
 const hydrationDrops = computed(() =>
-  Array.from({ length: 8 }, (_, index) => index < Math.min(8, kp.daily.waterGlasses)),
+  Array.from({ length: GLASS_GOAL }, (_, index) => index < Math.min(GLASS_GOAL, kp.daily.waterGlasses)),
 )
+
+const glassCount = computed(() => Math.max(0, Math.min(GLASS_MAX, kp.daily.waterGlasses)))
 
 function ripple(event) {
   const el = event.currentTarget
@@ -280,12 +498,14 @@ function ripple(event) {
 }
 
 function spawnConfetti(count, originRect) {
+  const n = fx(count)
+  if (n < 1) return
   const layer = confettiLayer.value
   if (!layer) return
 
   const colors = ["#FF6058", "#3B9EFF", "#2CC97A", "#FFB020", "#9B72FF", "#FF7EB3", "#1EC8C8", "#FFDD57"]
 
-  for (let index = 0; index < count; index += 1) {
+  for (let index = 0; index < n; index += 1) {
     const piece = document.createElement("div")
     piece.className = "conf-piece"
     const duration = originRect ? 0.7 + Math.random() * 0.6 : 1.4 + Math.random() * 1.4
@@ -370,6 +590,8 @@ function startRibbonSimulation() {
 }
 
 function spawnRibbonRain(count, options = {}) {
+  const total = fx(count)
+  if (total < 1) return
   const layer = confettiLayer.value
   if (!layer) return
 
@@ -390,7 +612,7 @@ function spawnRibbonRain(count, options = {}) {
     ["#FF8BC2", "#FFD36F"],
   ]
 
-  for (let index = 0; index < count; index += 1) {
+  for (let index = 0; index < total; index += 1) {
     const ribbon = document.createElement("div")
     ribbon.className = "cele-ribbon"
 
@@ -433,34 +655,38 @@ function spawnRibbonRain(count, options = {}) {
 }
 
 function launchRibbonCelebration(count, originElement) {
+  if (fx(count) < 1) return
   const originRect = originElement instanceof HTMLElement ? originElement.getBoundingClientRect() : null
   if (originRect) {
-    spawnConfetti(Math.max(12, Math.round(count * 0.25)), originRect)
+    spawnConfetti(Math.max(10, Math.round(count * 0.22)), originRect)
   }
   spawnRibbonRain(count, { originRect })
 }
 
 function fireConfetti() {
-  spawnConfetti(70)
+  spawnConfetti(26)
 }
 
 function celebrateStreak(event) {
   ripple(event)
-  spawnConfetti(110, event.currentTarget.getBoundingClientRect())
-  launchRibbonCelebration(68, event.currentTarget)
+  spawnConfetti(44, event.currentTarget.getBoundingClientRect())
+  launchRibbonCelebration(28, event.currentTarget)
 }
 
 function miniConfetti(element) {
   if (!(element instanceof HTMLElement)) return
-  spawnConfetti(18, element.getBoundingClientRect())
+  spawnConfetti(12, element.getBoundingClientRect())
 }
 
 function spawnWaterDrops(sourceElement, count = 16) {
+  const n = fx(count)
+  if (n < 1) return
+
   const origin = sourceElement instanceof HTMLElement ? sourceElement : hydrationCard.value
   const rect = origin?.getBoundingClientRect?.()
   if (!rect) return
 
-  const created = Array.from({ length: count }, (_, index) => ({
+  const created = Array.from({ length: n }, (_, index) => ({
     id: nextFallingDropId++,
     left: ((rect.left + Math.random() * rect.width) / window.innerWidth) * 100,
     delay: index * 55 + Math.random() * 120,
@@ -479,7 +705,6 @@ function spawnWaterDrops(sourceElement, count = 16) {
 }
 
 function toggleMealCheck(label, event) {
-  ripple(event)
   const wasDone = Boolean(kp.daily.meals[label])
   kp.toggleMeal(label)
   if (!wasDone) {
@@ -502,60 +727,56 @@ function showMealToast(message) {
 }
 
 function toggleDrop(index, event) {
-  const currentCount = Math.min(8, kp.daily.waterGlasses)
+  const currentCount = Math.min(GLASS_GOAL, kp.daily.waterGlasses)
   const nextCount = index < currentCount ? index : index + 1
   if (nextCount === currentCount) return
   kp.addWater(nextCount - currentCount)
   if (nextCount > currentCount) {
-    spawnWaterDrops(hydrationCard.value, 14)
+    spawnWaterDrops(hydrationCard.value, 12)
     miniConfetti(event.currentTarget)
   }
 }
 
-function logSip(event) {
-  if (kp.daily.waterGlasses < 8) {
-    kp.addWater(1)
-    spawnWaterDrops(hydrationCard.value, 18)
-    miniConfetti(event.currentTarget)
+function logGlass(event) {
+  if (kp.daily.waterGlasses >= GLASS_MAX) {
+    showMealToast(`Max ${GLASS_MAX} glasses reached`)
+    return
+  }
+  kp.addWater(1)
+  spawnWaterDrops(hydrationCard.value, 15)
+  miniConfetti(event.currentTarget)
+  const next = Math.min(GLASS_MAX, kp.daily.waterGlasses)
+  if (next > GLASS_GOAL) {
+    showMealToast(`Bonus glass! ${next} logged`)
+  } else {
+    showMealToast(`Great! ${next} / ${GLASS_GOAL} glasses`)
   }
 }
 
-function goToGameZone(gameId, event) {
-  if (event) {
-    ripple(event)
-  }
-  router.push({ path: "/kids-game-zone", query: gameId ? { game: gameId } : {} })
+function resetGlasses() {
+  const current = kp.daily.waterGlasses
+  if (current <= 0) return
+  kp.addWater(-current)
+  showMealToast("Glasses reset")
 }
 
-function openBubbleMission(event) {
-  startGameLaunch("bubble", event)
-}
-
-function playNow(event) {
-  startGameLaunch("bubble", event, { celebrate: true })
-}
-
-function startGameLaunch(gameId, event, options = {}) {
-  if (launchingGame.value) return
-  ripple(event)
-  if (options.celebrate) {
-    fireConfetti()
-  }
-  launchingGame.value = true
-  launchTimer = window.setTimeout(() => {
-    router.push({ path: "/kids-game-zone", query: gameId ? { game: gameId } : {} })
-  }, 260)
+function launchTile(launchKey) {
+  fireConfetti()
+  startGameLaunch(launchKey)
 }
 
 onBeforeUnmount(() => {
-  if (launchTimer) {
-    window.clearTimeout(launchTimer)
-    launchTimer = 0
+  stopLiveClock()
+
+  if (typeof window !== "undefined" && motionMediaListener) {
+    window.matchMedia("(prefers-reduced-motion: reduce)").removeEventListener("change", motionMediaListener)
+    navigator.connection?.removeEventListener?.("change", motionMediaListener)
+    motionMediaListener = null
   }
 
-  if (liveTimeTimer) {
-    window.clearInterval(liveTimeTimer)
-    liveTimeTimer = 0
+  if (typeof document !== "undefined" && visibilityListener) {
+    document.removeEventListener("visibilitychange", visibilityListener)
+    visibilityListener = null
   }
 
   if (ribbonFrameId) {
@@ -610,7 +831,7 @@ onBeforeUnmount(() => {
   color: var(--ink);
   overflow-x: hidden;
   min-height: 100vh;
-  padding-bottom: 88px;
+  padding-bottom: 78px;
   position: relative;
 }
 
@@ -651,12 +872,325 @@ onBeforeUnmount(() => {
   to { background-position: 5% 5%, 95% 95%, 55% 98%; }
 }
 
+/* === KIDS SKY (day / night) === */
+.kids-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.sky-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #ffe6c2 0%, #ffd1b5 22%, #c8e6ff 60%, #e8f4ff 100%);
+  transition: background 1.1s ease, opacity 1.1s ease;
+}
+
+.dark-mode .sky-gradient {
+  background: linear-gradient(180deg, #05071c 0%, #0e1037 32%, #1a1855 62%, #2a1a6b 100%);
+}
+
+.sky-aurora {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 18% 16%, rgba(255, 209, 102, 0.5), transparent 42%),
+    radial-gradient(ellipse at 78% 14%, rgba(255, 150, 100, 0.32), transparent 38%),
+    radial-gradient(ellipse at 50% 78%, rgba(108, 217, 255, 0.28), transparent 45%);
+  transition: background 1s ease;
+}
+
+.dark-mode .sky-aurora {
+  background:
+    radial-gradient(ellipse at 22% 14%, rgba(108, 75, 255, 0.5), transparent 45%),
+    radial-gradient(ellipse at 80% 22%, rgba(58, 200, 255, 0.3), transparent 42%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 95, 162, 0.18), transparent 48%);
+}
+
+.celestial {
+  position: absolute;
+  width: clamp(150px, 18vw, 240px);
+  height: clamp(150px, 18vw, 240px);
+  right: 6%;
+  transition: top 1.4s cubic-bezier(0.34, 1.1, 0.64, 1), opacity 0.9s ease;
+}
+
+.sun-body {
+  top: -180px;
+  opacity: 0;
+}
+
+.kids-html-dashboard:not(.dark-mode) .sun-body {
+  top: 6%;
+  opacity: 1;
+}
+
+.sun-core,
+.moon-core {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.sun-core {
+  background: radial-gradient(circle at 35% 35%, #fffae3, #ffd166 50%, #ff9a3e 100%);
+  box-shadow: 0 0 80px rgba(255, 209, 102, 0.55), inset 0 0 18px rgba(255, 255, 255, 0.5);
+  animation: kidsSunPulse 4.5s ease-in-out infinite alternate;
+}
+
+.sun-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 209, 102, 0.45) 30%, transparent 70%);
+  filter: blur(18px);
+  animation: kidsSunSpin 24s linear infinite;
+}
+
+.sun-ring {
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 209, 102, 0.35);
+  animation: kidsSunSpin 40s linear infinite reverse;
+}
+
+@keyframes kidsSunPulse {
+  from { transform: scale(1); filter: brightness(1); }
+  to   { transform: scale(1.04); filter: brightness(1.1); }
+}
+
+@keyframes kidsSunSpin {
+  to { transform: rotate(360deg); }
+}
+
+.moon-body {
+  top: -200px;
+  opacity: 0;
+}
+
+.dark-mode .moon-body {
+  top: 6%;
+  opacity: 1;
+}
+
+.moon-core {
+  background: radial-gradient(circle at 30% 28%, #fdfdff, #c8cbf8 65%, #6c4bff 100%);
+  box-shadow: 0 0 90px rgba(155, 134, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.35);
+  animation: kidsMoonGlow 5s ease-in-out infinite alternate;
+}
+
+.moon-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155, 134, 255, 0.42) 30%, transparent 70%);
+  filter: blur(22px);
+}
+
+.crater {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(108, 75, 255, 0.55), rgba(50, 30, 110, 0.85));
+  box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.crater-1 { width: 18%; height: 18%; top: 25%; left: 30%; }
+.crater-2 { width: 12%; height: 12%; top: 55%; left: 55%; }
+.crater-3 { width: 9%;  height: 9%;  top: 38%; left: 60%; }
+
+@keyframes kidsMoonGlow {
+  from { transform: scale(1); filter: brightness(1); }
+  to   { transform: scale(1.03); filter: brightness(1.12); }
+}
+
+.sky-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
+.dark-mode .sky-stars { opacity: 1; }
+
+.sky-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
+  animation: kidsStarTwinkle 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes kidsStarTwinkle {
+  from { opacity: 0.25; transform: scale(0.8); }
+  to   { opacity: 1;    transform: scale(1.3); }
+}
+
+.sky-shoot {
+  position: absolute;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 60%, #fff 80%, rgba(255, 255, 255, 0));
+  border-radius: 999px;
+  opacity: 0;
+  transform: rotate(-22deg);
+  animation: kidsShoot 9s linear infinite;
+}
+
+@keyframes kidsShoot {
+  0%   { opacity: 0; transform: translate(-20px, 0) rotate(-22deg); }
+  6%   { opacity: 1; }
+  12%  { opacity: 0; transform: translate(240px, 90px) rotate(-22deg); }
+  100% { opacity: 0; transform: translate(240px, 90px) rotate(-22deg); }
+}
+
+.sky-clouds {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1s ease, filter 1s ease;
+}
+
+.dark-mode .sky-clouds { opacity: 0.18; filter: blur(1.5px); }
+
+.sky-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  filter: blur(0.4px);
+  box-shadow:
+    20px -8px 0 0 rgba(255, 255, 255, 0.9),
+    40px 5px 0 -3px rgba(255, 255, 255, 0.85),
+    -18px 6px 0 -4px rgba(255, 255, 255, 0.8);
+}
+
+.sky-cloud-1 { width: 120px; height: 30px; top: 14%; left: 6%;  animation: kidsCloudDrift 42s linear infinite; }
+.sky-cloud-2 { width: 86px;  height: 22px; top: 24%; left: 28%; animation: kidsCloudDrift 56s linear infinite reverse; animation-delay: -8s; }
+.sky-cloud-3 { width: 110px; height: 28px; top: 10%; left: 52%; animation: kidsCloudDrift 48s linear infinite; animation-delay: -16s; }
+.sky-cloud-4 { width: 76px;  height: 20px; top: 36%; left: 12%; animation: kidsCloudDrift 64s linear infinite reverse; animation-delay: -22s; }
+
+@keyframes kidsCloudDrift {
+  from { transform: translateX(-12vw); }
+  to   { transform: translateX(115vw); }
+}
+
+.sky-hills {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 22vh;
+  min-height: 140px;
+  opacity: 0.85;
+  transition: opacity 0.8s ease;
+}
+
+.hill-back  { fill: rgba(180, 200, 230, 0.7); transition: fill 0.8s ease; }
+.hill-front { fill: rgba(125, 155, 210, 0.85); transition: fill 0.8s ease; }
+
+.dark-mode .hill-back  { fill: rgba(36, 36, 88, 0.85); }
+.dark-mode .hill-front { fill: rgba(14, 14, 42, 0.96); }
+
+.dash-blobs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  mix-blend-mode: screen;
+}
+
+.blob-a {
+  width: 320px; height: 320px;
+  left: -80px; top: 12%;
+  background: radial-gradient(circle, rgba(59, 158, 255, 0.45), rgba(59, 158, 255, 0) 70%);
+  animation: blobDriftA 18s ease-in-out infinite alternate;
+}
+
+.blob-b {
+  width: 380px; height: 380px;
+  right: -110px; top: 35%;
+  background: radial-gradient(circle, rgba(155, 114, 255, 0.4), rgba(155, 114, 255, 0) 70%);
+  animation: blobDriftB 22s ease-in-out infinite alternate;
+}
+
+.blob-c {
+  width: 260px; height: 260px;
+  left: 30%; bottom: -100px;
+  background: radial-gradient(circle, rgba(44, 201, 122, 0.4), rgba(44, 201, 122, 0) 70%);
+  animation: blobDriftC 20s ease-in-out infinite alternate;
+}
+
+.blob-d {
+  width: 240px; height: 240px;
+  right: 18%; top: 4%;
+  background: radial-gradient(circle, rgba(255, 176, 32, 0.36), rgba(255, 176, 32, 0) 70%);
+  animation: blobDriftD 24s ease-in-out infinite alternate;
+}
+
+.dark-mode .blob { opacity: 0.45; }
+
+@keyframes blobDriftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(40px, 30px, 0) scale(1.08); }
+}
+
+@keyframes blobDriftB {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-50px, -40px, 0) scale(1.1); }
+}
+
+@keyframes blobDriftC {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(60px, -50px, 0) scale(1.12); }
+}
+
+@keyframes blobDriftD {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-30px, 50px, 0) scale(1.06); }
+}
+
+.dash-sparkles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.spark {
+  position: absolute;
+  font-size: 16px;
+  opacity: 0.35;
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.18));
+}
+
+.spark-a { left: 8%;  top: 22%; animation: sparkDrift 9s ease-in-out infinite; }
+.spark-b { right: 12%; top: 40%; animation: sparkDrift 11s ease-in-out 1.4s infinite; }
+.spark-c { left: 42%; bottom: 16%; animation: sparkDrift 12s ease-in-out 0.7s infinite; }
+.spark-d { right: 30%; bottom: 28%; animation: sparkDrift 10.5s ease-in-out 2s infinite; }
+
+@keyframes sparkDrift {
+  0%, 100% { transform: translateY(0) rotate(0); opacity: 0.18; }
+  50% { transform: translateY(-14px) rotate(15deg); opacity: 0.6; }
+}
+
 .dash {
   position: relative;
   z-index: 1;
-  max-width: 980px;
+  max-width: min(900px, 100%);
   margin: 0 auto;
-  padding: 20px 16px 40px;
+  padding: clamp(14px, 3vw, 16px) clamp(12px, 3.5vw, 14px) clamp(28px, 5vw, 34px);
 }
 
 .header {
@@ -664,9 +1198,9 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   background: var(--surface);
-  border-radius: 26px;
-  padding: 18px 22px;
-  margin-bottom: 18px;
+  border-radius: 22px;
+  padding: 15px 18px;
+  margin-bottom: 14px;
   box-shadow: var(--card-shadow);
   border: 1.5px solid var(--border);
   animation: headerDrop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -710,13 +1244,18 @@ onBeforeUnmount(() => {
   z-index: 1;
 }
 
-.avatar-zone { position: relative; cursor: pointer; flex-shrink: 0; }
+.avatar-zone {
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  animation: avatarBreathe 4.6s ease-in-out infinite;
+}
 
 .avatar {
-  width: 58px;
-  height: 58px;
+  width: 52px;
+  height: 52px;
   background: linear-gradient(145deg, #FFE4C8, #FFCBA4);
-  border-radius: 18px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -726,10 +1265,15 @@ onBeforeUnmount(() => {
 
 .avatar:hover { transform: rotate(-8deg) scale(1.1); }
 
+@keyframes avatarBreathe {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-3px) rotate(1.2deg); }
+}
+
 .orbit-ring {
   position: absolute;
-  inset: -8px;
-  border-radius: 26px;
+  inset: -7px;
+  border-radius: 22px;
   border: 2px dashed rgba(255, 176, 32, 0.35);
   animation: orbitSpin 6s linear infinite;
 }
@@ -748,7 +1292,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 6px var(--amber);
 }
 
-.header-text { flex: 1; margin-left: 14px; }
+.header-text { flex: 1; margin-left: 11px; }
 
 .greeting-chip {
   display: inline-flex;
@@ -782,7 +1326,7 @@ onBeforeUnmount(() => {
 
 .header-text h1 {
   font-family: "Baloo 2", cursive;
-  font-size: 24px;
+  font-size: clamp(18px, 2.8vw, 21px);
   font-weight: 800;
   color: var(--ink);
   line-height: 1.1;
@@ -792,7 +1336,7 @@ onBeforeUnmount(() => {
 @keyframes textReveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0% 0 0); } }
 
 .header-text h1 em { font-style: normal; color: var(--coral); }
-.header-sub { font-size: 13px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+.header-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
 
 .header-right {
   display: flex;
@@ -807,8 +1351,8 @@ onBeforeUnmount(() => {
   background: linear-gradient(135deg, rgba(44, 201, 122, 0.16), rgba(30, 200, 200, 0.14));
   border: 1.5px solid rgba(44, 201, 122, 0.22);
   border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 12px;
+  padding: 6px 10px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--ink);
   display: inline-flex;
@@ -856,8 +1400,8 @@ onBeforeUnmount(() => {
   background: var(--bg);
   border: 1.5px solid var(--border);
   border-radius: 20px;
-  padding: 5px 12px;
-  font-size: 12px;
+  padding: 4px 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--ink2);
   display: flex;
@@ -868,9 +1412,9 @@ onBeforeUnmount(() => {
 .streak-tag {
   background: linear-gradient(135deg, #FFF8E8, #FFEEC8);
   border: 1.5px solid #FFD980;
-  border-radius: 18px;
-  width: 42px;
-  height: 42px;
+  border-radius: 15px;
+  width: 38px;
+  height: 38px;
   color: #A06800;
   display: flex;
   align-items: center;
@@ -885,82 +1429,179 @@ onBeforeUnmount(() => {
 .flame-icon { animation: flameDance 0.35s ease-in-out infinite alternate; }
 @keyframes flameDance { from { transform: scaleY(1) rotate(-4deg); } to { transform: scaleY(1.15) rotate(4deg); } }
 
+.meal-day-panel {
+  margin-bottom: 12px;
+  padding: 11px 12px 10px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(255, 176, 32, 0.26);
+  background:
+    linear-gradient(165deg, rgba(255, 253, 248, 0.98) 0%, rgba(255, 251, 242, 0.96) 38%, rgba(242, 246, 255, 0.55) 100%);
+  box-shadow:
+    0 10px 32px rgba(255, 149, 92, 0.09),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.meal-day-head {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(24, 25, 43, 0.07);
+}
+
+.meal-day-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.meal-day-svg :deep(svg) {
+  width: 20px;
+  height: 20px;
+  color: #e89400;
+  flex-shrink: 0;
+}
+
+.meal-day-title {
+  font-family: "Baloo 2", cursive;
+  font-size: clamp(14px, 3.6vw, 15px);
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.meal-day-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 3px 0 0;
+  line-height: 1.35;
+}
+
 .boost-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 8px;
 }
 
 .boost-pill {
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 22px;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: 14px;
   border: 1.5px solid var(--border);
   background: var(--surface);
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 4px 14px rgba(24, 25, 43, 0.06);
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   animation: floatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.boost-pill:nth-child(2) { animation-delay: 0.1s; }
-.boost-pill:nth-child(3) { animation-delay: 0.2s; }
+.boost-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, transparent 48%);
+  opacity: 0.75;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.boost-pill:active {
+  transform: none;
+}
+
+.boost-strip .boost-pill:nth-child(2) { animation-delay: 0.08s; }
+.boost-strip .boost-pill:nth-child(3) { animation-delay: 0.16s; }
 
 @keyframes floatIn {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.boost-pill::after {
-  content: "";
-  position: absolute;
-  inset: auto -10% -55% auto;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  filter: blur(6px);
+.boost-icon,
+.boost-copy,
+.boost-action {
+  position: relative;
+  z-index: 1;
 }
 
 .boost-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 2px 8px rgba(24, 25, 43, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
   backdrop-filter: blur(8px);
+}
+
+.boost-copy {
+  width: 100%;
+  min-width: 0;
 }
 
 .boost-label {
   font-family: "Baloo 2", cursive;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 800;
   line-height: 1;
+  text-align: center;
 }
 
 .boost-sub {
-  font-size: 11px;
-  color: rgba(24, 25, 43, 0.68);
-  font-weight: 700;
-  margin-top: 4px;
+  font-size: 9px;
+  color: rgba(24, 25, 43, 0.62);
+  font-weight: 600;
+  margin-top: 2px;
+  text-align: center;
+  line-height: 1.3;
 }
 
-.boost-pill strong {
-  margin-left: auto;
-  font-size: 13px;
+.boost-action {
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 8px;
   font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(24, 25, 43, 0.1);
+  color: rgba(24, 25, 43, 0.72);
 }
 
 .boost-pill--done {
-  border-color: rgba(44, 201, 122, 0.36);
-  box-shadow: 0 10px 26px rgba(44, 201, 122, 0.16);
+  border-color: rgba(44, 201, 122, 0.42);
+  box-shadow:
+    0 4px 18px rgba(44, 201, 122, 0.14),
+    inset 0 0 0 1px rgba(44, 201, 122, 0.06);
+}
+
+.boost-pill--done .boost-action {
+  background: rgba(44, 201, 122, 0.2);
+  border-color: rgba(44, 201, 122, 0.38);
+  color: #065c34;
+}
+
+.boost-pill--done .boost-sub {
+  color: rgba(6, 92, 52, 0.78);
+  font-weight: 700;
 }
 
 .meal-toast {
@@ -995,20 +1636,23 @@ onBeforeUnmount(() => {
 }
 
 .meal-check-emoji {
-  font-size: 20px;
+  font-size: 15px;
   line-height: 1;
 }
 
 .boost-coral {
-  background: linear-gradient(135deg, rgba(255, 96, 88, 0.18), rgba(255, 176, 32, 0.16), rgba(255, 255, 255, 0.84));
+  background: linear-gradient(155deg, #fffbf7 0%, #fff0e8 36%, #ffd8ca 100%);
+  border-color: rgba(255, 107, 84, 0.38);
 }
 
 .boost-sky {
-  background: linear-gradient(135deg, rgba(59, 158, 255, 0.18), rgba(30, 200, 200, 0.14), rgba(255, 255, 255, 0.84));
+  background: linear-gradient(155deg, #f7fbff 0%, #ebf5fc 38%, #dbeefa 100%);
+  border-color: rgba(59, 158, 255, 0.4);
 }
 
 .boost-violet {
-  background: linear-gradient(135deg, rgba(155, 114, 255, 0.18), rgba(255, 126, 179, 0.14), rgba(255, 255, 255, 0.84));
+  background: linear-gradient(155deg, #fbfaff 0%, #f2ebff 40%, #e6dcf9 100%);
+  border-color: rgba(139, 92, 246, 0.34);
 }
 
 .stats-row {
@@ -1125,180 +1769,236 @@ onBeforeUnmount(() => {
 .sc-mood::before { background: var(--mint); }
 .stat-card:hover::before { transform: scale(2.5); opacity: 0.09; }
 
-.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 11px; }
 
 .section-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.3px;
   color: var(--muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
-.mission-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 243, 241, 0.98));
-  border-radius: 26px;
-  padding: 22px;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
+.games-tiles {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 246, 255, 0.98));
+  border-radius: 18px;
+  padding: 13px 14px;
+  border: 1.5px solid var(--border);
   box-shadow: var(--card-shadow);
-  animation: missionReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
-  border: 1.5px solid var(--border);
-  transition: box-shadow 0.3s;
+  animation: floatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 
-@keyframes missionReveal {
-  from { transform: translateX(-30px) rotate(-2deg); opacity: 0; }
-  to { transform: translateX(0) rotate(0deg); opacity: 1; }
+.game-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
 }
 
-.mission-card:hover { box-shadow: var(--card-shadow-hover); }
-
-.mission-card::before {
-  content: "";
-  position: absolute;
-  top: -60%;
-  left: -60%;
-  width: 50%;
-  height: 220%;
-  background: linear-gradient(90deg, transparent, rgba(255, 96, 88, 0.06), transparent);
-  transform: skewX(-15deg) translateX(-100%);
-  transition: none;
+@media (min-width: 560px) {
+  .game-tile-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-.mission-card:hover::before {
-  transform: skewX(-15deg) translateX(400%);
-  transition: transform 0.7s ease;
-}
-
-.mission-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-
-.mission-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: linear-gradient(145deg, #FFF0EE, #FFDFDD);
+.game-tile {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  animation: iconWobble 3s ease-in-out infinite 1s;
-}
-
-@keyframes iconWobble {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-6deg); }
-  75% { transform: rotate(6deg); }
-}
-
-.mission-title { font-family: "Baloo 2", cursive; font-size: 20px; font-weight: 800; color: var(--ink); }
-.mission-desc { font-size: 13px; color: var(--muted); font-weight: 500; margin-bottom: 16px; line-height: 1.5; }
-
-.tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
-
-.tag {
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  padding: 5px 11px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--ink2);
-  display: flex;
-  align-items: center;
   gap: 5px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, border-color 0.25s, background 0.25s;
 }
 
-.tag:hover { background: var(--ink); color: white; border-color: var(--ink); transform: translateY(-3px) scale(1.06); }
-.tag:hover :deep(svg) { color: white; }
+.game-tile:active {
+  transform: none;
+}
 
-.play-btn {
-  width: 100%;
-  padding: 13px;
-  background: linear-gradient(135deg, var(--coral), #FF8C66);
-  color: white;
-  border: none;
-  border-radius: 16px;
+@media (hover: hover) and (pointer: fine) {
+  .game-tile:hover {
+    transform: translateY(-2px);
+    border-color: rgba(115, 131, 255, 0.32);
+    box-shadow: 0 8px 20px rgba(60, 80, 180, 0.12);
+  }
+}
+
+.game-tile-emoji {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  background: linear-gradient(145deg, #FFFFFF, #F2F1FF);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 10px rgba(70, 92, 200, 0.1);
+  flex-shrink: 0;
+}
+
+.game-tile-copy {
+  flex: 0 1 auto;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  text-align: center;
+}
+
+.game-tile-copy strong {
   font-family: "Baloo 2", cursive;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 5px 18px rgba(255, 96, 88, 0.38);
-  position: relative;
-  overflow: hidden;
-  transition: box-shadow 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
 }
 
-.play-btn:hover { box-shadow: 0 8px 22px rgba(255, 96, 88, 0.42); filter: brightness(1.01); }
-.play-btn:hover .button-svg:last-child :deep(svg) { transform: translateX(4px); }
-.play-btn:active { box-shadow: 0 8px 22px rgba(255, 96, 88, 0.42); filter: brightness(1.01); }
-
-.play-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  box-shadow: 0 0 0 0 rgba(255, 96, 88, 0.5);
-  animation: btnRing 2s ease-out infinite;
+.game-tile-copy span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
 }
 
-@keyframes btnRing {
-  0% { box-shadow: 0 0 0 0 rgba(255, 96, 88, 0.4); }
-  70% { box-shadow: 0 0 0 12px rgba(255, 96, 88, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 96, 88, 0); }
+.game-tile-arrow {
+  font-family: "Baloo 2", cursive;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--muted);
+  transition: transform 0.25s ease, color 0.25s ease;
+  line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .game-tile:hover .game-tile-arrow {
+    transform: translateX(4px);
+    color: var(--ink);
+  }
+}
+
+.game-tile.tile-bubble {
+  background: linear-gradient(145deg, rgba(59, 158, 255, 0.1), rgba(255, 255, 255, 0.95));
+  border-color: rgba(59, 158, 255, 0.22);
+}
+
+.game-tile.tile-explorer {
+  background: linear-gradient(145deg, rgba(44, 201, 122, 0.12), rgba(255, 255, 255, 0.95));
+  border-color: rgba(44, 201, 122, 0.22);
+}
+
+.game-tile.tile-humit {
+  background: linear-gradient(145deg, rgba(155, 114, 255, 0.14), rgba(79, 209, 255, 0.12));
+  border-color: rgba(124, 92, 255, 0.28);
+}
+
+.game-tile.tile-smash {
+  background: linear-gradient(145deg, rgba(255, 96, 88, 0.1), rgba(255, 248, 245, 0.95));
+  border-color: rgba(255, 96, 88, 0.22);
+}
+
+.dark-mode .games-tiles {
+  background: linear-gradient(145deg, rgba(20, 24, 50, 0.96), rgba(14, 18, 40, 0.96));
+  backdrop-filter: blur(18px);
+}
+
+.dark-mode .game-tile {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(143, 154, 227, 0.22);
+}
+
+.dark-mode .game-tile.tile-bubble {
+  background: linear-gradient(145deg, rgba(28, 56, 100, 0.7), rgba(16, 20, 44, 0.85));
+}
+
+.dark-mode .game-tile.tile-explorer {
+  background: linear-gradient(145deg, rgba(20, 60, 44, 0.72), rgba(14, 22, 36, 0.88));
+}
+
+.dark-mode .game-tile.tile-humit {
+  background: linear-gradient(145deg, rgba(90, 70, 160, 0.72), rgba(28, 90, 120, 0.82));
+  border-color: rgba(160, 190, 255, 0.35);
+}
+
+.dark-mode .game-tile.tile-smash {
+  background: linear-gradient(145deg, rgba(82, 26, 42, 0.7), rgba(20, 16, 36, 0.88));
+}
+
+.dark-mode .game-tile-emoji {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 14px rgba(3, 7, 23, 0.45);
 }
 
 .launch-screen {
   position: fixed;
   inset: 0;
-  z-index: 150;
+  z-index: 200;
   display: grid;
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at top, rgba(255, 176, 32, 0.14), transparent 32%),
-    radial-gradient(circle at bottom, rgba(59, 158, 255, 0.18), transparent 40%),
-    rgba(12, 16, 40, 0.42);
-  backdrop-filter: blur(8px);
+    radial-gradient(circle at top, rgba(255, 176, 32, 0.18), transparent 32%),
+    radial-gradient(circle at bottom, rgba(59, 158, 255, 0.22), transparent 40%),
+    rgba(8, 12, 32, 0.5);
+  backdrop-filter: blur(10px);
 }
 
 .launch-card {
-  min-width: min(320px, calc(100vw - 40px));
-  padding: 24px 26px;
-  border-radius: 28px;
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  background: linear-gradient(145deg, rgba(28, 32, 68, 0.96), rgba(52, 30, 93, 0.94));
-  box-shadow: 0 24px 70px rgba(10, 12, 28, 0.35);
+  min-width: min(360px, calc(100vw - 32px));
+  max-width: 420px;
+  padding: 28px 32px;
+  border-radius: 32px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(155deg, rgba(48, 36, 110, 0.96), rgba(22, 26, 64, 0.96));
+  box-shadow: 0 30px 80px rgba(8, 10, 32, 0.45);
   display: grid;
   justify-items: center;
-  gap: 10px;
+  gap: 12px;
+  text-align: center;
+}
+
+.launch-screen.tone-bubble .launch-card {
+  background: linear-gradient(155deg, rgba(50, 102, 200, 0.96), rgba(34, 56, 130, 0.96));
+}
+.launch-screen.tone-explorer .launch-card {
+  background: linear-gradient(155deg, rgba(28, 130, 90, 0.96), rgba(22, 70, 56, 0.96));
+}
+.launch-screen.tone-smash .launch-card {
+  background: linear-gradient(155deg, rgba(196, 60, 110, 0.96), rgba(110, 26, 78, 0.96));
+}
+.launch-screen.tone-humit .launch-card {
+  background: linear-gradient(155deg, rgba(124, 92, 255, 0.96), rgba(40, 160, 210, 0.96));
+}
+.launch-screen.tone-games .launch-card {
+  background: linear-gradient(155deg, rgba(225, 132, 56, 0.96), rgba(160, 48, 110, 0.96));
 }
 
 .launch-icon-wrap {
-  width: 70px;
-  height: 70px;
-  border-radius: 24px;
+  width: 86px;
+  height: 86px;
+  border-radius: 28px;
   display: grid;
   place-items: center;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  animation: launchPulse 0.8s ease-in-out infinite alternate;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: launchPulse 0.85s ease-in-out infinite alternate;
+}
+
+.launch-emoji {
+  font-size: 44px;
+  line-height: 1;
 }
 
 .launch-title {
   font-family: "Baloo 2", cursive;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   color: #FFFFFF;
 }
@@ -1306,17 +2006,40 @@ onBeforeUnmount(() => {
 .launch-sub {
   font-size: 14px;
   font-weight: 600;
-  color: rgba(232, 237, 255, 0.78);
+  color: rgba(232, 237, 255, 0.86);
 }
 
+.launch-loader {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.launch-loader span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  animation: launchDot 1.1s ease-in-out infinite;
+}
+
+.launch-loader span:nth-child(2) { animation-delay: 0.18s; }
+.launch-loader span:nth-child(3) { animation-delay: 0.36s; }
+
 @keyframes launchPulse {
-  from { transform: scale(1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 24px rgba(59, 158, 255, 0.18); }
-  to { transform: scale(1.04); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 16px 32px rgba(255, 96, 88, 0.22); }
+  from { transform: scale(1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 26px rgba(59, 158, 255, 0.22); }
+  to { transform: scale(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 18px 36px rgba(255, 176, 32, 0.28); }
+}
+
+@keyframes launchDot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-6px); opacity: 1; }
 }
 
 .launch-screen-enter-active,
 .launch-screen-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition: opacity 0.55s ease, transform 0.55s ease;
 }
 
 .launch-screen-enter-from,
@@ -1326,7 +2049,7 @@ onBeforeUnmount(() => {
 
 .launch-screen-enter-from .launch-card,
 .launch-screen-leave-to .launch-card {
-  transform: translateY(16px) scale(0.96);
+  transform: translateY(20px) scale(0.94);
 }
 
 .wins-card {
@@ -1661,8 +2384,8 @@ onBeforeUnmount(() => {
 
 .hydration-card {
   background: linear-gradient(145deg, #EDFFF6, #D8FFED);
-  border-radius: 26px;
-  padding: 22px;
+  border-radius: 20px;
+  padding: 17px;
   border: 1.5px solid rgba(44, 201, 122, 0.2);
   box-shadow: var(--card-shadow);
   position: relative;
@@ -1684,14 +2407,51 @@ onBeforeUnmount(() => {
 @keyframes hydRipple { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
 
 .section-green { color: var(--mint); }
-.hydration-title { font-family: "Baloo 2", cursive; font-size: 18px; font-weight: 800; color: #0A4A28; margin-bottom: 3px; }
-.hydration-sub { font-size: 12px; color: #3A8060; font-weight: 500; margin-bottom: 14px; }
-.drop-grid { display: flex; gap: 7px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hydration-title { font-family: "Baloo 2", cursive; font-size: 16px; font-weight: 800; color: #0A4A28; margin-bottom: 3px; }
+.hydration-sub { font-size: 11px; color: #3A8060; font-weight: 500; margin-bottom: 11px; }
+
+.hyd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+
+.sip-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(59, 158, 255, 0.16), rgba(44, 201, 122, 0.18));
+  border: 1.5px solid rgba(44, 201, 122, 0.28);
+  color: #0A4A28;
+  font-family: "Baloo 2", cursive;
+  font-weight: 800;
+  font-size: 12px;
+  box-shadow: 0 3px 10px rgba(44, 201, 122, 0.16);
+}
+
+.sip-counter-emoji { font-size: 12px; line-height: 1; }
+.sip-counter-num { font-variant-numeric: tabular-nums; min-width: 14px; text-align: center; }
+
+.drop-grid { display: flex; gap: 6px; flex-wrap: wrap; position: relative; z-index: 1; }
+.drop-emoji {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 2px rgba(11, 60, 36, 0.35));
+}
 
 .drop-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   border: 1.5px solid rgba(44, 201, 122, 0.2);
   background: white;
   cursor: pointer;
@@ -1707,15 +2467,23 @@ onBeforeUnmount(() => {
 .drop-btn.filled { background: linear-gradient(135deg, #60EBAC, var(--mint)); border-color: transparent; }
 .drop-btn.filled .drop-svg :deep(svg) { color: white; }
 
+.hyd-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
+}
+
 .log-sip-btn {
-  width: 100%;
-  margin-top: 10px;
-  padding: 9px;
+  flex: 1 1 auto;
+  padding: 7px;
   background: white;
   border: 2px dashed rgba(44, 201, 122, 0.4);
-  border-radius: 13px;
+  border-radius: 11px;
   font-family: "Baloo 2", cursive;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--mint);
   cursor: pointer;
@@ -1724,8 +2492,6 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 6px;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  z-index: 1;
 }
 
 .log-sip-btn:hover {
@@ -1736,6 +2502,39 @@ onBeforeUnmount(() => {
 }
 
 .log-sip-btn:hover .button-svg :deep(svg) { transform: scale(1.4) rotate(20deg); }
+
+.reset-glass-btn {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border-radius: 11px;
+  border: 1.5px solid rgba(255, 96, 88, 0.34);
+  background: rgba(255, 96, 88, 0.08);
+  color: #B7271F;
+  font-family: "Baloo 2", cursive;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, background 0.25s, opacity 0.2s;
+}
+
+.reset-glass-btn:hover {
+  background: rgba(255, 96, 88, 0.16);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(255, 96, 88, 0.22);
+}
+
+.reset-glass-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dark-mode .reset-glass-btn {
+  background: rgba(255, 96, 88, 0.18);
+  border-color: rgba(255, 126, 113, 0.42);
+  color: #FFD7D2;
+}
 
 .nav-bar {
   position: fixed;
@@ -1806,6 +2605,7 @@ onBeforeUnmount(() => {
   z-index: 9999;
   overflow: hidden;
   perspective: 1200px;
+  contain: layout paint;
 }
 
 .water-fall-layer {
@@ -1814,6 +2614,7 @@ onBeforeUnmount(() => {
   pointer-events: none;
   z-index: 9500;
   overflow: hidden;
+  contain: layout paint;
 }
 
 .fall-drop {
@@ -1936,11 +2737,11 @@ onBeforeUnmount(() => {
 @keyframes ripOut { to { transform: scale(4); opacity: 0; } }
 
 .svg-holder { display: inline-flex; }
-.avatar-svg :deep(svg) { width: 30px; height: 30px; color: #D97A00; }
-.mini-svg :deep(svg) { width: 13px; height: 13px; }
+.avatar-svg :deep(svg) { width: 26px; height: 26px; color: #D97A00; }
+.mini-svg :deep(svg) { width: 12px; height: 12px; }
 .stat-svg :deep(svg) { width: 20px; height: 20px; }
 .section-svg :deep(svg),
-.tag-svg :deep(svg) { width: 11px; height: 11px; }
+.tag-svg :deep(svg) { width: 10px; height: 10px; }
 .mission-svg :deep(svg) { width: 24px; height: 24px; color: var(--coral); }
 .button-svg :deep(svg) { width: 16px; height: 16px; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .win-svg :deep(svg) { width: 19px; height: 19px; }
@@ -1948,7 +2749,7 @@ onBeforeUnmount(() => {
 .link-svg :deep(svg) { width: 12px; height: 12px; }
 .game-svg :deep(svg) { width: 24px; height: 24px; color: var(--gc); }
 .star-svg :deep(svg) { width: 14px; height: 14px; }
-.drop-svg :deep(svg) { width: 16px; height: 16px; transition: color 0.3s; }
+.drop-svg :deep(svg) { width: 14px; height: 14px; transition: color 0.3s; }
 .nav-svg :deep(svg) {
   width: 20px;
   height: 20px;
@@ -1987,6 +2788,54 @@ onBeforeUnmount(() => {
   color: #FFD98E;
 }
 
+.dark-mode .meal-day-panel {
+  border-color: rgba(255, 184, 108, 0.16);
+  background: linear-gradient(165deg, rgba(26, 30, 52, 0.96) 0%, rgba(18, 22, 44, 0.94) 55%, rgba(22, 26, 56, 0.92) 100%);
+  box-shadow:
+    0 14px 42px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .meal-day-head {
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+}
+
+.dark-mode .meal-day-svg :deep(svg) {
+  color: #ffd98e;
+}
+
+.dark-mode .meal-day-sub {
+  color: var(--muted);
+}
+
+.dark-mode .boost-pill::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+  opacity: 1;
+}
+
+.dark-mode .boost-icon {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.dark-mode .boost-action {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(236, 240, 255, 0.88);
+}
+
+.dark-mode .boost-pill--done .boost-action {
+  background: rgba(44, 201, 122, 0.22);
+  border-color: rgba(96, 235, 172, 0.38);
+  color: #b8ffd9;
+}
+
+.dark-mode .boost-pill--done .boost-sub {
+  color: rgba(152, 242, 191, 0.92);
+}
+
 .dark-mode .boost-pill,
 .dark-mode .stat-card,
 .dark-mode .mission-card,
@@ -2019,8 +2868,8 @@ onBeforeUnmount(() => {
   color: #e7fff1;
 }
 
-.dark-mode .boost-pill strong,
 .dark-mode .boost-label,
+.dark-mode .meal-day-title,
 .dark-mode .stat-value,
 .dark-mode .mission-title,
 .dark-mode .win-title,
@@ -2151,6 +3000,13 @@ onBeforeUnmount(() => {
   color: #D7FFE8;
 }
 
+.dark-mode .sip-counter {
+  background: linear-gradient(135deg, rgba(59, 158, 255, 0.22), rgba(44, 201, 122, 0.24));
+  border-color: rgba(96, 235, 172, 0.32);
+  color: #E7FFF1;
+  box-shadow: 0 6px 18px rgba(3, 24, 14, 0.32);
+}
+
 .dark-mode .drop-btn,
 .dark-mode .star-btn,
 .dark-mode .log-sip-btn {
@@ -2194,10 +3050,64 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.14);
 }
 
+/* Lite / reduced-motion & Save-Data: drop heavy decorations & blur cost */
+.kids-html-dashboard--lite .dash-blobs,
+.kids-html-dashboard--lite .dash-sparkles {
+  display: none !important;
+}
+
+.kids-html-dashboard--lite .blob {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sky-cloud {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .spark {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .avatar-zone {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .orbit-ring {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sun-core,
+.kids-html-dashboard--lite .sun-halo,
+.kids-html-dashboard--lite .sun-ring,
+.kids-html-dashboard--lite .moon-core,
+.kids-html-dashboard--lite .moon-halo {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sky-star {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sky-shoot {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .fall-drop {
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+.kids-html-dashboard--lite .header,
+.kids-html-dashboard--lite .boost-pill,
+.kids-html-dashboard--lite .games-tiles,
+.kids-html-dashboard--lite .hydration-card {
+  backdrop-filter: none !important;
+}
+
 @media (max-width: 740px) {
   .boost-strip { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: 1fr 1fr; }
-  .main-grid, .bottom-row, .games-row { grid-template-columns: 1fr; }
+  .main-grid, .bottom-row, .games-row { grid-template-columns: 1fr; gap: 10px; }
   .meal-float { display: none; }
   .meal-banner { flex-direction: column; gap: 14px; align-items: flex-start; }
   .nav-bar { width: calc(100% - 32px); justify-content: space-around; }

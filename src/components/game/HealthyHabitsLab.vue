@@ -1,5 +1,60 @@
 <template>
   <section class="habit-lab" :class="{ 'habit-lab--dark': isDarkMode }">
+    <div class="lab-scene" aria-hidden="true">
+      <div class="lab-grid"></div>
+      <div class="lab-glow lab-glow-a"></div>
+      <div class="lab-glow lab-glow-b"></div>
+      <div class="lab-glow lab-glow-c"></div>
+    </div>
+
+    <div class="lab-scene-front" aria-hidden="true">
+      <span class="lab-orbit lab-orbit-1">
+        <span class="lab-orbit__ring"></span>
+        <span class="lab-orbit__atom" style="--ang:0deg"></span>
+        <span class="lab-orbit__atom" style="--ang:120deg"></span>
+        <span class="lab-orbit__atom" style="--ang:240deg"></span>
+      </span>
+
+      <span class="lab-orbit lab-orbit-2">
+        <span class="lab-orbit__ring lab-orbit__ring--tilt"></span>
+        <span class="lab-orbit__atom" style="--ang:60deg"></span>
+        <span class="lab-orbit__atom" style="--ang:200deg"></span>
+      </span>
+
+      <span class="lab-flask lab-flask-1">
+        <span class="flask-neck"></span>
+        <span class="flask-body"><span class="flask-liquid"></span></span>
+        <span class="flask-bubble flask-bubble-a"></span>
+        <span class="flask-bubble flask-bubble-b"></span>
+      </span>
+
+      <span
+        v-for="leaf in labLeaves"
+        :key="`ll-${leaf.id}`"
+        class="lab-leaf"
+        :style="{
+          left: `${leaf.left}%`,
+          top: `${leaf.top}%`,
+          animationDelay: `${leaf.delay}s`,
+          animationDuration: `${leaf.duration}s`,
+        }"
+      >{{ leaf.emoji }}</span>
+
+      <span
+        v-for="sparkle in labSparkles"
+        :key="`ls-${sparkle.id}`"
+        class="lab-sparkle"
+        :style="{
+          left: `${sparkle.left}%`,
+          top: `${sparkle.top}%`,
+          width: `${sparkle.size}px`,
+          height: `${sparkle.size}px`,
+          animationDelay: `${sparkle.delay}s`,
+          animationDuration: `${sparkle.duration}s`,
+        }"
+      ></span>
+    </div>
+
     <div class="mission-tabs" role="tablist" aria-label="Habit mission tabs">
       <button
         v-for="mission in missions"
@@ -144,6 +199,25 @@ const missions = createExplorerMissions()
 
 const activeMission = ref("snack")
 const showInfo = ref(false)
+
+const labLeafEmojis = ["🌿", "🍃", "🌱", "🍀", "🍋", "🥦", "🥬"]
+const labLeaves = Array.from({ length: 9 }, (_, id) => ({
+  id,
+  emoji: labLeafEmojis[id % labLeafEmojis.length],
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  delay: Math.random() * 8,
+  duration: 10 + Math.random() * 10,
+}))
+
+const labSparkles = Array.from({ length: 24 }, (_, id) => ({
+  id,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  size: 2 + Math.random() * 3,
+  delay: Math.random() * 6,
+  duration: 3 + Math.random() * 4,
+}))
 const selected = ref([null, null])
 const stars = ref(0)
 const unlockBurst = reactive({
@@ -398,6 +472,269 @@ function resolvePair(first, second) {
   margin-top: 0;
   color: #1a2442;
   font-family: "DM Sans", sans-serif;
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+/* === Lab discovery scene === */
+.lab-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+  background: linear-gradient(160deg, #d6f4e6 0%, #e5dcff 55%, #ffe1eb 100%);
+}
+
+.habit-lab--dark .lab-scene {
+  background: linear-gradient(160deg, #0c1c34 0%, #1a1248 60%, #341542 100%);
+}
+
+.lab-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(72, 91, 180, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(72, 91, 180, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%);
+}
+
+.habit-lab--dark .lab-grid {
+  background-image:
+    linear-gradient(rgba(155, 134, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(155, 134, 255, 0.12) 1px, transparent 1px);
+}
+
+.lab-glow {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+}
+
+.lab-glow-a { left: -120px; top: -80px;  background: radial-gradient(circle, rgba(44, 201, 122, 0.7), transparent 70%); animation: labGlowDrift 18s ease-in-out infinite alternate; }
+.lab-glow-b { right: -120px; top: 30%;   background: radial-gradient(circle, rgba(155, 114, 255, 0.6), transparent 70%); animation: labGlowDrift 22s ease-in-out infinite alternate-reverse; }
+.lab-glow-c { left: 30%;    bottom: -120px; background: radial-gradient(circle, rgba(255, 154, 62, 0.55), transparent 70%); animation: labGlowDrift 20s ease-in-out infinite alternate; animation-delay: -6s; }
+
+@keyframes labGlowDrift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(30px, -40px) scale(1.08); }
+}
+
+.lab-orbit {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  display: grid;
+  place-items: center;
+  opacity: 0.85;
+}
+
+.lab-orbit-1 { left: 2%; top: 4%; animation: orbitSway 16s ease-in-out infinite alternate; }
+.lab-orbit-2 { right: 2%; bottom: 6%; width: 120px; height: 120px; animation: orbitSway 18s ease-in-out infinite alternate-reverse; animation-delay: -4s; }
+
+@keyframes orbitSway {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(14px, 20px); }
+}
+
+.lab-orbit__ring {
+  position: absolute;
+  inset: 0;
+  border: 2.5px dashed rgba(44, 201, 122, 0.85);
+  border-radius: 50%;
+  animation: orbitSpin 12s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(44, 201, 122, 0.4));
+}
+
+.lab-orbit__ring--tilt {
+  border-color: rgba(155, 114, 255, 0.85);
+  transform: rotate(35deg) scaleY(0.55);
+  animation-duration: 14s;
+  filter: drop-shadow(0 0 8px rgba(155, 114, 255, 0.4));
+}
+
+.habit-lab--dark .lab-orbit__ring {
+  border-color: rgba(106, 255, 182, 0.5);
+}
+.habit-lab--dark .lab-orbit__ring--tilt {
+  border-color: rgba(196, 182, 255, 0.6);
+}
+
+@keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+.lab-orbit__atom {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #4ade80 70%);
+  box-shadow: 0 0 14px rgba(74, 222, 128, 0.7), inset 0 0 4px rgba(255, 255, 255, 0.4);
+  transform: rotate(var(--ang)) translateX(68px);
+  animation: atomOrbit 8s linear infinite;
+}
+
+.lab-orbit-2 .lab-orbit__atom {
+  background: radial-gradient(circle at 30% 30%, #ffffff, #9b72ff 70%);
+  box-shadow: 0 0 14px rgba(155, 114, 255, 0.7), inset 0 0 4px rgba(255, 255, 255, 0.4);
+  transform: rotate(var(--ang)) translateX(58px);
+}
+
+@keyframes atomOrbit {
+  from { transform: rotate(var(--ang)) translateX(68px) rotate(0deg); }
+  to   { transform: rotate(var(--ang)) translateX(68px) rotate(-360deg); }
+}
+
+.lab-orbit-2 .lab-orbit__atom {
+  animation-name: atomOrbit2;
+}
+@keyframes atomOrbit2 {
+  from { transform: rotate(var(--ang)) translateX(58px) rotate(0deg); }
+  to   { transform: rotate(var(--ang)) translateX(58px) rotate(-360deg); }
+}
+
+.lab-flask {
+  position: absolute;
+  right: 4%;
+  top: 50%;
+  width: 56px;
+  height: 88px;
+  display: grid;
+  grid-template-rows: 16px 1fr;
+  align-items: end;
+  animation: flaskShake 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px rgba(44, 201, 122, 0.35));
+  opacity: 0.75;
+}
+
+.flask-neck {
+  width: 18px;
+  margin: 0 auto;
+  height: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(220, 240, 230, 0.65));
+  border-radius: 4px 4px 0 0;
+  border: 1.5px solid rgba(72, 91, 180, 0.22);
+  border-bottom: none;
+}
+
+.flask-body {
+  position: relative;
+  width: 56px;
+  height: 68px;
+  border-radius: 12px 12px 28px 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.85));
+  border: 1.5px solid rgba(72, 91, 180, 0.22);
+  overflow: hidden;
+}
+
+.flask-liquid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  background: linear-gradient(180deg, rgba(74, 222, 128, 0.7), rgba(44, 201, 122, 0.9));
+  animation: liquidWave 3.2s ease-in-out infinite alternate;
+}
+
+.flask-liquid::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -10%;
+  width: 120%;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  filter: blur(1px);
+}
+
+@keyframes liquidWave {
+  from { height: 55%; }
+  to   { height: 65%; }
+}
+
+.flask-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: flaskBubbleUp 2.6s ease-in-out infinite;
+}
+.flask-bubble-b {
+  left: 32%;
+  width: 5px;
+  height: 5px;
+  animation-delay: 1.2s;
+  animation-duration: 3.4s;
+}
+
+@keyframes flaskBubbleUp {
+  0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-50px) scale(1.1); }
+}
+
+@keyframes flaskShake {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(3deg); }
+}
+
+.lab-leaf {
+  position: absolute;
+  font-size: 20px;
+  opacity: 0.5;
+  filter: drop-shadow(0 4px 8px rgba(34, 90, 60, 0.25));
+  animation: leafSway ease-in-out infinite alternate;
+}
+
+@keyframes leafSway {
+  0%   { transform: translate(0, 0) rotate(-12deg); opacity: 0.25; }
+  50%  { opacity: 0.6; }
+  100% { transform: translate(14px, -22px) rotate(18deg); opacity: 0.3; }
+}
+
+.lab-sparkle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+  animation: labSparkle ease-in-out infinite alternate;
+}
+
+@keyframes labSparkle {
+  from { opacity: 0.2; transform: scale(0.5); }
+  to   { opacity: 1;   transform: scale(1.3); }
+}
+
+.lab-scene-front {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.mission-tabs,
+.mission-summary,
+.progress-track,
+.lab-shell,
+.victory-overlay,
+.shopping-list {
+  position: relative;
+  z-index: 3;
 }
 
 .mission-tabs {
@@ -875,7 +1212,9 @@ function resolvePair(first, second) {
 }
 
 .discoveries-panel .empty {
-  color: #63709a;
+  color: #2d3a5f;
+  font-weight: 600;
+  opacity: 1;
 }
 
 .score {
@@ -1125,7 +1464,8 @@ function resolvePair(first, second) {
 
 .habit-lab--dark .discoveries-panel li,
 .habit-lab--dark .discoveries-panel .empty {
-  color: rgba(210, 220, 255, 0.88);
+  color: #ffffff;
+  opacity: 1;
 }
 
 .habit-lab--dark .discoveries-panel li strong {

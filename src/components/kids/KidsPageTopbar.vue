@@ -1,25 +1,6 @@
 <template>
   <header class="kids-topbar">
     <RouterLink to="/kids-dashboard" class="brand-link">HealthyKids</RouterLink>
-
-    <div class="page-chip">{{ pageLabel }}</div>
-
-    <div class="topbar-right">
-      <div class="topbar-links">
-        <RouterLink to="/kids-dashboard" class="topbar-link">Home</RouterLink>
-        <RouterLink to="/kids-games" class="topbar-link">Game zone</RouterLink>
-      </div>
-
-      <button
-        type="button"
-        class="theme-toggle-btn"
-        :aria-pressed="isDarkMode"
-        @click="$emit('toggle-theme')"
-      >
-        <span class="theme-svg" aria-hidden="true" v-html="isDarkMode ? iconSun : iconMoon"></span>
-        <span class="theme-label">{{ isDarkMode ? "Light" : "Dark" }}</span>
-      </button>
-    </div>
   </header>
 </template>
 
@@ -29,7 +10,7 @@ import { RouterLink } from "vue-router"
 defineProps({
   pageLabel: {
     type: String,
-    required: true,
+    default: "",
   },
   isDarkMode: {
     type: Boolean,
@@ -38,9 +19,6 @@ defineProps({
 })
 
 defineEmits(["toggle-theme"])
-
-const iconMoon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>`
-const iconSun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2.2M19.8 12H22M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg>`
 </script>
 
 <style scoped>

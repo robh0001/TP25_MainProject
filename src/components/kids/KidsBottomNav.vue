@@ -6,6 +6,7 @@
       :to="item.to"
       class="kids-bottom-link"
       :class="{ active: isActive(item) }"
+      @click="onItemClick(item, $event)"
     >
       <span class="kids-bottom-icon" v-html="item.icon"></span>
       <span class="kids-bottom-label">{{ item.label }}</span>
@@ -16,8 +17,10 @@
 
 <script setup>
 import { RouterLink, useRoute } from "vue-router"
+import { useGameLaunch } from "../../composables/useGameLaunch.js"
 
 const route = useRoute()
+const { startGameLaunch } = useGameLaunch()
 
 const items = [
   {
@@ -33,6 +36,7 @@ const items = [
     to: "/kids-games",
     match: ["/kids-games", "/kids-game-zone"],
     badge: true,
+    launchKey: "games",
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 10v4"/><path d="M5 12h4"/><path d="M17 11h.01"/><path d="M19 13h.01"/></svg>`,
   },
 ]
@@ -40,21 +44,28 @@ const items = [
 function isActive(item) {
   return item.match.includes(route.path)
 }
+
+function onItemClick(item, event) {
+  if (item.launchKey && !isActive(item)) {
+    event.preventDefault()
+    startGameLaunch(item.launchKey)
+  }
+}
 </script>
 
 <style scoped>
 .kids-bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
   z-index: 40;
-  width: min(520px, calc(100vw - 16px));
+  width: min(480px, calc(100vw - 16px));
   transform: translateX(-50%);
-  padding: 7px 8px;
+  padding: 6px 7px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 4px;
-  border-radius: 22px;
+  border-radius: 18px;
   background: linear-gradient(180deg, rgba(28, 30, 54, 0.98), rgba(22, 24, 45, 0.98));
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 14px 40px rgba(11, 13, 28, 0.3);
@@ -63,9 +74,9 @@ function isActive(item) {
 
 .kids-bottom-link {
   position: relative;
-  min-height: 52px;
-  padding: 5px 4px;
-  border-radius: 14px;
+  min-height: 48px;
+  padding: 4px 4px;
+  border-radius: 13px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -88,8 +99,8 @@ function isActive(item) {
 }
 
 .kids-bottom-icon {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +112,7 @@ function isActive(item) {
 }
 
 .kids-bottom-label {
-  font-size: 0.58rem;
+  font-size: 0.54rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -128,18 +139,18 @@ function isActive(item) {
   }
 
   .kids-bottom-link {
-    min-height: 48px;
-    border-radius: 12px;
+    min-height: 44px;
+    border-radius: 11px;
     gap: 3px;
   }
 
   .kids-bottom-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   .kids-bottom-label {
-    font-size: 0.52rem;
+    font-size: 0.48rem;
   }
 
   .kids-bottom-dot {

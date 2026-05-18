@@ -49,6 +49,10 @@
           <HealthyHabitsLab />
         </section>
 
+        <section v-else-if="activeGame === 'humit'" class="game-shell">
+          <HumItGame />
+        </section>
+
         <section v-else class="game-shell">
           <SmashWiggleGame />
         </section>
@@ -77,14 +81,15 @@
 <script setup>
 import { computed, defineAsyncComponent, ref, watch } from "vue"
 import { useRoute } from "vue-router"
-import BubbleAdventureGame from "./game/BubbleAdventureGame.vue"
 import KidsRouteShell from "./KidsRouteShell.vue"
 import { injectKidsTheme } from "../composables/useKidsTheme.js"
 
 const { isDarkMode } = injectKidsTheme()
 
+const BubbleAdventureGame = defineAsyncComponent(() => import("./game/BubbleAdventureGame.vue"))
 const HealthyHabitsLab = defineAsyncComponent(() => import("./game/HealthyHabitsLab.vue"))
 const SmashWiggleGame = defineAsyncComponent(() => import("./game/SmashWiggleGame.vue"))
+const HumItGame = defineAsyncComponent(() => import("./game/HumItGame.vue"))
 
 const route = useRoute()
 const showInfo = ref(false)
@@ -118,6 +123,22 @@ const gameCards = [
       "Pick two matching cards to make a healthy pair.",
       "Use the preview area to see what combo you are building.",
       "Finish a set to move ahead into the next explorer stage.",
+    ],
+  },
+  {
+    id: "humit",
+    icon: "🎵",
+    kicker: "Voice adventure",
+    title: "Hum It!",
+    short: "Your hum powers your creature",
+    description:
+      "Hum into the mic — pitch, volume, and steady tones shape a creature and beat Hum Hills challenges. Demo sliders work without a microphone.",
+    helper: "Breathing, pitch play, and silly wins",
+    tag: "Voice-driven fun",
+    instructions: [
+      "Allow the microphone when asked, or choose demo sliders if you cannot use a mic.",
+      "Hum high, low, loud, soft, or stay silent — match what your creature asks for.",
+      "There are no game overs: every hum teaches something and keeps the streak friendly.",
     ],
   },
   {
@@ -363,6 +384,16 @@ watch(
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+}
+
+.zone-hero-copy .zone-kicker {
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  letter-spacing: 0.16em;
+  background: linear-gradient(135deg, #ff9a3e, #ff5fa2 55%, #6f6dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 6px 18px rgba(111, 109, 255, 0.18);
 }
 
 .zone-hero h1,
