@@ -522,6 +522,8 @@ function spawnConfetti(count, originRect) {
     piece.style.borderRadius = originRect || Math.random() > 0.5 ? "50%" : "2px"
     piece.style.animationDuration = `${duration}s`
     piece.style.animationDelay = originRect ? "0s" : `${Math.random() * 0.5}s`
+    piece.style.position = "absolute"
+    piece.style.pointerEvents = "none"
 
     layer.appendChild(piece)
     window.setTimeout(() => piece.remove(), (duration + 0.8) * 1000)
@@ -592,18 +594,17 @@ function startRibbonSimulation() {
 function spawnRibbonRain(count, options = {}) {
   const total = fx(count)
   if (total < 1) return
+
   const layer = confettiLayer.value
   if (!layer) return
 
   const width = window.innerWidth
   const height = window.innerHeight
   const now = performance.now()
-  const centerX = options.originRect
-    ? options.originRect.left + options.originRect.width / 2
-    : width / 2
-  const spread = options.originRect
-    ? Math.max(width * 0.42, options.originRect.width * 10)
-    : width * 1.1
+
+  const centerX = width / 2
+  const spread = Math.min(width * 0.55, 620)
+
   const palette = [
     ["#FF7A72", "#FFB96B"],
     ["#51B7FF", "#7CF1FF"],
@@ -618,9 +619,19 @@ function spawnRibbonRain(count, options = {}) {
 
     const [colorStart, colorEnd] = palette[index % palette.length]
     const ribbonWidth = randomBetween(16, 26)
-    const ribbonHeight = randomBetween(180, 320)
+    const ribbonHeight = randomBetween(150, 260)
+
+    const startX = Math.max(
+      24,
+      Math.min(width - 48, centerX - spread / 2 + Math.random() * spread)
+    )
+
+    ribbon.style.position = "absolute"
+    ribbon.style.left = `${startX}px`
+    ribbon.style.top = `${randomBetween(-height * 0.35, -ribbonHeight - 60)}px`
     ribbon.style.width = `${ribbonWidth}px`
     ribbon.style.height = `${ribbonHeight}px`
+    ribbon.style.pointerEvents = "none"
     ribbon.style.setProperty("--ribbon-start", colorStart)
     ribbon.style.setProperty("--ribbon-end", colorEnd)
     ribbon.style.opacity = "0"
@@ -629,24 +640,24 @@ function spawnRibbonRain(count, options = {}) {
 
     activeRibbons.push({
       element: ribbon,
-      x: Math.max(-80, Math.min(width + 40, centerX - spread / 2 + Math.random() * spread)),
-      y: randomBetween(-height * 0.7, -ribbonHeight - 80),
-      vx: randomBetween(-55, 55),
-      vy: randomBetween(210, 320),
-      gravity: randomBetween(360, 540),
+      x: 0,
+      y: 0,
+      vx: randomBetween(-36, 36),
+      vy: randomBetween(210, 300),
+      gravity: randomBetween(330, 470),
       rotationZ: randomBetween(-30, 30),
-      spin: randomBetween(-120, 120),
-      swayAmplitude: randomBetween(22, 56),
-      swayFrequency: randomBetween(1.9, 3.6),
-      flutterX: randomBetween(38, 84),
-      flutterY: randomBetween(58, 132),
-      flutterSpeed: randomBetween(6.5, 9.8),
+      spin: randomBetween(-110, 110),
+      swayAmplitude: randomBetween(18, 42),
+      swayFrequency: randomBetween(1.8, 3.4),
+      flutterX: randomBetween(32, 76),
+      flutterY: randomBetween(48, 110),
+      flutterSpeed: randomBetween(6.2, 9.4),
       phase: randomBetween(0, Math.PI * 2),
-      fadeStart: height * randomBetween(0.8, 0.92),
+      fadeStart: height * randomBetween(0.82, 0.94),
       maxY: height + 260,
       height: ribbonHeight,
       age: 0,
-      startAt: now + index * randomBetween(22, 46),
+      startAt: now + index * randomBetween(18, 38),
       isActive: false,
     })
   }
@@ -654,13 +665,18 @@ function spawnRibbonRain(count, options = {}) {
   startRibbonSimulation()
 }
 
-function launchRibbonCelebration(count, originElement) {
+function launchRibbonCelebration(count) {
   if (fx(count) < 1) return
-  const originRect = originElement instanceof HTMLElement ? originElement.getBoundingClientRect() : null
-  if (originRect) {
-    spawnConfetti(Math.max(10, Math.round(count * 0.22)), originRect)
+
+  const centerRect = {
+    left: window.innerWidth / 2 - 40,
+    top: window.innerHeight / 2 - 40,
+    width: 80,
+    height: 80,
   }
-  spawnRibbonRain(count, { originRect })
+
+  spawnConfetti(Math.max(14, Math.round(count * 0.28)), centerRect)
+  spawnRibbonRain(count, { originRect: centerRect })
 }
 
 function fireConfetti() {
@@ -669,8 +685,16 @@ function fireConfetti() {
 
 function celebrateStreak(event) {
   ripple(event)
-  spawnConfetti(44, event.currentTarget.getBoundingClientRect())
-  launchRibbonCelebration(28, event.currentTarget)
+
+  const centerRect = {
+    left: window.innerWidth / 2 - 40,
+    top: window.innerHeight / 2 - 40,
+    width: 80,
+    height: 80,
+  }
+
+  spawnConfetti(44, centerRect)
+  launchRibbonCelebration(28)
 }
 
 function miniConfetti(element) {
@@ -3113,5 +3137,77 @@ onBeforeUnmount(() => {
   .nav-bar { width: calc(100% - 32px); justify-content: space-around; }
   .header { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
   .header-right { width: 100%; max-width: none; justify-content: flex-start; }
+}
+
+:global(.conf-piece) {
+  position: absolute;
+  border-radius: 2px;
+  animation: confFall linear forwards;
+  opacity: 0;
+  pointer-events: none;
+}
+
+:global(.cele-ribbon) {
+  --ribbon-start: #FF7A72;
+  --ribbon-end: #FFB96B;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 999px 999px 20px 20px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 18px 22px rgba(16, 24, 40, 0.2));
+  pointer-events: none;
+}
+
+:global(.cele-ribbon::before) {
+  content: "";
+  position: absolute;
+  inset: 0 0 16px;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, var(--ribbon-start), var(--ribbon-end)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+    inset 4px 0 9px rgba(255, 255, 255, 0.18),
+    inset -5px 0 12px rgba(15, 23, 42, 0.16);
+}
+
+:global(.cele-ribbon::after) {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 52%;
+  height: 22px;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(135deg, transparent 48%, rgba(255, 255, 255, 0.1) 49%, rgba(255, 255, 255, 0.1) 51%, transparent 52%),
+    linear-gradient(135deg, var(--ribbon-start), var(--ribbon-end));
+  clip-path: polygon(0 0, 100% 0, 70% 100%, 50% 68%, 30% 100%);
+  filter: brightness(1.02);
+}
+
+:global(.cele-ribbon > span) {
+  display: none;
+}
+
+:global(.rip) {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripOut 0.6s ease-out forwards;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+:global(#confetti-layer) {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+  perspective: 1200px;
+  contain: layout paint;
 }
 </style>
