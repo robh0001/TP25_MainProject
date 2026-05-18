@@ -1,10 +1,11 @@
 <template>
-  <div class="home-page" :class="{ 'home-loaded': isLoaded }">
+  <div class="home-page" :class="{ 'home-loaded': isLoaded }" @mousemove="onMouseMove">
 
     <!-- Background -->
     <div class="home-bg" data-hover-read-ignore="true" aria-hidden="true">
       <img
         class="home-bg-img"
+        :style="bgParallaxStyle"
         src="https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?auto=format&fit=crop&w=2400&q=90"
         alt=""
         aria-hidden="true"
@@ -207,28 +208,124 @@
     </main>
 
     <!-- Footer bar -->
-    <footer
-      class="home-footer"
-      aria-label="Website footer"
-    >
-    
-      <div
-        class="home-footer-left"
-        aria-label="Supporting families across Australia"
-        data-hover-read-text
+    <footer class="home-footer-shell" aria-label="Website footer">
+      <svg
+        class="home-footer-waves"
+        viewBox="0 0 1200 96"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
-        <span class="home-live-dot" aria-hidden="true"></span>
-        Supporting families across Australia
-      </div>
+        <defs>
+          <linearGradient id="homeFootMainGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(94, 234, 212, 0.38)" />
+            <stop offset="18%" stop-color="rgba(34, 197, 94, 0.22)" />
+            <stop offset="42%" stop-color="rgba(15, 55, 38, 0.82)" />
+            <stop offset="100%" stop-color="rgba(3, 12, 8, 0.96)" />
+          </linearGradient>
 
-      <div
-        class="home-footer-right"
-        aria-label="UN Sustainable Development Goal 3, Good Health and Wellbeing. Developed by Team Syrbyx."
-        data-hover-read-text
-      >
-        <span>UN SDG 3 · Good Health &amp; Wellbeing</span>
-        <span class="home-footer-divider" aria-hidden="true">·</span>
-        <span>Developed by Team Syrbyx</span>
+          <linearGradient id="homeFootBackWaveGrad" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="rgba(45, 212, 191, 0.14)" />
+            <stop offset="35%" stop-color="rgba(74, 222, 128, 0.2)" />
+            <stop offset="70%" stop-color="rgba(56, 189, 248, 0.1)" />
+            <stop offset="100%" stop-color="rgba(45, 212, 191, 0.12)" />
+          </linearGradient>
+
+          <radialGradient id="homeFootGlowA" cx="22%" cy="28%" r="55%">
+            <stop offset="0%" stop-color="rgba(167, 243, 208, 0.35)" />
+            <stop offset="55%" stop-color="rgba(74, 222, 128, 0.08)" />
+            <stop offset="100%" stop-color="rgba(74, 222, 128, 0)" />
+          </radialGradient>
+
+          <radialGradient id="homeFootGlowB" cx="82%" cy="22%" r="48%">
+            <stop offset="0%" stop-color="rgba(103, 232, 249, 0.28)" />
+            <stop offset="60%" stop-color="rgba(45, 212, 191, 0.06)" />
+            <stop offset="100%" stop-color="rgba(45, 212, 191, 0)" />
+          </radialGradient>
+
+          <linearGradient id="homeFootRimLight" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255, 255, 255, 0.45)" />
+            <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+          </linearGradient>
+        </defs>
+
+        <rect
+          class="home-footer-wave-plate"
+          x="-400"
+          y="74"
+          width="2000"
+          height="22"
+          fill="#050f0b"
+        />
+
+        <g class="home-footer-wave-parallax">
+          <path
+            fill="url(#homeFootBackWaveGrad)"
+            d="M0 56 C220 34 380 72 600 48 C780 28 960 62 1200 46 L1200 96 L0 96 Z"
+          />
+        </g>
+
+        <g class="home-footer-wave-aurora-wrap">
+          <rect class="home-footer-wave-aurora" x="0" y="0" width="1200" height="96" fill="url(#homeFootGlowA)" />
+          <rect class="home-footer-wave-aurora home-footer-wave-aurora--b" x="0" y="0" width="1200" height="96" fill="url(#homeFootGlowB)" />
+        </g>
+
+        <g class="home-footer-wave-motion">
+          <path
+            class="home-footer-wave-fill"
+            fill="url(#homeFootMainGrad)"
+            d="M0 42 C200 14 400 64 600 34 C800 6 1000 52 1200 30 L1200 96 L0 96 Z"
+          />
+          <path
+            class="home-footer-wave-rim"
+            fill="none"
+            stroke="url(#homeFootRimLight)"
+            stroke-width="1.25"
+            stroke-linecap="round"
+            opacity="0.55"
+            d="M0 40 C205 12 405 62 605 32 C805 4 1005 50 1200 28"
+          />
+          <path
+            class="home-footer-wave-stroke home-footer-wave-stroke--a"
+            fill="none"
+            stroke="rgba(167, 243, 208, 0.55)"
+            stroke-width="2"
+            stroke-linecap="round"
+            d="M0 38 C210 10 410 60 610 30 C810 2 1010 48 1200 26"
+          />
+          <path
+            class="home-footer-wave-stroke home-footer-wave-stroke--b"
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.2)"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            d="M0 48 C195 26 395 68 595 40 C795 14 995 56 1200 36"
+          />
+          <circle class="home-footer-wave-bubble home-footer-wave-bubble--a" cx="168" cy="36" r="2.2" fill="rgba(236, 253, 245, 0.55)" />
+          <circle class="home-footer-wave-bubble home-footer-wave-bubble--b" cx="612" cy="30" r="1.6" fill="rgba(165, 243, 252, 0.45)" />
+          <circle class="home-footer-wave-bubble home-footer-wave-bubble--c" cx="972" cy="34" r="1.8" fill="rgba(190, 242, 100, 0.4)" />
+        </g>
+      </svg>
+
+      <div class="home-footer">
+        <div
+          class="home-footer-left"
+          aria-label="Supporting families across Australia"
+          data-hover-read-text
+        >
+          <span class="home-live-dot" aria-hidden="true"></span>
+          Supporting families across Australia
+        </div>
+
+        <div
+          class="home-footer-right"
+          aria-label="UN Sustainable Development Goal 3, Good Health and Wellbeing. Developed by Team Syrbyx."
+          data-hover-read-text
+        >
+          <span>UN SDG 3 · Good Health &amp; Wellbeing</span>
+          <span class="home-footer-divider" aria-hidden="true">·</span>
+          <span>Developed by Team Syrbyx</span>
+        </div>
       </div>
     </footer>
     <Teleport to="body">
@@ -297,7 +394,7 @@
 
 <script setup>
 import { RouterLink } from "vue-router"
-import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, reactive, ref, watch } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue"
 
 
 const isLoaded = ref(false)
@@ -359,7 +456,7 @@ const onboardingSteps = [
   {
     title: "Daily rhythm, not perfection",
     body:
-      "Small consistent actions beat big sporadic ones. Log meals, sips, and wins when it works for your progress compounds over time.",
+      "Small consistent actions beat big sporadic ones. Log meals, sips, and wins when it works for you - progress compounds over time.",
   },
   {
     title: "You're ready to dive in",
@@ -444,27 +541,6 @@ function runCounter(target, key, duration = 1800) {
   requestAnimationFrame(tick)
 }
 
-function handleSlowScroll(event) {
-  const target = event.target
-
-  if (
-    target.closest?.('.chart-scroll') ||
-    target.closest?.('input') ||
-    target.closest?.('select') ||
-    target.closest?.('textarea')
-  ) {
-    return
-  }
-
-  event.preventDefault()
-
-  window.scrollBy({
-    top: event.deltaY * 0.22,
-    left: 0,
-    behavior: 'auto',
-  })
-}
-
 onMounted(() => {
   setTimeout(() => {
     isLoaded.value = true
@@ -476,14 +552,8 @@ onMounted(() => {
   cycleTimer = window.setInterval(() => {
     cycleIndex.value = (cycleIndex.value + 1) % cycleWords.length
   }, 2600)
-  window.addEventListener('wheel', handleSlowScroll, { passive: false })
 })
 
-onUnmounted(() => {
-  window.removeEventListener('wheel', handleSlowScroll, {
-    capture: true,
-  })
-})
 
 
 watch(showOnboarding, open => {
