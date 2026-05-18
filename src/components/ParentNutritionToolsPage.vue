@@ -289,7 +289,7 @@
                 <span :class="['verdict-pill', scoreClass(foodPredictionResult.health_score)]">
                   {{ scoreVerdict(foodPredictionResult.health_score) }}
                 </span>
-                <p>{{ scoreTip(foodPredictionResult.health_score, foodPredictionResult.matched_food) }}</p>
+                <p>{{ scoreTip(foodPredictionResult) }}</p>
                 <button
                   type="button"
                   class="clear-score"
@@ -1085,10 +1085,13 @@ function scoreVerdict(score) {
 }
 
 // Returns a parent-friendly score tip.
-function scoreTip(score, food) {
-  if (score >= 70) return `${food} is a strong everyday option.`
-  if (score >= 40) return `${food} can work sometimes. Pair it with fruit, vegetables, protein, or water.`
-  return `${food} is better kept as an occasional treat rather than a regular option.`
+function scoreTip(result) {
+  if (result?.tip) return result.tip
+  if (result?.advice) return result.advice
+  if (result?.recommendation) return result.recommendation
+  if (result?.message) return result.message
+
+  return 'Use this score as a quick guide and balance the food with the rest of the day.'
 }
 
 // Creates a safe DOM id for recipe headings and modal labels.
@@ -1108,7 +1111,7 @@ function getRecipeReadableText(recipe) {
 function getFoodScoreReadableText(result) {
   const score = Math.round(result.health_score)
   const verdict = scoreVerdict(result.health_score)
-  const tip = scoreTip(result.health_score, result.matched_food)
+  const tip = scoreTip(result)
 
   return `${result.matched_food}. Health score ${score} out of 100. ${verdict}. ${tip}`
 }
