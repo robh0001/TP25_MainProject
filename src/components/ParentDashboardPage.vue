@@ -282,9 +282,121 @@
               </div>
             </div>
           </div>
-
+          
+        
           <!-- TODAY TAB -->
           <div v-if="activeDashboardTab === 'today'" class="dashboard-slot-list">
+            <!-- DAY AT A GLANCE TIMELINE -->
+          <div
+            class="dashboard-day-cycle-card"
+            role="region"
+            aria-label="Day at a glance timeline"
+            :data-hover-read-text="`Day at a glance. ${completedTodayCount} complete and ${todayFullSchedule.length - completedTodayCount} remaining.`"
+          >
+            <div class="dashboard-day-cycle-header">
+              <span class="dashboard-day-cycle-title">Day at a glance</span>
+              <span class="dashboard-day-cycle-sub">
+                {{ completedTodayCount }} complete · {{ todayFullSchedule.length - completedTodayCount }} remaining
+              </span>
+            </div>
+
+            <div class="dashboard-day-cycle-track-wrap">
+              <div class="dashboard-day-cycle-track">
+                <!-- Time zones -->
+                <div class="dashboard-day-cycle-zone dashboard-day-cycle-zone-morning" style="left: 0%; width: 18%;">
+                  <span>Morning</span>
+                </div>
+
+                <div class="dashboard-day-cycle-zone dashboard-day-cycle-zone-afternoon" style="left: 18%; width: 40%;">
+                  <span>Afternoon</span>
+                </div>
+
+                <div class="dashboard-day-cycle-zone dashboard-day-cycle-zone-evening" style="left: 58%; width: 27%;">
+                  <span>Evening</span>
+                </div>
+
+                <div class="dashboard-day-cycle-zone dashboard-day-cycle-zone-night" style="left: 85%; width: 15%;">
+                  <span>Night</span>
+                </div>
+
+                <!-- Current time progress -->
+                <div
+                  class="dashboard-day-cycle-progress"
+                  :style="{ width: currentTimePercent + '%' }"
+                  aria-hidden="true"
+                ></div>
+
+                <!-- Now marker -->
+                <div
+                  class="dashboard-day-cycle-now"
+                  :style="{ left: currentTimePercent + '%' }"
+                  aria-hidden="true"
+                >
+                  <div class="dashboard-day-cycle-now-line"></div>
+                  <div class="dashboard-day-cycle-now-label">now</div>
+                </div>
+
+                <!-- Task nodes -->
+                <button
+                  v-for="slot in todayFullSchedule"
+                  :key="slot.id"
+                  type="button"
+                  class="dashboard-day-cycle-node"
+                  :class="[
+                    'dashboard-day-cycle-node-' + slot.category,
+                    {
+                      'dashboard-day-cycle-node--done': slot.done,
+                      'dashboard-day-cycle-node--upcoming': isUpcoming(slot)
+                    }
+                  ]"
+                  :style="{ left: slotTimePercent(slot.time) + '%' }"
+                  :aria-label="`${slot.time}. ${slot.text}. ${slot.done ? 'Completed' : 'Not completed'}`"
+                  :data-hover-read-text="`${slot.time}. ${slot.text}. ${slot.done ? 'Completed' : 'Not completed'}`"
+                  @click="toggleTodayScheduleSlot(slot)"
+                >
+                  <span class="dashboard-day-cycle-node-icon" aria-hidden="true">
+                    <svg v-if="slot.done" width="10" height="10" viewBox="0 0 10 10">
+                      <path
+                        d="M2 5l2.5 2.5L8 3"
+                        stroke="white"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        fill="none"
+                      />
+                    </svg>
+                    <span v-else>{{ catInitial(slot.category) }}</span>
+                  </span>
+
+                  <span class="dashboard-day-cycle-tooltip" aria-hidden="true">
+                    <strong>{{ slot.time }}</strong>
+                    <span>{{ slot.text }}</span>
+                  </span>
+                </button>
+              </div>
+
+              <div class="dashboard-day-cycle-time-labels" aria-hidden="true">
+                <span>6 am</span>
+                <span>9 am</span>
+                <span>12 pm</span>
+                <span>3 pm</span>
+                <span>6 pm</span>
+                <span>9 pm</span>
+              </div>
+            </div>
+
+            <div class="dashboard-day-cycle-legend" aria-label="Timeline category legend">
+              <div
+                v-for="cat in scheduleCategories"
+                :key="cat.key"
+                class="dashboard-day-cycle-legend-item"
+                :class="'dashboard-day-cycle-legend-' + cat.key"
+              >
+                <span aria-hidden="true"></span>
+                {{ cat.label }}
+              </div>
+            </div>
+          </div>
             <label
               v-for="slot in todayFullSchedule"
               :key="slot.id"
@@ -722,6 +834,7 @@
 
           <!-- SCROLL TOP -->
           <button
+            v-if="activeDashboardTab === 'progress' && showPlannerBackTop"
             type="button"
             class="dashboard-scroll-top-btn"
             data-hover-read-text="Back to top"
@@ -729,17 +842,40 @@
             @click="scrollToTop"
           >
             <svg aria-hidden="true" width="13" height="13" viewBox="0 0 14 14" fill="none">
-              <path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path
+                d="M7 12V2M3 6l4-4 4 4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
-            Back to top
           </button>
         </section>
       </div>
 
-      <footer class="dashboard-inner-footer">
-        <span>UN SDG 3 · Good Health &amp; Wellbeing</span>
-        <span class="dashboard-home-footer-divider" aria-hidden="true">·</span>
-        <span>Developed by Team Syrbyx</span>
+      <footer
+        class="dashboard-inner-footer"
+        aria-label="Website footer"
+      >
+        <div
+          class="dashboard-inner-footer-left"
+          aria-label="Supporting families across Australia"
+          data-hover-read-text
+        >
+          <span class="dashboard-inner-footer-live-dot" aria-hidden="true"></span>
+          Supporting families across Australia
+        </div>
+
+        <div
+          class="dashboard-inner-footer-right"
+          aria-label="UN Sustainable Development Goal 3, Good Health and Wellbeing. Developed by Team SYRBYX."
+          data-hover-read-text
+        >
+          <span>UN SDG 3 · Good Health &amp; Wellbeing</span>
+          <span class="dashboard-home-footer-divider" aria-hidden="true">·</span>
+          <span>Developed by Team SYRBYX</span>
+        </div>
       </footer>
     </main>
   </div>
@@ -769,6 +905,15 @@ const editablePlanner = ref({})
 const isSavingDashboard = ref(false)
 const dashboardSaveError = ref('')
 const activeDashboardTab = ref('today')
+const showPlannerBackTop = ref(false)
+
+const scheduleCategories = [
+  { key: 'nutrition', label: 'Nutrition' },
+  { key: 'movement', label: 'Movement' },
+  { key: 'sleep', label: 'Sleep / Wind-down' },
+  { key: 'routine', label: 'Routine' },
+  { key: 'family', label: 'Family time' },
+]
 
 const sidebarTabs = [
   {
@@ -884,6 +1029,68 @@ const fourWeekRoadmap = computed(() => {
     }),
   }))
 })
+function slotTimePercent(timeStr) {
+  if (!timeStr) return 0
+
+  const str = String(timeStr).toLowerCase().trim()
+  let h = 0
+  let m = 0
+
+  const match = str.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i)
+
+  if (match) {
+    h = parseInt(match[1], 10) || 0
+    m = parseInt(match[2] || '0', 10) || 0
+
+    const period = match[3]
+
+    if (period === 'pm' && h !== 12) h += 12
+    if (period === 'am' && h === 12) h = 0
+  } else {
+    return 0
+  }
+
+  const totalMins = h * 60 + m
+  const startMins = 6 * 60
+  const endMins = 21 * 60
+
+  return Math.min(
+    100,
+    Math.max(0, ((totalMins - startMins) / (endMins - startMins)) * 100)
+  )
+}
+
+const nowTick = ref(Date.now())
+let nowTimer = null
+
+const currentTimePercent = computed(() => {
+  nowTick.value
+
+  const now = new Date()
+  const totalMins = now.getHours() * 60 + now.getMinutes()
+  const startMins = 6 * 60
+  const endMins = 21 * 60
+
+  return Math.min(
+    100,
+    Math.max(0, ((totalMins - startMins) / (endMins - startMins)) * 100)
+  )
+})
+
+function isUpcoming(slot) {
+  return !slot.done && slotTimePercent(slot.time) >= currentTimePercent.value - 4
+}
+
+function catInitial(category) {
+  return {
+    nutrition: 'N',
+    movement: 'M',
+    sleep: 'S',
+    routine: 'R',
+    family: 'F',
+  }[category] || '·'
+}
+
 
 const isPlanReady = computed(() => fourWeekRoadmap.value.length > 0)
 
@@ -1041,7 +1248,12 @@ async function persistDashboardUpdate(updatedState) {
   } finally { isSavingDashboard.value = false }
 }
 
-function onScroll() { isScrolled.value = window.scrollY > 40 }
+function onScroll() {
+  const hasScrolled = window.scrollY > 120
+
+  isScrolled.value = window.scrollY > 40
+  showPlannerBackTop.value = activeDashboardTab.value === 'progress' && hasScrolled
+}
 
 const familyCode = computed(() =>
   state.username ||
@@ -1067,13 +1279,22 @@ watch(currentWeek, (nextWeek, previousWeek) => {
 
 watch(activeRoadmapWeek, weekId => { selectedPlannerDay.value = weekId === currentWeek.value ? todayName.value : 'Monday' })
 
+watch(activeDashboardTab, tab => {
+  showPlannerBackTop.value = tab === 'progress' && window.scrollY > 120
+})
+
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   const routeUsername = route.query.username || route.params.username || ''
   const savedUsername = state.username || state.userName || state.user_name || localStorage.getItem('hk-parent-username') || ''
   const username = String(routeUsername || savedUsername).trim()
   if (username) loadDashboard(username).catch(error => console.error('Dashboard load failed:', error))
+  nowTimer = window.setInterval(() => {
+  nowTick.value = Date.now()
+}, 60_000)
 })
 
-onUnmounted(() => { window.removeEventListener('scroll', onScroll) })
+onUnmounted(() => { window.removeEventListener('scroll', onScroll) 
+if (nowTimer) window.clearInterval(nowTimer)
+})
 </script>
