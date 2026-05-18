@@ -3289,4 +3289,66 @@ onBeforeUnmount(() => {
   perspective: 1200px;
   contain: layout paint;
 }
+.kids-html-dashboard {
+  --kids-font-scale: var(--hk-font-scale, 1);
+}
+.header-text h1 {
+  font-size: calc(28px * var(--kids-font-scale));
+}
+
+.header-sub {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.main-site-link,
+.date-tag,
+.time-tag,
+.streak-tag {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.meal-day-title {
+  font-size: calc(24px * var(--kids-font-scale));
+}
+
+.meal-day-sub {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.boost-label {
+  font-size: calc(16px * var(--kids-font-scale));
+}
+
+.boost-sub {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.boost-action {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.section-label {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.game-tile-copy strong {
+  font-size: calc(17px * var(--kids-font-scale));
+}
+
+.game-tile-copy span {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.hydration-title {
+  font-size: calc(24px * var(--kids-font-scale));
+}
+
+.hydration-sub {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.log-sip-btn,
+.reset-glass-btn {
+  font-size: calc(14px * var(--kids-font-scale));
+}
 </style>
