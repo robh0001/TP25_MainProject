@@ -96,61 +96,7 @@
         aria-labelledby="roadmap-page-title"
       >
         <!-- WEBSITE JOURNEY BAR -->
-        <nav
-          class="dashboard-journey"
-          aria-label="HealthyKids website journey"
-          data-hover-read-text="Website journey. Create profile, guided plan, daily activities, four week plan, nutrition, stats, kids dashboard."
-        >
-          <RouterLink
-            to="/parent-entry"
-            class="dashboard-journey-item dashboard-journey-item--complete"
-            aria-label="Step 1 complete. Create profile."
-          >
-            <span class="dashboard-journey-badge">1</span>
-            <span class="dashboard-journey-label">Get Started </span>
-            <span class="dashboard-journey-line" aria-hidden="true"></span>
-          </RouterLink>
-  
-          <RouterLink
-            to="/parent-quiz"
-            class="dashboard-journey-item dashboard-journey-item--complete"
-            aria-label="Step 2 complete. Guided plan."
-          >
-            <span class="dashboard-journey-badge">2</span>
-            <span class="dashboard-journey-label">Build Profile</span>
-            <span class="dashboard-journey-line" aria-hidden="true"></span>
-          </RouterLink>
-  
-          <RouterLink
-            to="/parent-dashboard"
-            class="dashboard-journey-item dashboard-journey-item--complete"
-            aria-label="Step 3 complete. Today's plan."
-          >
-            <span class="dashboard-journey-badge">3</span>
-            <span class="dashboard-journey-label">Today's plan</span>
-            <span class="dashboard-journey-line" aria-hidden="true"></span>
-          </RouterLink>
-
-          <RouterLink
-            to="/parent-roadmap"
-            class="dashboard-journey-item dashboard-journey-item--active"
-            aria-current="step"
-            aria-label="Step 4 current. Four week roadmap."
-          >
-            <span class="dashboard-journey-badge">4</span>
-            <span class="dashboard-journey-label">4-week roadmap</span>
-            <span class="dashboard-journey-line" aria-hidden="true"></span>
-          </RouterLink>
-            
-          <RouterLink
-            to="/parent-nutrition-tools"
-            class="dashboard-journey-item"
-            aria-label="Step 5. Nutrition."
-          >
-            <span class="dashboard-journey-badge">5</span>
-            <span class="dashboard-journey-label">Meal Ideas</span>
-          </RouterLink>
-        </nav>
+        <FamilyJourneyBar :current-step="4" />
   
         <!-- ROADMAP CARD -->
         <section
@@ -679,6 +625,7 @@
   import { RouterLink, useRoute } from 'vue-router'
   import { useFamilyPlanStore } from '../stores/familyPlanStore'
   import { useDynamicPlan } from '../composables/useDynamicPlan'
+  import FamilyJourneyBar from '../components/FamilyJourneyBar.vue'
   
   // Shared family plan store and dynamic plan helpers.
   const { state, savePlan } = useFamilyPlanStore()

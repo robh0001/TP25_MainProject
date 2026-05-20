@@ -11,6 +11,7 @@ import KidsWinsPage from '../components/KidsWinsPage.vue'
 import ParentEntry from '../components/ParentEntry.vue'
 import StatisticPage from '@/components/StatisticPage.vue'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
+import ParentRoadmapPage from '@/components/ParentRoadmapPage.vue'
 
 const routes = [
   {
@@ -32,6 +33,12 @@ const routes = [
     path: '/parent-dashboard',
     name: 'ParentDashboard',
     component: ParentDashboardPage,
+    meta: { requiresParentProfile: true },
+  },
+  {
+    path: '/parent-roadmap',
+    name: 'ParentRoadMap',
+    component: ParentRoadmapPage,
     meta: { requiresParentProfile: true },
   },
   {

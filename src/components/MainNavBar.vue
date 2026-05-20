@@ -14,8 +14,15 @@
   
         <div class="main-nav-links">
           <RouterLink to="/" class="main-nav-link" exact-active-class="active">Home</RouterLink>
-          <RouterLink to="/parent-entry" class="main-nav-link" active-class="active">Dashboard</RouterLink>
-          <RouterLink to="/parent-nutrition-tools" class="main-nav-link" active-class="active">Nutrition</RouterLink>
+          <RouterLink
+            :to="hasFamilyPlan ? '/parent-dashboard' : '/parent-entry'"
+            class="main-nav-link"
+            active-class="active"
+            :title="hasFamilyPlan ? 'Open your family dashboard' : 'Create or open a family plan first'"
+            :data-hover-read-text="hasFamilyPlan ? 'Open your family dashboard' : 'Create or open a family plan first'"
+          >
+            Dashboard
+          </RouterLink>
           <RouterLink to="/statistics" class="main-nav-link" active-class="active">Statistics</RouterLink>
           <RouterLink to="/kids-dashboard" class="main-nav-link" active-class="active">Kids view</RouterLink>
         </div>
@@ -33,3 +40,20 @@
     </nav>
   </template>
   
+
+<script setup>
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import { useFamilyPlanStore } from '../stores/familyPlanStore'
+
+const { state } = useFamilyPlanStore()
+
+const hasFamilyPlan = computed(() =>
+  Boolean(
+    state.username ||
+    state.userName ||
+    state.user_name ||
+    localStorage.getItem('hk-parent-username')
+  )
+)
+</script>

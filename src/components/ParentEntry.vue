@@ -43,36 +43,15 @@
     <!-- Header -->
     <header class="entry-site-header" aria-label="HealthyKids site header">
       <!-- HealthyKids brand link that returns users to the home page -->
-      <RouterLink to="/" class="entry-brand" aria-label="Go to HealthyKids home page">
-        <div class="entry-brand-icon" aria-hidden="true">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-            <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
-            <path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor" />
-            <path
-              d="M18 13C15.5 15.5 15 19 18 23"
-              stroke="white"
-              stroke-width="1.2"
-              stroke-linecap="round"
-              fill="none"
-              opacity="0.55"
-            />
-          </svg>
-        </div>
-        <span>HealthyKids</span>
-      </RouterLink>
-
-      <!-- Secondary header action to return to the landing page -->
-      <RouterLink to="/" class="entry-header-btn" aria-label="Go back to home page">
-        Back home
-      </RouterLink>
     </header>
-
     <!-- Main -->
     <main class="entry-main" id="main-content">
+      <FamilyJourneyBar :current-step="1" />
       <!-- Main card containing both new and returning parent options -->
       <section class="entry-card" aria-labelledby="entry-page-title">
         <!-- Introductory text for the parent access page -->
         <div class="entry-intro">
+          
           <p class="entry-step-kicker" aria-label="Parent access">
             <span class="entry-kicker-dot" aria-hidden="true"></span>
             Parent access
@@ -245,6 +224,7 @@ import { useRouter, RouterLink } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
 import { useHoverToRead } from '../composables/useHoverToRead'
 import { useSpeechSynthesis } from '../composables/useSpeechSynthesis'
+import FamilyJourneyBar from '../components/FamilyJourneyBar.vue'
 
 // Gives access to Vue Router navigation.
 const router = useRouter()
@@ -308,7 +288,24 @@ function saveUsernameSession(username) {
     user_name: username,
   })
 }
-
+const entrySteps = [
+  {
+    number: '01',
+    label: 'Create profile',
+  },
+  {
+    number: '02',
+    label: 'Guided plan',
+  },
+  {
+    number: '03',
+    label: 'Daily actions',
+  },
+  {
+    number: '04',
+    label: 'Kids zone',
+  },
+]
 // Starts the flow for a new parent after checking whether the family code is available.
 async function startNewUser() {
   newUserError.value = ''
