@@ -14,7 +14,7 @@
   
         <div class="main-nav-links">
           <RouterLink to="/" class="main-nav-link" exact-active-class="active">Home</RouterLink>
-          <RouterLink to="/parent-dashboard" class="main-nav-link" active-class="active">Dashboard</RouterLink>
+          <RouterLink to="/parent-entry" class="main-nav-link" active-class="active">Dashboard</RouterLink>
           <RouterLink to="/parent-nutrition-tools" class="main-nav-link" active-class="active">Nutrition</RouterLink>
           <RouterLink to="/statistics" class="main-nav-link" active-class="active">Statistics</RouterLink>
           <RouterLink to="/kids-dashboard" class="main-nav-link" active-class="active">Kids view</RouterLink>
