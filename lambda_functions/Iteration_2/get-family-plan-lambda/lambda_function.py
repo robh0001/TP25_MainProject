@@ -1,3 +1,32 @@
+"""
+Family Plan Lambda Function
+
+This AWS Lambda function builds a 4-week HealthyKids family plan for a saved
+parent profile.
+
+Main responsibilities:
+- Handles GET and OPTIONS requests from API Gateway.
+- Reads the username from the query string.
+- Loads the saved parent profile from PostgreSQL/RDS.
+- Loads nutrition, exercise, workout, and sleep plan data from database tables.
+- Uses the parent profile to decide the family's main focus.
+- Builds a structured 4-week plan with daily meals, movement, workouts, sleep tips, and time slots.
+- Returns the plan as JSON for the Vue parent dashboard.
+
+API route:
+- GET /family-plan?username={username}
+
+Required environment variables:
+- DB_HOST
+- DB_NAME
+- DB_USER
+- DB_PASSWORD
+
+Optional environment variables:
+- DB_PORT
+- DB_SSL
+"""
+
 import os
 import json
 import decimal
@@ -8,9 +37,11 @@ from typing import Any, Dict, List, Optional
 import pg8000.native
 
 
+# Reused database connection for warm Lambda invocations.
 _connection = None
 
 
+# Shared CORS and JSON headers for all API responses.
 CORS_HEADERS = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -19,6 +50,7 @@ CORS_HEADERS = {
 }
 
 
+# Standard day order used when building each weekly plan.
 DAY_NAMES = [
     "Monday",
     "Tuesday",
@@ -32,20 +64,17 @@ DAY_NAMES = [
 
 def lambda_handler(event, context):
     """
-    API Gateway route:
-      GET /family-plan?username=<username>
+    Main Lambda entry point.
 
-    This Lambda:
-      1. Reads the parent profile from parent_profiles
-      2. Reads nutrition_plan, exercise_plan, workout_plan, sleep_plan
-      3. Builds a 4-week dynamic plan
-      4. Returns JSON to the Vue dashboard
+    Loads the parent profile and plan source tables, then assembles a
+    frontend-ready 4-week family plan.
     """
-
+    # Return early for browser CORS preflight requests.
     if is_options_request(event):
         return response(200, {"message": "CORS preflight OK"})
 
     try:
+        # Read the username / family code from the query string.
         username = get_query_param(event, "username")
 
         if not username:
@@ -53,8 +82,10 @@ def lambda_handler(event, context):
                 "error": "username query parameter is required"
             })
 
+        # Open or reuse a PostgreSQL/RDS connection.
         db = get_connection()
 
+        # Load the saved parent profile.
         profile = fetch_parent_profile(db, username)
 
         if not profile:
@@ -63,13 +94,16 @@ def lambda_handler(event, context):
                 "username": username
             })
 
+        # Convert quiz/profile data into planning context.
         context_data = build_query_context(profile)
 
+        # Load source plan data from database tables.
         nutrition_rows = query_nutrition_plan(db)
         exercise_rows = query_exercise_plan(db)
         workout_rows = query_workout_plan(db)
         sleep_rows = query_sleep_plan(db)
 
+        # Build the final 4-week family plan.
         plan = assemble_four_week_plan(
             profile=profile,
             context_data=context_data,
@@ -79,6 +113,7 @@ def lambda_handler(event, context):
             sleep_rows=sleep_rows,
         )
 
+        # Return the saved profile summary and generated plan to the dashboard.
         return response(200, {
             "username": profile["username"],
             "generatedAt": datetime.datetime.utcnow().isoformat() + "Z",
@@ -98,6 +133,7 @@ def lambda_handler(event, context):
         })
 
     except Exception as error:
+        # Log detailed errors in CloudWatch for debugging.
         print("ERROR in getFamilyPlan Lambda")
         print(str(error))
         print(traceback.format_exc())
@@ -111,17 +147,28 @@ def lambda_handler(event, context):
 # API Gateway helpers
 
 def is_options_request(event: Dict[str, Any]) -> bool:
+    """
+    Checks whether the request is a CORS preflight OPTIONS request.
+
+    Supports both REST API and HTTP API Gateway event formats.
+    """
     method_v1 = event.get("httpMethod")
     method_v2 = event.get("requestContext", {}).get("http", {}).get("method")
     return method_v1 == "OPTIONS" or method_v2 == "OPTIONS"
 
 
 def get_query_param(event: Dict[str, Any], key: str) -> Optional[str]:
+    """
+    Reads a query string value from the API Gateway event.
+    """
     params = event.get("queryStringParameters") or {}
     return params.get(key)
 
 
 def response(status_code: int, body: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Builds a standard API Gateway JSON response.
+    """
     return {
         "statusCode": status_code,
         "headers": CORS_HEADERS,
@@ -130,6 +177,9 @@ def response(status_code: int, body: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def json_default(value):
+    """
+    Converts database/date values into JSON-safe values.
+    """
     if isinstance(value, decimal.Decimal):
         return float(value)
     if isinstance(value, datetime.datetime):
@@ -143,11 +193,13 @@ def json_default(value):
 
 def get_connection():
     """
-    Reuses the database connection across warm Lambda invocations.
-    """
+    Creates or reuses a PostgreSQL/RDS database connection.
 
+    Reusing the connection helps reduce overhead on warm Lambda invocations.
+    """
     global _connection
 
+    # Reuse the connection if it is still healthy.
     if _connection is not None:
         try:
             _connection.run("SELECT 1")
@@ -155,6 +207,7 @@ def get_connection():
         except Exception:
             _connection = None
 
+    # Read database settings from Lambda environment variables.
     host = os.environ["DB_HOST"]
     port = int(os.environ.get("DB_PORT", "5432"))
     database = os.environ["DB_NAME"]
@@ -163,6 +216,7 @@ def get_connection():
 
     use_ssl = os.environ.get("DB_SSL", "true").lower() == "true"
 
+    # Create a new PostgreSQL/RDS connection.
     _connection = pg8000.native.Connection(
         host=host,
         port=port,
@@ -179,6 +233,11 @@ def get_connection():
 # Profile query
 
 def fetch_parent_profile(db, username: str) -> Optional[Dict[str, Any]]:
+    """
+    Loads a parent profile by username / family code.
+
+    Returns None when no matching profile exists.
+    """
     sql = """
         SELECT
             id,
@@ -210,6 +269,7 @@ def fetch_parent_profile(db, username: str) -> Optional[Dict[str, Any]]:
     if not rows:
         return None
 
+    # Column names are used to convert the returned row into a dictionary.
     columns = [
         "id",
         "username",
@@ -238,6 +298,9 @@ def fetch_parent_profile(db, username: str) -> Optional[Dict[str, Any]]:
 # Plan table queries
 
 def query_nutrition_plan(db) -> List[Dict[str, Any]]:
+    """
+    Loads nutrition plan rows ordered by week, day, and meal type.
+    """
     sql = """
         SELECT
             week_number,
@@ -288,6 +351,9 @@ def query_nutrition_plan(db) -> List[Dict[str, Any]]:
 
 
 def query_exercise_plan(db) -> List[Dict[str, Any]]:
+    """
+    Loads weekly letter-based exercise activities.
+    """
     sql = """
         SELECT
             week_number,
@@ -311,6 +377,9 @@ def query_exercise_plan(db) -> List[Dict[str, Any]]:
 
 
 def query_workout_plan(db) -> List[Dict[str, Any]]:
+    """
+    Loads daily workout plan rows ordered by week, day, and database id.
+    """
     sql = """
         SELECT
             id,
@@ -338,6 +407,9 @@ def query_workout_plan(db) -> List[Dict[str, Any]]:
 
 
 def query_sleep_plan(db) -> List[Dict[str, Any]]:
+    """
+    Loads sleep plan rows ordered by week and weekday.
+    """
     sql = """
         SELECT
             week_number,
@@ -371,10 +443,15 @@ def query_sleep_plan(db) -> List[Dict[str, Any]]:
     return [dict(zip(columns, row)) for row in rows]
 
 
-
 # Quiz/profile logic
 
 def build_query_context(profile: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Converts parent quiz/profile answers into planning flags.
+
+    These flags help the plan decide whether the family mainly needs support
+    with sleep, nutrition, movement, routine, or a balanced mix.
+    """
     habits = safe_json_array(profile.get("habits"))
     concerns = safe_json_array(profile.get("concerns"))
 
@@ -382,6 +459,7 @@ def build_query_context(profile: Dict[str, Any]) -> Dict[str, Any]:
 
     concerns_text = " ".join(concerns).lower()
 
+    # Choose the strongest planning focus based on the parent's concerns.
     if "sleep" in concerns_text or "bedtime" in concerns_text:
         primary_focus = "sleep"
     elif "snack" in concerns_text or "nutrition" in concerns_text or "meal" in concerns_text:
@@ -393,6 +471,7 @@ def build_query_context(profile: Dict[str, Any]) -> Dict[str, Any]:
 
     age_range = profile.get("age_range") or "8-10 years"
 
+    # Map the selected age range into a simple age group.
     if age_range.startswith("5"):
         age_group = "young"
     elif age_range.startswith("11"):
@@ -400,6 +479,7 @@ def build_query_context(profile: Dict[str, Any]) -> Dict[str, Any]:
     else:
         age_group = "middle"
 
+    # Detect families that may need a shorter, simpler daily plan.
     routine_type = profile.get("routine_type") or ""
     is_busy = "busy" in routine_type.lower() or "hard" in routine_type.lower()
 
@@ -418,6 +498,11 @@ def build_query_context(profile: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def safe_json_array(value: Any) -> List[Any]:
+    """
+    Safely converts a database JSON value into a Python list.
+
+    Returns an empty list if the value is missing, invalid, or not a list.
+    """
     if value is None:
         return []
 
@@ -444,7 +529,13 @@ def assemble_four_week_plan(
     workout_rows: List[Dict[str, Any]],
     sleep_rows: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
+    """
+    Builds the final 4-week plan from source table rows.
 
+    Each week contains seven days, and each day includes nutrition, movement,
+    workout, sleep, and dashboard time slot data.
+    """
+    # Build indexes so plan data can be looked up quickly by week/day.
     nutrition_index = build_nutrition_index(nutrition_rows)
     exercise_index = build_exercise_index(exercise_rows)
     workout_index = build_workout_index(workout_rows)
@@ -452,6 +543,7 @@ def assemble_four_week_plan(
 
     weeks = []
 
+    # Build four weekly plan sections.
     for week_number in range(1, 5):
         sleep_week = sleep_index.get(week_number, {
             "theme": f"Week {week_number}",
@@ -462,11 +554,13 @@ def assemble_four_week_plan(
 
         days = []
 
+        # Build each day in Monday to Sunday order.
         for day_index, day_name in enumerate(DAY_NAMES):
             day_number = day_index + 1
 
             nutrition = nutrition_index.get(week_number, {}).get(day_number, {})
 
+            # Rotate through the week's exercise list across the seven days.
             exercise = None
             if exercises_this_week:
                 exercise = exercises_this_week[day_index % len(exercises_this_week)]
@@ -477,6 +571,7 @@ def assemble_four_week_plan(
 
             sleep_tip = sleep_week.get("days", {}).get(day_name, "")
 
+            # Build the dashboard's time-based task list for this day.
             time_slots = build_time_slots_from_db(
                 day_name=day_name,
                 day_number=day_number,
@@ -519,6 +614,9 @@ def assemble_four_week_plan(
 
 
 def build_nutrition_index(rows: List[Dict[str, Any]]) -> Dict[int, Dict[int, Dict[str, Dict[str, Any]]]]:
+    """
+    Groups nutrition rows by week, day, and meal type.
+    """
     index = {}
 
     for row in rows:
@@ -534,6 +632,9 @@ def build_nutrition_index(rows: List[Dict[str, Any]]) -> Dict[int, Dict[int, Dic
 
 
 def build_exercise_index(rows: List[Dict[str, Any]]) -> Dict[int, List[Dict[str, Any]]]:
+    """
+    Groups exercise rows by week.
+    """
     index = {}
 
     for row in rows:
@@ -545,6 +646,9 @@ def build_exercise_index(rows: List[Dict[str, Any]]) -> Dict[int, List[Dict[str,
 
 
 def build_workout_index(rows: List[Dict[str, Any]]) -> Dict[int, Dict[int, List[Dict[str, Any]]]]:
+    """
+    Groups workout rows by week and day.
+    """
     index = {}
 
     for row in rows:
@@ -559,6 +663,9 @@ def build_workout_index(rows: List[Dict[str, Any]]) -> Dict[int, Dict[int, List[
 
 
 def build_sleep_index(rows: List[Dict[str, Any]]) -> Dict[int, Dict[str, Any]]:
+    """
+    Groups sleep tips by week and day name.
+    """
     index = {}
 
     for row in rows:
@@ -575,10 +682,12 @@ def build_sleep_index(rows: List[Dict[str, Any]]) -> Dict[int, Dict[str, Any]]:
     return index
 
 
-
 # Format individual blocks
 
 def format_meal(row: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """
+    Converts one nutrition database row into a frontend meal object.
+    """
     if not row:
         return None
 
@@ -597,6 +706,9 @@ def format_meal(row: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
 
 
 def format_exercise(row: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """
+    Converts one exercise database row into a frontend exercise object.
+    """
     if not row:
         return None
 
@@ -608,6 +720,12 @@ def format_exercise(row: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
 
 
 def format_workout(rows: List[Dict[str, Any]]) -> Any:
+    """
+    Converts workout database rows into a frontend workout object or list.
+
+    Rest days are returned as a single object. Normal workout days are returned
+    as a list of activities.
+    """
     if not rows:
         return []
 
@@ -631,6 +749,11 @@ def format_workout(rows: List[Dict[str, Any]]) -> Any:
 
 
 def to_number(value: Any) -> Optional[float]:
+    """
+    Converts database numeric values into Python numbers.
+
+    Returns None if the value cannot be converted.
+    """
     if value is None:
         return None
 
@@ -649,7 +772,6 @@ def to_number(value: Any) -> Optional[float]:
         return None
 
 
-
 # Build dashboard time slots
 
 def build_time_slots_from_db(
@@ -663,20 +785,30 @@ def build_time_slots_from_db(
     context_data: Dict[str, Any],
     profile: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
+    """
+    Builds the daily timeline shown on the parent dashboard.
 
+    The timeline combines meals, movement, workouts, rest days, and sleep tips
+    into ordered task cards with fixed suggested times.
+    """
     slots = []
 
     is_weekend = day_name in ["Saturday", "Sunday"]
     child_name = profile.get("child_name") or "your child"
 
     def slot_id(suffix: str) -> str:
+        """
+        Creates a stable frontend id for a daily timeline task.
+        """
         return f"week-{week_number}-{day_name.lower()}-{suffix}"
 
+    # Pull meal objects from the day's nutrition data.
     breakfast = nutrition.get("breakfast")
     lunch = nutrition.get("lunch")
     snack = nutrition.get("snack")
     dinner = nutrition.get("dinner")
 
+    # Add breakfast if available.
     if breakfast:
         slots.append({
             "id": slot_id("breakfast"),
@@ -690,6 +822,7 @@ def build_time_slots_from_db(
             "source": "nutrition_plan",
         })
 
+    # Add weekday exercise activity if available.
     if exercise and not is_weekend:
         slots.append({
             "id": slot_id("exercise"),
@@ -703,6 +836,7 @@ def build_time_slots_from_db(
             "source": "exercise_plan",
         })
 
+    # Add lunch if available.
     if lunch:
         slots.append({
             "id": slot_id("lunch"),
@@ -716,6 +850,7 @@ def build_time_slots_from_db(
             "source": "nutrition_plan",
         })
 
+    # Add snack if available.
     if snack:
         slots.append({
             "id": slot_id("snack"),
@@ -729,6 +864,7 @@ def build_time_slots_from_db(
             "source": "nutrition_plan",
         })
 
+    # Add workout block for normal workout days.
     if isinstance(workout, list) and len(workout) > 0:
         workout_names = ", ".join(
             item["exerciseName"] for item in workout[:3]
@@ -746,6 +882,7 @@ def build_time_slots_from_db(
             "source": "workout_plan",
         })
 
+    # Add rest-day block when the workout plan marks the day as rest.
     if isinstance(workout, dict) and workout.get("isRestDay"):
         slots.append({
             "id": slot_id("rest"),
@@ -759,6 +896,7 @@ def build_time_slots_from_db(
             "source": "workout_plan",
         })
 
+    # Add dinner if available.
     if dinner:
         slots.append({
             "id": slot_id("dinner"),
@@ -772,6 +910,7 @@ def build_time_slots_from_db(
             "source": "nutrition_plan",
         })
 
+    # Add sleep wind-down task if a sleep tip exists.
     if sleep_tip:
         slots.append({
             "id": slot_id("sleep"),
@@ -785,7 +924,7 @@ def build_time_slots_from_db(
             "source": "sleep_plan",
         })
 
-    # If parent said routine is very busy/hard, return fewer tasks per day
+    # If parent said routine is very busy/hard, return fewer tasks per day.
     if context_data.get("isBusy"):
         return slots[:5]
 

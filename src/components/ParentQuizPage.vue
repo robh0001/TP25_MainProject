@@ -1,281 +1,390 @@
+<!--
+  ParentQuizPage.vue
+
+  Creates the HelthyKidz parent quiz page. Parents answer a short multi-step quiz to create
+  or update a personalised family routine plan.
+
+  API requirement:
+  - Requires VITE_PARENT_PROFILES_API_BASE_URL.
+  - Uses POST /parent-profiles to create a new parent profile.
+  - Uses PUT /{familyCode} to update an existing parent profile.
+  - Falls back between create and update when needed.
+
+  Accessibility:
+  - Uses aria-labels, aria-describedby, role="progressbar", role="alert", and aria-live.
+  - Uses aria-pressed for selectable chips.
+  - Uses data-hover-read-text for hover-to-read support.
+  - Moves focus to validation errors when they appear.
+-->
+
 <template>
   <div class="quiz-page">
-    <header class="site-header">
-      <div class="container header-row">
-        <RouterLink to="/" class="brand">HealthyKids</RouterLink>
+    <!-- Decorative background image and overlay layers -->
+    <div class="quiz-bg" aria-hidden="true">
+      <img
+        class="quiz-bg__img"
+        src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=2400&q=90"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="quiz-bg__overlay"></div>
+      <div class="quiz-bg__grain"></div>
+    </div>
 
-        <nav class="nav" aria-label="Primary">
-          <RouterLink to="/" class="nav-link">Home</RouterLink>
-          <RouterLink to="/parent-entry" class="nav-link">Parent access</RouterLink>
-          <a href="#quiz-form" class="nav-link">Quiz</a>
-        </nav>
+    <!-- Main quiz content -->
+    <main class="quiz-main" id="main-content">
+      <!-- Website journey step bar -->
+      <FamilyJourneyBar :current-step="2" />
 
-        <RouterLink to="/parent-entry" class="header-btn light-btn">Back</RouterLink>
-      </div>
-    </header>
+        <section
+          class="quiz-card"
+          id="quiz-form"
+          aria-labelledby="quiz-page-title"
+          aria-describedby="quiz-page-description"
+        >
+        <!-- Quiz intro, step label, and progress bar -->
+        <div class="quiz-intro">
+          <p
+            class="quiz-step-kicker"
+            :aria-label="`Step ${currentStep + 1} of ${steps.length}`"
+            :data-hover-read-text="`Step ${currentStep + 1} of ${steps.length}`"
+          >
+            <span class="quiz-kicker-dot" aria-hidden="true"></span>
+            Step {{ currentStep + 1 }} of {{ steps.length }}
+          </p>
+          <h1 id="quiz-page-title">{{ isRetakeMode ? 'Review your routine' : 'Personalise your routine' }}</h1>
 
-    <main>
-      <section class="quiz-top">
-        <div class="container">
-          <div class="intro-shell">
-            <div class="intro-copy">
-              <p class="step-kicker">Step 2 of 3</p>
-              <h1>{{ isRetakeMode ? 'Update plan' : 'Build a plan' }}</h1>
-              <p class="intro-text">
-                {{
-                  isRetakeMode
-                    ? 'Update your answers so your parent dashboard reflects your current family routine.'
-                    : 'Answer a few questions so we can shape a more realistic family routine and build your parent dashboard.'
-                }}
+          <p class="quiz-intro-text" id="quiz-page-description">
+            {{ activeStep.subtitle }}
+          </p>
+
+          <!-- Visual and accessible progress indicator -->
+          <div
+            class="quiz-progress-track"
+            role="progressbar"
+            :aria-valuenow="currentStep + 1"
+            aria-valuemin="1"
+            :aria-valuemax="steps.length"
+            :aria-label="`Quiz progress: step ${currentStep + 1} of ${steps.length}`"
+          >
+            <div
+              class="quiz-progress-fill"
+              :style="{ width: `${((currentStep + 1) / steps.length) * 100}%` }"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Main quiz form panel -->
+        <div class="quiz-form-panel">
+          <h2>{{ activeStep.title }}</h2>
+
+          <!-- Step 1: family basics -->
+          <div v-if="currentStep === 0" class="quiz-form-grid">
+            <div class="quiz-form-group">
+              <label for="username">Family code</label>
+              <input
+                id="username"
+                v-model.trim="form.username"
+                :disabled="hasFamilyCode"
+                type="text"
+                autocomplete="off"
+                inputmode="text"
+                placeholder="e.g. sunnyfamily01"
+                data-hover-read-text="Family code. Enter a simple family code. Example sunny family zero one."
+                :aria-invalid="errorMessage && !form.username ? 'true' : 'false'"
+                aria-describedby="username-help"
+              />
+              <p id="username-help" class="quiz-sr-only">
+                Enter a simple family code using letters, numbers, underscores, or hyphens.
               </p>
             </div>
 
-            <div class="journey-card">
-              <p class="journey-label">Journey</p>
-              <div class="journey-steps">
-                <div class="journey-step complete">
-                  <span>1</span>
-                  <small>Parent access</small>
-                </div>
-                <div class="journey-line"></div>
-                <div class="journey-step active">
-                  <span>2</span>
-                  <small>Quiz</small>
-                </div>
-                <div class="journey-line"></div>
-                <div class="journey-step">
-                  <span>3</span>
-                  <small>Dashboard</small>
-                </div>
-              </div>
+            <div class="quiz-form-group">
+              <label for="child-age">Child age range</label>
+              <select
+                id="child-age"
+                v-model="form.ageRange"
+                data-hover-read-text="Child age range. Select the age range for your child."
+                :aria-invalid="errorMessage && !form.ageRange ? 'true' : 'false'"
+                aria-describedby="child-age-help"
+              >
+                <option disabled value="">Select age range</option>
+                <option>5-7 years</option>
+                <option>8-10 years</option>
+                <option>11-12 years</option>
+              </select>
+              <p id="child-age-help" class="quiz-sr-only">
+                Choose one age range for the child this plan is for.
+              </p>
+            </div>
+
+            <div class="quiz-form-group quiz-full-row">
+              <label for="routine-type">Current family routine</label>
+              <select
+                id="routine-type"
+                v-model="form.routineType"
+                data-hover-read-text="Current family routine. Choose the option that best describes your routine."
+                :aria-invalid="errorMessage && !form.routineType ? 'true' : 'false'"
+                aria-describedby="routine-type-help"
+              >
+                <option disabled value="">Choose one</option>
+                <option>Mostly structured</option>
+                <option>Busy and sometimes inconsistent</option>
+                <option>Very busy and hard to manage</option>
+              </select>
+              <p id="routine-type-help" class="quiz-sr-only">
+                Choose the option that best describes your current family routine.
+              </p>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section id="quiz-form" class="quiz-form-section">
-        <div class="container">
-          <div class="form-shell">
-            <div class="form-head">
-              <p class="wizard-step">Step {{ currentStep + 1 }} of {{ steps.length }}</p>
-              <h2>{{ activeStep.title }}</h2>
-              <p class="wizard-subtitle">{{ activeStep.subtitle }}</p>
+          <!-- Step 2: priority habit areas -->
+          <div v-if="currentStep === 1" class="quiz-form-grid">
+            <div class="quiz-form-group quiz-full-row">
+              <p id="habit-options-label" class="quiz-field-label">Priority areas</p>
 
-              <div class="progress-track" aria-hidden="true">
+              <div
+                class="quiz-chip-grid"
+                role="group"
+                aria-labelledby="habit-options-label"
+                aria-describedby="habit-options-help"
+              >
+                <button
+                  v-for="habit in habitOptions"
+                  :key="habit"
+                  type="button"
+                  class="quiz-option-chip"
+                  :class="{ selected: form.habits.includes(habit) }"
+                  :aria-pressed="form.habits.includes(habit) ? 'true' : 'false'"
+                  :data-hover-read-text="`${habit}. ${form.habits.includes(habit) ? 'Selected' : 'Not selected'}. Click to toggle.`"
+                  @click="toggleSelection(form.habits, habit)"
+                >
+                  {{ habit }}
+                </button>
+              </div>
+
+              <p id="habit-options-help" class="quiz-sr-only">
+                Select one or more priority areas that need support.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3: parent concerns and support style -->
+          <div v-if="currentStep === 2" class="quiz-form-grid">
+            <div class="quiz-form-group quiz-full-row">
+              <p id="concern-options-label" class="quiz-field-label">Key concerns</p>
+
+              <div
+                class="quiz-chip-grid"
+                role="group"
+                aria-labelledby="concern-options-label"
+                aria-describedby="concern-options-help"
+              >
+                <button
+                  v-for="concern in concernOptions"
+                  :key="concern"
+                  type="button"
+                  class="quiz-option-chip"
+                  :class="{ selected: form.concerns.includes(concern) }"
+                  :aria-pressed="form.concerns.includes(concern) ? 'true' : 'false'"
+                  :data-hover-read-text="`${concern}. ${form.concerns.includes(concern) ? 'Selected' : 'Not selected'}. Click to toggle.`"
+                  @click="toggleSelection(form.concerns, concern)"
+                >
+                  {{ concern }}
+                </button>
+              </div>
+
+              <p id="concern-options-help" class="quiz-sr-only">
+                Select one or more concerns you want help with.
+              </p>
+            </div>
+
+            <div class="quiz-form-group quiz-full-row">
+              <label for="confidence">Confidence level</label>
+              <select
+                id="confidence"
+                v-model="form.confidence"
+                data-hover-read-text="Confidence level. Select how supported you currently feel."
+                :aria-invalid="errorMessage && !form.confidence ? 'true' : 'false'"
+                aria-describedby="confidence-help"
+              >
+                <option disabled value="">Choose one</option>
+                <option>I feel confident</option>
+                <option>I know what to do but struggle to stay consistent</option>
+                <option>I need simple guidance and structure</option>
+              </select>
+              <p id="confidence-help" class="quiz-sr-only">
+                Choose the option that best describes how confident you feel.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4: review summary before saving -->
+          <div
+              v-if="currentStep === 3"
+              class="quiz-preview-card"
+              role="region"
+              aria-labelledby="quiz-summary-title"
+              :data-hover-read-text="reviewSummaryText"
+            >
+              <p
+                id="quiz-summary-title"
+                class="quiz-card-kicker"
+                data-hover-read-text="Summary of your family plan answers."
+              >
+                Summary
+              </p>
+
+              <div class="quiz-review-grid" role="list" aria-label="Review your plan answers">
                 <div
-                  class="progress-fill"
-                  :style="{ width: `${((currentStep + 1) / steps.length) * 100}%` }"
-                ></div>
-              </div>
-            </div>
-
-            <div v-if="currentStep === 0" class="form-grid">
-              <div class="form-group">
-                <label for="username">Family code</label>
-                <input
-                  id="username"
-                  v-model.trim="form.username"
-                  :disabled="hasFamilyCode"
-                  placeholder="Enter your family code"
-                />
-                <small v-if="isRetakeMode" class="field-hint">
-                  Family code is locked because you are updating your existing profile.
-                </small>
-                <small v-else class="field-hint">
-                  Use the same private family code you created earlier. Avoid real names or contact details.
-                </small>
-              </div>
-
-              <div class="form-group">
-                <label for="child-age">Child age range</label>
-                <select id="child-age" v-model="form.ageRange">
-                  <option disabled value="">Select age range</option>
-                  <option>5-7 years</option>
-                  <option>8-10 years</option>
-                  <option>11-12 years</option>
-                </select>
-                <small class="field-hint">
-                  This helps shape age-appropriate daily actions.
-                </small>
-              </div>
-
-              <div class="form-group full-row">
-                <label for="routine-type">How would you describe your weekly family routine?</label>
-                <select id="routine-type" v-model="form.routineType">
-                  <option disabled value="">Choose one</option>
-                  <option>Mostly structured</option>
-                  <option>Busy and sometimes inconsistent</option>
-                  <option>Very busy and hard to manage</option>
-                </select>
-              </div>
-            </div>
-
-            <div v-if="currentStep === 1" class="form-grid">
-              <div class="form-group full-row">
-                <label>Which everyday habits need the most support right now?</label>
-                <div class="chip-grid">
-                  <button
-                    v-for="habit in habitOptions"
-                    :key="habit"
-                    type="button"
-                    class="option-chip"
-                    :class="{ selected: form.habits.includes(habit) }"
-                    @click="toggleSelection(form.habits, habit)"
-                  >
-                    {{ habit }}
-                  </button>
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`Family code: ${form.username || 'Not provided'}`"
+                  :data-hover-read-text="`Family code: ${form.username || 'Not provided'}`"
+                >
+                  <span aria-hidden="true">Family code</span>
+                  <strong aria-hidden="true">{{ form.username || 'Not provided' }}</strong>
                 </div>
-              </div>
 
-              <div class="form-group full-row">
-                <label for="struggle">What feels hardest in daily family life right now?</label>
-                <textarea
-                  id="struggle"
-                  v-model.trim="form.struggle"
-                  rows="5"
-                  placeholder="For example: my child wants screens after school, healthy meals are difficult on busy days, or bedtime becomes a battle."
-                ></textarea>
-                <small class="field-hint">
-                  Keep this general. Avoid real names, medical details, addresses, or contact information.
-                </small>
-              </div>
-            </div>
-
-            <div v-if="currentStep === 2" class="form-grid">
-              <div class="form-group full-row">
-                <label>What are you most worried about right now?</label>
-                <div class="chip-grid">
-                  <button
-                    v-for="concern in concernOptions"
-                    :key="concern"
-                    type="button"
-                    class="option-chip"
-                    :class="{ selected: form.concerns.includes(concern) }"
-                    @click="toggleSelection(form.concerns, concern)"
-                  >
-                    {{ concern }}
-                  </button>
+                <div
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`Routine: ${form.routineType || 'Not selected'}`"
+                  :data-hover-read-text="`Routine: ${form.routineType || 'Not selected'}`"
+                >
+                  <span aria-hidden="true">Routine</span>
+                  <strong aria-hidden="true">{{ form.routineType || 'Not selected' }}</strong>
                 </div>
-              </div>
 
-              <div class="form-group">
-                <label for="confidence">How supported do you currently feel?</label>
-                <select id="confidence" v-model="form.confidence">
-                  <option disabled value="">Choose one</option>
-                  <option>I feel confident</option>
-                  <option>I know what to do but struggle to stay consistent</option>
-                  <option>I need simple guidance and structure</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="support-style">What type of support would help most?</label>
-                <select id="support-style" v-model="form.supportStyle">
-                  <option disabled value="">Choose one</option>
-                  <option>Small daily actions</option>
-                  <option>Weekly family plan</option>
-                  <option>Visual tips and reminders</option>
-                  <option>Easy routines with less conflict</option>
-                </select>
-              </div>
-            </div>
-
-            <div v-if="currentStep === 3" class="preview-stack">
-              <article class="preview-card">
-                <p class="card-kicker">Plan preview</p>
-                <h3>Your family plan</h3>
-
-                <ul class="preview-list">
-                  <li><strong>Family code:</strong> {{ form.username || 'Not provided' }}</li>
-                  <li>
-                    <strong>Top habits to support:</strong>
+                <div
+                  role="listitem"
+                  tabindex="0"
+                  :aria-label="`Priority areas: ${form.habits.length ? form.habits.join(', ') : 'None selected'}`"
+                  :data-hover-read-text="`Priority areas: ${form.habits.length ? form.habits.join(', ') : 'None selected'}`"
+                >
+                  <span aria-hidden="true">Priority areas</span>
+                  <strong aria-hidden="true">
                     {{ form.habits.length ? form.habits.join(', ') : 'None selected' }}
-                  </li>
-                  <li>
-                    <strong>Main concerns:</strong>
-                    {{ form.concerns.length ? form.concerns.join(', ') : 'None selected' }}
-                  </li>
-                  <li><strong>Support style:</strong> {{ form.supportStyle || 'Not selected' }}</li>
-                  <li><strong>Routine context:</strong> {{ form.routineType || 'Not selected' }}</li>
-                </ul>
-
-                <p class="preview-note">
-                  {{
-                    isRetakeMode
-                      ? 'Your updated answers will replace your existing dashboard plan.'
-                      : 'Your answers will generate a saved parent dashboard with practical next steps, a weekly plan, and trackable tasks.'
-                  }}
-                </p>
-              </article>
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
+          <!-- Validation and save error message -->
+          <p
+            v-if="errorMessage"
+            id="quiz-form-error"
+            class="quiz-form-error"
+            role="alert"
+            aria-live="assertive"
+            tabindex="-1"
+            :data-hover-read-text="errorMessage"
+          >
+            {{ errorMessage }}
+          </p>
 
-            <div class="form-actions wizard-actions">
-              <button
-                v-if="currentStep > 0"
-                type="button"
-                class="outline-btn"
-                :disabled="saving"
-                @click="currentStep -= 1"
-              >
-                Back
-              </button>
+          <!-- Wizard navigation buttons -->
+          <div class="quiz-wizard-actions" aria-label="Quiz navigation controls">
+            <button
+              v-if="currentStep > 0"
+              type="button"
+              class="quiz-outline-btn"
+              :disabled="saving"
+              :aria-disabled="saving ? 'true' : 'false'"
+              data-hover-read-text="Go back to the previous quiz step."
+              @click="currentStep -= 1"
+            >
+              Back
+            </button>
 
-              <button
-                v-if="currentStep < steps.length - 1"
-                type="button"
-                class="soft-brown-btn"
-                :disabled="saving"
-                @click="goNext"
-              >
-                Continue
-              </button>
+            <button
+              v-if="currentStep < steps.length - 1"
+              type="button"
+              class="quiz-primary-btn"
+              :disabled="saving"
+              :aria-disabled="saving ? 'true' : 'false'"
+              data-hover-read-text="Go to the next quiz step."
+              @click="goNext"
+            >
+              Next
+            </button>
 
-              <button
-                v-else
-                type="button"
-                class="soft-brown-btn"
-                :disabled="saving"
-                @click="submitQuiz"
-              >
-                {{
-                  saving
-                    ? 'Saving your plan...'
-                    : isRetakeMode
-                      ? 'Update my family plan'
-                      : 'Save and generate my family plan'
-                }}
-              </button>
-            </div>
+            <button
+              v-else
+              type="button"
+              class="quiz-primary-btn"
+              :disabled="saving"
+              :aria-disabled="saving ? 'true' : 'false'"
+              :aria-busy="saving ? 'true' : 'false'"
+              :data-hover-read-text="saving ? 'Saving your plan. Please wait.' : isRetakeMode ? 'Update my plan.' : 'Generate my plan.'"
+              @click="submitQuiz"
+            >
+              {{
+                saving
+                  ? 'Saving...'
+                  : isRetakeMode
+                    ? 'Update my plan'
+                    : 'Generate my plan'
+              }}
+            </button>
           </div>
         </div>
       </section>
     </main>
+
+    <!-- Footer copied from the home page styling -->
+    <footer
+      class="home-footer quiz-home-footer"
+      aria-label="Website footer"
+    >
+      <div
+        class="home-footer-left"
+        aria-label="Supporting families across Australia"
+        data-hover-read-text
+      >
+        <span class="home-live-dot" aria-hidden="true"></span>
+        Supporting families across Australia
+      </div>
+
+      <div
+        class="home-footer-right"
+        aria-label="UN Sustainable Development Goal 3, Good Health and Wellbeing. Developed by Team Syrbyx."
+        data-hover-read-text
+      >
+        <span>UN SDG 3 · Good Health &amp; Wellbeing</span>
+        <span class="home-footer-divider" aria-hidden="true">·</span>
+        <span>Developed by Team Syrbyx</span>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
+import { useHoverToRead } from '../composables/useHoverToRead'
+import { useSpeechSynthesis } from '../composables/useSpeechSynthesis'
+import FamilyJourneyBar from '../components/FamilyJourneyBar.vue'
 
+// Router and shared family plan store.
 const router = useRouter()
 const { state, savePlan } = useFamilyPlanStore()
 
+// Parent profile API base URL from the Vite environment file.
 const API_BASE = import.meta.env.VITE_PARENT_PROFILES_API_BASE_URL
 
+// Main quiz form state.
 const form = reactive({
   username: state.username || '',
   ageRange: state.ageRange || '',
   routineType: state.routineType || '',
   habits: Array.isArray(state.habits) ? [...state.habits] : [],
   concerns: Array.isArray(state.concerns) ? [...state.concerns] : [],
-  struggle: state.struggle || '',
   confidence: state.confidence || '',
-  supportStyle: state.supportStyle || '',
 })
 
+// Quiz step labels and descriptions.
 const steps = [
   {
     title: 'Family basics',
@@ -286,7 +395,7 @@ const steps = [
     subtitle: 'Identify which habits need the most support right now.',
   },
   {
-    title: 'Parent worries and support',
+    title: 'Parent Concerns',
     subtitle: 'Capture your concerns and what kind of guidance would help most.',
   },
   {
@@ -295,6 +404,7 @@ const steps = [
   },
 ]
 
+// Habit choices shown as selectable chips.
 const habitOptions = [
   'Balanced meals',
   'Healthier snacks',
@@ -305,33 +415,69 @@ const habitOptions = [
   'Screen time balance',
 ]
 
+// Parent concern choices shown as selectable chips.
 const concernOptions = [
   'My child is not active enough',
   'My child prefers screens over outdoor activity',
   'My child snacks too often',
-  'Healthy meals are hard on busy days',
-  'Bedtime feels inconsistent',
-  'Our family routine feels hard to manage',
-  'I am worried about healthy growth or long-term wellbeing',
-  'I am not sure what the right approach is',
+  'My child needs healthier meals',
+  'My child struggles with bedtime',
+  'My child finds routines hard',
+  'My child needs healthier habits',
+  'I need help supporting my child',
 ]
 
+// Current quiz progress and save state.
 const currentStep = ref(0)
 const errorMessage = ref('')
 const saving = ref(false)
 
+// Active step data used by the template.
 const activeStep = computed(() => steps[currentStep.value])
+
+// Prevents family code editing when it already exists in the store.
 const hasFamilyCode = computed(() => Boolean(state.username))
 
+// Readable review summary for hover-to-read.
+const reviewSummaryText = computed(() => {
+  const familyCode = form.username || 'Not provided'
+  const routine = form.routineType || 'Not selected'
+  const priorities = form.habits.length ? form.habits.join(', ') : 'None selected'
+
+  return `Summary. Family code: ${familyCode}. Routine: ${routine}. Priority areas: ${priorities}.`
+})
+
+// Hover-to-read and speech helpers for error feedback.
+const { isHoverToReadEnabled } = useHoverToRead()
+const { speakText } = useSpeechSynthesis()
+
+// Sets an error message, focuses it, and optionally reads it aloud.
+function setError(message) {
+  errorMessage.value = message
+
+  nextTick(() => {
+    const errorElement = document.getElementById('quiz-form-error')
+    errorElement?.focus?.()
+  })
+
+  if (isHoverToReadEnabled.value) {
+    speakText(message)
+  }
+}
+
+// Clears the current form error.
+function clearError() {
+  errorMessage.value = ''
+}
+
+// Checks whether the quiz is updating an existing plan instead of creating a new one.
 const isRetakeMode = computed(() =>
   Boolean(
     state.username &&
     (
       state.ageRange ||
       state.routineType ||
-      state.struggle ||
       state.confidence ||
-      state.supportStyle ||
       state.dailyPlan ||
       state.progressItems ||
       state.recommendations ||
@@ -341,6 +487,7 @@ const isRetakeMode = computed(() =>
   )
 )
 
+// Adds or removes a selected chip value.
 function toggleSelection(list, value) {
   const index = list.indexOf(value)
 
@@ -352,77 +499,74 @@ function toggleSelection(list, value) {
   list.splice(index, 1)
 }
 
+// Validates the family code format.
 function isValidUsername(username) {
   return /^[a-zA-Z0-9_-]{3,24}$/.test(username)
 }
 
+// Validates the current quiz step before moving forward or submitting.
 function validateStep() {
+  clearError()
   errorMessage.value = ''
 
   if (currentStep.value === 0) {
     if (!form.username) {
-      errorMessage.value = 'Please enter a family code.'
+      setError('Please enter a family code.')
       return false
     }
 
     if (!isValidUsername(form.username)) {
-      errorMessage.value =
-        'Family code must be 3-24 characters and can only include letters, numbers, underscores, or hyphens.'
+      
+        setError('Family code must be 3-24 characters and can only include letters, numbers, underscores, or hyphens.')
       return false
     }
 
     if (!form.ageRange) {
-      errorMessage.value = "Please select your child's age range."
+      setError("Please select your child's age range.")
       return false
     }
 
     if (!form.routineType) {
-      errorMessage.value = 'Please select your family routine type.'
+      setError('Please select your family routine type.')
       return false
     }
   }
 
   if (currentStep.value === 1) {
     if (!form.habits.length) {
-      errorMessage.value = 'Please select at least one habit to support.'
-      return false
-    }
-
-    if (!form.struggle) {
-      errorMessage.value = 'Please describe what feels hardest in daily family life right now.'
+      setError('Please select at least one habit to support.')
       return false
     }
   }
 
   if (currentStep.value === 2) {
     if (!form.concerns.length) {
-      errorMessage.value = 'Please select at least one parent concern.'
+      setError('Please select at least one parent concern.')
       return false
     }
 
     if (!form.confidence) {
-      errorMessage.value = 'Please select how supported you currently feel.'
+      setError('Please select how supported you currently feel.')
       return false
     }
 
-    if (!form.supportStyle) {
-      errorMessage.value = 'Please select the type of support that would help most.'
-      return false
-    }
   }
 
   return true
 }
 
+// Moves to the next step if the current step is valid.
 function goNext() {
   if (!validateStep()) return
   currentStep.value += 1
 }
 
+// Removes duplicate and empty strings from generated arrays.
 function uniqueStrings(values) {
   return [...new Set(values.filter(Boolean))]
 }
 
+// Builds task and tracker suggestions from selected habits, concerns, routine type, and support style.
 function buildTaskPool() {
   const tasks = []
   const trackerItems = []
@@ -561,26 +705,6 @@ function buildTaskPool() {
     trackerItems.push('One-habit focus maintained', 'Visible routine cue used')
   }
 
-  if (form.supportStyle === 'Visual tips and reminders') {
-    tasks.push('Place one visible reminder where the habit needs to happen')
-    trackerItems.push('Visible reminder placed')
-  }
-
-  if (form.supportStyle === 'Easy routines with less conflict') {
-    tasks.push('Use one calm instruction instead of repeated reminders')
-    trackerItems.push('Calm single instruction used')
-  }
-
-  if (form.supportStyle === 'Small daily actions') {
-    tasks.push('Choose only one non-negotiable healthy task for today')
-    trackerItems.push('One daily action completed')
-  }
-
-  if (form.supportStyle === 'Weekly family plan') {
-    tasks.push("Review tomorrow's task before the day ends")
-    trackerItems.push('Next day task reviewed')
-  }
-
   if (form.routineType === 'Very busy and hard to manage') {
     tasks.push(
       "Pick the easiest possible version of today's task",
@@ -600,6 +724,7 @@ function buildTaskPool() {
   }
 }
 
+// Builds a simple daily plan for each day of the week.
 function buildDailyPlan(taskPool) {
   const pool = taskPool.tasks.length
     ? taskPool.tasks
@@ -632,6 +757,7 @@ function buildDailyPlan(taskPool) {
   }, {})
 }
 
+// Builds checklist-style progress items for the dashboard.
 function buildProgressItems(taskPool) {
   const items = taskPool.trackerItems.length
     ? taskPool.trackerItems
@@ -649,6 +775,7 @@ function buildProgressItems(taskPool) {
   }))
 }
 
+// Creates personalised recommendations based on quiz answers.
 function createRecommendations() {
   const recommendations = []
 
@@ -695,13 +822,6 @@ function createRecommendations() {
     })
   }
 
-  if (form.supportStyle === 'Visual tips and reminders') {
-    recommendations.push({
-      title: 'Reminder strategy',
-      description:
-        'Use visible cues such as snack setup, water bottles, or bedtime reminders to reduce the need for repeated prompting.',
-    })
-  }
 
   if (recommendations.length < 3) {
     recommendations.push(
@@ -713,7 +833,7 @@ function createRecommendations() {
       },
       {
         title: 'Before the hard moment',
-        description: `Because "${form.struggle}", set one clear cue before the difficult time of day begins.`,
+        description: 'Set one clear cue before the difficult time of day begins.',
       }
     )
   }
@@ -721,10 +841,12 @@ function createRecommendations() {
   return recommendations.slice(0, 4)
 }
 
+// Chooses the next suggested dashboard action.
 function createNextAction(taskPool) {
   return taskPool.tasks[0] || 'Complete one healthy family habit today.'
 }
 
+// Creates the main mission text for the dashboard.
 function createMission() {
   if (form.habits.includes('Daily movement')) {
     return 'Complete one short movement activity today before screen time.'
@@ -745,6 +867,7 @@ function createMission() {
   return 'Complete one healthy habit win today.'
 }
 
+// Combines all quiz answers and generated plan data into one API payload.
 function buildPayload() {
   const taskPool = buildTaskPool()
 
@@ -754,9 +877,7 @@ function buildPayload() {
     routineType: form.routineType,
     habits: [...form.habits],
     concerns: [...form.concerns],
-    struggle: form.struggle,
     confidence: form.confidence,
-    supportStyle: form.supportStyle,
     recommendations: createRecommendations(),
     dailyPlan: buildDailyPlan(taskPool),
     progressItems: buildProgressItems(taskPool),
@@ -766,6 +887,7 @@ function buildPayload() {
   }
 }
 
+// Fetch helper that returns both the raw response and parsed JSON data.
 async function requestJson(url, options) {
   const response = await fetch(url, options)
   const data = await response.json().catch(() => ({}))
@@ -776,6 +898,7 @@ async function requestJson(url, options) {
   }
 }
 
+// Creates a new parent profile.
 async function createProfile(payload) {
   return requestJson(`${API_BASE}/parent-profiles`, {
     method: 'POST',
@@ -784,16 +907,18 @@ async function createProfile(payload) {
   })
 }
 
+// Updates an existing parent profile using the family code.
 async function updateProfile(payload) {
   const encodedUsername = encodeURIComponent(payload.username)
 
-  return requestJson(`${API_BASE}/parent-profiles/${encodedUsername}`, {
+  return requestJson(`${API_BASE}/${encodedUsername}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
 }
 
+// Saves the profile by updating or creating depending on quiz mode and API response.
 async function saveProfile(payload) {
   if (isRetakeMode.value) {
     const updateResult = await updateProfile(payload)
@@ -814,16 +939,17 @@ async function saveProfile(payload) {
   return createResult
 }
 
+// Final quiz submission handler.
 async function submitQuiz() {
   if (!validateStep() || saving.value) return
 
   if (!API_BASE) {
-    errorMessage.value = 'Missing VITE_PARENT_PROFILES_API_BASE_URL.'
+    setError('Missing VITE_PARENT_PROFILES_API_BASE_URL.')
     return
   }
 
   saving.value = true
-  errorMessage.value = ''
+  clearError()
 
   const payload = buildPayload()
 
@@ -832,7 +958,7 @@ async function submitQuiz() {
 
     if (!response.ok) {
       if (response.status === 409) {
-        errorMessage.value = 'That family code is already taken. Please use your existing family code or choose another one.'
+        setError('That family code is already taken. Please use your existing family code or choose another one.')
         return
       }
 
@@ -841,727 +967,10 @@ async function submitQuiz() {
 
     savePlan(payload)
     router.push('/parent-dashboard')
-  } catch (error) {
-    errorMessage.value =
-      'Something went wrong while saving your plan. Please try again in a moment.'
+  } catch {
+    setError('Something went wrong while saving your plan. Please try again in a moment.')
   } finally {
     saving.value = false
   }
 }
 </script>
-
-<style scoped>
-:global(:root) {
-  --c-black: #0a0b0a;
-  --c-900: #111312;
-  --c-800: #1c1f1d;
-  --c-700: #2d3230;
-  --c-500: #52605a;
-  --c-400: #7a8880;
-  --c-300: #a8b5ae;
-  --c-100: #e8ece9;
-  --c-50: #f4f5f2;
-  --c-white: #ffffff;
-
-  --c-green: #16a34a;
-  --c-green-mid: #22c55e;
-  --c-green-soft: #f0fdf4;
-  --c-green-pale: #dcfce7;
-
-  --border: rgba(10, 11, 10, 0.08);
-  --border-mid: rgba(10, 11, 10, 0.14);
-
-  --shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.06);
-  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.07);
-  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.09);
-  --shadow-lg: 0 20px 56px rgba(0, 0, 0, 0.12);
-
-  --f-display: 'Fraunces', Georgia, serif;
-  --f-body: 'General Sans', 'Helvetica Neue', ui-sans-serif, sans-serif;
-  --f-mono: 'JetBrains Mono', monospace;
-
-  --r-card: 28px;
-}
-
-:global(*, *::before, *::after) {
-  box-sizing: border-box;
-}
-
-:global(body) {
-  margin: 0;
-  font-family: var(--f-body), system-ui;
-  background: var(--c-white);
-  color: var(--c-black);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-
-.quiz-page {
-  min-height: 100vh;
-  position: relative;
-  overflow-x: clip;
-  background:
-    radial-gradient(circle at 82% 12%, rgba(34, 197, 94, 0.08), transparent 28rem),
-    radial-gradient(circle at 8% 28%, rgba(59, 130, 246, 0.04), transparent 26rem),
-    var(--c-white);
-}
-
-.quiz-page::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 256px;
-}
-
-.container {
-  width: min(1180px, calc(100% - 48px));
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
-/* HEADER */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 500;
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: var(--shadow-xs);
-}
-
-.header-row {
-  min-height: 76px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.brand {
-  text-decoration: none;
-  color: var(--c-black);
-  font-family: var(--f-display);
-  font-size: 1.25rem;
-  font-weight: 400;
-  letter-spacing: -0.03em;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav a,
-.nav-link {
-  height: 36px;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  font-family: var(--f-body);
-  font-size: 0.86rem;
-  font-weight: 500;
-  color: var(--c-500);
-  text-decoration: none;
-  border-radius: 8px;
-  transition: color 0.18s, background 0.18s;
-}
-
-.nav a:hover,
-.nav-link:hover {
-  color: var(--c-black);
-  background: var(--c-50);
-}
-
-.header-btn {
-  height: 38px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--f-body);
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--c-white);
-  background: var(--c-black);
-  text-decoration: none;
-  border-radius: 10px;
-  border: 1px solid var(--c-900);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-  transition: all 0.2s;
-}
-
-.header-btn:hover {
-  background: var(--c-800);
-  transform: translateY(-1px);
-}
-
-.light-btn {
-  color: var(--c-white);
-}
-
-/* HERO / INTRO */
-.quiz-top {
-  position: relative;
-  padding: 92px 0 70px;
-  overflow: hidden;
-  border-bottom: 1px solid var(--border);
-}
-
-.quiz-top::before {
-  content: "";
-  position: absolute;
-  width: 620px;
-  height: 620px;
-  top: -220px;
-  right: -120px;
-  border-radius: 50%;
-  filter: blur(100px);
-  background: radial-gradient(circle, rgba(22, 163, 74, 0.1), transparent 70%);
-  pointer-events: none;
-}
-
-.quiz-top::after {
-  content: "";
-  position: absolute;
-  width: 460px;
-  height: 460px;
-  bottom: -180px;
-  left: -120px;
-  border-radius: 50%;
-  filter: blur(100px);
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.055), transparent 70%);
-  pointer-events: none;
-}
-
-.intro-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 420px;
-  gap: 70px;
-  align-items: center;
-}
-
-.step-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--c-green-soft);
-  border: 1px solid rgba(22, 163, 74, 0.2);
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--c-green);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin: 0 0 28px;
-}
-
-.step-kicker::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--c-green-mid);
-  animation: livePulse 2.4s ease-in-out infinite;
-}
-
-@keyframes livePulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
-  }
-
-  50% {
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
-  }
-}
-
-.intro-copy h1,
-.form-head h2,
-.preview-card h3 {
-  margin: 0;
-  font-family: var(--f-display);
-  font-weight: 400;
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  color: var(--c-black);
-}
-
-.intro-copy h1 {
-  max-width: 11ch;
-  font-size: clamp(3rem, 6vw, 6.4rem);
-  font-weight: 300;
-  line-height: 0.96;
-  letter-spacing: -0.055em;
-}
-
-.intro-text {
-  max-width: 42rem;
-  margin: 28px 0 0;
-  font-family: var(--f-body);
-  font-size: 1.02rem;
-  line-height: 1.75;
-  color: var(--c-500);
-}
-
-/* JOURNEY CARD */
-.journey-card {
-  padding: 28px;
-  border-radius: 26px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(244, 245, 242, 0.92));
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-lg);
-}
-
-.journey-label,
-.wizard-step,
-.card-kicker {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--c-400);
-}
-
-.journey-label {
-  margin-bottom: 22px;
-}
-
-.journey-steps {
-  display: grid;
-  gap: 12px;
-}
-
-.journey-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  min-width: 0;
-}
-
-.journey-step span {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  background: var(--c-50);
-  border: 1px solid var(--border);
-  font-family: var(--f-mono);
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: var(--c-400);
-}
-
-.journey-step.complete span,
-.journey-step.active span {
-  background: var(--c-black);
-  color: var(--c-white);
-  border-color: var(--c-black);
-}
-
-.journey-step small {
-  display: block;
-  padding-top: 11px;
-  font-family: var(--f-body);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--c-black);
-  line-height: 1.35;
-}
-
-.journey-line {
-  width: 1px;
-  height: 24px;
-  margin-left: 21px;
-  background: var(--border-mid);
-}
-
-/* FORM SECTION */
-.quiz-form-section {
-  padding: 86px 0 96px;
-  background: var(--c-white);
-  position: relative;
-  z-index: 1;
-}
-
-.form-shell {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 32px;
-  border-radius: 28px;
-  background: var(--c-white);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-}
-
-.form-head {
-  margin-bottom: 28px;
-}
-
-.wizard-step {
-  margin-bottom: 12px;
-  color: var(--c-green);
-}
-
-.form-head h2 {
-  font-size: clamp(2rem, 3.5vw, 3.25rem);
-  font-weight: 400;
-  line-height: 1.04;
-  letter-spacing: -0.045em;
-}
-
-.wizard-subtitle {
-  max-width: 44rem;
-  margin: 12px 0 0;
-  font-size: 0.98rem;
-  line-height: 1.72;
-  color: var(--c-500);
-}
-
-.progress-track {
-  width: 100%;
-  height: 8px;
-  margin-top: 22px;
-  border-radius: 999px;
-  background: var(--c-100);
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--c-black);
-  transition: width 0.25s ease;
-}
-
-/* FORM CONTROLS */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-}
-
-.full-row {
-  grid-column: 1 / -1;
-}
-
-.form-group {
-  display: grid;
-  gap: 10px;
-}
-
-.form-group label {
-  font-family: var(--f-body);
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--c-black);
-  line-height: 1.5;
-}
-
-.field-hint {
-  color: var(--c-400);
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--border-mid);
-  background: #fffefb;
-  padding: 0 16px;
-  font-family: var(--f-body);
-  font-size: 0.96rem;
-  color: var(--c-black);
-  outline: none;
-  resize: vertical;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-}
-
-.form-group input,
-.form-group select {
-  height: 54px;
-}
-
-.form-group input:disabled {
-  color: var(--c-500);
-  background: var(--c-50);
-  cursor: not-allowed;
-}
-
-.form-group textarea {
-  min-height: 140px;
-  padding-top: 16px;
-  line-height: 1.65;
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: var(--c-300);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: var(--c-green);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
-}
-
-/* OPTION CHIPS */
-.chip-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.option-chip {
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border-mid);
-  background: var(--c-white);
-  color: var(--c-700);
-  font-family: var(--f-body);
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    transform 0.16s ease,
-    background 0.16s ease,
-    border-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-
-.option-chip:hover {
-  transform: translateY(-1px);
-  background: var(--c-50);
-  border-color: rgba(22, 163, 74, 0.24);
-}
-
-.option-chip.selected {
-  color: var(--c-white);
-  background: var(--c-black);
-  border-color: var(--c-black);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
-}
-
-.option-chip.selected::after {
-  content: " ✓";
-}
-
-/* PREVIEW */
-.preview-stack {
-  display: grid;
-  gap: 18px;
-}
-
-.preview-card {
-  padding: 28px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 18rem),
-    var(--c-50);
-  border: 1px solid var(--border);
-}
-
-.card-kicker {
-  margin-bottom: 12px;
-}
-
-.preview-card h3 {
-  font-size: clamp(1.55rem, 2.4vw, 2.15rem);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-}
-
-.preview-list {
-  margin: 20px 0 0;
-  padding-left: 20px;
-  color: var(--c-500);
-  font-size: 0.94rem;
-  line-height: 1.85;
-}
-
-.preview-list strong {
-  color: var(--c-black);
-}
-
-.preview-note {
-  margin: 18px 0 0;
-  font-size: 0.94rem;
-  line-height: 1.7;
-  color: var(--c-500);
-}
-
-/* ERRORS */
-.form-error {
-  margin: 22px 0 0;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(180, 35, 24, 0.08);
-  border: 1px solid rgba(180, 35, 24, 0.16);
-  color: #b42318;
-  font-size: 0.9rem;
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-/* BUTTONS */
-.form-actions,
-.wizard-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 30px;
-}
-
-.soft-brown-btn,
-.outline-btn {
-  min-height: 52px;
-  padding: 0 24px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  font-family: var(--f-body);
-  font-size: 0.94rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.22s;
-}
-
-.soft-brown-btn {
-  color: var(--c-white);
-  background: var(--c-black);
-  border: 1px solid var(--c-black);
-  box-shadow: none;
-}
-
-.soft-brown-btn:hover:not(:disabled) {
-  background: var(--c-800);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-}
-
-.outline-btn {
-  color: var(--c-black);
-  background: var(--c-white);
-  border: 1px solid var(--border-mid);
-}
-
-.outline-btn:hover:not(:disabled) {
-  background: var(--c-50);
-  transform: translateY(-1px);
-}
-
-.soft-brown-btn:disabled,
-.outline-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* RESPONSIVE */
-@media (max-width: 980px) {
-  .intro-shell,
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .journey-card {
-    max-width: 560px;
-  }
-
-  .intro-copy h1 {
-    max-width: 11ch;
-  }
-}
-
-@media (max-width: 760px) {
-  .container {
-    width: calc(100% - 32px);
-  }
-
-  .header-row {
-    min-height: auto;
-    padding: 14px 0;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-
-  .nav {
-    display: none;
-  }
-
-  .header-btn {
-    width: 100%;
-  }
-
-  .quiz-top {
-    padding: 64px 0 52px;
-  }
-
-  .intro-copy h1 {
-    font-size: clamp(2.75rem, 12vw, 4rem);
-  }
-
-  .quiz-form-section {
-    padding: 64px 0;
-  }
-
-  .form-shell,
-  .journey-card,
-  .preview-card {
-    padding: 24px;
-  }
-
-  .form-actions,
-  .wizard-actions {
-    flex-direction: column;
-  }
-
-  .form-actions button,
-  .wizard-actions button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 520px) {
-  .journey-step small {
-    font-size: 0.82rem;
-  }
-
-  .form-shell {
-    padding: 20px;
-  }
-
-  .chip-grid {
-    gap: 10px;
-  }
-
-  .option-chip {
-    width: 100%;
-    justify-content: center;
-  }
-}
-</style>

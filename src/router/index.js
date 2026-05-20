@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '../components/HomePage.vue'
 import ParentQuizPage from '../components/ParentQuizPage.vue'
 import ParentDashboardPage from '../components/ParentDashboardPage.vue'
-import ParentRoadmapPage from '../components/ParentRoadmapPage.vue'
 import ParentNutritionToolsPage from '../components/ParentNutritionToolsPage.vue'
 import KidsDashboardPage from '../components/KidsDashboardPage.vue'
 import KidsGameZonePage from '../components/KidsGameZonePage.vue'
@@ -10,7 +9,9 @@ import KidsMealsPage from '../components/KidsMealsPage.vue'
 import KidsStatsPage from '../components/KidsStatsPage.vue'
 import KidsWinsPage from '../components/KidsWinsPage.vue'
 import ParentEntry from '../components/ParentEntry.vue'
+import StatisticPage from '@/components/StatisticPage.vue'
 import { useFamilyPlanStore } from '../stores/familyPlanStore'
+import ParentRoadmapPage from '@/components/ParentRoadmapPage.vue'
 
 const routes = [
   {
@@ -36,7 +37,7 @@ const routes = [
   },
   {
     path: '/parent-roadmap',
-    name: 'ParentRoadmap',
+    name: 'ParentRoadMap',
     component: ParentRoadmapPage,
     meta: { requiresParentProfile: true },
   },
@@ -72,6 +73,11 @@ const routes = [
     path: '/kids-wins',
     name: 'kids-wins',
     component: KidsWinsPage,
+  },
+  {
+    path: '/statistics',
+    name: 'statistics',
+    component: StatisticPage,
   },
   {
     path: '/:pathMatch(.*)*',

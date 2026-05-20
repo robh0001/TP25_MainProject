@@ -1,7 +1,26 @@
+<!--
+  KidsGamesPage.vue
+
+  Creates the HelthyKidz kids games page. Children can choose between different
+  mini-games, view game instructions, and play the selected game inside the shared kids shell.
+
+  Component requirement:
+  - Uses KidsRouteShell for the shared kids layout.
+  - Uses injectKidsTheme for light and dark mode styling.
+  - Uses async game components so each game loads only when needed.
+  - Reads route.query.game to open a specific game tab.
+
+  Accessibility:
+  - Uses aria-label for the games tab list and info buttons.
+  - Marks decorative game icons as aria-hidden.
+  - Uses click-outside behaviour for the info modal backdrop.
+-->
+
 <template>
   <KidsRouteShell page-label="Games">
     <div class="game-zone-page" :class="{ 'kids-context--dark': isDarkMode }">
       <main class="zone-shell">
+      <!-- Hero section with current game summary and info button -->
       <section class="zone-hero">
         <div class="zone-hero-copy">
           <p class="zone-kicker">Games</p>
@@ -16,6 +35,7 @@
         </div>
       </section>
 
+      <!-- Game selection tabs -->
       <section class="zone-tabs" role="tablist" aria-label="Kids games">
         <button
           v-for="game in gameCards"
@@ -33,6 +53,7 @@
         </button>
       </section>
 
+      <!-- Active game panel -->
       <section class="zone-panel">
         <header class="zone-panel-head">
           <div class="zone-panel-title-row">
@@ -41,20 +62,29 @@
           </div>
         </header>
 
+        <!-- Bubble game -->
         <section v-if="activeGame === 'bubble'" class="game-shell">
           <BubbleAdventureGame />
         </section>
 
+        <!-- Explorer matching game -->
         <section v-else-if="activeGame === 'explorer'" class="game-shell">
           <HealthyHabitsLab />
         </section>
 
+        <!-- Hum It voice game -->
+        <section v-else-if="activeGame === 'humit'" class="game-shell">
+          <HumItGame />
+        </section>
+
+        <!-- Routine Rumble smash game -->
         <section v-else class="game-shell">
           <SmashWiggleGame />
         </section>
       </section>
       </main>
 
+      <!-- Game information modal -->
       <div v-if="showInfo" class="info-modal-backdrop" @click.self="showInfo = false">
       <div class="info-modal">
         <div class="info-modal-head">
@@ -77,18 +107,23 @@
 <script setup>
 import { computed, defineAsyncComponent, ref, watch } from "vue"
 import { useRoute } from "vue-router"
-import BubbleAdventureGame from "./game/BubbleAdventureGame.vue"
 import KidsRouteShell from "./KidsRouteShell.vue"
 import { injectKidsTheme } from "../composables/useKidsTheme.js"
 
+// Reads the current kids theme so the page can apply light or dark mode styling.
 const { isDarkMode } = injectKidsTheme()
 
+// Async game components keep the games page lighter by loading game files only when required.
+const BubbleAdventureGame = defineAsyncComponent(() => import("./game/BubbleAdventureGame.vue"))
 const HealthyHabitsLab = defineAsyncComponent(() => import("./game/HealthyHabitsLab.vue"))
 const SmashWiggleGame = defineAsyncComponent(() => import("./game/SmashWiggleGame.vue"))
+const HumItGame = defineAsyncComponent(() => import("./game/HumItGame.vue"))
 
+// Route and modal state.
 const route = useRoute()
 const showInfo = ref(false)
 
+// Game metadata used for tabs, hero copy, and the info modal.
 const gameCards = [
   {
     id: "bubble",
@@ -121,6 +156,22 @@ const gameCards = [
     ],
   },
   {
+    id: "humit",
+    icon: "🎵",
+    kicker: "Voice adventure",
+    title: "Hum It!",
+    short: "Your hum powers your creature",
+    description:
+      "Hum into the mic — pitch, volume, and steady tones shape a creature and beat Hum Hills challenges. Demo sliders work without a microphone.",
+    helper: "Breathing, pitch play, and silly wins",
+    tag: "Voice-driven fun",
+    instructions: [
+      "Allow the microphone when asked, or choose demo sliders if you cannot use a mic.",
+      "Hum high, low, loud, soft, or stay silent — match what your creature asks for.",
+      "There are no game overs: every hum teaches something and keeps the streak friendly.",
+    ],
+  },
+  {
     id: "smash",
     icon: "🎈",
     kicker: "Smash mission",
@@ -137,10 +188,13 @@ const gameCards = [
   },
 ]
 
+// Currently selected game tab.
 const activeGame = ref("bubble")
 
+// Metadata for the currently selected game.
 const currentGameMeta = computed(() => gameCards.find(game => game.id === activeGame.value) ?? gameCards[0])
 
+// Opens a game directly when the URL contains a valid game query.
 watch(
   () => route.query.game,
   value => {
@@ -154,6 +208,7 @@ watch(
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap");
 
+/* Main games page wrapper and local colour tokens */
 .game-zone-page {
   --coral: #ff6058;
   --sky: #3b9eff;
@@ -176,10 +231,12 @@ watch(
   position: relative;
 }
 
+/* Dark mode hover shadow */
 .game-zone-page.kids-context--dark {
   --card-shadow-hover: 0 18px 44px rgba(3, 7, 23, 0.45);
 }
 
+/* Dark mode hero card */
 .kids-context--dark .zone-hero {
   background:
     radial-gradient(circle at 14% 16%, rgba(255, 176, 32, 0.12), transparent 26%),
@@ -189,15 +246,18 @@ watch(
   box-shadow: var(--card-shadow);
 }
 
+/* Dark mode headings */
 .kids-context--dark .zone-hero h1,
 .kids-context--dark .zone-panel-head h2 {
   color: var(--ink);
 }
 
+/* Dark mode kicker text */
 .kids-context--dark .zone-kicker {
   color: #c4b5fd;
 }
 
+/* Dark mode hero side label */
 .kids-context--dark .zone-hero-side span {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
   border-color: var(--border);
@@ -205,6 +265,7 @@ watch(
   box-shadow: none;
 }
 
+/* Dark mode hero side tag */
 .kids-context--dark .zone-hero-side strong {
   background: linear-gradient(135deg, rgba(255, 176, 32, 0.16), rgba(255, 126, 179, 0.1));
   border-color: var(--border);
@@ -212,6 +273,7 @@ watch(
   box-shadow: none;
 }
 
+/* Dark mode inactive game tabs */
 .kids-context--dark .zone-tab:not(.active) {
   border-color: rgba(143, 154, 227, 0.22);
   background: linear-gradient(135deg, rgba(22, 26, 48, 0.88), rgba(14, 18, 36, 0.85));
@@ -219,16 +281,19 @@ watch(
   box-shadow: var(--card-shadow);
 }
 
+/* Dark mode inactive tab subtext */
 .kids-context--dark .zone-tab:not(.active) .zone-tab-copy small {
   color: var(--muted);
   opacity: 1;
 }
 
+/* Dark mode tab icon */
 .kids-context--dark .zone-tab-icon {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
   box-shadow: 0 8px 18px rgba(3, 7, 23, 0.35);
 }
 
+/* Dark mode game panel */
 .kids-context--dark .zone-panel {
   background:
     radial-gradient(circle at 90% 10%, rgba(255, 176, 32, 0.1), transparent 22%),
@@ -238,10 +303,12 @@ watch(
   box-shadow: var(--card-shadow);
 }
 
+/* Dark mode info modal backdrop */
 .kids-context--dark .info-modal-backdrop {
   background: rgba(3, 7, 23, 0.62);
 }
 
+/* Dark mode info modal */
 .kids-context--dark .info-modal {
   background:
     radial-gradient(circle at 100% 0%, rgba(155, 114, 255, 0.12), transparent 30%),
@@ -251,11 +318,13 @@ watch(
   color: var(--ink);
 }
 
+/* Dark mode info modal text */
 .kids-context--dark .info-lead,
 .kids-context--dark .info-list {
   color: var(--ink2);
 }
 
+/* Dark mode info buttons */
 .kids-context--dark .info-btn,
 .kids-context--dark .info-close {
   border-color: rgba(143, 154, 227, 0.35);
@@ -264,6 +333,7 @@ watch(
   box-shadow: var(--card-shadow);
 }
 
+/* Main page content width */
 .zone-shell {
   position: relative;
   z-index: 1;
@@ -272,6 +342,7 @@ watch(
   padding-bottom: 150px;
 }
 
+/* Hero container */
 .zone-hero {
   display: flex;
   align-items: center;
@@ -290,18 +361,21 @@ watch(
   overflow: hidden;
 }
 
+/* Hero text stack */
 .zone-hero-copy {
   display: grid;
   gap: 12px;
   min-width: 0;
 }
 
+/* Hero title and info button row */
 .zone-title-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+/* Animated rainbow strip at the bottom of the hero */
 .zone-hero::after {
   content: "";
   position: absolute;
@@ -314,6 +388,7 @@ watch(
   animation: gradientWave 4s linear infinite;
 }
 
+/* Decorative hero glow blob */
 .zone-hero::before {
   content: "";
   position: absolute;
@@ -326,36 +401,43 @@ watch(
   animation: blobDrift 7s ease-in-out infinite;
 }
 
+/* Hero entrance animation */
 @keyframes headerDrop {
   from { transform: translateY(-40px) scale(0.97); opacity: 0; }
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* Rainbow strip animation */
 @keyframes gradientWave {
   0% { background-position: 0%; }
   100% { background-position: 400%; }
 }
 
+/* Decorative blob movement */
 @keyframes blobDrift {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(-18px, 12px, 0) scale(1.08); }
 }
 
+/* Gentle floating animation for cards */
 @keyframes floatCard {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
 
+/* Glow animation for hero chips */
 @keyframes pillGlow {
   0%, 100% { box-shadow: var(--card-shadow); }
   50% { box-shadow: 0 14px 28px rgba(122, 111, 255, 0.18); }
 }
 
+/* Pulse animation for info button */
 @keyframes pulseRing {
   0%, 100% { transform: scale(1); box-shadow: var(--card-shadow); }
   50% { transform: scale(1.08); box-shadow: 0 14px 28px rgba(255, 126, 179, 0.24); }
 }
 
+/* Small uppercase section label */
 .zone-kicker {
   margin: 0;
   color: var(--violet);
@@ -365,6 +447,18 @@ watch(
   letter-spacing: 0.12em;
 }
 
+/* Larger gradient hero kicker */
+.zone-hero-copy .zone-kicker {
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  letter-spacing: 0.16em;
+  background: linear-gradient(135deg, #ff9a3e, #ff5fa2 55%, #6f6dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 6px 18px rgba(111, 109, 255, 0.18);
+}
+
+/* Hero and panel headings */
 .zone-hero h1,
 .zone-panel-head h2 {
   margin: 10px 0 0;
@@ -373,12 +467,14 @@ watch(
   font-family: "Baloo 2", cursive;
 }
 
+/* Hero chips wrapper */
 .zone-hero-side {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
+/* Shared hero chip styling */
 .zone-hero-side span,
 .zone-hero-side strong {
   border-radius: 18px;
@@ -390,17 +486,20 @@ watch(
   font-size: 0.84rem;
 }
 
+/* Hero short description chip */
 .zone-hero-side span {
   background: linear-gradient(135deg, rgba(241, 248, 255, 0.96), rgba(236, 245, 255, 0.94));
   color: var(--muted);
   font-weight: 700;
 }
 
+/* Hero tag chip */
 .zone-hero-side strong {
   background: linear-gradient(135deg, rgba(255, 249, 239, 0.96), rgba(255, 243, 233, 0.94));
   color: var(--ink);
 }
 
+/* Game tab grid */
 .zone-tabs {
   margin-top: 18px;
   display: grid;
@@ -408,6 +507,7 @@ watch(
   gap: 12px;
 }
 
+/* Game tab button */
 .zone-tab {
   border: 2px solid rgba(24, 25, 43, 0.12);
   border-radius: 24px;
@@ -424,11 +524,13 @@ watch(
   transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease, border-color 0.24s ease;
 }
 
+/* Game tab hover state */
 .zone-tab:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: var(--card-shadow-hover);
 }
 
+/* Active game tab */
 .zone-tab.active {
   background: linear-gradient(135deg, #63b3ff, #7f88ff, #9b8cff);
   color: #fff;
@@ -437,6 +539,7 @@ watch(
   box-shadow: 0 18px 36px rgba(123, 101, 255, 0.24);
 }
 
+/* Game tab icon box */
 .zone-tab-icon {
   width: 68px;
   height: 68px;
@@ -450,25 +553,30 @@ watch(
   box-shadow: 0 12px 22px rgba(41, 62, 121, 0.16);
 }
 
+/* Active tab icon style */
 .zone-tab.active .zone-tab-icon {
   background: rgba(255, 255, 255, 0.16);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
 }
 
+/* Icon hover movement */
 .zone-tab:hover .zone-tab-icon {
   transform: rotate(-8deg) scale(1.12);
 }
 
+/* Game tab text stack */
 .zone-tab-copy {
   display: grid;
   gap: 4px;
 }
 
+/* Game tab title */
 .zone-tab-copy strong {
   font-size: 0.92rem;
   font-family: "Baloo 2", cursive;
 }
 
+/* Game tab description */
 .zone-tab-copy small {
   color: inherit;
   opacity: 0.84;
@@ -476,6 +584,7 @@ watch(
   font-size: 0.74rem;
 }
 
+/* Main game panel */
 .zone-panel {
   margin-top: 18px;
   border-radius: 30px;
@@ -490,6 +599,7 @@ watch(
   overflow: hidden;
 }
 
+/* Decorative glow in the game panel */
 .zone-panel::after {
   content: "";
   position: absolute;
@@ -501,6 +611,7 @@ watch(
   animation: blobDrift 8s ease-in-out infinite reverse;
 }
 
+/* Panel heading row */
 .zone-panel-title-row {
   display: flex;
   align-items: end;
@@ -508,10 +619,12 @@ watch(
   gap: 10px;
 }
 
+/* Active game component wrapper */
 .game-shell {
   margin-top: 16px;
 }
 
+/* Shared info buttons */
 .info-btn,
 .info-close {
   width: 48px;
@@ -531,6 +644,7 @@ watch(
   animation: pulseRing 3.2s ease-in-out infinite;
 }
 
+/* Full-screen info modal backdrop */
 .info-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -542,6 +656,7 @@ watch(
   backdrop-filter: blur(10px);
 }
 
+/* Info modal card */
 .info-modal {
   width: min(560px, 100%);
   border-radius: 28px;
@@ -555,6 +670,7 @@ watch(
   animation: headerDrop 0.28s ease-out, floatCard 5.2s ease-in-out infinite 0.4s;
 }
 
+/* Info modal header */
 .info-modal-head {
   display: flex;
   align-items: start;
@@ -562,6 +678,7 @@ watch(
   gap: 12px;
 }
 
+/* Info modal title */
 .info-modal h3 {
   margin: 8px 0 0;
   font-family: "Baloo 2", cursive;
@@ -569,6 +686,7 @@ watch(
   color: var(--ink);
 }
 
+/* Info modal description */
 .info-lead {
   margin-top: 14px;
   color: var(--ink2);
@@ -576,6 +694,7 @@ watch(
   font-size: 0.92rem;
 }
 
+/* Info modal instruction list */
 .info-list {
   margin: 16px 0 0;
   padding-left: 18px;
@@ -584,10 +703,12 @@ watch(
   gap: 10px;
 }
 
+/* Info list marker colour */
 .info-list li::marker {
   color: var(--coral);
 }
 
+/* Tablet layout */
 @media (max-width: 880px) {
   .zone-hero,
   .zone-tabs {
@@ -596,6 +717,7 @@ watch(
   }
 }
 
+/* Small-screen header layout */
 @media (max-width: 640px) {
   .zone-header {
     flex-direction: column;

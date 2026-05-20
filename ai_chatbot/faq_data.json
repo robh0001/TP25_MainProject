@@ -1,0 +1,1502 @@
+[
+    {
+      "intent": "nutrition",
+      "question": "My child refuses vegetables. What can I do?",
+      "answer": "Offer vegetables in small portions and combine them with familiar foods. Keep the experience relaxed and avoid forcing."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What are simple healthy breakfast ideas for kids?",
+      "answer": "Try options like yogurt with fruit, whole-grain toast, or a boiled egg for a quick and balanced start."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I help my child drink more water?",
+      "answer": "Make water easily available and use fun cups or bottles to encourage regular drinking."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Is it okay if my child eats snacks every day?",
+      "answer": "Daily snacks are fine if they are healthy choices like fruit, yogurt, or nuts and eaten at consistent times."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What should I pack in a healthy lunchbox?",
+      "answer": "Include fruits, vegetables, protein like eggs or chicken, and whole grains for balance."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child eats too much junk food. How can I reduce it?",
+      "answer": "Limit unhealthy options at home and replace them with healthier snacks that are easy to grab."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I make meals more interesting for my child?",
+      "answer": "Use colorful ingredients and creative presentation to make meals more appealing."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What is a balanced meal for children?",
+      "answer": "A balanced meal includes vegetables, protein, and carbohydrates in appropriate portions."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I deal with a child who skips meals?",
+      "answer": "Offer regular meal times and avoid replacing meals with snacks so hunger cues develop naturally."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Is milk important for children?",
+      "answer": "Milk can provide important nutrients, but it should be part of a balanced diet."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I reduce sugar intake in my child's diet?",
+      "answer": "Avoid sugary drinks and choose natural foods like fruits instead of processed snacks."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child only eats a few foods. Is that a problem?",
+      "answer": "It is common. Keep offering variety without pressure and allow gradual acceptance of new foods."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I encourage healthy eating habits early?",
+      "answer": "Model healthy eating and involve your child in food choices and preparation."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Are frozen foods okay for children?",
+      "answer": "Yes, as long as they are not highly processed and still provide nutritional value."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I manage portion sizes?",
+      "answer": "Serve small portions and allow children to ask for more if they are still hungry."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What are good alternatives to sugary snacks?",
+      "answer": "Try fruits, yogurt, nuts, or homemade snacks with less sugar."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child eats too fast. What should I do?",
+      "answer": "Encourage slower eating by having relaxed family meals and limiting distractions."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Should children eat at the same time every day?",
+      "answer": "Regular meal times help establish healthy eating habits and routine."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I introduce new foods without resistance?",
+      "answer": "Introduce one new food at a time alongside familiar favorites."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What if my child refuses to try anything new?",
+      "answer": "Stay patient and continue offering new foods without pressure."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Are smoothies a healthy option?",
+      "answer": "Yes, smoothies with fruit, milk, and no added sugar can be a good option."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I handle picky eating at dinner?",
+      "answer": "Serve the same meal for everyone and include at least one familiar item."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Can children eat the same meals as adults?",
+      "answer": "Yes, with appropriate portion sizes and balanced ingredients."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How important is breakfast for children?",
+      "answer": "Breakfast helps provide energy and supports focus throughout the day."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What are quick after-school snacks?",
+      "answer": "Try fruit slices, yogurt, or whole-grain crackers."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I reduce processed food intake?",
+      "answer": "Prepare simple homemade meals and snacks when possible."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Is it okay for kids to skip vegetables sometimes?",
+      "answer": "Occasionally is fine, but keep offering vegetables regularly."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I make vegetables taste better?",
+      "answer": "Try different cooking methods like roasting or adding mild seasoning."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Should I reward my child for eating healthy food?",
+      "answer": "It is better to encourage naturally rather than using rewards."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What are healthy drink alternatives to juice?",
+      "answer": "Water and milk are the best choices for daily hydration."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I avoid mealtime conflicts?",
+      "answer": "Keep meals calm and avoid forcing or negotiating too much."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What if my child only wants snacks instead of meals?",
+      "answer": "Maintain structured meal times and limit grazing throughout the day."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I involve kids in healthy eating?",
+      "answer": "Let them help choose and prepare meals to increase engagement."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Are plant-based meals okay for kids?",
+      "answer": "Yes, if they include enough protein and nutrients."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What should I do if my child overeats?",
+      "answer": "Encourage awareness of fullness and avoid forcing them to finish everything."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I improve my child's appetite?",
+      "answer": "Ensure regular activity and avoid excessive snacking before meals."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What is a good dinner routine?",
+      "answer": "Keep meals at consistent times and eat together as a family."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My kid will only eat white foods like bread and rice. What do I do?",
+      "answer": "Gradually introduce color by mixing small amounts of new foods into accepted ones and keep offering variety without pressure."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I get my toddler to eat more protein?",
+      "answer": "Try easy options like eggs, cheese, hummus, or small pieces of chicken that are simple to eat."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child refuses to eat anything green. Any tips?",
+      "answer": "Try blending greens into sauces or smoothies so they are less visible, and keep offering them alongside preferred foods."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Is it bad if my child skips breakfast?",
+      "answer": "Breakfast supports energy and focus, so encourage a light option even if they are not very hungry in the morning."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How much fruit is too much for a child?",
+      "answer": "Two to three servings of whole fruit daily is generally fine, but limit fruit juice as it contains concentrated sugar."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child loves chips and won't eat real food",
+      "answer": "Reduce chips at home gradually and offer crunchy alternatives like rice cakes, cucumber slices, or lightly salted popcorn."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Should kids take vitamins?",
+      "answer": "A varied diet usually covers nutritional needs, but speak to your doctor if you are concerned about deficiencies."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I stop my child from eating too much sugar?",
+      "answer": "Swap sugary snacks for fruit, reduce sweet drinks, and avoid using sweets as rewards."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What foods help kids concentrate at school?",
+      "answer": "Whole grains, eggs, and fruit provide steady energy that supports focus throughout the school day."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child is always hungry. Is that normal?",
+      "answer": "Growing children need frequent eating. Offer regular meals and healthy snacks to keep hunger satisfied."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I pack a lunch my child will actually eat?",
+      "answer": "Involve them in choosing what goes in, keep it simple, and include at least one food they really enjoy."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What is a good protein source for kids who don't like meat?",
+      "answer": "Eggs, dairy, legumes, tofu, and nut butters are all good protein sources for children who avoid meat."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child eats fine at school but refuses food at home",
+      "answer": "Try to keep meals relaxed at home and avoid making food a battleground. Peer influence often makes eating easier at school."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I limit my child's fast food intake?",
+      "answer": "Cook simple meals at home more often and save fast food for occasional treats rather than regular meals."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Are eggs healthy for kids every day?",
+      "answer": "Eggs are nutritious and fine for most children daily as part of a varied diet."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child drinks too much juice. How do I cut back?",
+      "answer": "Gradually dilute juice with water and offer plain water more often until juice becomes an occasional drink."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I get my child to eat more fibre?",
+      "answer": "Offer whole grain bread, fruits, vegetables, and legumes regularly to increase fibre naturally."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child refuses to eat at the dinner table",
+      "answer": "Keep mealtimes calm and positive, remove distractions, and avoid forcing. Consistency helps over time."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What snacks are good for an active child?",
+      "answer": "Bananas, peanut butter on toast, yogurt, or trail mix provide good energy for active kids."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Is it okay for kids to be vegetarian?",
+      "answer": "Yes, a well-planned vegetarian diet can meet all a child's nutritional needs with enough variety."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How can I make healthy food fun for kids?",
+      "answer": "Use cookie cutters for shapes, let them build their own plates, or name dishes in creative ways."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child only wants to eat the same meal every day",
+      "answer": "This is common in young children. Keep offering variety alongside the accepted meal and introduce new foods slowly."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What are signs my child is not eating enough?",
+      "answer": "Low energy, poor growth, or frequent complaints of hunger may suggest their intake needs reviewing with a doctor."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I handle grandparents giving too many sweets?",
+      "answer": "Have a calm conversation about your family's approach to food and suggest healthier treat alternatives."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Should children eat three meals or five smaller ones?",
+      "answer": "Either pattern can work. What matters most is that meals are balanced and regular."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child refuses to try food if it looks different",
+      "answer": "Present new foods alongside familiar ones and avoid drawing too much attention to them. Repeated exposure helps."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Are rice and pasta okay for kids?",
+      "answer": "Yes, whole grain versions are a good source of energy and pair well with vegetables and protein."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I deal with a child who has strong food preferences?",
+      "answer": "Respect preferences while continuing to offer variety. Avoid creating a separate menu just for them."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What foods should I limit for young children?",
+      "answer": "Limit added sugar, excess salt, processed snacks, and sugary drinks which offer little nutritional value."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child loves sweets but won't eat savoury food",
+      "answer": "Avoid offering sweets before meals, keep savoury options visible, and don't use sweets as a bargaining tool."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I help my child develop a healthy relationship with food?",
+      "answer": "Avoid labelling foods as good or bad, keep mealtimes positive, and let children learn to listen to their hunger."
+    },
+    {
+      "intent": "nutrition",
+      "question": "Is cheese a healthy snack for kids?",
+      "answer": "Yes, cheese provides calcium and protein and is a convenient and nutritious snack in moderate amounts."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I stop my child from eating out of boredom?",
+      "answer": "Offer regular meals and structured snack times, and redirect boredom eating with activities or drinks of water."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child only eats plain food with no sauces or mixing",
+      "answer": "That is okay. Serve components separately and continue offering combination dishes without pressure."
+    },
+    {
+      "intent": "nutrition",
+      "question": "What is a good after-school snack to tide over until dinner?",
+      "answer": "Something light like fruit, crackers with cheese, or yogurt keeps energy up without spoiling appetite for dinner."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I make sure my child gets enough iron?",
+      "answer": "Include iron-rich foods like red meat, beans, leafy greens, and fortified cereals in their diet regularly."
+    },
+    {
+      "intent": "nutrition",
+      "question": "My child throws food they don't like. How do I respond?",
+      "answer": "Stay calm, remove the food without reaction, and continue offering variety at the next meal."
+    },
+    {
+      "intent": "activity",
+      "question": "My child does not enjoy sports. What can I do?",
+      "answer": "Focus on fun activities like games or dancing instead of structured sports."
+    },
+    {
+      "intent": "activity",
+      "question": "How can I encourage daily movement?",
+      "answer": "Include short active breaks throughout the day such as walking or stretching."
+    },
+    {
+      "intent": "activity",
+      "question": "What are simple indoor activities for kids?",
+      "answer": "Try dancing, jumping games, or simple exercises at home."
+    },
+    {
+      "intent": "activity",
+      "question": "How much activity is enough for children?",
+      "answer": "Children should aim for around 60 minutes of activity daily."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I make exercise enjoyable?",
+      "answer": "Turn activities into games and join them to make it social and fun."
+    },
+    {
+      "intent": "activity",
+      "question": "What are good outdoor activities?",
+      "answer": "Playing at parks, cycling, or simple ball games are great options."
+    },
+    {
+      "intent": "activity",
+      "question": "How can I reduce sedentary time?",
+      "answer": "Encourage movement breaks and limit long periods of sitting."
+    },
+    {
+      "intent": "activity",
+      "question": "My child prefers staying indoors. What can I do?",
+      "answer": "Start with indoor activities and gradually introduce outdoor options."
+    },
+    {
+      "intent": "activity",
+      "question": "Are short activities effective?",
+      "answer": "Yes, even short bursts of activity throughout the day are beneficial."
+    },
+    {
+      "intent": "activity",
+      "question": "How can I build active habits?",
+      "answer": "Schedule daily active time and keep it consistent."
+    },
+    {
+      "intent": "activity",
+      "question": "Is family activity important?",
+      "answer": "Yes, it encourages participation and strengthens relationships."
+    },
+    {
+      "intent": "activity",
+      "question": "How can I motivate inactive children?",
+      "answer": "Find activities they enjoy instead of forcing structured exercise."
+    },
+    {
+      "intent": "activity",
+      "question": "What activities improve coordination?",
+      "answer": "Games like catching, throwing, or balancing help build coordination."
+    },
+    {
+      "intent": "activity",
+      "question": "How can I include activity in daily routines?",
+      "answer": "Walk to school, take stairs, or play after meals."
+    },
+    {
+      "intent": "activity",
+      "question": "What are low-effort activities?",
+      "answer": "Walking, stretching, or simple play are easy options."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I get my child off the couch?",
+      "answer": "Suggest a short walk or active game together rather than telling them to exercise."
+    },
+    {
+      "intent": "activity",
+      "question": "My child says exercise is boring",
+      "answer": "Try variety and let them choose the activity so it feels like play rather than exercise."
+    },
+    {
+      "intent": "activity",
+      "question": "What indoor games get kids moving?",
+      "answer": "Hide and seek, obstacle courses, dancing, or balloon games are great for indoor movement."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I exercise with my child?",
+      "answer": "Join them in walks, bike rides, or backyard games so it becomes shared family time."
+    },
+    {
+      "intent": "activity",
+      "question": "My child is very shy and won't join group sports",
+      "answer": "Start with individual activities like cycling or swimming before gradually introducing group settings."
+    },
+    {
+      "intent": "activity",
+      "question": "Are team sports good for kids?",
+      "answer": "Team sports build social skills and coordination, but only if the child enjoys them. Non-competitive options work too."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I keep my child active in winter?",
+      "answer": "Try indoor activities like dancing, yoga, or active video games when outdoor options are limited."
+    },
+    {
+      "intent": "activity",
+      "question": "What activities are good for younger children?",
+      "answer": "Running, jumping, climbing, and unstructured outdoor play are ideal for younger children."
+    },
+    {
+      "intent": "activity",
+      "question": "How can I make walking more fun for kids?",
+      "answer": "Turn it into a game like spotting shapes or colours, or explore a new route together."
+    },
+    {
+      "intent": "activity",
+      "question": "Is swimming good exercise for children?",
+      "answer": "Swimming builds strength, coordination, and endurance and is an excellent all-round activity for kids."
+    },
+    {
+      "intent": "activity",
+      "question": "My child is overweight and reluctant to exercise",
+      "answer": "Focus on enjoyable movement rather than weight, and avoid making exercise feel like a punishment."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I balance structured sports and free play?",
+      "answer": "Both have value. Aim for a mix so children develop skills and also enjoy unstructured movement."
+    },
+    {
+      "intent": "activity",
+      "question": "What if my child quits every sport they try?",
+      "answer": "Let them explore different activities without pressure. Finding the right fit takes time."
+    },
+    {
+      "intent": "activity",
+      "question": "Are video games that involve movement okay?",
+      "answer": "Active games that get kids moving are better than passive sitting, but still combine with outdoor activity."
+    },
+    {
+      "intent": "activity",
+      "question": "How much outdoor play does a child need?",
+      "answer": "Aim for at least some outdoor time each day for fresh air, movement, and unstructured exploration."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I encourage my teenager to be more active?",
+      "answer": "Respect their interests and suggest activities they find appealing rather than enforcing structured exercise."
+    },
+    {
+      "intent": "activity",
+      "question": "My child gets tired very quickly during exercise",
+      "answer": "Gradual increase in activity is normal. Build stamina slowly with consistent, enjoyable movement."
+    },
+    {
+      "intent": "activity",
+      "question": "What are signs my child is not active enough?",
+      "answer": "Frequent fatigue, low energy, or poor mood may suggest they need more regular physical activity."
+    },
+    {
+      "intent": "activity",
+      "question": "Can kids exercise every day?",
+      "answer": "Yes, daily movement is encouraged as long as it is varied, enjoyable, and not overly intense."
+    },
+    {
+      "intent": "activity",
+      "question": "My child only wants to play on devices instead of moving",
+      "answer": "Limit device time and offer engaging physical alternatives that compete with screen appeal."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I make PE homework less of a battle?",
+      "answer": "Do it together, keep it brief, and frame it as something fun rather than a school task."
+    },
+    {
+      "intent": "activity",
+      "question": "What activities can we do as a family on weekends?",
+      "answer": "Hikes, bike rides, swimming, or backyard games are easy ways to stay active together."
+    },
+    {
+      "intent": "activity",
+      "question": "Is yoga suitable for children?",
+      "answer": "Yes, child-friendly yoga improves flexibility, focus, and calm and can be done at any fitness level."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I help my child enjoy physical activity long term?",
+      "answer": "Let them lead their choices, keep it fun, and celebrate effort rather than performance."
+    },
+    {
+      "intent": "activity",
+      "question": "What is the best time of day for kids to exercise?",
+      "answer": "After school or late afternoon tends to work well, but any time that fits your routine is fine."
+    },
+    {
+      "intent": "activity",
+      "question": "My child hates running. What else can they do?",
+      "answer": "Running is just one option. Swimming, cycling, dancing, or martial arts provide similar fitness benefits."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I help a child who is not naturally sporty?",
+      "answer": "Focus on movement rather than performance and try creative or artistic physical activities like dance."
+    },
+    {
+      "intent": "activity",
+      "question": "Can children exercise too much?",
+      "answer": "Excessive intense training can strain young bodies. Balance activity with rest and avoid over-scheduling sports."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I know if my child is getting enough physical activity?",
+      "answer": "If they have good energy, sleep well, and move freely in daily life, they are likely active enough."
+    },
+    {
+      "intent": "activity",
+      "question": "What are fun rainy day activities that involve movement?",
+      "answer": "Indoor obstacle courses, dance parties, yoga videos, or active games keep kids moving on rainy days."
+    },
+    {
+      "intent": "activity",
+      "question": "My child refuses to go outside",
+      "answer": "Start by going outside together for short periods with no agenda and let curiosity take over naturally."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I create an active lifestyle for my family?",
+      "answer": "Build movement into everyday routines like walking, cycling to school, or evening walks together."
+    },
+    {
+      "intent": "activity",
+      "question": "Are martial arts a good activity for children?",
+      "answer": "Martial arts build discipline, coordination, and confidence and are suitable for a wide range of children."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I keep my child motivated to stay active?",
+      "answer": "Celebrate consistency, let them choose activities, and keep the focus on fun rather than results."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I encourage a child who is embarrassed about their fitness level?",
+      "answer": "Focus on personal progress rather than comparison and choose activities where they can build confidence gradually."
+    },
+    {
+      "intent": "activity",
+      "question": "What if my child loves screens and nothing else?",
+      "answer": "Introduce activity in small steps and connect it to their interests, such as gaming-themed active challenges."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I help my child be active without it feeling like exercise?",
+      "answer": "Frame movement as play, adventure, or exploration and avoid using the word exercise with younger children."
+    },
+    {
+      "intent": "activity",
+      "question": "My child is very competitive and gets upset when they lose",
+      "answer": "Choose cooperative activities over competitive ones and help them learn that effort matters more than winning."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I encourage a sedentary child to move more?",
+      "answer": "Start with tiny amounts of movement daily and gradually build up as they become more comfortable being active."
+    },
+    {
+      "intent": "activity",
+      "question": "What are good activities for kids with limited outdoor space?",
+      "answer": "Jump rope, hopscotch, or simple movement games in a small yard or hallway can provide enough activity indoors."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I make physical activity a family value?",
+      "answer": "Talk positively about moving, prioritise active family time, and show your own enjoyment of physical activity."
+    },
+    {
+      "intent": "screen",
+      "question": "How much screen time is appropriate?",
+      "answer": "Follow general guidelines of one to two hours of recreational screen time per day for school-aged children."
+    },
+    {
+      "intent": "screen",
+      "question": "My child throws tantrums when screens are taken away",
+      "answer": "Give warnings before ending screen time and keep limits consistent so expectations are clear."
+    },
+    {
+      "intent": "screen",
+      "question": "Should I allow screens before bedtime?",
+      "answer": "Avoid screens for at least an hour before bed as they can disrupt sleep."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I set screen time limits?",
+      "answer": "Create a clear daily schedule for when screens are allowed and stick to it consistently."
+    },
+    {
+      "intent": "screen",
+      "question": "My child watches YouTube for hours. How do I stop this?",
+      "answer": "Set a daily time limit, use a timer they can see, and have an engaging activity ready for when time is up."
+    },
+    {
+      "intent": "screen",
+      "question": "Are educational apps worth the screen time?",
+      "answer": "Educational apps have value but should be time-limited and balanced with offline learning and play."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I reduce gaming time?",
+      "answer": "Set time limits and encourage alternative hobbies."
+    },
+    {
+      "intent": "screen",
+      "question": "What if my child refuses to stop using devices?",
+      "answer": "Give warnings before stopping and stick to limits."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I avoid screen dependence?",
+      "answer": "Encourage varied activities and limit passive screen use."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I manage screen use after school?",
+      "answer": "Allow limited screen time after homework or activity."
+    },
+    {
+      "intent": "screen",
+      "question": "Can screen time affect behavior?",
+      "answer": "Too much screen time may impact mood and focus."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I encourage better screen habits?",
+      "answer": "Set routines and provide engaging alternatives."
+    },
+    {
+      "intent": "screen",
+      "question": "What is a good screen-time balance?",
+      "answer": "Combine screen use with physical and social activities."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I transition away from screens?",
+      "answer": "Use gradual reduction and introduce other fun activities."
+    },
+    {
+      "intent": "screen",
+      "question": "Are tablets better than phones?",
+      "answer": "The type matters less than how long and how they are used."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I manage multiple devices?",
+      "answer": "Apply consistent rules across all devices."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I make screen limits easier?",
+      "answer": "Use routines so children know when screens are allowed."
+    },
+    {
+      "intent": "screen",
+      "question": "Should I use parental controls?",
+      "answer": "They can help manage usage but should be combined with guidance."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I reduce screen use before bedtime?",
+      "answer": "Introduce calming activities like reading instead."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I balance school and screen use?",
+      "answer": "Prioritize homework and limit recreational screen time."
+    },
+    {
+      "intent": "screen",
+      "question": "What if screens are part of schoolwork?",
+      "answer": "Separate learning use from entertainment use."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I keep children engaged without screens?",
+      "answer": "Offer creative or active play options."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I prevent overuse of digital devices?",
+      "answer": "Set clear limits and encourage breaks."
+    },
+    {
+      "intent": "screen",
+      "question": "My child is addicted to gaming. What should I do?",
+      "answer": "Set firm daily time limits, encourage other hobbies, and avoid using games as a reward or threat."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I know if screen time is too much?",
+      "answer": "Watch for signs like irritability after use, neglected activities, or poor sleep which suggest overuse."
+    },
+    {
+      "intent": "screen",
+      "question": "Should children have their own devices?",
+      "answer": "Consider their maturity and your ability to monitor use before giving children their own devices."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I create a family screen time agreement?",
+      "answer": "Involve children in setting rules so they feel ownership and are more likely to follow them."
+    },
+    {
+      "intent": "screen",
+      "question": "My child sneaks devices at night",
+      "answer": "Keep devices out of bedrooms at night and charge them in a shared family space."
+    },
+    {
+      "intent": "screen",
+      "question": "Can too much screen time affect eyesight?",
+      "answer": "Prolonged screen use can cause eye strain. Encourage regular breaks and outdoor time to reduce eye fatigue."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I explain screen time limits to young children?",
+      "answer": "Use simple language, be consistent, and frame limits as a routine rather than a punishment."
+    },
+    {
+      "intent": "screen",
+      "question": "Is it okay for kids to watch TV during meals?",
+      "answer": "Mealtime screens reduce family conversation and mindful eating. It is better to keep meals screen-free."
+    },
+    {
+      "intent": "screen",
+      "question": "What are the benefits of limiting screen time?",
+      "answer": "Less screen time is linked to better sleep, more physical activity, and stronger social skills."
+    },
+    {
+      "intent": "screen",
+      "question": "My child only wants to play Roblox all day",
+      "answer": "Set clear daily time limits for gaming and have offline activities they enjoy ready as alternatives."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I deal with screen time battles every day?",
+      "answer": "Consistent rules and predictable schedules reduce daily arguments. Engage children in setting the limits."
+    },
+    {
+      "intent": "screen",
+      "question": "Should I monitor what my child watches online?",
+      "answer": "Yes, especially for younger children. Use parental controls and have open conversations about online safety."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I help my child use screens more mindfully?",
+      "answer": "Encourage them to pause and ask if they are enjoying what they are watching rather than watching out of habit."
+    },
+    {
+      "intent": "screen",
+      "question": "Is it okay for toddlers to have screen time?",
+      "answer": "Minimal screen time is recommended for very young children, with preference for interactive and educational content."
+    },
+    {
+      "intent": "screen",
+      "question": "How can I replace screen time with other activities?",
+      "answer": "Keep a list of engaging offline alternatives handy so there is always something to do when screens are off."
+    },
+    {
+      "intent": "screen",
+      "question": "My child watches inappropriate content online",
+      "answer": "Review and activate parental controls, have an honest age-appropriate conversation, and revisit online safety rules."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I handle screen time during school holidays?",
+      "answer": "Set a holiday screen schedule in advance that balances free time with active and creative activities."
+    },
+    {
+      "intent": "screen",
+      "question": "Does screen time affect children's sleep?",
+      "answer": "Yes, especially screens before bed. The light and stimulation can delay sleep onset and reduce sleep quality."
+    },
+    {
+      "intent": "screen",
+      "question": "My child uses devices to avoid social situations",
+      "answer": "Gently encourage social activity and look for whether anxiety or discomfort is driving the avoidance."
+    },
+    {
+      "intent": "screen",
+      "question": "How early should I start setting screen rules?",
+      "answer": "Introduce simple screen boundaries early so they become a normal part of your child's expectations."
+    },
+    {
+      "intent": "screen",
+      "question": "What should I do when screen time rules are broken?",
+      "answer": "Apply consistent consequences calmly and revisit the rules together to reinforce understanding."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I stop my child comparing screen time with friends?",
+      "answer": "Acknowledge the difference calmly and explain that different families have different rules."
+    },
+    {
+      "intent": "screen",
+      "question": "Can screens be used as a reward?",
+      "answer": "Using screens as a reward can increase their perceived value. It is better to keep them as a neutral daily activity."
+    },
+    {
+      "intent": "screen",
+      "question": "What are signs my child is spending too much time on screens?",
+      "answer": "Irritability when devices are taken away, neglecting friends, poor sleep, or losing interest in other activities are warning signs."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I manage screen time for multiple children with different needs?",
+      "answer": "Set fair family-wide rules while allowing small adjustments for age or homework requirements."
+    },
+    {
+      "intent": "screen",
+      "question": "My teenager says all their friends have no limits on screens",
+      "answer": "Acknowledge their frustration and explain your reasoning calmly. Peer comparison is normal but not a reason to abandon boundaries."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I talk to my child about online safety?",
+      "answer": "Use age-appropriate language, keep the conversation open and ongoing, and focus on staying safe rather than creating fear."
+    },
+    {
+      "intent": "screen",
+      "question": "My child gets angry every time I turn off the TV",
+      "answer": "Use a visible countdown timer so they can prepare for the transition and the ending never feels sudden."
+    },
+    {
+      "intent": "screen",
+      "question": "Is it okay for children to use screens for creative activities?",
+      "answer": "Creative uses like drawing apps or making videos have more value than passive watching, but time limits still apply."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I reduce my own screen use as a role model?",
+      "answer": "Be mindful of your own habits and model the boundaries you want your children to follow."
+    },
+    {
+      "intent": "screen",
+      "question": "My child has no interest in anything except screens",
+      "answer": "Gradually introduce offline activities one at a time and be patient as interests develop alongside reduced screen time."
+    },
+    {
+      "intent": "screen",
+      "question": "What screen-free activities can replace device time?",
+      "answer": "Drawing, building, reading, cooking together, or outdoor play are all engaging alternatives to screen time."
+    },
+    {
+      "intent": "screen",
+      "question": "Should I limit screen time on weekends too?",
+      "answer": "Yes, consistent limits across the week are more effective than strict weekdays followed by unrestricted weekends."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I introduce screen-free days?",
+      "answer": "Start with one screen-free afternoon per week and fill it with enjoyable activities so it feels positive rather than restrictive."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I build a daily routine for my child?",
+      "answer": "Create a simple schedule including meals, activity, and sleep."
+    },
+    {
+      "intent": "routine",
+      "question": "What is a good bedtime routine?",
+      "answer": "Include calming activities like reading and keep a consistent time."
+    },
+    {
+      "intent": "routine",
+      "question": "Why are routines important?",
+      "answer": "Routines provide structure and help children feel secure."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I improve morning routines?",
+      "answer": "Prepare things the night before and keep mornings simple."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I manage irregular schedules?",
+      "answer": "Keep key routines like meals and sleep consistent."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I help my child sleep better?",
+      "answer": "Maintain consistent sleep times and reduce screen use before bed."
+    },
+    {
+      "intent": "routine",
+      "question": "What if my child resists bedtime?",
+      "answer": "Use calming routines and stay consistent."
+    },
+    {
+      "intent": "routine",
+      "question": "How do routines affect behavior?",
+      "answer": "Consistent routines can improve mood and reduce stress."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I include homework in routine?",
+      "answer": "Set a regular time each day in a quiet space."
+    },
+    {
+      "intent": "routine",
+      "question": "How flexible should routines be?",
+      "answer": "Keep routines consistent but allow some flexibility."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I start a new routine?",
+      "answer": "Introduce changes gradually and keep expectations simple."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I maintain routines long term?",
+      "answer": "Keep them simple so they become habits."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I manage after-school time?",
+      "answer": "Balance homework, activity, and rest time."
+    },
+    {
+      "intent": "routine",
+      "question": "What is a healthy evening routine?",
+      "answer": "Include dinner, relaxation, and preparation for bedtime."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I improve time management?",
+      "answer": "Use simple schedules and consistent daily patterns."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I reduce daily chaos?",
+      "answer": "Stick to predictable routines and plan ahead."
+    },
+    {
+      "intent": "routine",
+      "question": "What if routines keep changing?",
+      "answer": "Focus on keeping core habits consistent."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I teach responsibility through routine?",
+      "answer": "Assign simple daily tasks as part of the routine."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I help children follow routines?",
+      "answer": "Use reminders and keep routines easy to follow."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I make routines enjoyable?",
+      "answer": "Keep them simple and include positive interactions."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I balance routine and flexibility?",
+      "answer": "Maintain structure but allow occasional changes."
+    },
+    {
+      "intent": "routine",
+      "question": "What if my child ignores routines?",
+      "answer": "Be consistent and reinforce expectations calmly."
+    },
+    {
+      "intent": "routine",
+      "question": "How do routines help sleep?",
+      "answer": "Consistent bedtime routines support better sleep patterns."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I manage weekend routines?",
+      "answer": "Keep similar sleep and meal times with slight flexibility."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I transition between activities?",
+      "answer": "Give advance notice and keep transitions smooth."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I reduce stress with routines?",
+      "answer": "Predictable schedules reduce uncertainty and stress."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I adapt routines as children grow?",
+      "answer": "Adjust schedules gradually based on their needs."
+    },
+    {
+      "intent": "routine",
+      "question": "What is a simple daily structure?",
+      "answer": "Meals, learning time, activity, and rest."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I keep routines consistent?",
+      "answer": "Follow similar timing every day."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I make routines easier to follow?",
+      "answer": "Keep them short and clear."
+    },
+    {
+      "intent": "routine",
+      "question": "What if my child gets bored with routine?",
+      "answer": "Add small variations while keeping structure."
+    },
+    {
+      "intent": "routine",
+      "question": "How do routines improve independence?",
+      "answer": "Children learn to manage tasks on their own."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I build healthy habits through routine?",
+      "answer": "Repeat simple behaviors daily until they become habits."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I encourage consistency?",
+      "answer": "Use simple rules and positive reinforcement."
+    },
+    {
+      "intent": "routine",
+      "question": "What if routines feel too strict?",
+      "answer": "Adjust them to be more flexible and realistic."
+    },
+    {
+      "intent": "routine",
+      "question": "My child won't go to sleep at bedtime",
+      "answer": "Keep the bedtime routine calm, consistent, and predictable so their body learns to wind down at the same time each night."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I get my child up in the morning without a battle?",
+      "answer": "Prepare clothes and bags the night before and use a gentle alarm or gradual wake-up routine to ease mornings."
+    },
+    {
+      "intent": "routine",
+      "question": "My child stalls at bedtime with endless requests",
+      "answer": "Anticipate common requests like a drink or toilet visit within the routine so there is less room to delay."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I create a homework routine that actually works?",
+      "answer": "Set a consistent time and quiet location shortly after school so homework becomes an expected part of the day."
+    },
+    {
+      "intent": "routine",
+      "question": "My child can't wind down before bed",
+      "answer": "Introduce calming activities like reading, gentle stretching, or soft music in the hour before bedtime."
+    },
+    {
+      "intent": "routine",
+      "question": "What is a good after-school routine?",
+      "answer": "Snack, some downtime, homework, then free play or activity works well for most school-aged children."
+    },
+    {
+      "intent": "routine",
+      "question": "How long should a bedtime routine take?",
+      "answer": "Aim for 20 to 30 minutes for a bedtime routine so it is calming but not drawn out."
+    },
+    {
+      "intent": "routine",
+      "question": "My child wakes up early and disturbs everyone",
+      "answer": "Set a visual clock to show when it is okay to get up and keep mornings calm so early waking is less disruptive."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I handle routine disruptions during holidays?",
+      "answer": "Relax some rules but keep sleep and meal times roughly consistent to avoid adjustment difficulties when school resumes."
+    },
+    {
+      "intent": "routine",
+      "question": "Should children have the same bedtime every night?",
+      "answer": "A consistent bedtime within about 30 minutes each night supports better sleep quality and easier mornings."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I help my child adjust to a new school schedule?",
+      "answer": "Practise the new timing before school starts and build in extra buffer time until the routine feels natural."
+    },
+    {
+      "intent": "routine",
+      "question": "My child rushes through their routine and makes mistakes",
+      "answer": "Build in slightly more time and walk through steps together until the routine becomes more automatic."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I get my child to brush their teeth without a fight?",
+      "answer": "Make it part of a consistent bedtime routine and use a fun timer or favourite song to make it feel less like a chore."
+    },
+    {
+      "intent": "routine",
+      "question": "What if my child's routine keeps getting disrupted by activities?",
+      "answer": "Treat extracurriculars as part of the routine and adjust the schedule around them rather than abandoning structure."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I establish a reading routine?",
+      "answer": "Set aside a regular reading time each day, even just ten minutes, and make it a relaxed and enjoyable habit."
+    },
+    {
+      "intent": "routine",
+      "question": "My child has trouble remembering steps in their routine",
+      "answer": "Use a simple visual checklist on the wall to help them track each step independently."
+    },
+    {
+      "intent": "routine",
+      "question": "How early should children have a bedtime routine?",
+      "answer": "Starting a consistent bedtime routine from infancy helps establish healthy sleep habits that carry through childhood."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I handle two children with different bedtime needs?",
+      "answer": "Stagger bedtimes based on age and give each child their own brief routine so both feel the process is fair."
+    },
+    {
+      "intent": "routine",
+      "question": "What should a morning routine include?",
+      "answer": "Getting dressed, eating breakfast, brushing teeth, and packing bags are the core elements of a functional morning routine."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I make routines work for a child with high energy?",
+      "answer": "Include active elements in the routine and schedule movement before quieter tasks like homework or bedtime wind-down."
+    },
+    {
+      "intent": "routine",
+      "question": "My child's routine falls apart at weekends",
+      "answer": "Keep sleep and meal times close to weekday times on weekends to prevent a full reset of the week's progress."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I use routine to reduce mealtime stress?",
+      "answer": "Regular meal times at the same place each day reduce uncertainty and make children more likely to eat without fuss."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I help my child transition from play to routine tasks?",
+      "answer": "Give a five-minute warning before transitions and use a consistent signal like a timer or phrase to cue the change."
+    },
+    {
+      "intent": "routine",
+      "question": "What if my child refuses to follow the routine?",
+      "answer": "Stay calm, offer limited choices within the routine, and avoid power struggles. Consistency over time usually wins."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I build a routine for a child with lots of after-school activities?",
+      "answer": "Map out the week visually so your child can see what happens each day and when downtime and rest are built in."
+    },
+    {
+      "intent": "routine",
+      "question": "My child sleeps too late and is hard to wake for school",
+      "answer": "Gradually shift bedtime earlier by 15 minutes every few days until the wake time feels manageable."
+    },
+    {
+      "intent": "routine",
+      "question": "How can I involve my child in creating their routine?",
+      "answer": "Let them help decide the order of tasks and when breaks happen so they feel invested in following it."
+    },
+    {
+      "intent": "routine",
+      "question": "What are signs that a routine is working?",
+      "answer": "Fewer morning battles, smoother transitions, better sleep, and a calmer overall mood suggest a routine is effective."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I adjust a routine when life gets busy?",
+      "answer": "Simplify the routine to its essentials during busy periods and restore the full structure when things settle."
+    },
+    {
+      "intent": "routine",
+      "question": "My child has anxiety about changes to the routine",
+      "answer": "Prepare them in advance for any changes and explain what will be different so the adjustment feels less abrupt."
+    },
+    {
+      "intent": "routine",
+      "question": "How do routines support emotional regulation in children?",
+      "answer": "Predictable routines reduce anxiety by giving children a sense of control and knowing what to expect each day."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I restart a routine that has broken down?",
+      "answer": "Start fresh with just two or three key anchor points like wake time, meals, and bedtime and build from there."
+    },
+    {
+      "intent": "routine",
+      "question": "What if my partner and I have different approaches to routine?",
+      "answer": "Agree on the most important elements and try to present a consistent approach so children receive clear signals."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I use a visual schedule with young children?",
+      "answer": "Use pictures or simple drawings to represent each part of the day so young children can follow the routine independently."
+    },
+    {
+      "intent": "routine",
+      "question": "My child does better with structure but resists being told what to do",
+      "answer": "Give them predictability through routine while offering small choices within it so they feel some control."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I build a relaxing bedtime routine for an anxious child?",
+      "answer": "Use calm, repetitive steps like bath, story, and quiet talk to signal safety and help them wind down gently."
+    },
+    {
+      "intent": "routine",
+      "question": "What is the best way to handle missed routine steps?",
+      "answer": "Skip the missed step calmly without drama and continue with the rest of the routine as normal."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I help my child manage time independently?",
+      "answer": "Teach them to use a simple clock or timer and practise estimating how long tasks take within the routine."
+    },
+    {
+      "intent": "routine",
+      "question": "My child needs a lot of reminders to follow their routine",
+      "answer": "Use visual cues, timers, or a checklist rather than verbal reminders to build independence over time."
+    },
+    {
+      "intent": "routine",
+      "question": "How do I make bedtime less of a struggle every night?",
+      "answer": "Keep the routine short, calm, and consistent and avoid engaging with stalling tactics so the process becomes predictable."
+    },
+    {
+      "intent": "routine",
+      "question": "What if my child's routine needs to change due to a new school year?",
+      "answer": "Introduce the new schedule gradually before the change happens and involve your child in planning the new routine."
+    },
+    {
+      "intent": "nutrition",
+      "question": "How do I get my child to eat more calcium-rich foods?",
+      "answer": "Include dairy products, fortified plant milks, leafy greens, and cheese regularly to support bone health."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I encourage my child to try a new sport?",
+      "answer": "Let them watch a session first before committing and make the first try low-pressure and fun."
+    },
+    {
+      "intent": "activity",
+      "question": "What are good activities for children who prefer solo play?",
+      "answer": "Cycling, swimming, gymnastics, or individual martial arts suit children who prefer working on their own pace."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I help my child stay active during exams?",
+      "answer": "Short movement breaks during study sessions improve focus and reduce stress without taking much time."
+    },
+    {
+      "intent": "activity",
+      "question": "My child complains of aches after activity. What should I do?",
+      "answer": "Light soreness after exercise is normal, but persistent pain should be checked by a doctor to rule out injury."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I get my child interested in being active when they prefer reading?",
+      "answer": "Try audiobooks during walks or combine their interests with gentle movement to make activity feel natural."
+    },
+    {
+      "intent": "activity",
+      "question": "What is the difference between play and structured exercise for kids?",
+      "answer": "Both are valuable. Free play builds creativity and coordination while structured activity develops specific skills."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I balance activity with enough rest for my child?",
+      "answer": "Alternate active days with lighter ones and ensure children have downtime to recover and recharge."
+    },
+    {
+      "intent": "activity",
+      "question": "My child is active at school but sedentary at home",
+      "answer": "That is a good sign. Add some gentle evening movement like a walk or stretch to round out the day."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I help my child enjoy exercise despite low self-confidence?",
+      "answer": "Choose activities where success comes quickly, celebrate small wins, and avoid comparing them to others."
+    },
+    {
+      "intent": "activity",
+      "question": "What are simple stretches children can do daily?",
+      "answer": "Arm circles, toe touches, and gentle neck rolls are easy stretches children can do before or after activity."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I handle a child who is afraid of trying physical activities?",
+      "answer": "Start with familiar movements in a safe environment and build confidence gradually through positive experiences."
+    },
+    {
+      "intent": "activity",
+      "question": "Can children do strength training?",
+      "answer": "Bodyweight exercises like jumping, climbing, and push-ups are appropriate for children and build strength safely."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I keep my child active when we travel?",
+      "answer": "Walk to explore new places, use hotel pools, or play simple games in open spaces to stay active while travelling."
+    },
+    {
+      "intent": "activity",
+      "question": "What role does unstructured play have in a child's development?",
+      "answer": "Unstructured play builds creativity, problem-solving, and social skills alongside physical fitness."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I introduce my child to a love of nature through activity?",
+      "answer": "Take short nature walks, explore local parks, or do simple gardening together to connect movement with the outdoors."
+    },
+    {
+      "intent": "activity",
+      "question": "My child only likes screen-based activity games",
+      "answer": "Active games are a starting point. Gradually introduce real-world versions of the same movements to expand their activity."
+    },
+    {
+      "intent": "activity",
+      "question": "How do I deal with a child who always finds excuses not to exercise?",
+      "answer": "Reduce barriers by having gear ready, keeping sessions short, and making the activity genuinely enjoyable."
+    },
+    {
+      "intent": "activity",
+      "question": "What are good after-dinner activities for families?",
+      "answer": "A short walk, backyard games, or a gentle bike ride after dinner is a healthy way to end the day together."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I handle my child lying about screen time?",
+      "answer": "Keep devices in shared spaces, use parental controls, and have honest conversations about why limits exist."
+    },
+    {
+      "intent": "screen",
+      "question": "Should I have screen-free zones in the house?",
+      "answer": "Yes, bedrooms and dining areas work well as screen-free zones to support sleep and family connection."
+    },
+    {
+      "intent": "screen",
+      "question": "My child says they are bored without screens",
+      "answer": "Boredom is healthy and encourages creativity. Have a list of offline activities ready for when screens are off."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I manage screen time when my child uses it for socialising?",
+      "answer": "Acknowledge the social value while still maintaining reasonable time limits and encouraging in-person interaction."
+    },
+    {
+      "intent": "screen",
+      "question": "Is it okay for children to watch movies on weekends?",
+      "answer": "Occasional longer viewing on weekends is fine if it is balanced with physical activity and family time."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I stop screens from replacing outdoor play?",
+      "answer": "Set outdoor time as a daily expectation before screens are available so movement comes first."
+    },
+    {
+      "intent": "screen",
+      "question": "My child uses screens to cope with difficult emotions",
+      "answer": "Acknowledge their feelings and gently introduce other coping strategies like talking, drawing, or physical activity."
+    },
+    {
+      "intent": "screen",
+      "question": "What should I do if my child watches violent content online?",
+      "answer": "Stay calm, use it as an opportunity to discuss what they saw, and review your parental control settings together."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I limit screen time without feeling like the bad parent?",
+      "answer": "Frame limits as caring for their health and wellbeing and stay confident that boundaries are part of good parenting."
+    },
+    {
+      "intent": "screen",
+      "question": "Are there any benefits to some screen time?",
+      "answer": "Screens can support learning, creativity, and social connection when used intentionally and in moderation."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I reduce my child's screen time without taking it away completely?",
+      "answer": "Set gradual reductions over several weeks rather than sudden removal so the adjustment feels manageable."
+    },
+    {
+      "intent": "screen",
+      "question": "My child gets headaches after screen use",
+      "answer": "Encourage regular screen breaks using the 20-20-20 rule and reduce overall daily screen time."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I keep screen time rules in place when other caregivers are less strict?",
+      "answer": "Communicate your approach clearly to all caregivers and ask for consistency to avoid confusing your child."
+    },
+    {
+      "intent": "screen",
+      "question": "What is the 20-20-20 rule for screen use?",
+      "answer": "Every 20 minutes, look at something 20 feet away for 20 seconds to reduce eye strain during screen use."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I talk to my child about social media pressure?",
+      "answer": "Keep conversations open and non-judgmental, listen to their experiences, and discuss healthy online boundaries together."
+    },
+    {
+      "intent": "screen",
+      "question": "My child is upset when peers discuss content I have restricted",
+      "answer": "Validate their frustration and explain your reasons calmly. Being left out can feel hard but limits are still appropriate."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I make screen-free time feel like a reward not a punishment?",
+      "answer": "Fill screen-free time with enjoyable activities so children associate it with fun rather than deprivation."
+    },
+    {
+      "intent": "screen",
+      "question": "How do I set limits on streaming services?",
+      "answer": "Use the platform's built-in parental controls to set daily viewing limits and restrict inappropriate content."
+    }
+  ]

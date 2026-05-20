@@ -1,33 +1,6 @@
 <template>
   <header class="kids-topbar">
-    <RouterLink to="/kids-dashboard" class="brand-link">HealthyKids</RouterLink>
-
-    <div class="page-chip">{{ pageLabel }}</div>
-
-    <div class="topbar-right">
-      <div class="topbar-links">
-        <RouterLink to="/kids-dashboard" class="topbar-link">Home</RouterLink>
-        <RouterLink to="/kids-games" class="topbar-link">Game zone</RouterLink>
-        <RouterLink
-          to="/parent-dashboard"
-          class="topbar-link topbar-link--parent"
-          aria-label="Leave kids area — open parent home"
-        >
-          <span class="parent-link-icon" aria-hidden="true" v-html="iconParentDoor"></span>
-          <span class="parent-link-text">Parents</span>
-        </RouterLink>
-      </div>
-
-      <button
-        type="button"
-        class="theme-toggle-btn"
-        :aria-pressed="isDarkMode"
-        @click="$emit('toggle-theme')"
-      >
-        <span class="theme-svg" aria-hidden="true" v-html="isDarkMode ? iconSun : iconMoon"></span>
-        <span class="theme-label">{{ isDarkMode ? "Light" : "Dark" }}</span>
-      </button>
-    </div>
+    <RouterLink to="/kids-dashboard" class="brand-link">HelthyKidz</RouterLink>
   </header>
 </template>
 
@@ -37,7 +10,7 @@ import { RouterLink } from "vue-router"
 defineProps({
   pageLabel: {
     type: String,
-    required: true,
+    default: "",
   },
   isDarkMode: {
     type: Boolean,
@@ -46,10 +19,6 @@ defineProps({
 })
 
 defineEmits(["toggle-theme"])
-
-const iconMoon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>`
-const iconSun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2.2M19.8 12H22M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg>`
-const iconParentDoor = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13 21h8v-9h-8z"/><path d="M3 21V4a1 1 0 0 1 1-1h7l5 5v13"/><circle cx="16.5" cy="13.5" r="1" fill="currentColor"/></svg>`
 </script>
 
 <style scoped>
@@ -125,24 +94,6 @@ const iconParentDoor = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
   box-shadow: 0 12px 34px rgba(24, 25, 43, 0.1);
 }
 
-.topbar-link--parent {
-  gap: 5px;
-  padding-left: 9px;
-  padding-right: 11px;
-}
-
-.parent-link-icon {
-  width: 15px;
-  height: 15px;
-  display: inline-flex;
-  flex-shrink: 0;
-}
-
-.parent-link-icon :deep(svg) {
-  width: 100%;
-  height: 100%;
-}
-
 .theme-toggle-btn {
   min-height: 34px;
   padding: 0 11px;
@@ -213,12 +164,5 @@ const iconParentDoor = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
     display: none;
   }
 
-  .parent-link-text {
-    display: none;
-  }
-
-  .topbar-link--parent {
-    padding: 0 10px;
-  }
 }
 </style>

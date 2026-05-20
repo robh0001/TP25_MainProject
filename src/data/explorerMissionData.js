@@ -2,7 +2,19 @@ function makeSearchVideoUrl(query) {
   return `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(query)}`
 }
 
-function makeIllustration({ icon, title, subtitle, accent, secondary }) {
+function makeIllustration({ icon, title, subtitle, accent, secondary, showText = true }) {
+  const textMarkup = showText
+    ? `
+      <rect x="46" y="54" width="230" height="42" rx="21" fill="rgba(255,255,255,0.26)" />
+      <text x="64" y="83" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">${subtitle}</text>
+      <text x="64" y="332" font-family="Arial, sans-serif" font-size="46" font-weight="800" fill="#ffffff">${title}</text>
+      <text x="64" y="378" font-family="Arial, sans-serif" font-size="24" fill="rgba(255,255,255,0.92)">Healthy choice explorer</text>
+    `
+    : ""
+  const iconSize = showText ? 122 : 154
+  const iconX = showText ? 72 : 360
+  const iconY = showText ? 230 : 258
+  const iconAnchor = showText ? "start" : "middle"
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480">
       <defs>
@@ -14,11 +26,9 @@ function makeIllustration({ icon, title, subtitle, accent, secondary }) {
       <rect width="720" height="480" rx="36" fill="url(#bg)" />
       <circle cx="620" cy="92" r="84" fill="rgba(255,255,255,0.18)" />
       <circle cx="132" cy="380" r="110" fill="rgba(255,255,255,0.16)" />
-      <rect x="46" y="54" width="230" height="42" rx="21" fill="rgba(255,255,255,0.26)" />
-      <text x="64" y="83" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">${subtitle}</text>
-      <text x="72" y="230" font-size="122">${icon}</text>
-      <text x="64" y="332" font-family="Arial, sans-serif" font-size="46" font-weight="800" fill="#ffffff">${title}</text>
-      <text x="64" y="378" font-family="Arial, sans-serif" font-size="24" fill="rgba(255,255,255,0.92)">Healthy choice explorer</text>
+      ${showText ? "" : `<circle cx="360" cy="240" r="128" fill="rgba(20,31,69,0.26)" />`}
+      <text x="${iconX}" y="${iconY}" text-anchor="${iconAnchor}" font-size="${iconSize}">${icon}</text>
+      ${textMarkup}
     </svg>
   `
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
@@ -55,6 +65,7 @@ function createItem(missionId, label, icon, shortTip, videoQuery, palette) {
       subtitle: "Explorer card",
       accent: palette.accent,
       secondary: palette.secondary,
+      showText: false,
     }),
     videoUrl: makeSearchVideoUrl(videoQuery),
   }

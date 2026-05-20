@@ -7,6 +7,59 @@
     @pointercancel="onPointerUp"
     @pointerleave="onPointerUp"
   >
+    <div class="smash-scene" aria-hidden="true">
+      <div class="smash-halftone"></div>
+      <div class="smash-rays"></div>
+      <div class="smash-streaks">
+        <span class="smash-streak smash-streak-1"></span>
+        <span class="smash-streak smash-streak-2"></span>
+        <span class="smash-streak smash-streak-3"></span>
+      </div>
+      <span
+        v-for="dot in smashDots"
+        :key="`sd-${dot.id}`"
+        class="smash-dot"
+        :class="`smash-dot--${dot.tone}`"
+        :style="{
+          left: `${dot.left}%`,
+          top: `${dot.top}%`,
+          width: `${dot.size}px`,
+          height: `${dot.size}px`,
+          animationDelay: `${dot.delay}s`,
+        }"
+      ></span>
+    </div>
+
+    <div class="smash-scene-front" aria-hidden="true">
+      <span
+        v-for="word in smashWords"
+        :key="`sw-${word.id}`"
+        class="smash-word"
+        :class="`smash-word--${word.tone}`"
+        :style="{
+          left: `${word.left}%`,
+          top: `${word.top}%`,
+          animationDelay: `${word.delay}s`,
+          animationDuration: `${word.duration}s`,
+          rotate: `${word.rotate}deg`,
+        }"
+      >
+        <span>{{ word.text }}</span>
+      </span>
+
+      <span
+        v-for="bolt in smashBolts"
+        :key="`sb-${bolt.id}`"
+        class="smash-bolt"
+        :style="{
+          left: `${bolt.left}%`,
+          top: `${bolt.top}%`,
+          animationDelay: `${bolt.delay}s`,
+          fontSize: `${bolt.size}px`,
+        }"
+      >⚡</span>
+    </div>
+
     <header class="smash-head">
       <p class="smash-kicker">Routine Rumble</p>
       <div class="smash-title-row">
@@ -45,7 +98,7 @@
           <div class="meter-track">
             <i :style="{ width: `${missionProgress}%` }"></i>
           </div>
-          <small>{{ collected }} / {{ hitsNeededThisLevel }} hits · round {{ displayRoundLabel }}</small>
+          <small>{{ missionCollected }} / {{ missionHitGoal }} mission hits · round {{ displayRoundLabel }} · {{ collected }} / {{ hitsNeededThisLevel }} this round</small>
         </div>
 
         <div class="mini-stats">
@@ -132,6 +185,7 @@
           <circle class="fist-highlight" :cx="hero.rightHand.x - 5" :cy="hero.rightHand.y - 5" r="5" />
 
           <g filter="url(#softShadow)">
+            <path class="cape" :d="capePath" />
             <ellipse class="torso" :cx="hero.torso.x" :cy="hero.torso.y + 2" rx="58" ry="72" :class="{ charged: celebration }" />
             <rect class="belt" :x="hero.torso.x - 42" :y="hero.torso.y + 28" width="84" height="16" rx="8" />
             <circle class="belt-core" :cx="hero.torso.x" :cy="hero.torso.y + 36" r="10" />
@@ -140,6 +194,7 @@
 
           <circle class="neck" :cx="hero.torso.x" :cy="hero.torso.y - 63" r="14" />
           <circle class="head-shape" :cx="hero.head.x" :cy="hero.head.y" r="38" />
+          <path class="hair-tuft" :d="hairPath" />
           <path class="mask-shell" :d="maskPath" />
           <path class="mask-panel" :d="maskPanelPath" />
           <circle class="eye-white" :cx="hero.head.x - 12" :cy="hero.head.y - 4" r="6.2" />
@@ -152,6 +207,16 @@
           </svg>
 
           <div class="burst-layer" aria-hidden="true">
+            <span
+              v-for="burst in popBursts"
+              :key="burst.id"
+              class="pop-burst"
+              :style="{
+                left: `${burst.x}%`,
+                top: `${burst.y}%`,
+                '--pop-color': burst.color,
+              }"
+            ></span>
             <span
               v-for="spark in sparks"
               :key="spark.id"
@@ -201,8 +266,8 @@ const VIEW_W = 420
 const VIEW_H = 360
 /** Levels (rounds) to clear inside each habit zone before the next mission unlocks. */
 const LEVELS_PER_MISSION = 3
-const ACTIVE_TARGETS_MIN = 8
-const ACTIVE_TARGETS_MAX = 15
+const ACTIVE_TARGETS_MIN = 12
+const ACTIVE_TARGETS_MAX = 20
 
 function hitsNeededForMissionLevel(mission, levelSlot) {
   const cap = mission.targetCount
@@ -341,30 +406,82 @@ const stageViewportRef = ref(null)
 
 const missionIndex = ref(0)
 const showInfo = ref(false)
+
+const smashWordPool = [
+  { text: "POW!", tone: "warm" },
+  { text: "BAM!", tone: "pink" },
+  { text: "ZAP!", tone: "violet" },
+  { text: "BOOM!", tone: "warm" },
+  { text: "WHAM!", tone: "pink" },
+  { text: "ZOOM!", tone: "cool" },
+  { text: "KAPOW!", tone: "violet" },
+  { text: "SMASH!", tone: "warm" },
+]
+
+const smashWords = Array.from({ length: 8 }, (_, id) => {
+  const word = smashWordPool[id % smashWordPool.length]
+  return {
+    id,
+    text: word.text,
+    tone: word.tone,
+    left: 6 + Math.random() * 86,
+    top: 4 + Math.random() * 78,
+    delay: id * 1.2 + Math.random() * 2,
+    duration: 6 + Math.random() * 4,
+    rotate: -18 + Math.random() * 36,
+  }
+})
+
+const smashBolts = Array.from({ length: 6 }, (_, id) => ({
+  id,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  delay: Math.random() * 6,
+  size: 18 + Math.random() * 22,
+}))
+
+const smashDotTones = ["warm", "pink", "violet", "cool"]
+const smashDots = Array.from({ length: 24 }, (_, id) => ({
+  id,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  size: 4 + Math.random() * 10,
+  delay: Math.random() * 5,
+  tone: smashDotTones[id % smashDotTones.length],
+}))
 const gameState = ref("playing")
 const levelInMission = ref(1)
 const collected = ref(0)
+const missionCollected = ref(0)
 const score = ref(0)
 const combo = ref(0)
 const bestCombo = ref(0)
 const celebration = ref(false)
 const targets = ref([])
 const sparks = ref([])
+const popBursts = ref([])
 const statusLine = ref("Swing the hero into the matching healthy habit targets.")
 
 let targetId = 1
 let sparkId = 1
+let popBurstId = 1
 let rafId = null
 let missionTimer = null
 let levelAdvanceTimer = null
+let strikeWindowUntil = 0
+const hasStartedRound = ref(false)
 
 const currentMission = computed(() => missions[missionIndex.value] ?? missions[0])
 const hitsNeededThisLevel = computed(() => hitsNeededForMissionLevel(currentMission.value, levelInMission.value))
 const displayRoundLabel = computed(() => `${levelInMission.value}/${LEVELS_PER_MISSION}`)
+const missionHitGoal = computed(() =>
+  Array.from({ length: LEVELS_PER_MISSION }, (_, index) => hitsNeededForMissionLevel(currentMission.value, index + 1))
+    .reduce((sum, value) => sum + value, 0)
+)
 const missionProgress = computed(() => {
-  const need = hitsNeededThisLevel.value
+  const need = missionHitGoal.value
   if (!need) return 0
-  return Math.min(100, Math.round((collected.value / need) * 100))
+  return Math.min(100, Math.round((missionCollected.value / need) * 100))
 })
 
 const statusText = computed(() => {
@@ -403,6 +520,19 @@ const mouthPath = computed(() => {
   return `M ${x - 11} ${y + 15} Q ${x} ${y + 24} ${x + 11} ${y + 15}`
 })
 
+const hairPath = computed(() => {
+  const x = hero.head.x
+  const y = hero.head.y
+  return `M ${x - 13} ${y - 32} Q ${x - 6} ${y - 54} ${x + 4} ${y - 36} Q ${x + 14} ${y - 58} ${x + 18} ${y - 28}`
+})
+
+const capePath = computed(() => {
+  const x = hero.torso.x
+  const y = hero.torso.y - 36
+  const sway = clamp((hero.leftHand.speed + hero.rightHand.speed) * 0.35, 4, 28)
+  return `M ${x - 34} ${y} Q ${x - 78} ${y + 44} ${x - 58} ${y + 116} Q ${x} ${y + 92 + sway * 0.18} ${x + 58} ${y + 116} Q ${x + 82} ${y + 42} ${x + 34} ${y} Z`
+})
+
 function randomBetween(min, max) {
   return min + Math.random() * (max - min)
 }
@@ -416,7 +546,7 @@ function pickRandom(list) {
 }
 
 function activeBubbleQuota() {
-  return clamp(9 + missionIndex.value + (levelInMission.value - 1), ACTIVE_TARGETS_MIN, ACTIVE_TARGETS_MAX)
+  return clamp(13 + missionIndex.value * 2 + (levelInMission.value - 1) * 2, ACTIVE_TARGETS_MIN, ACTIVE_TARGETS_MAX)
 }
 
 function currentCorrectProbability() {
@@ -438,10 +568,12 @@ function spawnTarget() {
     labelTip: meta.tip || meta.label || displayLabel,
     icon: meta.icon,
     x: randomBetween(52, VIEW_W - 52),
-    y: randomBetween(48, 168),
-    vx: randomBetween(-0.42, 0.42),
-    vy: randomBetween(-0.24, 0.24),
-    r: kind === currentMission.value.id ? 31 : 27,
+    y: randomBetween(56, 230),
+    vx: randomBetween(-0.28, 0.28),
+    vy: randomBetween(-0.34, -0.06),
+    drift: randomBetween(0.7, 1.18),
+    wobble: randomBetween(0, Math.PI * 2),
+    r: kind === currentMission.value.id ? 33 : 29,
   })
 }
 
@@ -457,7 +589,9 @@ function resetMissionTargets() {
 function onPointerDown(event) {
   drag.active = true
   drag.pointerId = event.pointerId
+  hasStartedRound.value = true
   const p = toLocal(event)
+  strikeWindowUntil = performance.now() + 240
   pointer.x = p.x
   pointer.y = p.y
   drag.lastX = p.x
@@ -470,6 +604,8 @@ function onPointerMove(event) {
   if (!drag.active || event.pointerId !== drag.pointerId) return
   const p = toLocal(event)
   const now = performance.now()
+  hasStartedRound.value = true
+  strikeWindowUntil = now + 220
   const dx = p.x - drag.lastX
   const dy = p.y - drag.lastY
   const dt = Math.max(12, now - drag.lastAt)
@@ -493,6 +629,8 @@ function tapBoost() {
     restartGame()
     return
   }
+  hasStartedRound.value = true
+  strikeWindowUntil = performance.now() + 260
   const nudgeX = (Math.random() - 0.5) * 34
   const nudgeY = (Math.random() - 0.5) * 26
   pointer.x = clamp(pointer.x + nudgeX, 48, VIEW_W - 48)
@@ -540,13 +678,17 @@ function updateHandSpeed(hand) {
 
 function updateTargets(time) {
   targets.value.forEach(target => {
-    target.x += target.vx + Math.sin(time / 520 + target.id) * 0.12
-    target.y += target.vy + Math.cos(time / 610 + target.id) * 0.08
+    target.x += target.vx + Math.sin(time / 460 + target.id + target.wobble) * 0.18 * target.drift
+    target.y += target.vy + Math.cos(time / 620 + target.id + target.wobble) * 0.06
 
-    if (target.x < 36 || target.x > VIEW_W - 36) target.vx *= -1
-    if (target.y < 34 || target.y > 184) target.vy *= -1
+    if (target.x < 36 || target.x > VIEW_W - 36) target.vx *= -0.94
+    if (target.y < 42) {
+      target.y = VIEW_H - randomBetween(42, 92)
+      target.x = clamp(target.x + randomBetween(-42, 42), 36, VIEW_W - 36)
+    }
+    if (target.y > VIEW_H - 24) target.vy = -Math.abs(target.vy)
     target.x = clamp(target.x, 36, VIEW_W - 36)
-    target.y = clamp(target.y, 34, 184)
+    target.y = clamp(target.y, 42, VIEW_H - 18)
   })
 }
 
@@ -555,16 +697,19 @@ function hitTarget(target, hitSpeed) {
 
   if (correct) {
     collected.value += 1
+    missionCollected.value += 1
     combo.value += 1
     bestCombo.value = Math.max(bestCombo.value, combo.value)
     score.value += 14 + combo.value * 3 + levelInMission.value
     statusLine.value = `Nice hit! Combo x${combo.value} — Round ${levelInMission.value}/${LEVELS_PER_MISSION}.`
-    spawnSparksAt(target.x, target.y, currentMission.value.color)
+    spawnSparksAt(target.x, target.y, currentMission.value.color, hitSpeed)
+    spawnPopBurst(target.x, target.y, currentMission.value.color)
   } else {
     combo.value = 0
     score.value = Math.max(0, score.value - 8)
     statusLine.value = `Wrong zone (${target.kind}). Only smash the glowing ${currentMission.value.title.toLowerCase()} bubbles.`
-    spawnSparksAt(target.x, target.y, "#ff7a7a")
+    spawnSparksAt(target.x, target.y, "#ff7a7a", hitSpeed)
+    spawnPopBurst(target.x, target.y, "#ff7a7a")
   }
 
   targets.value = targets.value.filter(entry => entry.id !== target.id)
@@ -599,21 +744,25 @@ function advanceAfterLevelComplete() {
 
 function detectHits() {
   if (gameState.value !== "playing" || celebration.value) return
+  const now = performance.now()
+  if (!hasStartedRound.value) return
+  if (!drag.active && now > strikeWindowUntil) return
 
   const handStates = [
     { x: hero.leftHand.x, y: hero.leftHand.y, speed: hero.leftHand.speed },
     { x: hero.rightHand.x, y: hero.rightHand.y, speed: hero.rightHand.speed },
+    { x: hero.torso.x, y: hero.torso.y - 8, speed: Math.max(hero.leftHand.speed, hero.rightHand.speed) * 0.66 + drag.speed * 0.02 },
   ]
 
   /** Fist radius in viewBox units ≈ 20; allow modest overlap + spring smoothing. */
-  const fistRadius = 20
-  const minHandSpeed = 0.75
-  const dragBoost = drag.active ? Math.min(drag.speed * 0.04, 4) : 0
+  const fistRadius = 24
+  const minHandSpeed = 0.2
+  const dragBoost = drag.active ? Math.min(drag.speed * 0.06, 8) : 0
 
   for (const target of targets.value) {
     for (const hand of handStates) {
       const dist = Math.hypot(hand.x - target.x, hand.y - target.y)
-      const hitRadius = target.r + fistRadius + 6
+      const hitRadius = target.r + fistRadius + 16
       const impact = hand.speed + dragBoost
       if (dist < hitRadius && impact > minHandSpeed) {
         hitTarget(target, hand.speed)
@@ -643,14 +792,16 @@ function completeMission() {
     missionIndex.value += 1
     levelInMission.value = 1
     collected.value = 0
+    missionCollected.value = 0
     combo.value = 0
     statusLine.value = `New zone: ${currentMission.value.title}. Round 1/${LEVELS_PER_MISSION}.`
     resetMissionTargets()
   }, 1150)
 }
 
-function spawnSparksAt(x, y, color) {
-  sparks.value = Array.from({ length: 20 }, (_, index) => ({
+function spawnSparksAt(x, y, color, hitSpeed = 0) {
+  const sparkCount = Math.max(16, Math.min(28, Math.round(16 + hitSpeed * 1.2)))
+  sparks.value = Array.from({ length: sparkCount }, (_, index) => ({
     id: sparkId++,
     x: (x / VIEW_W) * 100,
     y: (y / VIEW_H) * 100,
@@ -664,22 +815,36 @@ function spawnSparksAt(x, y, color) {
   }, 780)
 }
 
+function spawnPopBurst(x, y, color) {
+  popBursts.value.push({
+    id: popBurstId++,
+    x: (x / VIEW_W) * 100,
+    y: (y / VIEW_H) * 100,
+    color,
+  })
+  window.setTimeout(() => {
+    popBursts.value = popBursts.value.slice(1)
+  }, 360)
+}
+
 function updatePhysics(time) {
   const idleX = VIEW_W / 2 + Math.sin(time / 520) * 8
   const idleY = 196 + Math.sin(time / 760) * 7
   const torsoTargetX = drag.active ? pointer.x : idleX
   const torsoTargetY = drag.active ? clamp(pointer.y + 28, 168, 244) : idleY
 
-  updateNode(hero.torso, torsoTargetX, torsoTargetY, drag.active ? 0.16 : 0.06, drag.active ? 0.8 : 0.9)
-  updateNode(hero.head, hero.torso.x, hero.torso.y - 80, 0.16, 0.84)
+  updateNode(hero.torso, torsoTargetX, torsoTargetY, drag.active ? 0.23 : 0.08, drag.active ? 0.76 : 0.9)
+  updateNode(hero.head, hero.torso.x, hero.torso.y - 82, 0.2, 0.82)
 
-  const sway = drag.active ? drag.speed * 0.16 : Math.sin(time / 220) * 6
-  const leftTargetX = hero.torso.x - 84 - sway
-  const rightTargetX = hero.torso.x + 84 + sway
-  const handTargetY = hero.torso.y - 6 + Math.sin(time / 180) * 4
+  const whip = drag.active ? Math.min(drag.speed * 0.2, 32) : 0
+  const goofyBob = Math.sin(time / 160) * 8
+  const leftTargetX = hero.torso.x - 88 - whip * 0.45 - Math.sin(time / 180) * 7
+  const rightTargetX = hero.torso.x + 88 + whip * 0.45 + Math.cos(time / 170) * 7
+  const leftTargetY = hero.torso.y - 10 + goofyBob - whip * 0.04
+  const rightTargetY = hero.torso.y - 2 - goofyBob + whip * 0.03
 
-  updateNode(hero.leftHand, leftTargetX, handTargetY, 0.2, 0.82)
-  updateNode(hero.rightHand, rightTargetX, handTargetY, 0.2, 0.82)
+  updateNode(hero.leftHand, leftTargetX, leftTargetY, 0.3, 0.76)
+  updateNode(hero.rightHand, rightTargetX, rightTargetY, 0.3, 0.76)
   updateHandSpeed(hero.leftHand)
   updateHandSpeed(hero.rightHand)
 
@@ -696,10 +861,15 @@ function restartGame() {
   levelInMission.value = 1
   gameState.value = "playing"
   collected.value = 0
+  missionCollected.value = 0
   score.value = 0
   combo.value = 0
   bestCombo.value = 0
   celebration.value = false
+  hasStartedRound.value = false
+  strikeWindowUntil = 0
+  sparks.value = []
+  popBursts.value = []
   statusLine.value = "Swing the hero into the matching healthy habit targets."
   resetMissionTargets()
 }
@@ -727,6 +897,186 @@ onBeforeUnmount(() => {
   color: #1d2748;
   font-family: "DM Sans", sans-serif;
   position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+/* === Comic arcade scene === */
+.smash-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 226, 168, 0.6) 0%, transparent 40%),
+    radial-gradient(circle at 82% 78%, rgba(255, 192, 220, 0.55) 0%, transparent 45%),
+    linear-gradient(135deg, #fff5e6 0%, #ffe1ee 60%, #ece2ff 100%);
+}
+
+.smash-game--dark .smash-scene {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 154, 62, 0.32) 0%, transparent 40%),
+    radial-gradient(circle at 82% 78%, rgba(255, 95, 162, 0.32) 0%, transparent 45%),
+    linear-gradient(135deg, #110a26 0%, #1e0f3a 60%, #2c1655 100%);
+}
+
+.smash-halftone {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center, rgba(20, 24, 60, 0.18) 1.2px, transparent 1.6px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, transparent 80%);
+  opacity: 0.55;
+  animation: halftoneShift 12s linear infinite;
+}
+
+.smash-game--dark .smash-halftone {
+  background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.16) 1.2px, transparent 1.6px);
+}
+
+@keyframes halftoneShift {
+  from { background-position: 0 0; }
+  to   { background-position: 36px 0; }
+}
+
+.smash-rays {
+  position: absolute;
+  inset: 0;
+  background:
+    conic-gradient(from 0deg at 30% 40%,
+      rgba(255, 200, 120, 0.18) 0deg,
+      transparent 18deg,
+      rgba(255, 200, 120, 0.18) 36deg,
+      transparent 54deg,
+      rgba(255, 200, 120, 0.18) 72deg,
+      transparent 90deg,
+      rgba(255, 200, 120, 0.18) 108deg,
+      transparent 126deg,
+      rgba(255, 200, 120, 0.18) 144deg,
+      transparent 162deg,
+      rgba(255, 200, 120, 0.18) 180deg,
+      transparent 198deg,
+      rgba(255, 200, 120, 0.18) 216deg,
+      transparent 234deg,
+      rgba(255, 200, 120, 0.18) 252deg,
+      transparent 270deg,
+      rgba(255, 200, 120, 0.18) 288deg,
+      transparent 306deg,
+      rgba(255, 200, 120, 0.18) 324deg,
+      transparent 342deg);
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+  animation: raysSpin 60s linear infinite;
+}
+
+.smash-game--dark .smash-rays {
+  opacity: 0.35;
+}
+
+@keyframes raysSpin { to { transform: rotate(360deg); } }
+
+.smash-streaks {
+  position: absolute;
+  inset: 0;
+}
+
+.smash-streak {
+  position: absolute;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 96, 88, 0.7), transparent);
+  filter: blur(0.4px);
+  opacity: 0;
+  animation: streakFlash 4s ease-in-out infinite;
+}
+
+.smash-streak-1 { left: -10%; top: 20%; width: 60%; transform: rotate(-12deg); animation-delay: 0s; }
+.smash-streak-2 { right: -10%; top: 55%; width: 55%; transform: rotate(14deg); background: linear-gradient(90deg, transparent, rgba(155, 114, 255, 0.7), transparent); animation-delay: 1.4s; }
+.smash-streak-3 { left: 10%; bottom: 18%; width: 70%; transform: rotate(-6deg); background: linear-gradient(90deg, transparent, rgba(58, 200, 255, 0.7), transparent); animation-delay: 2.6s; }
+
+@keyframes streakFlash {
+  0%, 100% { opacity: 0; }
+  20%      { opacity: 0.9; }
+  60%      { opacity: 0; }
+}
+
+.smash-word {
+  position: absolute;
+  font-family: "Baloo 2", "DM Sans", sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 3.2vw, 48px);
+  letter-spacing: 0.02em;
+  -webkit-text-stroke: 3px #1a1a2e;
+  text-shadow: 5px 5px 0 rgba(26, 26, 46, 0.92);
+  opacity: 0;
+  animation: smashWordPop ease-out infinite;
+  filter: drop-shadow(0 0 12px rgba(255, 209, 102, 0.55));
+}
+
+.smash-word span { display: inline-block; }
+.smash-word--warm   { color: #ffd166; }
+.smash-word--pink   { color: #ff7eb3; }
+.smash-word--violet { color: #b794ff; }
+.smash-word--cool   { color: #6cd1ff; }
+
+@keyframes smashWordPop {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  10%      { opacity: 1; transform: scale(1.15); }
+  20%      { transform: scale(1); }
+  50%      { opacity: 1; }
+  70%      { opacity: 0; transform: scale(0.9); }
+}
+
+.smash-bolt {
+  position: absolute;
+  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.6));
+  opacity: 0;
+  animation: boltFlash 6s ease-in-out infinite;
+}
+
+@keyframes boltFlash {
+  0%, 100% { opacity: 0; transform: scale(0.6) rotate(-12deg); }
+  15%      { opacity: 1; transform: scale(1.2) rotate(8deg); }
+  30%      { opacity: 0.5; transform: scale(1) rotate(-4deg); }
+  60%      { opacity: 0; transform: scale(0.7); }
+}
+
+.smash-dot {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.55;
+  filter: blur(0.5px);
+  animation: dotDrift 6s ease-in-out infinite alternate;
+}
+
+.smash-dot--warm   { background: radial-gradient(circle, #ffb444, transparent 70%); }
+.smash-dot--pink   { background: radial-gradient(circle, #ff7eb3, transparent 70%); }
+.smash-dot--violet { background: radial-gradient(circle, #9b72ff, transparent 70%); }
+.smash-dot--cool   { background: radial-gradient(circle, #6cd1ff, transparent 70%); }
+
+@keyframes dotDrift {
+  from { transform: translate(0, 0) scale(0.7); opacity: 0.2; }
+  to   { transform: translate(20px, -22px) scale(1.1); opacity: 0.75; }
+}
+
+.smash-scene-front {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.smash-head,
+.mission-strip,
+.arena,
+.victory-overlay {
+  position: relative;
+  z-index: 3;
 }
 
 .smash-kicker {
@@ -997,6 +1347,7 @@ onBeforeUnmount(() => {
     0 1px 0 rgba(255, 255, 255, 0.75) inset,
     0 10px 22px rgba(12, 28, 72, 0.12);
   pointer-events: none;
+  animation: targetFloat 2.8s ease-in-out infinite;
 }
 
 .habit-target__inner {
@@ -1131,6 +1482,10 @@ onBeforeUnmount(() => {
   fill: url(#suitBody);
 }
 
+.cape {
+  fill: rgba(255, 83, 118, 0.86);
+}
+
 .torso.charged {
   filter: saturate(1.3) brightness(1.08);
 }
@@ -1153,6 +1508,14 @@ onBeforeUnmount(() => {
 
 .head-shape {
   fill: url(#skinTone);
+}
+
+.hair-tuft {
+  fill: none;
+  stroke: #2f1d0f;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .mask-shell {
@@ -1300,11 +1663,28 @@ onBeforeUnmount(() => {
   to { transform: translateY(-16px); opacity: 0.72; }
 }
 
+@keyframes targetFloat {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, calc(-50% - 3px)) scale(1.03); }
+}
+
 .burst-layer {
   position: absolute;
   inset: 0;
   z-index: 3;
   pointer-events: none;
+}
+
+.pop-burst {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  margin-top: -13px;
+  border-radius: 999px;
+  border: 6px solid var(--pop-color, #7dd3fc);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--pop-color, #7dd3fc) 18%, transparent);
+  animation: popBurstOut 340ms ease-out forwards;
 }
 
 .spark {
@@ -1328,6 +1708,17 @@ onBeforeUnmount(() => {
       )
       scale(1.16)
       rotate(220deg);
+    opacity: 0;
+  }
+}
+
+@keyframes popBurstOut {
+  from {
+    transform: scale(0.35);
+    opacity: 0.95;
+  }
+  to {
+    transform: scale(3.2);
     opacity: 0;
   }
 }

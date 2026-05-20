@@ -1,6 +1,30 @@
+"""
+Workout Plan Seed Script
+
+This script connects to PostgreSQL/RDS, recreates the workout_plan table,
+inserts a 4-week structured workout dataset, and prints the inserted rows
+for verification.
+
+Main responsibilities:
+- Connects to the PostgreSQL database using psycopg2.
+- Drops the existing workout_plan table if it already exists.
+- Creates the workout_plan table with week, day, and workout checks.
+- Inserts workout activities and rest days for 4 weeks.
+- Commits the table reset, creation, and insert operations.
+- Prints all inserted workout_plan rows for checking.
+- Closes the cursor and database connection after completion.
+
+Required variables expected before running:
+- db_host
+- db_name
+- db_user
+- db_pass
+"""
+
 import psycopg2
 
 
+# Open a connection to the PostgreSQL/RDS database.
 connection = psycopg2.connect(
         host=db_host,
         database=db_name,
@@ -11,12 +35,15 @@ connection = psycopg2.connect(
 
 print("Connected successfully")
 
+# Create a cursor so SQL commands can be executed.
 cursor = connection.cursor()
 
+# Remove the existing workout_plan table so the seed data starts cleanly.
 cursor.execute(""" DROP TABLE IF EXISTS  workout_plan;""")
 
 connection.commit()
 
+# Create the workout_plan table used by the family plan dashboard.
 cursor.execute("""
 CREATE TABLE workout_plan (
     id SERIAL PRIMARY KEY,
@@ -29,6 +56,7 @@ CREATE TABLE workout_plan (
 """)
 connection.commit()
 
+# Insert the 4-week workout and rest-day dataset into the table.
 cursor.execute(""" 
 
 INSERT INTO workout_plan (week_number, day_number, workout_number, exercise_name, description) VALUES
@@ -393,12 +421,15 @@ INSERT INTO workout_plan (week_number, day_number, workout_number, exercise_name
 
 connection.commit()
   
+# Read all inserted rows to confirm that the seed operation worked.
 cursor.execute("SELECT * FROM workout_plan;")
 rows = cursor.fetchall()
 
+# Print each inserted workout record for verification.
 for row in rows:
     print(row)
 
 
+# Close database resources after the script finishes.
 cursor.close()
 connection.close()

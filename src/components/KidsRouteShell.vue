@@ -1,26 +1,83 @@
+<!--
+  KidsRouteShell.vue
+
+  Creates the shared layout shell for all HelthyKidz kids pages. It provides the topbar,
+  bottom navigation, theme controls, shared background styling, and game launch overlay.
+
+  Component requirement:
+  - Requires a pageLabel prop.
+  - Uses provideKidsTheme for light and dark mode.
+  - Uses useGameLaunch for the animated launch screen.
+
+  Accessibility:
+  - Uses aria-hidden for decorative background and launch icon areas.
+  - Uses role="status" and aria-live="polite" for the launch screen.
+-->
+
 <template>
   <div
     class="kids-route-shell"
     :class="{ 'kids-route-shell--dark': isDarkMode }"
   >
+    <!-- Decorative page background -->
     <div class="kids-route-shell-bg" aria-hidden="true" />
+
+    <!-- Shared kids page layout wrapper -->
     <div class="kids-route-shell-inner">
+      <!-- Top navigation bar for kids pages -->
       <KidsPageTopbar
         :page-label="pageLabel"
         :is-dark-mode="isDarkMode"
         @toggle-theme="toggleDarkMode"
       />
+
+      <!-- Page-specific content is rendered here -->
       <slot />
+
+      <!-- Bottom navigation for kids pages -->
       <KidsBottomNav />
     </div>
+
+    <!-- Floating theme toggle button -->
+    <KidsThemeFloater :is-dark-mode="isDarkMode" @toggle-theme="toggleDarkMode" />
+
+    <!-- Animated launch overlay shown when a game is opening -->
+    <transition name="launch-screen">
+      <div
+        v-if="launching"
+        class="launch-screen"
+        :class="launchTone"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="launch-card">
+          <!-- Decorative launch emoji -->
+          <div class="launch-icon-wrap" aria-hidden="true">
+            <span class="launch-emoji">{{ launchEmoji }}</span>
+          </div>
+
+          <!-- Launch title and subtitle -->
+          <div class="launch-title">{{ launchTitle }}</div>
+          <div class="launch-sub">{{ launchSub }}</div>
+
+          <!-- Decorative loading dots -->
+          <div class="launch-loader" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
 import KidsPageTopbar from "./kids/KidsPageTopbar.vue"
 import KidsBottomNav from "./kids/KidsBottomNav.vue"
+import KidsThemeFloater from "./kids/KidsThemeFloater.vue"
 import { provideKidsTheme } from "../composables/useKidsTheme.js"
+import { useGameLaunch } from "../composables/useGameLaunch.js"
 
+// Page label displayed in the kids topbar.
 defineProps({
   pageLabel: {
     type: String,
@@ -28,7 +85,11 @@ defineProps({
   },
 })
 
+// Provides kids theme state and the dark mode toggle to child pages.
 const { isDarkMode, toggleDarkMode } = provideKidsTheme()
+
+// Provides game launch overlay state and display content.
+const { launching, launchTitle, launchSub, launchEmoji, launchTone } = useGameLaunch()
 </script>
 
 <style scoped>
@@ -57,6 +118,7 @@ const { isDarkMode, toggleDarkMode } = provideKidsTheme()
   --kids-theme-btn-edge: rgba(238, 239, 245, 1);
 }
 
+/* Dark mode design tokens shared across kids pages */
 .kids-route-shell--dark {
   --kids-bg: #090e1f;
   --kids-ink: #f2f7ff;
@@ -79,6 +141,7 @@ const { isDarkMode, toggleDarkMode } = provideKidsTheme()
   --kids-theme-btn-edge: rgba(255, 255, 255, 0.16);
 }
 
+/* Main shell wrapper */
 .kids-route-shell {
   position: relative;
   min-height: 100vh;
@@ -86,9 +149,10 @@ const { isDarkMode, toggleDarkMode } = provideKidsTheme()
   color: var(--kids-ink);
   background: var(--kids-bg);
   overflow-x: hidden;
-  padding-bottom: 88px;
+  padding-bottom: 78px;
 }
 
+/* Fixed decorative background layer */
 .kids-route-shell-bg {
   position: fixed;
   inset: 0;
@@ -96,6 +160,7 @@ const { isDarkMode, toggleDarkMode } = provideKidsTheme()
   z-index: 0;
 }
 
+/* Light mode background glow */
 .kids-route-shell:not(.kids-route-shell--dark) .kids-route-shell-bg {
   background-image:
     radial-gradient(circle at 20% 18%, rgba(59, 158, 255, 0.09) 0%, transparent 50%),
@@ -103,6 +168,7 @@ const { isDarkMode, toggleDarkMode } = provideKidsTheme()
     radial-gradient(circle at 52% 96%, rgba(44, 201, 122, 0.06) 0%, transparent 42%);
 }
 
+/* Dark mode background glow */
 .kids-route-shell--dark .kids-route-shell-bg {
   background-image:
     radial-gradient(circle at 18% 16%, rgba(59, 158, 255, 0.16) 0%, transparent 45%),
@@ -110,11 +176,146 @@ const { isDarkMode, toggleDarkMode } = provideKidsTheme()
     radial-gradient(circle at 48% 100%, rgba(255, 126, 179, 0.1) 0%, transparent 38%);
 }
 
+/* Main content width and spacing */
 .kids-route-shell-inner {
   position: relative;
   z-index: 1;
   width: min(1120px, 100%);
   margin: 0 auto;
   padding: 14px min(22px, 4vw) 0;
+}
+
+/* Full-screen game launch overlay */
+.launch-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(255, 176, 32, 0.18), transparent 32%),
+    radial-gradient(circle at bottom, rgba(59, 158, 255, 0.22), transparent 40%),
+    rgba(8, 12, 32, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+/* Launch modal card */
+.launch-card {
+  min-width: min(360px, calc(100vw - 32px));
+  max-width: 420px;
+  padding: 28px 32px;
+  border-radius: 32px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(155deg, rgba(48, 36, 110, 0.96), rgba(22, 26, 64, 0.96));
+  box-shadow: 0 30px 80px rgba(8, 10, 32, 0.45);
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+/* Bubble game launch colour theme */
+.launch-screen.tone-bubble .launch-card {
+  background: linear-gradient(155deg, rgba(50, 102, 200, 0.96), rgba(34, 56, 130, 0.96));
+}
+
+/* Explorer game launch colour theme */
+.launch-screen.tone-explorer .launch-card {
+  background: linear-gradient(155deg, rgba(28, 130, 90, 0.96), rgba(22, 70, 56, 0.96));
+}
+
+/* Smash game launch colour theme */
+.launch-screen.tone-smash .launch-card {
+  background: linear-gradient(155deg, rgba(196, 60, 110, 0.96), rgba(110, 26, 78, 0.96));
+}
+
+/* General games launch colour theme */
+.launch-screen.tone-games .launch-card {
+  background: linear-gradient(155deg, rgba(225, 132, 56, 0.96), rgba(160, 48, 110, 0.96));
+}
+
+/* Launch emoji container */
+.launch-icon-wrap {
+  width: 86px;
+  height: 86px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: launchPulse 0.85s ease-in-out infinite alternate;
+}
+
+/* Launch emoji */
+.launch-emoji {
+  font-size: 44px;
+  line-height: 1;
+}
+
+/* Launch title */
+.launch-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* Launch subtitle */
+.launch-sub {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(232, 237, 255, 0.86);
+}
+
+/* Animated loading dots wrapper */
+.launch-loader {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Animated loading dots */
+.launch-loader span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  animation: launchDot 1.1s ease-in-out infinite;
+}
+
+/* Staggered loading dot timings */
+.launch-loader span:nth-child(2) { animation-delay: 0.18s; }
+.launch-loader span:nth-child(3) { animation-delay: 0.36s; }
+
+/* Pulse animation for the launch emoji block */
+@keyframes launchPulse {
+  from { transform: scale(1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 26px rgba(59, 158, 255, 0.22); }
+  to { transform: scale(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 18px 36px rgba(255, 176, 32, 0.28); }
+}
+
+/* Bounce animation for the launch loading dots */
+@keyframes launchDot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Launch overlay transition timing */
+.launch-screen-enter-active,
+.launch-screen-leave-active {
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+/* Launch overlay hidden state */
+.launch-screen-enter-from,
+.launch-screen-leave-to {
+  opacity: 0;
+}
+
+/* Launch card hidden transition state */
+.launch-screen-enter-from .launch-card,
+.launch-screen-leave-to .launch-card {
+  transform: translateY(20px) scale(0.94);
 }
 </style>

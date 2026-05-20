@@ -1,5 +1,60 @@
 <template>
   <section class="habit-lab" :class="{ 'habit-lab--dark': isDarkMode }">
+    <div class="lab-scene" aria-hidden="true">
+      <div class="lab-grid"></div>
+      <div class="lab-glow lab-glow-a"></div>
+      <div class="lab-glow lab-glow-b"></div>
+      <div class="lab-glow lab-glow-c"></div>
+    </div>
+
+    <div class="lab-scene-front" aria-hidden="true">
+      <span class="lab-orbit lab-orbit-1">
+        <span class="lab-orbit__ring"></span>
+        <span class="lab-orbit__atom" style="--ang:0deg"></span>
+        <span class="lab-orbit__atom" style="--ang:120deg"></span>
+        <span class="lab-orbit__atom" style="--ang:240deg"></span>
+      </span>
+
+      <span class="lab-orbit lab-orbit-2">
+        <span class="lab-orbit__ring lab-orbit__ring--tilt"></span>
+        <span class="lab-orbit__atom" style="--ang:60deg"></span>
+        <span class="lab-orbit__atom" style="--ang:200deg"></span>
+      </span>
+
+      <span class="lab-flask lab-flask-1">
+        <span class="flask-neck"></span>
+        <span class="flask-body"><span class="flask-liquid"></span></span>
+        <span class="flask-bubble flask-bubble-a"></span>
+        <span class="flask-bubble flask-bubble-b"></span>
+      </span>
+
+      <span
+        v-for="leaf in labLeaves"
+        :key="`ll-${leaf.id}`"
+        class="lab-leaf"
+        :style="{
+          left: `${leaf.left}%`,
+          top: `${leaf.top}%`,
+          animationDelay: `${leaf.delay}s`,
+          animationDuration: `${leaf.duration}s`,
+        }"
+      >{{ leaf.emoji }}</span>
+
+      <span
+        v-for="sparkle in labSparkles"
+        :key="`ls-${sparkle.id}`"
+        class="lab-sparkle"
+        :style="{
+          left: `${sparkle.left}%`,
+          top: `${sparkle.top}%`,
+          width: `${sparkle.size}px`,
+          height: `${sparkle.size}px`,
+          animationDelay: `${sparkle.delay}s`,
+          animationDuration: `${sparkle.duration}s`,
+        }"
+      ></span>
+    </div>
+
     <div class="mission-tabs" role="tablist" aria-label="Habit mission tabs">
       <button
         v-for="mission in missions"
@@ -29,11 +84,7 @@
     </div>
 
     <div class="lab-shell">
-      <aside class="ingredient-panel">
-        <div class="panel-heading">
-          <h4>{{ currentStage.title }} Cards</h4>
-        </div>
-
+      <aside class="ingredient-panel" aria-label="Current set cards">
         <div class="ingredient-grid">
           <button
             v-for="item in currentStage.items"
@@ -47,14 +98,12 @@
             }"
             :disabled="isItemDisabled(item.id)"
             @click="pickItem(item.id)"
+            :aria-label="item.label"
           >
             <img class="ingredient-image" :src="item.image" :alt="item.label" />
-            <div class="ingredient-copy">
-              <span class="ingredient-icon" aria-hidden="true">{{ item.icon }}</span>
-              <strong>{{ item.label }}</strong>
+            <div class="ingredient-overlay" aria-hidden="true">
+              <span class="ingredient-icon">{{ item.icon }}</span>
             </div>
-            <span v-if="isItemCompleted(item.id)" class="state-badge">Done</span>
-            <span v-else-if="isItemSelected(item.id)" class="state-badge">Picked</span>
           </button>
         </div>
       </aside>
@@ -102,21 +151,6 @@
           </div>
         </div>
 
-        <div class="video-shell">
-          <div class="video-heading">
-            <h5>Watch a bright idea</h5>
-            <span>{{ previewCard.videoLabel }}</span>
-          </div>
-          <div class="video-frame">
-            <iframe
-              :src="previewCard.videoUrl"
-              :title="previewCard.videoLabel"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </div>
-        </div>
       </section>
 
       <aside class="discoveries-panel">
@@ -165,6 +199,25 @@ const missions = createExplorerMissions()
 
 const activeMission = ref("snack")
 const showInfo = ref(false)
+
+const labLeafEmojis = ["🌿", "🍃", "🌱", "🍀", "🍋", "🥦", "🥬"]
+const labLeaves = Array.from({ length: 9 }, (_, id) => ({
+  id,
+  emoji: labLeafEmojis[id % labLeafEmojis.length],
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  delay: Math.random() * 8,
+  duration: 10 + Math.random() * 10,
+}))
+
+const labSparkles = Array.from({ length: 24 }, (_, id) => ({
+  id,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  size: 2 + Math.random() * 3,
+  delay: Math.random() * 6,
+  duration: 3 + Math.random() * 4,
+}))
 const selected = ref([null, null])
 const stars = ref(0)
 const unlockBurst = reactive({
@@ -419,6 +472,269 @@ function resolvePair(first, second) {
   margin-top: 0;
   color: #1a2442;
   font-family: "DM Sans", sans-serif;
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+/* === Lab discovery scene === */
+.lab-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+  background: linear-gradient(160deg, #d6f4e6 0%, #e5dcff 55%, #ffe1eb 100%);
+}
+
+.habit-lab--dark .lab-scene {
+  background: linear-gradient(160deg, #0c1c34 0%, #1a1248 60%, #341542 100%);
+}
+
+.lab-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(72, 91, 180, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(72, 91, 180, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%);
+}
+
+.habit-lab--dark .lab-grid {
+  background-image:
+    linear-gradient(rgba(155, 134, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(155, 134, 255, 0.12) 1px, transparent 1px);
+}
+
+.lab-glow {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+}
+
+.lab-glow-a { left: -120px; top: -80px;  background: radial-gradient(circle, rgba(44, 201, 122, 0.7), transparent 70%); animation: labGlowDrift 18s ease-in-out infinite alternate; }
+.lab-glow-b { right: -120px; top: 30%;   background: radial-gradient(circle, rgba(155, 114, 255, 0.6), transparent 70%); animation: labGlowDrift 22s ease-in-out infinite alternate-reverse; }
+.lab-glow-c { left: 30%;    bottom: -120px; background: radial-gradient(circle, rgba(255, 154, 62, 0.55), transparent 70%); animation: labGlowDrift 20s ease-in-out infinite alternate; animation-delay: -6s; }
+
+@keyframes labGlowDrift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(30px, -40px) scale(1.08); }
+}
+
+.lab-orbit {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  display: grid;
+  place-items: center;
+  opacity: 0.85;
+}
+
+.lab-orbit-1 { left: 2%; top: 4%; animation: orbitSway 16s ease-in-out infinite alternate; }
+.lab-orbit-2 { right: 2%; bottom: 6%; width: 120px; height: 120px; animation: orbitSway 18s ease-in-out infinite alternate-reverse; animation-delay: -4s; }
+
+@keyframes orbitSway {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(14px, 20px); }
+}
+
+.lab-orbit__ring {
+  position: absolute;
+  inset: 0;
+  border: 2.5px dashed rgba(44, 201, 122, 0.85);
+  border-radius: 50%;
+  animation: orbitSpin 12s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(44, 201, 122, 0.4));
+}
+
+.lab-orbit__ring--tilt {
+  border-color: rgba(155, 114, 255, 0.85);
+  transform: rotate(35deg) scaleY(0.55);
+  animation-duration: 14s;
+  filter: drop-shadow(0 0 8px rgba(155, 114, 255, 0.4));
+}
+
+.habit-lab--dark .lab-orbit__ring {
+  border-color: rgba(106, 255, 182, 0.5);
+}
+.habit-lab--dark .lab-orbit__ring--tilt {
+  border-color: rgba(196, 182, 255, 0.6);
+}
+
+@keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+.lab-orbit__atom {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #4ade80 70%);
+  box-shadow: 0 0 14px rgba(74, 222, 128, 0.7), inset 0 0 4px rgba(255, 255, 255, 0.4);
+  transform: rotate(var(--ang)) translateX(68px);
+  animation: atomOrbit 8s linear infinite;
+}
+
+.lab-orbit-2 .lab-orbit__atom {
+  background: radial-gradient(circle at 30% 30%, #ffffff, #9b72ff 70%);
+  box-shadow: 0 0 14px rgba(155, 114, 255, 0.7), inset 0 0 4px rgba(255, 255, 255, 0.4);
+  transform: rotate(var(--ang)) translateX(58px);
+}
+
+@keyframes atomOrbit {
+  from { transform: rotate(var(--ang)) translateX(68px) rotate(0deg); }
+  to   { transform: rotate(var(--ang)) translateX(68px) rotate(-360deg); }
+}
+
+.lab-orbit-2 .lab-orbit__atom {
+  animation-name: atomOrbit2;
+}
+@keyframes atomOrbit2 {
+  from { transform: rotate(var(--ang)) translateX(58px) rotate(0deg); }
+  to   { transform: rotate(var(--ang)) translateX(58px) rotate(-360deg); }
+}
+
+.lab-flask {
+  position: absolute;
+  right: 4%;
+  top: 50%;
+  width: 56px;
+  height: 88px;
+  display: grid;
+  grid-template-rows: 16px 1fr;
+  align-items: end;
+  animation: flaskShake 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px rgba(44, 201, 122, 0.35));
+  opacity: 0.75;
+}
+
+.flask-neck {
+  width: 18px;
+  margin: 0 auto;
+  height: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(220, 240, 230, 0.65));
+  border-radius: 4px 4px 0 0;
+  border: 1.5px solid rgba(72, 91, 180, 0.22);
+  border-bottom: none;
+}
+
+.flask-body {
+  position: relative;
+  width: 56px;
+  height: 68px;
+  border-radius: 12px 12px 28px 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.85));
+  border: 1.5px solid rgba(72, 91, 180, 0.22);
+  overflow: hidden;
+}
+
+.flask-liquid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  background: linear-gradient(180deg, rgba(74, 222, 128, 0.7), rgba(44, 201, 122, 0.9));
+  animation: liquidWave 3.2s ease-in-out infinite alternate;
+}
+
+.flask-liquid::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -10%;
+  width: 120%;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  filter: blur(1px);
+}
+
+@keyframes liquidWave {
+  from { height: 55%; }
+  to   { height: 65%; }
+}
+
+.flask-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: flaskBubbleUp 2.6s ease-in-out infinite;
+}
+.flask-bubble-b {
+  left: 32%;
+  width: 5px;
+  height: 5px;
+  animation-delay: 1.2s;
+  animation-duration: 3.4s;
+}
+
+@keyframes flaskBubbleUp {
+  0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-50px) scale(1.1); }
+}
+
+@keyframes flaskShake {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(3deg); }
+}
+
+.lab-leaf {
+  position: absolute;
+  font-size: 20px;
+  opacity: 0.5;
+  filter: drop-shadow(0 4px 8px rgba(34, 90, 60, 0.25));
+  animation: leafSway ease-in-out infinite alternate;
+}
+
+@keyframes leafSway {
+  0%   { transform: translate(0, 0) rotate(-12deg); opacity: 0.25; }
+  50%  { opacity: 0.6; }
+  100% { transform: translate(14px, -22px) rotate(18deg); opacity: 0.3; }
+}
+
+.lab-sparkle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+  animation: labSparkle ease-in-out infinite alternate;
+}
+
+@keyframes labSparkle {
+  from { opacity: 0.2; transform: scale(0.5); }
+  to   { opacity: 1;   transform: scale(1.3); }
+}
+
+.lab-scene-front {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.mission-tabs,
+.mission-summary,
+.progress-track,
+.lab-shell,
+.victory-overlay,
+.shopping-list {
+  position: relative;
+  z-index: 3;
 }
 
 .mission-tabs {
@@ -532,7 +848,7 @@ function resolvePair(first, second) {
 .lab-shell {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1.1fr 1.2fr 0.85fr;
+  grid-template-columns: 0.95fr 1.2fr 0.8fr;
   gap: 14px;
 }
 
@@ -551,7 +867,6 @@ function resolvePair(first, second) {
   overflow: hidden;
 }
 
-.panel-heading h4,
 .discoveries-panel h4 {
   margin: 0;
   font-family: "Baloo 2", cursive;
@@ -559,24 +874,48 @@ function resolvePair(first, second) {
 }
 
 .ingredient-grid {
-  margin-top: 14px;
+  margin-top: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .ingredient-btn {
   position: relative;
   border: 1px solid rgba(78, 97, 175, 0.1);
   border-radius: 22px;
-  padding: 10px;
+  padding: 8px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 246, 255, 0.92));
   color: #24305d;
   display: grid;
-  gap: 10px;
-  text-align: left;
+  place-items: center;
+  aspect-ratio: 1 / 1.02;
+  text-align: center;
   cursor: pointer;
-  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+  overflow: hidden;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease, border-color 0.14s ease;
+}
+
+.ingredient-btn::before {
+  content: "";
+  position: absolute;
+  inset: -35% 18% auto;
+  height: 70%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.ingredient-btn::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 16px;
+  border: 0 solid transparent;
+  pointer-events: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+  opacity: 0;
 }
 
 .ingredient-btn:nth-child(3n + 1) {
@@ -592,59 +931,97 @@ function resolvePair(first, second) {
 }
 
 .ingredient-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(36, 51, 118, 0.14);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 14px 24px rgba(36, 51, 118, 0.16);
   animation: cardWiggle 0.32s ease;
 }
 
 .ingredient-btn.burst {
-  animation: unlockPop 0.72s ease;
-  box-shadow: 0 0 0 3px rgba(120, 99, 255, 0.14), 0 18px 34px rgba(88, 84, 220, 0.22);
+  animation: unlockPop 0.92s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow:
+    0 0 0 4px rgba(120, 99, 255, 0.16),
+    0 18px 34px rgba(88, 84, 220, 0.24),
+    0 0 32px rgba(123, 101, 255, 0.2);
 }
 
 .ingredient-btn.selected,
 .ingredient-btn.completed,
 .ingredient-btn:disabled {
-  filter: grayscale(1);
-  opacity: 0.62;
+  opacity: 0.9;
   cursor: not-allowed;
 }
 
+.ingredient-btn.selected {
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(91, 112, 228, 0.34);
+  box-shadow: 0 16px 28px rgba(83, 104, 220, 0.16);
+}
+
+.ingredient-btn.selected::after {
+  opacity: 1;
+  border-width: 2px;
+  border-color: rgba(90, 142, 255, 0.8);
+  box-shadow: 0 0 0 4px rgba(90, 142, 255, 0.12);
+}
+
 .ingredient-btn.completed {
-  opacity: 0.56;
+  filter: saturate(0.8);
+  border-color: rgba(104, 113, 160, 0.18);
+  box-shadow: 0 12px 22px rgba(61, 73, 126, 0.12);
+}
+
+.ingredient-btn.completed::after {
+  opacity: 1;
+  border-width: 2px;
+  border-color: rgba(62, 195, 126, 0.85);
+  box-shadow: 0 0 0 4px rgba(62, 195, 126, 0.12);
 }
 
 .ingredient-image {
   width: 100%;
-  aspect-ratio: 1.12;
+  height: 100%;
   object-fit: cover;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #eef2ff;
+  display: block;
 }
 
-.ingredient-copy {
+.ingredient-overlay {
+  position: absolute;
+  inset: 0;
   display: grid;
-  gap: 4px;
-}
-
-.ingredient-copy strong {
-  font-size: 1rem;
+  place-items: center;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(18, 27, 57, 0.04), rgba(18, 27, 57, 0.2));
 }
 
 .ingredient-icon {
-  font-size: 1.8rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 14px 24px rgba(20, 35, 78, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transform: translateY(0);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.state-badge {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  border-radius: 999px;
-  background: rgba(20, 31, 69, 0.8);
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: 800;
-  padding: 5px 9px;
+.ingredient-btn:hover:not(:disabled) .ingredient-icon {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow:
+    0 18px 30px rgba(20, 35, 78, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.74);
+}
+
+.ingredient-btn.completed .ingredient-icon {
+  background: rgba(255, 255, 255, 0.92);
+  animation: matchedIconGlow 0.95s ease;
 }
 
 .slots-header {
@@ -795,41 +1172,16 @@ function resolvePair(first, second) {
   font-weight: 800;
 }
 
-.preview-copy h5,
-.video-heading h5 {
+.preview-copy h5 {
   margin: 8px 0 0;
   font-size: 1rem;
   font-family: "Baloo 2", cursive;
 }
 
-.preview-copy p:last-child,
-.video-heading span {
+.preview-copy p:last-child {
   margin: 8px 0 0;
   color: #5f6d92;
   line-height: 1.55;
-}
-
-.video-shell {
-  margin-top: 14px;
-  border-radius: 22px;
-  border: 1px solid rgba(68, 89, 160, 0.12);
-  padding: 14px;
-  background: linear-gradient(180deg, rgba(251, 251, 255, 0.96), rgba(243, 246, 255, 0.92));
-  box-shadow: 0 12px 24px rgba(33, 52, 106, 0.08);
-}
-
-.video-frame {
-  margin-top: 12px;
-  border-radius: 16px;
-  overflow: hidden;
-  aspect-ratio: 16 / 9;
-  background: #101631;
-}
-
-.video-frame iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
 }
 
 .discoveries-panel ul {
@@ -860,7 +1212,9 @@ function resolvePair(first, second) {
 }
 
 .discoveries-panel .empty {
-  color: #63709a;
+  color: #2d3a5f;
+  font-weight: 600;
+  opacity: 1;
 }
 
 .score {
@@ -1055,7 +1409,6 @@ function resolvePair(first, second) {
   border-color: rgba(143, 154, 227, 0.22);
 }
 
-.habit-lab--dark .panel-heading h4,
 .habit-lab--dark .discoveries-panel h4 {
   color: #f2f7ff;
 }
@@ -1077,8 +1430,15 @@ function resolvePair(first, second) {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.habit-lab--dark .ingredient-copy strong {
-  color: rgba(226, 234, 255, 0.95);
+.habit-lab--dark .ingredient-overlay {
+  background: linear-gradient(180deg, rgba(8, 12, 28, 0.04), rgba(8, 12, 28, 0.28));
+}
+
+.habit-lab--dark .ingredient-icon {
+  background: rgba(18, 28, 56, 0.82);
+  box-shadow:
+    0 16px 28px rgba(3, 7, 23, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .habit-lab--dark .clear-btn {
@@ -1104,7 +1464,8 @@ function resolvePair(first, second) {
 
 .habit-lab--dark .discoveries-panel li,
 .habit-lab--dark .discoveries-panel .empty {
-  color: rgba(210, 220, 255, 0.88);
+  color: #ffffff;
+  opacity: 1;
 }
 
 .habit-lab--dark .discoveries-panel li strong {
@@ -1177,20 +1538,6 @@ function resolvePair(first, second) {
   color: rgba(226, 234, 255, 0.95);
 }
 
-.habit-lab--dark .video-shell {
-  background: rgba(12, 16, 34, 0.9);
-  border-color: rgba(143, 154, 227, 0.2);
-}
-
-.habit-lab--dark .video-heading h5,
-.habit-lab--dark .video-heading span {
-  color: rgba(226, 234, 255, 0.92);
-}
-
-.habit-lab--dark .video-frame {
-  border-color: rgba(143, 154, 227, 0.25);
-}
-
 .habit-lab--dark .score span {
   color: rgba(198, 208, 240, 0.88);
 }
@@ -1216,16 +1563,28 @@ function resolvePair(first, second) {
 
 @keyframes unlockPop {
   0% {
-    transform: scale(0.94) translateY(6px);
-    opacity: 0.72;
+    transform: scale(0.88) rotate(-4deg);
+    opacity: 0.78;
   }
-  50% {
-    transform: scale(1.03) translateY(-2px);
+  35% {
+    transform: scale(1.08) rotate(3deg);
     opacity: 1;
   }
   100% {
-    transform: scale(1) translateY(0);
+    transform: scale(1) rotate(0deg);
     opacity: 1;
+  }
+}
+
+@keyframes matchedIconGlow {
+  0% {
+    transform: scale(0.88) rotate(-8deg);
+  }
+  45% {
+    transform: scale(1.12) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
   }
 }
 
@@ -1247,7 +1606,7 @@ function resolvePair(first, second) {
   }
 
   .ingredient-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .slots {

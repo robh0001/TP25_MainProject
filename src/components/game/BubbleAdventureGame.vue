@@ -1,5 +1,59 @@
 <template>
   <section class="bubble-adventure" :class="{ 'bubble-adventure--dark': isDarkMode }">
+    <div class="bubble-scene" aria-hidden="true">
+      <div class="bubble-scene__water"></div>
+      <div class="bubble-scene__beams"></div>
+      <div class="bubble-scene__caustic"></div>
+      <div class="bubble-scene__surface"></div>
+    </div>
+
+    <div class="bubble-scene-front" aria-hidden="true">
+      <span
+        v-for="b in sceneBubbles"
+        :key="`sb-${b.id}`"
+        class="scene-bubble"
+        :style="{
+          left: `${b.left}%`,
+          width: `${b.size}px`,
+          height: `${b.size}px`,
+          animationDelay: `${b.delay}s`,
+          animationDuration: `${b.duration}s`,
+        }"
+      ></span>
+
+      <svg class="scene-jelly scene-jelly-1" viewBox="0 0 120 160" aria-hidden="true">
+        <ellipse cx="60" cy="42" rx="44" ry="36" fill="rgba(255, 126, 179, 0.92)" />
+        <ellipse cx="60" cy="38" rx="32" ry="22" fill="rgba(255, 255, 255, 0.42)" />
+        <path d="M30 70 Q34 110 28 150" stroke="rgba(255, 126, 179, 0.85)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M48 76 Q52 120 46 158" stroke="rgba(255, 126, 179, 0.85)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M72 76 Q68 122 74 158" stroke="rgba(255, 126, 179, 0.85)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M90 70 Q86 112 92 150" stroke="rgba(255, 126, 179, 0.85)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      </svg>
+
+      <svg class="scene-jelly scene-jelly-2" viewBox="0 0 120 160" aria-hidden="true">
+        <ellipse cx="60" cy="42" rx="36" ry="30" fill="rgba(155, 114, 255, 0.9)" />
+        <ellipse cx="60" cy="38" rx="26" ry="18" fill="rgba(255, 255, 255, 0.4)" />
+        <path d="M36 64 Q40 100 34 140" stroke="rgba(155, 114, 255, 0.85)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M52 70 Q56 108 50 148" stroke="rgba(155, 114, 255, 0.85)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M68 70 Q64 108 70 148" stroke="rgba(155, 114, 255, 0.85)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M84 64 Q80 100 86 140" stroke="rgba(155, 114, 255, 0.85)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+
+      <svg class="scene-fish" viewBox="0 0 80 40" aria-hidden="true">
+        <path d="M10 20 Q30 4 56 20 Q30 36 10 20 Z" fill="rgba(58, 168, 255, 0.95)" />
+        <path d="M56 20 L72 8 L72 32 Z" fill="rgba(58, 168, 255, 0.95)" />
+        <circle cx="22" cy="18" r="2.8" fill="#0a2f4a" />
+        <circle cx="22.6" cy="17.2" r="1" fill="#fff" />
+      </svg>
+
+      <svg class="scene-fish scene-fish-2" viewBox="0 0 80 40" aria-hidden="true">
+        <path d="M10 20 Q30 4 56 20 Q30 36 10 20 Z" fill="rgba(255, 154, 62, 0.92)" />
+        <path d="M56 20 L72 8 L72 32 Z" fill="rgba(255, 154, 62, 0.92)" />
+        <circle cx="22" cy="18" r="2.6" fill="#3d1a08" />
+        <circle cx="22.6" cy="17.2" r="0.9" fill="#fff" />
+      </svg>
+    </div>
+
     <section class="mission-grid">
       <div class="mission-card">
         <div class="mission-head">
@@ -57,12 +111,8 @@
         <div ref="stageRef" class="bubble-stage">
           <div class="stage-toolbar">
             <button type="button" class="mix-btn inside-stage" @click="produceBubbles()">
-              Make more bubbles
+              Add bubbles
             </button>
-            <div class="toolbar-stats">
-              <span>{{ autoPopped }} auto pops</span>
-              <span>{{ producedTotal }} made</span>
-            </div>
           </div>
 
           <div
@@ -71,12 +121,16 @@
             class="bubble"
             :class="[
               `type-${bubble.category}`,
-              { target: bubble.category === currentRound.targetCategory, giant: bubble.isGiant },
+              {
+                target: bubble.category === currentRound.targetCategory,
+                giant: bubble.isGiant,
+                'bubble--single': isSingleWord(bubble.word),
+              },
             ]"
             :style="bubbleStyle(bubble)"
             @click="popBubble(bubble)"
           >
-            <span class="bubble-word">{{ bubble.word }}</span>
+            <span class="bubble-word">{{ formatBubbleWord(bubble.word) }}</span>
           </div>
 
           <div
@@ -124,9 +178,10 @@ import { injectKidsTheme } from "../../composables/useKidsTheme.js"
 
 const { isDarkMode } = injectKidsTheme()
 
-const initialBubbleCount = 26
-const bubbleBatchSize = 14
-const maxBubbleCount = 90
+const initialBubbleCount = 20
+const bubbleBatchSize = 8
+const maxBubbleCount = 48
+const minimumBubbleCount = 12
 
 const categoryMeta = {
   food: {
@@ -255,20 +310,26 @@ const rounds = [
 
 const stageRef = ref(null)
 const bubbles = ref([])
+
+const sceneBubbles = Array.from({ length: 18 }, (_, id) => ({
+  id,
+  left: Math.random() * 100,
+  size: 8 + Math.random() * 28,
+  delay: Math.random() * 8,
+  duration: 9 + Math.random() * 8,
+}))
 const burstEffects = ref([])
 const score = ref(0)
 const combo = ref(0)
 const bestCombo = ref(0)
 const wrongPops = ref(0)
-const autoPopped = ref(0)
-const producedTotal = ref(0)
 const collected = ref(0)
 const roundIndex = ref(0)
 const gameState = ref("playing")
 const stage = reactive({ width: 980, height: 560 })
 const message = reactive({
-  title: "Press the button to start the bubble storm",
-  text: "Pop the bright target words. Some bubbles will pop by themselves, so move fast.",
+  title: "Bubble stream is ready",
+  text: "Tap the glowing target words and let the lighter bubbles drift past.",
   tone: "info",
 })
 
@@ -312,6 +373,18 @@ function setMessage(title, text, tone = "info") {
   message.tone = tone
 }
 
+function formatBubbleWord(word) {
+  const parts = String(word).trim().split(/\s+/).filter(Boolean)
+  if (parts.length <= 1) return word
+  if (parts.length === 2) return `${parts[0]}\n${parts[1]}`
+  const middle = Math.ceil(parts.length / 2)
+  return `${parts.slice(0, middle).join(" ")}\n${parts.slice(middle).join(" ")}`
+}
+
+function isSingleWord(word) {
+  return !/\s/.test(String(word).trim())
+}
+
 function pickRandom(list) {
   return list[Math.floor(Math.random() * list.length)]
 }
@@ -332,79 +405,106 @@ function randomBubblePosition(radius) {
   }
 }
 
-function createBubble(categoryOverride = null) {
+function spawnBubbleAtBottom(bubble) {
+  bubble.x = bubble.radius + Math.random() * Math.max(10, stage.width - bubble.radius * 2)
+  bubble.y = stage.height + bubble.radius * (0.4 + Math.random() * 0.8)
+  bubble.vx = (Math.random() - 0.5) * 0.45
+  bubble.vy = -(0.75 + Math.random() * 0.85)
+  bubble.wobble = Math.random() * Math.PI * 2
+  bubble.spin = -8 + Math.random() * 16
+  bubble.ageMs = 0
+  bubble.lifeRatio = 1
+}
+
+function createBubble(categoryOverride = null, startMode = "stage") {
   const category = categoryOverride ?? weightedCategory()
   const isTarget = category === currentRound.value.targetCategory
-  const isGiant = isTarget ? Math.random() < 0.22 : Math.random() < 0.1
-  const radius = isGiant ? 52 + Math.random() * 16 : 30 + Math.random() * 18
+  const word = pickRandom(wordPools[category])
+  const textLength = word.length
+  const isGiant = isTarget ? Math.random() < 0.18 : Math.random() < 0.08
+  const baseRadius = isGiant ? 58 + Math.random() * 14 : 40 + Math.random() * 16
+  const textRadiusBoost = Math.min(36, Math.max(0, textLength - 5) * 3.4)
+  const radius = baseRadius + textRadiusBoost
   const position = randomBubblePosition(radius)
-  const ttlMs = 5200 + Math.random() * 6200
+  const maxAgeMs = 22000 + Math.random() * 12000
   const paletteIndex = Math.floor(Math.random() * 50)
   const hueBase = (paletteIndex * 7.2 + Math.random() * 4) % 360
   const hueShift = 18 + Math.random() * 24
-
-  return {
+  const bubble = {
     id: nextBubbleId++,
     category,
-    word: pickRandom(wordPools[category]),
+    word,
     x: position.x,
     y: position.y,
-    vx: (Math.random() - 0.5) * 1.4,
-    vy: (Math.random() - 0.5) * 1.4,
+    vx: (Math.random() - 0.5) * 0.55,
+    vy: -(0.4 + Math.random() * 0.5),
     radius,
-    mass: Math.max(1, radius * radius * 0.015),
+    mass: Math.max(0.8, radius * radius * 0.0075),
     isGiant,
-    drift: 0.7 + Math.random() * 0.32,
+    drift: 0.9 + Math.random() * 0.45,
     wobble: Math.random() * Math.PI * 2,
-    spin: Math.random() * 360,
-    buoyancy: 0.06 + Math.random() * 0.04,
-    drag: 0.014 + Math.random() * 0.012,
+    spin: Math.random() * 18 - 9,
+    buoyancy: 0.1 + Math.random() * 0.06,
+    drag: 0.028 + Math.random() * 0.016,
     hueBase,
     hueShift,
-    alphaOuter: 0.34 + Math.random() * 0.12,
-    alphaMid: 0.26 + Math.random() * 0.1,
-    alphaInner: 0.18 + Math.random() * 0.08,
-    ttlMs,
-    startTtlMs: ttlMs,
+    alphaOuter: 0.32 + Math.random() * 0.08,
+    alphaMid: 0.24 + Math.random() * 0.08,
+    alphaInner: 0.16 + Math.random() * 0.06,
+    ageMs: 0,
+    maxAgeMs,
     lifeRatio: 1,
   }
+
+  if (startMode === "bottom") {
+    spawnBubbleAtBottom(bubble)
+  } else {
+    bubble.y = Math.max(radius, Math.min(stage.height - radius, bubble.y))
+  }
+
+  return bubble
 }
 
-function addBubbleWithSpacing(categoryOverride = null) {
-  const bubble = createBubble(categoryOverride)
+function addBubbleWithSpacing(categoryOverride = null, startMode = "stage") {
+  const bubble = createBubble(categoryOverride, startMode)
   for (let attempt = 0; attempt < 18; attempt += 1) {
     const overlap = bubbles.value.some(existing => {
       const dx = existing.x - bubble.x
       const dy = existing.y - bubble.y
-      return Math.hypot(dx, dy) < existing.radius + bubble.radius + 6
+      return Math.hypot(dx, dy) < existing.radius + bubble.radius + 10
     })
     if (!overlap) break
-    const position = randomBubblePosition(bubble.radius)
-    bubble.x = position.x
-    bubble.y = position.y
+    if (startMode === "bottom") {
+      spawnBubbleAtBottom(bubble)
+    } else {
+      const position = randomBubblePosition(bubble.radius)
+      bubble.x = position.x
+      bubble.y = position.y
+    }
   }
   bubbles.value.push(bubble)
 }
 
-function seedBubbles(count) {
+function seedBubbles(count, startMode = "stage") {
   for (let i = 0; i < count; i += 1) {
     if (bubbles.value.length >= maxBubbleCount) break
-    addBubbleWithSpacing()
+    addBubbleWithSpacing(null, startMode)
   }
 }
 
 function produceBubbles(count = bubbleBatchSize) {
-  if (gameState.value !== "playing") return
-  const room = maxBubbleCount - bubbles.value.length
-  const amount = Math.max(0, Math.min(count, room))
-  if (!amount) {
-    setMessage("Bubble board is full", "Pop a few bubbles first, then press the button again.", "info")
-    return
+  const desired = Math.max(1, count)
+  let room = maxBubbleCount - bubbles.value.length
+
+  if (room < desired) {
+    const overflow = desired - room
+    bubbles.value.splice(0, overflow)
+    room = maxBubbleCount - bubbles.value.length
   }
 
-  seedBubbles(amount)
-  producedTotal.value += amount
-  setMessage("Fresh bubbles mixed", `${amount} new bubbles appeared.`, "success")
+  const amount = Math.max(1, Math.min(desired, room))
+  seedBubbles(amount, "bottom")
+  setMessage("Fresh bubbles mixed", `${amount} light bubbles floated in.`, "success")
 }
 
 function measureStage() {
@@ -415,73 +515,42 @@ function measureStage() {
 }
 
 function applyBubbleForces(bubble, stepScale, now) {
-  const currentX = Math.sin((bubble.y + now * 0.04 + bubble.id * 17) / 54) * 0.028 * bubble.drift
-  const currentY = Math.cos((bubble.x + now * 0.03 + bubble.id * 11) / 64) * 0.018 * bubble.drift
-  const buoyancy = -bubble.buoyancy * (1.04 - bubble.radius / 110)
-  const centerX = (stage.width * 0.5 - bubble.x) * 0.00018
+  const currentX = Math.sin((bubble.y + now * 0.052 + bubble.id * 17) / 56) * 0.036 * bubble.drift
+  const currentY = Math.cos((bubble.x + now * 0.02 + bubble.id * 11) / 72) * 0.01 * bubble.drift
+  const buoyancy = -bubble.buoyancy * (1.08 - bubble.radius / 120)
+  const centerX = (stage.width * 0.5 - bubble.x) * 0.0002
+  const upperLift = bubble.y < stage.height * 0.22 ? -0.015 : 0
+  const lowerLift = bubble.y > stage.height * 0.78 ? -0.022 : 0
 
   bubble.vx += (currentX + centerX) * stepScale
-  bubble.vy += (buoyancy + currentY) * stepScale
-  bubble.vx += Math.sin((now * 0.006 + bubble.id) + bubble.wobble) * 0.01 * stepScale
-  bubble.vy += Math.cos((now * 0.005 + bubble.id) + bubble.wobble) * 0.006 * stepScale
+  bubble.vy += (buoyancy + currentY + upperLift + lowerLift) * stepScale
+  bubble.vx += Math.sin((now * 0.004 + bubble.id) + bubble.wobble) * 0.012 * stepScale
+  bubble.vy += Math.cos((now * 0.0035 + bubble.id) + bubble.wobble) * 0.003 * stepScale
 }
 
 function integrateBubble(bubble, stepScale) {
   const damping = Math.pow(1 - bubble.drag, stepScale)
   bubble.vx *= damping
   bubble.vy *= damping
-  bubble.vx = Math.max(-4.8, Math.min(4.8, bubble.vx))
-  bubble.vy = Math.max(-4.2, Math.min(4.2, bubble.vy))
+  bubble.vx = Math.max(-2.2, Math.min(2.2, bubble.vx))
+  bubble.vy = Math.max(-3.2, Math.min(1.1, bubble.vy))
   bubble.x += bubble.vx * stepScale
   bubble.y += bubble.vy * stepScale
-  bubble.spin += (bubble.vx * 0.18) * stepScale
+  bubble.spin += (bubble.vx * 0.12) * stepScale
 }
 
 function keepBubbleInBounds(bubble) {
   if (bubble.x <= bubble.radius || bubble.x >= stage.width - bubble.radius) {
-    bubble.vx *= -0.92
+    bubble.vx *= -0.78
     bubble.x = Math.max(bubble.radius, Math.min(stage.width - bubble.radius, bubble.x))
   }
-  if (bubble.y <= bubble.radius || bubble.y >= stage.height - bubble.radius) {
-    bubble.vy *= -0.9
-    bubble.y = Math.max(bubble.radius, Math.min(stage.height - bubble.radius, bubble.y))
+  if (bubble.y <= -bubble.radius * 1.3) {
+    spawnBubbleAtBottom(bubble)
+    return
   }
-}
-
-function resolveBubbleCollisions() {
-  for (let i = 0; i < bubbles.value.length; i += 1) {
-    const a = bubbles.value[i]
-    for (let j = i + 1; j < bubbles.value.length; j += 1) {
-      const b = bubbles.value[j]
-      const dx = b.x - a.x
-      const dy = b.y - a.y
-      const minDist = a.radius + b.radius + 1.5
-      const distSq = dx * dx + dy * dy
-      if (distSq >= minDist * minDist) continue
-
-      const dist = Math.sqrt(distSq) || 0.0001
-      const nx = dx / dist
-      const ny = dy / dist
-      const overlap = minDist - dist
-      const totalMass = a.mass + b.mass
-      const aShift = overlap * (b.mass / totalMass)
-      const bShift = overlap * (a.mass / totalMass)
-
-      a.x -= nx * aShift
-      a.y -= ny * aShift
-      b.x += nx * bShift
-      b.y += ny * bShift
-
-      const relativeVelocity = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny
-      if (relativeVelocity > 0) continue
-
-      const restitution = 0.92
-      const impulse = (-(1 + restitution) * relativeVelocity) / ((1 / a.mass) + (1 / b.mass))
-      a.vx -= (impulse * nx) / a.mass
-      a.vy -= (impulse * ny) / a.mass
-      b.vx += (impulse * nx) / b.mass
-      b.vy += (impulse * ny) / b.mass
-    }
+  if (bubble.y >= stage.height + bubble.radius * 1.2) {
+    bubble.y = stage.height + bubble.radius * 0.4
+    bubble.vy = -Math.abs(bubble.vy) * 0.92
   }
 }
 
@@ -490,18 +559,37 @@ function bubbleStyle(bubble) {
   const hueA = bubble.hueBase
   const hueB = (bubble.hueBase + bubble.hueShift) % 360
   const hueC = (bubble.hueBase + bubble.hueShift * 1.8) % 360
+  const targetGlow = bubble.category === currentRound.value.targetCategory ? meta.shadow : `hsla(${hueB}, 85%, 78%, 0.16)`
+  const trimmedWord = String(bubble.word).trim()
+  const wordLength = Math.max(1, trimmedWord.length)
+  const singleWord = !/\s/.test(trimmedWord)
+  const baseFont = bubble.radius / (wordLength > 14 ? 72 : wordLength > 10 ? 62 : 54)
+  // Bubble has 10px padding all around; chip will use ~6px padding when single.
+  // Available text width = (2r - 20) - 12 = 2r - 32
+  const innerWidthPx = Math.max(20, bubble.radius * 2 - 32)
+  // For bold sans-serif, average char width  font-size * 0.6
+  const fitFontRem = singleWord ? innerWidthPx / (wordLength * 0.6 * 16) : baseFont
+  const dynamicFont = singleWord
+    ? Math.max(0.42, Math.min(0.96, fitFontRem))
+    : Math.max(0.54, Math.min(0.98, baseFont))
   return {
     width: `${bubble.radius * 2}px`,
     height: `${bubble.radius * 2}px`,
-    transform: `translate(${bubble.x - bubble.radius}px, ${bubble.y - bubble.radius}px) rotate(${bubble.spin}deg)`,
-    background: `radial-gradient(circle at 30% 24%, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.38) 16%, hsla(${hueA}, 94%, 66%, ${bubble.alphaInner}) 40%, hsla(${hueB}, 92%, 54%, ${bubble.alphaMid}) 67%, hsla(${hueC}, 90%, 44%, ${bubble.alphaOuter}) 100%)`,
-    boxShadow: `0 0 36px hsla(${hueB}, 85%, 48%, 0.24), inset -16px -20px 26px rgba(255,255,255,0.14), inset 12px 14px 20px rgba(255,255,255,0.06)`,
-    "--bubble-font-size": `${Math.max(0.74, Math.min(1.08, bubble.radius / 42))}rem`,
-    "--bubble-text-color": bubble.category === currentRound.value.targetCategory ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.92)",
-    "--bubble-highlight-a": `hsla(${hueA}, 100%, 98%, 0.88)`,
-    "--bubble-highlight-b": `hsla(${hueB}, 96%, 96%, 0.22)`,
-    "--bubble-outline": `hsla(${hueC}, 96%, 97%, 0.24)`,
-    "--bubble-glow": `hsla(${hueB}, 92%, 78%, 0.24)`,
+    transform: `translate3d(${bubble.x - bubble.radius}px, ${bubble.y - bubble.radius}px, 0)`,
+    background: `radial-gradient(circle at 32% 24%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.68) 12%, rgba(255,255,255,0.28) 24%, hsla(${hueA}, 96%, 80%, ${bubble.alphaInner}) 48%, hsla(${hueB}, 92%, 69%, ${bubble.alphaMid}) 72%, hsla(${hueC}, 88%, 58%, ${bubble.alphaOuter}) 100%)`,
+    boxShadow: `0 0 0 2px rgba(255,255,255,0.48), 0 12px 24px rgba(67, 101, 173, 0.18), 0 0 28px ${targetGlow}, inset -18px -20px 24px rgba(255,255,255,0.16), inset 10px 12px 18px rgba(255,255,255,0.22)`,
+    "--bubble-font-size": `${dynamicFont}rem`,
+    "--bubble-text-color": "rgba(18, 34, 64, 0.98)",
+    "--bubble-text-shadow": bubble.category === currentRound.value.targetCategory
+      ? "0 1px 0 rgba(255,255,255,0.65)"
+      : "0 1px 0 rgba(255,255,255,0.72)",
+    "--bubble-text-bg": bubble.category === currentRound.value.targetCategory
+      ? "rgba(255,255,255,0.82)"
+      : "rgba(255,255,255,0.88)",
+    "--bubble-highlight-a": `hsla(${hueA}, 100%, 99%, 0.94)`,
+    "--bubble-highlight-b": `hsla(${hueB}, 96%, 98%, 0.3)`,
+    "--bubble-outline": `hsla(${hueC}, 96%, 100%, 0.48)`,
+    "--bubble-glow": targetGlow,
   }
 }
 
@@ -558,12 +646,6 @@ function popBubble(bubble) {
   }
 }
 
-function expireBubble(bubble) {
-  autoPopped.value += 1
-  spawnBurst(bubble, "poof", categoryMeta[bubble.category].accent)
-  removeBubble(bubble.id)
-}
-
 function completeRound() {
   gameState.value = "transition"
   combo.value = 0
@@ -583,7 +665,6 @@ function completeRound() {
     bubbles.value = []
     gameState.value = "playing"
     seedBubbles(initialBubbleCount)
-    producedTotal.value += initialBubbleCount
     setMessage("New target", currentRound.value.story, "info")
   }, 1200)
 }
@@ -595,13 +676,10 @@ function restartGame() {
   combo.value = 0
   bestCombo.value = 0
   wrongPops.value = 0
-  autoPopped.value = 0
-  producedTotal.value = 0
   collected.value = 0
   bubbles.value = []
   gameState.value = "playing"
   seedBubbles(initialBubbleCount)
-  producedTotal.value += initialBubbleCount
   setMessage("Fresh game", rounds[0].story, "info")
 }
 
@@ -610,16 +688,34 @@ function pruneBursts() {
   burstEffects.value = burstEffects.value.filter(effect => now - effect.createdAt < 460)
 }
 
-function updateBubbleLifetimes(deltaMs) {
-  const expired = []
-  for (const bubble of bubbles.value) {
-    bubble.ttlMs -= deltaMs
-    bubble.lifeRatio = Math.max(0, bubble.ttlMs / bubble.startTtlMs)
-    if (bubble.ttlMs <= 0) expired.push(bubble)
-  }
+function recycleBubble(bubble, categoryOverride = null) {
+  bubble.category = categoryOverride ?? weightedCategory()
+  bubble.word = pickRandom(wordPools[bubble.category])
+  bubble.isGiant = bubble.category === currentRound.value.targetCategory ? Math.random() < 0.18 : Math.random() < 0.08
+  const textLength = bubble.word.length
+  const baseRadius = bubble.isGiant ? 58 + Math.random() * 14 : 40 + Math.random() * 16
+  const textRadiusBoost = Math.min(36, Math.max(0, textLength - 5) * 3.4)
+  bubble.radius = baseRadius + textRadiusBoost
+  bubble.mass = Math.max(0.8, bubble.radius * bubble.radius * 0.0075)
+  bubble.drift = 0.9 + Math.random() * 0.45
+  bubble.buoyancy = 0.1 + Math.random() * 0.06
+  bubble.drag = 0.028 + Math.random() * 0.016
+  bubble.hueBase = (Math.floor(Math.random() * 50) * 7.2 + Math.random() * 4) % 360
+  bubble.hueShift = 18 + Math.random() * 24
+  bubble.alphaOuter = 0.32 + Math.random() * 0.08
+  bubble.alphaMid = 0.24 + Math.random() * 0.08
+  bubble.alphaInner = 0.16 + Math.random() * 0.06
+  bubble.maxAgeMs = 22000 + Math.random() * 12000
+  spawnBubbleAtBottom(bubble)
+}
 
-  for (const bubble of expired) {
-    expireBubble(bubble)
+function updateBubbleLifetimes(deltaMs) {
+  for (const bubble of bubbles.value) {
+    bubble.ageMs += deltaMs
+    bubble.lifeRatio = Math.max(0.35, 1 - bubble.ageMs / bubble.maxAgeMs)
+    if (bubble.ageMs >= bubble.maxAgeMs) {
+      recycleBubble(bubble)
+    }
   }
 }
 
@@ -629,7 +725,7 @@ function tick(now) {
   const deltaMs = lastFrameAt ? Math.min(26, now - lastFrameAt) : 16.67
   lastFrameAt = now
   const stepScale = deltaMs / 16.67
-  const substeps = deltaMs > 18 ? 3 : 2
+  const substeps = deltaMs > 18 ? 2 : 1
 
   if (gameState.value === "playing") {
     for (let pass = 0; pass < substeps; pass += 1) {
@@ -639,13 +735,12 @@ function tick(now) {
         integrateBubble(bubble, localScale)
         keepBubbleInBounds(bubble)
       }
-      resolveBubbleCollisions()
     }
 
     updateBubbleLifetimes(deltaMs)
 
-    if (bubbles.value.length < 8) {
-      setMessage("Need more bubbles", "Press Produce more bubbles to mix a fresh batch.", "info")
+    if (bubbles.value.length < minimumBubbleCount) {
+      seedBubbles(minimumBubbleCount - bubbles.value.length, "bottom")
     }
   }
 
@@ -659,7 +754,7 @@ function handleResize() {
 onMounted(() => {
   measureStage()
   seedBubbles(initialBubbleCount)
-  producedTotal.value += initialBubbleCount
+  setMessage("Bubble stream is ready", currentRound.value.story, "info")
   lastFrameAt = performance.now()
   animationFrame = window.requestAnimationFrame(tick)
   window.addEventListener("resize", handleResize)
@@ -685,6 +780,171 @@ onBeforeUnmount(() => {
   --muted: #9395A8;
   color: #173055;
   font-family: "DM Sans", sans-serif;
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+/* === Underwater scene === */
+.bubble-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.bubble-scene__water {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #b4e3ff 0%, #7ec8ee 30%, #4ea4dc 65%, #1f6cb0 100%);
+  opacity: 1;
+}
+
+.bubble-adventure--dark .bubble-scene__water {
+  background: linear-gradient(180deg, #06112a 0%, #0a1e44 35%, #0e2c6a 65%, #15356e 100%);
+  opacity: 1;
+}
+
+.bubble-scene__beams {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.55) 32%, transparent 34%) no-repeat,
+    linear-gradient(115deg, transparent 50%, rgba(255, 255, 255, 0.4) 53%, transparent 56%) no-repeat,
+    linear-gradient(95deg, transparent 70%, rgba(255, 255, 255, 0.5) 73%, transparent 76%) no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  animation: beamSway 14s ease-in-out infinite alternate;
+}
+
+.bubble-adventure--dark .bubble-scene__beams {
+  opacity: 0.22;
+}
+
+@keyframes beamSway {
+  from { transform: translateX(-20px) skewX(-2deg); }
+  to   { transform: translateX(20px) skewX(2deg); }
+}
+
+.bubble-scene__caustic {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.35) 0%, transparent 8%),
+    radial-gradient(circle at 70% 35%, rgba(255, 255, 255, 0.3) 0%, transparent 7%),
+    radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.32) 0%, transparent 8%),
+    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.28) 0%, transparent 7%),
+    radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.3) 0%, transparent 7%);
+  mix-blend-mode: overlay;
+  animation: causticShift 18s ease-in-out infinite alternate;
+}
+
+@keyframes causticShift {
+  from { transform: translate(0, 0) scale(1); opacity: 0.55; }
+  to   { transform: translate(18px, -10px) scale(1.06); opacity: 0.9; }
+}
+
+.bubble-scene__surface {
+  position: absolute;
+  top: 0;
+  left: -10%;
+  width: 120%;
+  height: 18px;
+  background:
+    radial-gradient(circle at 0 100%, transparent 12px, rgba(255, 255, 255, 0.4) 13px, transparent 16px) repeat-x,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  background-size: 26px 18px, 100% 100%;
+  animation: surfaceSlide 9s linear infinite;
+}
+
+@keyframes surfaceSlide {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 52px 0, 0 0; }
+}
+
+.bubble-scene-front {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.scene-bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.55) 38%, rgba(180, 220, 255, 0.32) 75%, transparent 100%);
+  box-shadow: inset -2px -3px 6px rgba(58, 139, 208, 0.28), 0 0 10px rgba(255, 255, 255, 0.55);
+  animation: sceneBubbleRise linear infinite;
+  opacity: 1;
+}
+
+.bubble-adventure--dark .scene-bubble {
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.65), rgba(180, 220, 255, 0.18) 50%, transparent 100%);
+}
+
+@keyframes sceneBubbleRise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 0.8; }
+  50%  { transform: translateY(-50vh) translateX(20px); }
+  100% { transform: translateY(-120vh) translateX(-30px); opacity: 0; }
+}
+
+.scene-jelly {
+  position: absolute;
+  width: 80px;
+  height: 110px;
+  filter: drop-shadow(0 8px 20px rgba(255, 126, 179, 0.5));
+  animation: jellyFloat 12s ease-in-out infinite alternate;
+}
+
+.scene-jelly-1 { right: 3%; top: 22%; }
+.scene-jelly-2 { left: 3%; top: 60%; width: 64px; height: 90px; animation-duration: 14s; animation-delay: -3s; }
+
+@keyframes jellyFloat {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-22px) rotate(4deg); }
+}
+
+.scene-fish {
+  position: absolute;
+  width: 76px;
+  height: 38px;
+  right: -90px;
+  top: 80%;
+  filter: drop-shadow(0 6px 14px rgba(58, 168, 255, 0.5));
+  animation: fishSwim 22s linear infinite;
+}
+
+.scene-fish-2 {
+  width: 60px;
+  height: 30px;
+  top: 30%;
+  right: -90px;
+  animation-duration: 28s;
+  animation-delay: -6s;
+  filter: drop-shadow(0 6px 14px rgba(255, 154, 62, 0.5));
+}
+
+@keyframes fishSwim {
+  0%   { transform: translateX(0) translateY(0); }
+  45%  { transform: translateX(-80vw) translateY(-30px); }
+  50%  { transform: translateX(-80vw) translateY(-30px) scaleX(-1); }
+  95%  { transform: translateX(0) translateY(10px) scaleX(-1); }
+  100% { transform: translateX(0) translateY(10px); }
+}
+
+.mission-grid,
+.stage-shell,
+.victory-overlay {
+  position: relative;
+  z-index: 3;
 }
 
 .mission-card,
@@ -896,9 +1156,9 @@ onBeforeUnmount(() => {
   border-radius: 24px;
   border: 1px solid rgba(78, 103, 190, 0.15);
   background:
-    radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.44), transparent 28%),
-    radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.24), transparent 18%),
-    linear-gradient(180deg, #86daf7 0%, #aee0ff 30%, #cfd7ff 66%, #f2dfee 100%);
+    radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.3), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.16), transparent 18%),
+    linear-gradient(180deg, #67bde8 0%, #8fd0f4 30%, #b8c8f5 66%, #e4d4eb 100%);
   box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.14);
   animation: stageGlow 7s ease-in-out infinite;
 }
@@ -911,28 +1171,17 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 10px 12px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(239, 246, 255, 0.48));
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 16px 28px rgba(41, 62, 121, 0.14);
 }
 
 .inside-stage {
   min-height: 42px;
   padding: 0 16px;
   box-shadow: 0 12px 22px rgba(41, 62, 121, 0.24);
-}
-
-.toolbar-stats {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.toolbar-stats span {
-  border-radius: 999px;
-  padding: 8px 12px;
-  background: linear-gradient(135deg, rgba(247, 248, 255, 0.97), rgba(237, 244, 255, 0.94));
-  border: 1.5px solid rgba(114, 133, 214, 0.2);
-  color: #37517b;
-  font-size: 0.76rem;
-  font-weight: 800;
 }
 
 .info-btn,
@@ -1026,8 +1275,16 @@ onBeforeUnmount(() => {
   color: var(--ink);
 }
 
-.bubble-adventure--dark .stage-toolbar .toolbar-stats span {
-  color: rgba(226, 234, 255, 0.9);
+.bubble-adventure--dark .stage-toolbar {
+  background: linear-gradient(135deg, rgba(18, 28, 56, 0.84), rgba(14, 20, 44, 0.72));
+  border-color: rgba(143, 154, 227, 0.26);
+  box-shadow: 0 16px 32px rgba(3, 7, 23, 0.34);
+}
+
+.bubble-adventure--dark .mix-btn {
+  background: linear-gradient(135deg, #78c7ff 0%, #8a8fff 54%, #c487ff 100%);
+  color: #081224;
+  box-shadow: 0 14px 28px rgba(91, 124, 255, 0.34);
 }
 
 .bubble-adventure--dark .mission-card p,
@@ -1093,9 +1350,10 @@ onBeforeUnmount(() => {
 .bubble-adventure--dark .bubble-stage {
   border-color: rgba(143, 154, 227, 0.22);
   background:
-    radial-gradient(circle at 20% 14%, rgba(59, 158, 255, 0.2), transparent 28%),
-    radial-gradient(circle at 82% 18%, rgba(155, 114, 255, 0.18), transparent 22%),
-    linear-gradient(180deg, rgba(24, 40, 72, 0.95) 0%, rgba(14, 22, 46, 0.98) 100%);
+    radial-gradient(circle at 18% 14%, rgba(114, 208, 255, 0.26), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(155, 114, 255, 0.2), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(44, 201, 122, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(20, 40, 74, 0.96) 0%, rgba(13, 22, 47, 0.98) 58%, rgba(10, 16, 36, 0.98) 100%);
   box-shadow: inset 0 0 60px rgba(3, 7, 23, 0.35);
 }
 
@@ -1263,21 +1521,22 @@ onBeforeUnmount(() => {
 .bubble {
   position: absolute;
   border-radius: 999px;
-  display: grid;
-  justify-items: center;
-  align-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   user-select: none;
   transition: filter 0.12s ease, transform 0.12s ease;
   text-align: center;
-  padding: 12px 10px 14px;
+  padding: 10px;
   box-sizing: border-box;
   border: 1px solid var(--bubble-outline);
-  backdrop-filter: blur(6px);
+  will-change: transform;
+  overflow: hidden;
 }
 
 .bubble:hover {
-  filter: brightness(1.08) saturate(1.08);
+  filter: brightness(1.08) saturate(1.04);
 }
 
 .bubble::before,
@@ -1310,26 +1569,44 @@ onBeforeUnmount(() => {
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.2),
     0 0 34px var(--bubble-glow),
-    inset -14px -18px 24px rgba(255,255,255,0.16),
-    inset 10px 12px 18px rgba(255,255,255,0.08);
+    inset -14px -18px 24px rgba(255,255,255,0.12),
+    inset 10px 12px 18px rgba(255,255,255,0.14);
 }
 
 .bubble-word {
   position: relative;
   z-index: 1;
-  width: 80%;
+  width: 82%;
+  max-width: 82%;
+  padding: 6px 9px;
+  border-radius: 18px;
+  background: var(--bubble-text-bg);
   color: var(--bubble-text-color);
-  font-size: calc(var(--bubble-font-size) + 0.12rem);
+  font-size: calc(var(--bubble-font-size) + 0.02rem);
   font-weight: 900;
-  line-height: 1.02;
-  text-shadow: 0 2px 8px rgba(48, 61, 97, 0.22);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-wrap: balance;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-shadow: var(--bubble-text-shadow);
+  box-shadow: 0 6px 14px rgba(102, 130, 185, 0.12);
+  display: block;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
   word-break: normal;
+  text-wrap: balance;
   hyphens: none;
+}
+
+.bubble.bubble--single .bubble-word {
+  width: auto;
+  max-width: 94%;
+  padding: 3px 6px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  text-wrap: nowrap;
 }
 
 .bubble-burst {

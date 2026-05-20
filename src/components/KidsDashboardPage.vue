@@ -1,6 +1,103 @@
+<!--
+  KidsDashboardPage.vue
+
+  Creates the HelthyKidz kids dashboard page. Children can open games, log meals,
+  track water, switch between day and night themes, and see playful animations.
+
+  Store and composable requirements:
+  - Uses useKidsTheme for light and dark mode.
+  - Uses useKidsProgressStore for saved kids progress, meals, and hydration.
+  - Uses useGameLaunch for the animated game launch screen.
+  - Uses useKidsPerf to reduce animation effects when needed.
+
+  Accessibility:
+  - Uses aria-hidden for decorative sky, blobs, sparkles, and icon-only visuals.
+  - Uses aria-live for meal toast, launch screen, hydration count, and live status updates.
+  - Uses buttons and RouterLink elements for keyboard-friendly interaction.
+-->
+
 <template>
-  <div class="kids-html-dashboard" :class="{ 'dark-mode': isDarkMode }">
+  <div
+    class="kids-html-dashboard"
+    :class="{ 'dark-mode': isDarkMode, 'kids-html-dashboard--lite': motionLite }"
+  >
+    <!-- Confetti layer used for celebration effects -->
     <div id="confetti-layer" ref="confettiLayer"></div>
+
+    <!-- Decorative animated sky background -->
+    <div class="kids-sky" aria-hidden="true">
+      <div class="sky-gradient"></div>
+      <div class="sky-aurora"></div>
+
+      <div class="celestial sun-body">
+        <div class="sun-core"></div>
+        <div class="sun-halo"></div>
+        <div class="sun-ring"></div>
+      </div>
+
+      <div class="celestial moon-body">
+        <div class="moon-core">
+          <span class="crater crater-1"></span>
+          <span class="crater crater-2"></span>
+          <span class="crater crater-3"></span>
+        </div>
+        <div class="moon-halo"></div>
+      </div>
+
+      <!-- Night mode stars and shooting stars -->
+      <div class="sky-stars">
+        <span
+          v-for="star in skyStars"
+          :key="`sky-star-${star.id}`"
+          class="sky-star"
+          :style="{
+            left: `${star.left}%`,
+            top: `${star.top}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            animationDelay: `${star.delay}s`,
+            animationDuration: `${star.duration}s`,
+          }"
+        ></span>
+        <span
+          v-for="shoot in shootingStars"
+          :key="`sky-shoot-${shoot.id}`"
+          class="sky-shoot"
+          :style="{ left: `${shoot.left}%`, top: `${shoot.top}%`, animationDelay: `${shoot.delay}s` }"
+        ></span>
+      </div>
+
+      <!-- Day mode drifting cloud layer -->
+      <div class="sky-clouds">
+        <span class="sky-cloud sky-cloud-1"></span>
+        <span class="sky-cloud sky-cloud-2"></span>
+        <span class="sky-cloud sky-cloud-3"></span>
+        <span class="sky-cloud sky-cloud-4"></span>
+      </div>
+
+      <svg class="sky-hills" viewBox="0 0 1440 220" preserveAspectRatio="none">
+        <path class="hill-back" d="M0,170 L160,120 L320,160 L520,90 L720,150 L920,100 L1140,160 L1300,120 L1440,150 L1440,220 L0,220 Z"/>
+        <path class="hill-front" d="M0,220 L120,170 L300,210 L480,170 L660,205 L840,170 L1020,210 L1220,175 L1440,205 L1440,220 L0,220 Z"/>
+      </svg>
+    </div>
+
+    <!-- Decorative blurred colour blobs -->
+    <div class="dash-blobs" aria-hidden="true">
+      <span class="blob blob-a"></span>
+      <span class="blob blob-b"></span>
+      <span class="blob blob-c"></span>
+      <span class="blob blob-d"></span>
+    </div>
+
+    <!-- Decorative sparkle layer -->
+    <div class="dash-sparkles" aria-hidden="true">
+      <span class="spark spark-a">✨</span>
+      <span class="spark spark-b">⭐</span>
+      <span class="spark spark-c">💫</span>
+      <span class="spark spark-d">✨</span>
+    </div>
+
+    <!-- Animated falling water drops after hydration actions -->
     <div class="water-fall-layer">
       <span
         v-for="drop in fallingDrops"
@@ -16,8 +113,11 @@
       ></span>
     </div>
 
+    <!-- Main dashboard content -->
     <div class="dash">
+      <!-- Top dashboard header with avatar, date, time, parent link, and streak button -->
       <header class="header">
+        <!-- Avatar illustration and orbit decoration -->
         <div class="avatar-zone">
           <div class="avatar">
             <span class="svg-holder avatar-svg" v-html="icons.avatar"></span>
@@ -26,366 +126,421 @@
         </div>
 
         <div class="header-text">
-          <div class="greeting-chip">
-            <div class="chip-dot"></div>
-            Healthy Kids Dashboard
-          </div>
-          <h1>Hey, <em>Alex!</em> Ready to play?</h1>
+          <h1>Hey there! Ready to play?</h1>
           <div class="header-sub">Pick a game, collect healthy wins &amp; keep your streak!</div>
         </div>
 
+        <!-- Header quick actions and live date/time information -->
         <div class="header-right">
-          <RouterLink
-            to="/parent-dashboard"
-            class="parent-dash-link"
-            aria-label="Open parent dashboard home"
-          >
-            <span class="svg-holder mini-svg parent-door-svg" v-html="icons.parentDoor"></span>
-            <span>Parents home</span>
+          <RouterLink to="/parent-dashboard" class="main-site-link">
+            <span class="svg-holder mini-svg" v-html="icons.home"></span>
+            Parents dashboard
           </RouterLink>
-          <button
-            type="button"
-            class="theme-toggle"
-            :aria-pressed="isDarkMode"
-            @click="toggleDarkMode"
-          >
-            <span class="svg-holder mini-svg" v-html="isDarkMode ? icons.sun : icons.moon"></span>
-            {{ isDarkMode ? "Light glow" : "Dark sky" }}
-          </button>
           <div class="date-tag">
             <span class="svg-holder mini-svg" v-html="icons.calendar"></span>
             {{ todayLabel }}
           </div>
+          <div class="time-tag">
+            <span class="svg-holder mini-svg" v-html="icons.clock"></span>
+            {{ liveTime }}
+          </div>
           <button type="button" class="streak-tag" @click="celebrateStreak">
             <span class="svg-holder mini-svg flame-icon" v-html="icons.flame"></span>
-            5 day streak
           </button>
         </div>
       </header>
 
-      <section class="boost-strip" aria-label="Daily power ups">
-        <article
-          v-for="boost in powerUps"
-          :key="boost.label"
-          class="boost-pill"
-          :class="boost.tone"
-          @click="handleBoostClick(boost, $event)"
-        >
-          <div class="boost-icon">
-            <span class="svg-holder section-svg" v-html="boost.icon"></span>
+      <!-- Daily meal check-in panel -->
+      <section class="meal-day-panel" aria-labelledby="meal-day-title">
+        <header class="meal-day-head">
+          <div class="meal-day-heading">
+            <span class="svg-holder meal-day-svg" aria-hidden="true" v-html="icons.sun"></span>
+            <div>
+              <h2 id="meal-day-title" class="meal-day-title">Today's meals</h2>
+              <p class="meal-day-sub">Tap when you eat — we save it for today</p>
+            </div>
           </div>
-          <div>
-            <div class="boost-label">{{ boost.label }}</div>
-            <div class="boost-sub">{{ boost.helper }}</div>
-          </div>
-          <strong>{{ boost.value }}</strong>
-        </article>
+        </header>
+
+        <!-- Breakfast, lunch, and dinner quick check buttons -->
+        <div class="boost-strip" role="group" aria-label="Breakfast, lunch, and dinner">
+          <article
+            v-for="check in mealChecks"
+            :key="check.label"
+            class="boost-pill"
+            :class="[check.tone, { 'boost-pill--done': check.done }]"
+            @click="toggleMealCheck(check.label, $event)"
+          >
+            <div class="boost-icon">
+              <span class="meal-check-emoji" aria-hidden="true">{{ check.emoji }}</span>
+            </div>
+            <div class="boost-copy">
+              <div class="boost-label">{{ check.label }}</div>
+              <div class="boost-sub">{{ check.helper }}</div>
+            </div>
+            <span class="boost-action">{{ check.actionLabel }}</span>
+          </article>
+        </div>
       </section>
 
-      <section class="stats-row" aria-label="Health summary">
-        <article
-          v-for="stat in stats"
-          :key="stat.label"
-          class="stat-card"
-          :class="stat.theme"
-          @click="openStatsPage($event)"
-        >
-          <div class="stat-icon">
-            <span class="svg-holder stat-svg" v-html="stat.icon"></span>
-          </div>
-          <div class="stat-label">{{ stat.label }}</div>
-          <div class="stat-value">{{ stat.value }}</div>
-          <div class="stat-sub">{{ stat.helper }}</div>
-          <div class="prog-track"><div class="prog-fill" :style="{ width: stat.progress }"></div></div>
-        </article>
-      </section>
-
+      <!-- Main game shortcuts and hydration tracker grid -->
       <div class="main-grid">
-        <div class="mission-card" @click="openBubbleMission">
+        <!-- Game shortcut tiles -->
+        <section class="games-tiles" aria-label="Pick a game">
           <div class="section-label">
             <span class="svg-holder section-svg" v-html="icons.target"></span>
-            Today's Mission
+            Games
           </div>
 
-          <div class="mission-header">
-            <div class="mission-icon-wrap">
-              <span class="svg-holder mission-svg" v-html="icons.bubbleMission"></span>
-            </div>
-            <div class="mission-title">Healthy Bubble Game</div>
-          </div>
-
-          <div class="mission-desc">
-            Pop the target health words before they self-pop. Fast fingers win!
-          </div>
-
-          <div class="tag-row">
-            <span v-for="tag in missionTags" :key="tag.label" class="tag">
-              <span class="svg-holder tag-svg" v-html="tag.icon"></span>
-              {{ tag.label }}
-            </span>
-          </div>
-
-          <button type="button" class="play-btn" @click="playNow">
-            <span class="svg-holder button-svg" v-html="icons.play"></span>
-            Play Now
-            <span class="svg-holder button-svg" v-html="icons.arrowRight"></span>
-          </button>
-        </div>
-
-        <div class="wins-card" @click="openWinsPage">
-          <div class="section-label">
-            <span class="svg-holder section-svg" v-html="icons.trophy"></span>
-            Healthy Wins
-          </div>
-
-          <div
-            v-for="(win, index) in wins"
-            :key="win.label"
-            class="win-item"
-          >
-            <div class="win-icon" :class="`win-icon-${index + 1}`">
-              <span class="svg-holder win-svg" v-html="win.icon"></span>
-            </div>
-            <div>
-              <div class="win-title">{{ win.label }}</div>
-              <div class="win-sub">{{ win.helper }}</div>
-            </div>
-            <div class="win-check">
-              <span class="svg-holder check-svg" v-html="icons.check"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="meal-banner" @click="openMealsPage">
-          <div class="meal-float">
-            <span class="svg-holder float-svg" v-html="icons.meal1"></span>
-            <span class="svg-holder float-svg" v-html="icons.meal2"></span>
-            <span class="svg-holder float-svg" v-html="icons.meal3"></span>
-            <span class="svg-holder float-svg" v-html="icons.meal4"></span>
-          </div>
-
-          <div class="meal-text">
-            <div class="section-label">
-              <span class="svg-holder section-svg" v-html="icons.meal1"></span>
-              Meal Planner
-            </div>
-            <div class="meal-title">Build a bright food day!</div>
-            <div class="meal-sub">
-              Tap to see your playful breakfast, lunch, snack &amp; dinner plan.
-            </div>
-          </div>
-
-          <button type="button" class="meal-btn" @click="handleMealPlannerClick">
-            <span class="svg-holder button-svg" v-html="icons.grid"></span>
-            Open meal planner
-          </button>
-        </div>
-      </div>
-
-      <section class="game-section">
-        <div class="section-header">
-          <div>
-            <div class="section-label">
-              <span class="svg-holder section-svg" v-html="icons.gamepad"></span>
-              Game Corner
-            </div>
-            <div class="section-heading">Choose your adventure!</div>
-          </div>
-
-          <button type="button" class="see-all" @click="goToGameZone('bubble')">
-            See all
-            <span class="svg-holder link-svg" v-html="icons.arrowRight"></span>
-          </button>
-        </div>
-
-        <div class="games-row">
-          <button
-            v-for="game in gameCards"
-            :key="game.id"
-            type="button"
-            class="game-card"
-            @click="goToGameZone(game.id, $event)"
-          >
-            <div v-if="game.playing" class="active-badge">Playing</div>
-            <div class="game-icon">
-              <span class="svg-holder game-svg" v-html="game.icon"></span>
-            </div>
-            <div class="game-name">{{ game.name }}</div>
-            <div class="game-desc">{{ game.description }}</div>
-          </button>
-        </div>
-      </section>
-
-      <div class="bottom-row">
-        <div class="challenge-card" @click="openWinsPage">
-          <div class="section-label section-blue">
-            <span class="svg-holder section-svg" v-html="icons.star"></span>
-            Weekly Challenge
-          </div>
-          <div class="challenge-title">Veggie Champion</div>
-          <div class="challenge-sub">Eat 5 different veggies this week!</div>
-          <div class="xp-row"><span>XP Progress</span><span>340 / 500 XP</span></div>
-          <div class="xp-track"><div class="xp-bar"></div></div>
-
-          <div class="star-row">
+          <div class="game-tile-grid">
             <button
-              v-for="(earned, index) in stars"
-              :key="`star-${index}`"
+              v-for="tile in gameTiles"
+              :key="tile.id"
               type="button"
-              class="star-btn"
-              :class="{ earned }"
-              @click.stop="toggleStar(index, $event)"
+              class="game-tile"
+              :class="tile.tone"
+              @click="launchTile(tile.launchKey)"
             >
-              <span class="svg-holder star-svg" v-html="icons.star"></span>
+              <span class="game-tile-emoji" aria-hidden="true">{{ tile.emoji }}</span>
+              <div class="game-tile-copy">
+                <strong>{{ tile.title }}</strong>
+                <span>{{ tile.short }}</span>
+              </div>
+              <span class="game-tile-arrow" aria-hidden="true">→</span>
             </button>
           </div>
-        </div>
+        </section>
 
-        <div ref="hydrationCard" class="hydration-card" @click="openStatsPage">
+        <!-- Hydration tracker card -->
+        <div ref="hydrationCard" class="hydration-card">
           <div class="hyd-ring"></div>
           <div class="hyd-ring"></div>
 
-          <div class="section-label section-green">
-            <span class="svg-holder section-svg" v-html="icons.drop"></span>
-            Hydration Tracker
+          <div class="hyd-header">
+            <div class="section-label section-green">
+              <span class="svg-holder section-svg" v-html="icons.drop"></span>
+              Hydration Tracker
+            </div>
+            <div class="sip-counter" aria-live="polite" :title="`Glasses logged today`">
+              <span class="sip-counter-emoji" aria-hidden="true">🥛</span>
+              <span class="sip-counter-num">{{ glassCount }}</span>
+            </div>
           </div>
           <div class="hydration-title">Stay super hydrated!</div>
-          <div class="hydration-sub">Tap a drop to log your sip</div>
+          <div class="hydration-sub">Tap a drop to log your glass</div>
 
+          <!-- Water drop buttons for daily glasses -->
           <div class="drop-grid">
             <button
-              v-for="(filled, index) in drops"
+              v-for="(filled, index) in hydrationDrops"
               :key="`drop-${index}`"
               type="button"
               class="drop-btn"
               :class="{ filled }"
               :title="`Sip ${index + 1}`"
+              :aria-pressed="filled"
               @click.stop="toggleDrop(index, $event)"
             >
-              <span class="svg-holder drop-svg" v-html="icons.drop"></span>
+              <span v-if="filled" class="drop-emoji" aria-hidden="true">💧</span>
+              <span v-else class="svg-holder drop-svg" v-html="icons.drop"></span>
             </button>
           </div>
 
-          <button type="button" class="log-sip-btn" @click.stop="logSip">
-            <span class="svg-holder button-svg" v-html="icons.plusCircle"></span>
-            Log another sip
-          </button>
+          <!-- Hydration action buttons -->
+          <div class="hyd-actions">
+            <button type="button" class="log-sip-btn" @click.stop="logGlass">
+              <span class="svg-holder button-svg" v-html="icons.plusCircle"></span>
+              Log another glass
+            </button>
+            <button
+              type="button"
+              class="reset-glass-btn"
+              :disabled="glassCount === 0"
+              @click.stop="resetGlasses"
+            >
+              Reset
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Temporary toast shown after meal and hydration actions -->
+    <transition name="meal-toast">
+      <div v-if="mealToast" class="meal-toast" role="status" aria-live="polite">
+        {{ mealToast }}
+      </div>
+    </transition>
+
+    <!-- Full-screen launch overlay shown before a game opens -->
+    <transition name="launch-screen">
+      <div
+        v-if="launching"
+        class="launch-screen"
+        :class="launchTone"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="launch-card">
+          <div class="launch-icon-wrap" aria-hidden="true">
+            <span class="launch-emoji">{{ launchEmoji }}</span>
+          </div>
+          <div class="launch-title">{{ launchTitle }}</div>
+          <div class="launch-sub">{{ launchSub }}</div>
+          <div class="launch-loader" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Bottom navigation for kids pages -->
     <KidsBottomNav />
+
+    <!-- Floating light/dark mode control -->
+    <KidsThemeFloater :is-dark-mode="isDarkMode" @toggle-theme="toggleDarkMode" />
   </div>
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from "vue"
-import { RouterLink, useRouter } from "vue-router"
+import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { RouterLink } from "vue-router"
 import KidsBottomNav from "./kids/KidsBottomNav.vue"
+import KidsThemeFloater from "./kids/KidsThemeFloater.vue"
 import { useKidsTheme } from "../composables/useKidsTheme.js"
+import { useKidsProgressStore } from "../stores/kidsProgressStore.js"
+import { useGameLaunch } from "../composables/useGameLaunch.js"
+import { useKidsPerf } from "../composables/useKidsPerf.js"
 
-const router = useRouter()
+// Theme, progress, performance, and game-launch composables.
 const { isDarkMode, toggleDarkMode } = useKidsTheme()
+const kp = useKidsProgressStore()
+const { motionLite, syncKidsPerf, fx } = useKidsPerf()
+const {
+  launching,
+  launchTitle,
+  launchSub,
+  launchEmoji,
+  launchTone,
+  startGameLaunch,
+} = useGameLaunch()
 
+// Template refs and reactive UI state.
 const confettiLayer = ref(null)
 const hydrationCard = ref(null)
-const stars = ref([true, true, true, false, false])
-const drops = ref([true, true, true, true, true, false, false, false])
 const fallingDrops = ref([])
+const mealToast = ref("")
+const liveTime = ref("")
 
+const skyStars = ref([])
+const shootingStars = ref([])
+
+// Internal timers, animation IDs, and cleanup handles.
 let nextFallingDropId = 1
 const activeRibbons = []
 
 let ribbonFrameId = 0
+let mealToastTimer = 0
+let liveTimeTimer = 0
+let motionMediaListener = null
+let visibilityListener = null
 
+// Builds random star positions for the animated night sky.
+function buildAmbientStars(count) {
+  return Array.from({ length: count }, (_, id) => ({
+    id,
+    left: Math.random() * 100,
+    top: Math.random() * 70,
+    size: 1 + Math.random() * 2.4,
+    delay: Math.random() * 4,
+    duration: 1.8 + Math.random() * 3.4,
+  }))
+}
+
+// Builds shooting star animation data.
+function buildShootingStars(count) {
+  return Array.from({ length: count }, (_, id) => ({
+    id,
+    left: 12 + Math.random() * 70,
+    top: 8 + Math.random() * 40,
+    delay: id * 6 + Math.random() * 4,
+  }))
+}
+
+// Initialises or disables ambient effects based on performance settings.
+function initAmbientLayers() {
+  syncKidsPerf()
+  if (motionLite.value) {
+    skyStars.value = []
+    shootingStars.value = []
+    return
+  }
+
+  const coarsePointer =
+    typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches
+  const starCount = coarsePointer ? 18 : 30
+  skyStars.value = buildAmbientStars(starCount)
+  shootingStars.value = buildShootingStars(2)
+}
+
+// Starts the live time updater.
+function startLiveClock() {
+  if (liveTimeTimer || typeof window === "undefined") return
+  liveTimeTimer = window.setInterval(updateLiveTime, 1000)
+}
+
+// Stops the live time updater.
+function stopLiveClock() {
+  if (!liveTimeTimer) return
+  window.clearInterval(liveTimeTimer)
+  liveTimeTimer = 0
+}
+
+// Pauses or resumes the live clock when the browser tab visibility changes.
+function onVisibilityChange() {
+  if (typeof document === "undefined") return
+  if (document.hidden) {
+    stopLiveClock()
+    return
+  }
+  updateLiveTime()
+  startLiveClock()
+}
+
+// Sets up ambient effects, saved progress, live time, and listeners when the page loads.
+onMounted(() => {
+  syncKidsPerf()
+  initAmbientLayers()
+
+  if (typeof window !== "undefined") {
+    motionMediaListener = () => {
+      syncKidsPerf()
+      initAmbientLayers()
+    }
+    window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", motionMediaListener)
+    navigator.connection?.addEventListener?.("change", motionMediaListener)
+
+    visibilityListener = onVisibilityChange
+    document.addEventListener("visibilitychange", visibilityListener)
+  }
+
+  kp.hydrate()
+  updateLiveTime()
+  startLiveClock()
+})
+
+// Formatted date shown in the dashboard header.
 const todayLabel = new Intl.DateTimeFormat("en-AU", {
   weekday: "short",
   day: "numeric",
   month: "short",
 }).format(new Date())
 
+// Updates the live time shown in the dashboard header.
+function updateLiveTime() {
+  liveTime.value = new Intl.DateTimeFormat("en-AU", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date())
+}
+
+// Inline SVG icons used across the dashboard.
 const icons = {
-  avatar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
-  parentDoor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13 21h8v-9h-8z"/><path d="M3 21V4a1 1 0 0 1 1-1h7l5 5v13"/><circle cx="16.5" cy="13.5" r="1" fill="currentColor"/></svg>`,
+  avatar: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="30" fill="#FFE8B8"/><path d="M19 25C19 17.8203 24.8203 12 32 12C39.1797 12 45 17.8203 45 25V28H19V25Z" fill="#D97A00"/><circle cx="32" cy="28" r="12" fill="#FFD7B3"/><path d="M25 27C26.3333 25.4 28.4 24.6 31.2 24.6C34 24.6 36.2667 25.4 38 27" stroke="#7A3E00" stroke-width="2.8" stroke-linecap="round"/><circle cx="27.5" cy="29.5" r="1.6" fill="#7A3E00"/><circle cx="36.5" cy="29.5" r="1.6" fill="#7A3E00"/><path d="M28 34.5C29.1 36.1667 30.4333 37 32 37C33.5667 37 34.9 36.1667 36 34.5" stroke="#7A3E00" stroke-width="2.6" stroke-linecap="round"/><path d="M18 52C18.8 44.5333 23.4667 40.8 32 40.8C40.5333 40.8 45.2 44.5333 46 52" fill="#5B7CFA"/><path d="M18 52C18.8 44.5333 23.4667 40.8 32 40.8C40.5333 40.8 45.2 44.5333 46 52" stroke="#3B56D9" stroke-width="2.4" stroke-linecap="round"/><path d="M32 41V52" stroke="#D8E4FF" stroke-width="2.4" stroke-linecap="round"/><circle cx="32" cy="46" r="2.1" fill="#D8E4FF"/></svg>`,
   calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
   flame: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 4-4 6-4 10a4 4 0 0 0 8 0c0-4-4-6-4-10z"/><path d="M12 12c0 2-2 3-2 5a2 2 0 0 0 4 0c0-2-2-3-2-5z"/></svg>`,
   target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
   bubbleMission: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>`,
   play: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
   arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
-  trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
-  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  meal1: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
-  meal2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="2"/></svg>`,
-  meal3: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>`,
-  meal4: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
-  grid: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
-  gamepad: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 12h.01"/><path d="M17 12h.01"/></svg>`,
-  bubbleCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>`,
-  explorerCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
-  smashCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-  star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
   drop: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L5 12a7 7 0 1 0 14 0L12 2z"/></svg>`,
   plusCircle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  home: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V21h14V9.8"/><path d="M9 21v-6h6v6"/></svg>`,
   moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>`,
   sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2.2M19.8 12H22M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg>`,
-  steps: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4v4l3 3-2 5-4-2-3 4H4"/><path d="M20 12v4l-2 4"/></svg>`,
-  sleep: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
-  smile: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
-  timer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="2"/></svg>`,
   bolt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
   message: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
 }
 
-const stats = [
-  { label: "Steps", value: "7,240", helper: "Move goal 72%", progress: "72%", theme: "sc-steps", icon: icons.steps },
-  { label: "Water", value: "5 / 8", helper: "Three more sips!", progress: "62%", theme: "sc-water", icon: icons.drop },
-  { label: "Sleep", value: "8.5h", helper: "Great bedtime win", progress: "90%", theme: "sc-sleep", icon: icons.sleep },
-  { label: "Mood", value: "Happy", helper: "Energy is high!", progress: "85%", theme: "sc-mood", icon: icons.smile },
-]
-
-const missionTags = [
-  { label: "Color pop", icon: icons.target },
-  { label: "Quick taps", icon: icons.bolt },
-  { label: "Healthy words", icon: icons.message },
-]
-
-const wins = [
-  { label: "3 healthy bites", helper: "Fruit and veggie streak", icon: icons.timer },
-  { label: "Water power", helper: "Sipping through the day", icon: icons.drop },
-  { label: "Sleep star", helper: "Strong bedtime routine", icon: icons.sleep },
-]
-
-const powerUps = [
-  { label: "Rainbow bites", helper: "Fruit mission streak", value: "3 / 5", tone: "boost-coral", icon: icons.star },
-  { label: "Power splash", helper: "Hydration glow-up", value: "+80 XP", tone: "boost-sky", icon: icons.drop },
-  { label: "Dream spark", helper: "Lights out on time", value: "8.5h", tone: "boost-violet", icon: icons.sleep },
-]
-
-const gameCards = [
+// Game shortcut tile data.
+const gameTiles = [
   {
     id: "bubble",
-    name: "Bubble Game",
-    description: "Pop target health words before they self-pop",
-    icon: icons.bubbleCard,
-    playing: true,
+    launchKey: "bubble",
+    title: "Bubble Game",
+    short: "Pop healthy words fast",
+    emoji: "🫧",
+    tone: "tile-bubble",
   },
   {
     id: "explorer",
-    name: "Explorer Game",
-    description: "Pick matching healthy habit pairs",
-    icon: icons.explorerCard,
-    playing: false,
+    launchKey: "explorer",
+    title: "Explorer Game",
+    short: "Match bright healthy pairs",
+    emoji: "🧭",
+    tone: "tile-explorer",
+  },
+  {
+    id: "humit",
+    launchKey: "humit",
+    title: "Hum It!",
+    short: "Your hum powers your creature",
+    emoji: "🎵",
+    tone: "tile-humit",
   },
   {
     id: "smash",
-    name: "Smash Game",
-    description: "Drag and wiggle to build power",
-    icon: icons.smashCard,
-    playing: false,
+    launchKey: "smash",
+    title: "Routine Rumble",
+    short: "Smash healthy routines",
+    emoji: "🎈",
+    tone: "tile-smash",
   },
 ]
 
+// Meal check cards derived from saved daily progress.
+const mealChecks = computed(() => [
+  {
+    label: "Breakfast",
+    helper: kp.daily.meals.Breakfast ? "Saved for today" : "Not logged yet",
+    actionLabel: kp.daily.meals.Breakfast ? "Undo" : "Add",
+    emoji: "🍳",
+    tone: "boost-coral",
+    done: Boolean(kp.daily.meals.Breakfast),
+  },
+  {
+    label: "Lunch",
+    helper: kp.daily.meals.Lunch ? "Saved for today" : "Not logged yet",
+    actionLabel: kp.daily.meals.Lunch ? "Undo" : "Add",
+    emoji: "🥪",
+    tone: "boost-sky",
+    done: Boolean(kp.daily.meals.Lunch),
+  },
+  {
+    label: "Dinner",
+    helper: kp.daily.meals.Dinner ? "Saved for today" : "Not logged yet",
+    actionLabel: kp.daily.meals.Dinner ? "Undo" : "Add",
+    emoji: "🍽️",
+    tone: "boost-violet",
+    done: Boolean(kp.daily.meals.Dinner),
+  },
+])
+
+// Hydration goal and safety cap.
+const GLASS_GOAL = 8
+const GLASS_MAX = 50
+
+// Builds the visible water drop state from the current glass count.
+const hydrationDrops = computed(() =>
+  Array.from({ length: GLASS_GOAL }, (_, index) => index < Math.min(GLASS_GOAL, kp.daily.waterGlasses)),
+)
+
+// Clamps the displayed glass count within the allowed range.
+const glassCount = computed(() => Math.max(0, Math.min(GLASS_MAX, kp.daily.waterGlasses)))
+
+// Creates a short ripple animation on tapped controls.
 function ripple(event) {
   const el = event.currentTarget
   if (!(el instanceof HTMLElement)) return
@@ -401,19 +556,16 @@ function ripple(event) {
   window.setTimeout(() => rippleEl.remove(), 700)
 }
 
-function safeRipple(event) {
-  if (event && typeof event === "object" && "currentTarget" in event) {
-    ripple(event)
-  }
-}
-
+// Spawns lightweight confetti pieces for celebrations.
 function spawnConfetti(count, originRect) {
+  const n = fx(count)
+  if (n < 1) return
   const layer = confettiLayer.value
   if (!layer) return
 
   const colors = ["#FF6058", "#3B9EFF", "#2CC97A", "#FFB020", "#9B72FF", "#FF7EB3", "#1EC8C8", "#FFDD57"]
 
-  for (let index = 0; index < count; index += 1) {
+  for (let index = 0; index < n; index += 1) {
     const piece = document.createElement("div")
     piece.className = "conf-piece"
     const duration = originRect ? 0.7 + Math.random() * 0.6 : 1.4 + Math.random() * 1.4
@@ -430,16 +582,20 @@ function spawnConfetti(count, originRect) {
     piece.style.borderRadius = originRect || Math.random() > 0.5 ? "50%" : "2px"
     piece.style.animationDuration = `${duration}s`
     piece.style.animationDelay = originRect ? "0s" : `${Math.random() * 0.5}s`
+    piece.style.position = "absolute"
+    piece.style.pointerEvents = "none"
 
     layer.appendChild(piece)
     window.setTimeout(() => piece.remove(), (duration + 0.8) * 1000)
   }
 }
 
+// Returns a random number between two values.
 function randomBetween(min, max) {
   return min + Math.random() * (max - min)
 }
 
+// Runs the ribbon physics animation loop.
 function startRibbonSimulation() {
   if (ribbonFrameId || !confettiLayer.value) return
 
@@ -497,19 +653,21 @@ function startRibbonSimulation() {
   ribbonFrameId = window.requestAnimationFrame(tick)
 }
 
+// Creates falling ribbon celebration pieces.
 function spawnRibbonRain(count, options = {}) {
+  const total = fx(count)
+  if (total < 1) return
+
   const layer = confettiLayer.value
   if (!layer) return
 
   const width = window.innerWidth
   const height = window.innerHeight
   const now = performance.now()
-  const centerX = options.originRect
-    ? options.originRect.left + options.originRect.width / 2
-    : width / 2
-  const spread = options.originRect
-    ? Math.max(width * 0.42, options.originRect.width * 10)
-    : width * 1.1
+
+  const centerX = width / 2
+  const spread = Math.min(width * 0.55, 620)
+
   const palette = [
     ["#FF7A72", "#FFB96B"],
     ["#51B7FF", "#7CF1FF"],
@@ -518,15 +676,25 @@ function spawnRibbonRain(count, options = {}) {
     ["#FF8BC2", "#FFD36F"],
   ]
 
-  for (let index = 0; index < count; index += 1) {
+  for (let index = 0; index < total; index += 1) {
     const ribbon = document.createElement("div")
     ribbon.className = "cele-ribbon"
 
     const [colorStart, colorEnd] = palette[index % palette.length]
     const ribbonWidth = randomBetween(16, 26)
-    const ribbonHeight = randomBetween(180, 320)
+    const ribbonHeight = randomBetween(150, 260)
+
+    const startX = Math.max(
+      24,
+      Math.min(width - 48, centerX - spread / 2 + Math.random() * spread)
+    )
+
+    ribbon.style.position = "absolute"
+    ribbon.style.left = `${startX}px`
+    ribbon.style.top = `${randomBetween(-height * 0.35, -ribbonHeight - 60)}px`
     ribbon.style.width = `${ribbonWidth}px`
     ribbon.style.height = `${ribbonHeight}px`
+    ribbon.style.pointerEvents = "none"
     ribbon.style.setProperty("--ribbon-start", colorStart)
     ribbon.style.setProperty("--ribbon-end", colorEnd)
     ribbon.style.opacity = "0"
@@ -535,24 +703,24 @@ function spawnRibbonRain(count, options = {}) {
 
     activeRibbons.push({
       element: ribbon,
-      x: Math.max(-80, Math.min(width + 40, centerX - spread / 2 + Math.random() * spread)),
-      y: randomBetween(-height * 0.7, -ribbonHeight - 80),
-      vx: randomBetween(-55, 55),
-      vy: randomBetween(210, 320),
-      gravity: randomBetween(360, 540),
+      x: 0,
+      y: 0,
+      vx: randomBetween(-36, 36),
+      vy: randomBetween(210, 300),
+      gravity: randomBetween(330, 470),
       rotationZ: randomBetween(-30, 30),
-      spin: randomBetween(-120, 120),
-      swayAmplitude: randomBetween(22, 56),
-      swayFrequency: randomBetween(1.9, 3.6),
-      flutterX: randomBetween(38, 84),
-      flutterY: randomBetween(58, 132),
-      flutterSpeed: randomBetween(6.5, 9.8),
+      spin: randomBetween(-110, 110),
+      swayAmplitude: randomBetween(18, 42),
+      swayFrequency: randomBetween(1.8, 3.4),
+      flutterX: randomBetween(32, 76),
+      flutterY: randomBetween(48, 110),
+      flutterSpeed: randomBetween(6.2, 9.4),
       phase: randomBetween(0, Math.PI * 2),
-      fadeStart: height * randomBetween(0.8, 0.92),
+      fadeStart: height * randomBetween(0.82, 0.94),
       maxY: height + 260,
       height: ribbonHeight,
       age: 0,
-      startAt: now + index * randomBetween(22, 46),
+      startAt: now + index * randomBetween(18, 38),
       isActive: false,
     })
   }
@@ -560,34 +728,57 @@ function spawnRibbonRain(count, options = {}) {
   startRibbonSimulation()
 }
 
-function launchRibbonCelebration(count, originElement) {
-  const originRect = originElement instanceof HTMLElement ? originElement.getBoundingClientRect() : null
-  if (originRect) {
-    spawnConfetti(Math.max(12, Math.round(count * 0.25)), originRect)
+// Combines confetti and ribbon rain into a bigger celebration.
+function launchRibbonCelebration(count) {
+  if (fx(count) < 1) return
+
+  const centerRect = {
+    left: window.innerWidth / 2 - 40,
+    top: window.innerHeight / 2 - 40,
+    width: 80,
+    height: 80,
   }
-  spawnRibbonRain(count, { originRect })
+
+  spawnConfetti(Math.max(14, Math.round(count * 0.28)), centerRect)
+  spawnRibbonRain(count, { originRect: centerRect })
 }
 
+// Fires a small full-page confetti burst.
 function fireConfetti() {
-  spawnConfetti(70)
+  spawnConfetti(26)
 }
 
+// Plays the streak celebration when the flame button is tapped.
 function celebrateStreak(event) {
   ripple(event)
-  launchRibbonCelebration(34, event.currentTarget)
+
+  const centerRect = {
+    left: window.innerWidth / 2 - 40,
+    top: window.innerHeight / 2 - 40,
+    width: 80,
+    height: 80,
+  }
+
+  spawnConfetti(44, centerRect)
+  launchRibbonCelebration(28)
 }
 
+// Plays a small local confetti effect near one element.
 function miniConfetti(element) {
   if (!(element instanceof HTMLElement)) return
-  spawnConfetti(18, element.getBoundingClientRect())
+  spawnConfetti(12, element.getBoundingClientRect())
 }
 
+// Creates animated water drops after hydration logging.
 function spawnWaterDrops(sourceElement, count = 16) {
+  const n = fx(count)
+  if (n < 1) return
+
   const origin = sourceElement instanceof HTMLElement ? sourceElement : hydrationCard.value
   const rect = origin?.getBoundingClientRect?.()
   if (!rect) return
 
-  const created = Array.from({ length: count }, (_, index) => ({
+  const created = Array.from({ length: n }, (_, index) => ({
     id: nextFallingDropId++,
     left: ((rect.left + Math.random() * rect.width) / window.innerWidth) * 100,
     delay: index * 55 + Math.random() * 120,
@@ -605,91 +796,96 @@ function spawnWaterDrops(sourceElement, count = 16) {
   }, maxLifetime)
 }
 
-function toggleStar(index, event) {
-  stars.value[index] = !stars.value[index]
-  if (stars.value[index]) {
+// Toggles a meal check and shows celebration or undo feedback.
+function toggleMealCheck(label, event) {
+  const wasDone = Boolean(kp.daily.meals[label])
+  kp.toggleMeal(label)
+  if (!wasDone) {
     miniConfetti(event.currentTarget)
-    launchRibbonCelebration(22, event.currentTarget)
+    showMealToast(`Great! ${label} added`)
+    return
   }
+  showMealToast(`${label} removed`)
 }
 
+// Shows a temporary toast message.
+function showMealToast(message) {
+  mealToast.value = message
+  if (mealToastTimer) {
+    window.clearTimeout(mealToastTimer)
+  }
+  mealToastTimer = window.setTimeout(() => {
+    mealToast.value = ""
+    mealToastTimer = 0
+  }, 1400)
+}
+
+// Updates hydration count when a specific drop button is tapped.
 function toggleDrop(index, event) {
-  drops.value[index] = !drops.value[index]
-  if (drops.value[index]) {
-    spawnWaterDrops(hydrationCard.value, 14)
+  const currentCount = Math.min(GLASS_GOAL, kp.daily.waterGlasses)
+  const nextCount = index < currentCount ? index : index + 1
+  if (nextCount === currentCount) return
+  kp.addWater(nextCount - currentCount)
+  if (nextCount > currentCount) {
+    spawnWaterDrops(hydrationCard.value, 12)
     miniConfetti(event.currentTarget)
   }
 }
 
-function logSip(event) {
-  const nextIndex = drops.value.findIndex(filled => !filled)
-  if (nextIndex !== -1) {
-    drops.value[nextIndex] = true
-    spawnWaterDrops(hydrationCard.value, 18)
-    miniConfetti(event.currentTarget)
-  }
-}
-
-function goToGameZone(gameId, event) {
-  if (event) {
-    ripple(event)
-  }
-  router.push({ path: "/kids-game-zone", query: gameId ? { game: gameId } : {} })
-}
-
-function openBubbleMission(event) {
-  goToGameZone("bubble", event)
-}
-
-function openMealsPage(event) {
-  safeRipple(event)
-  router.push("/kids-meals")
-}
-
-function openStatsPage(event) {
-  safeRipple(event)
-  router.push("/kids-stats")
-}
-
-function openWinsPage(event) {
-  safeRipple(event)
-  router.push("/kids-wins")
-}
-
-function handleBoostClick(boost, event) {
-  if (boost.tone === "boost-sky") {
-    openStatsPage(event)
+// Adds one glass of water and shows feedback.
+function logGlass(event) {
+  if (kp.daily.waterGlasses >= GLASS_MAX) {
+    showMealToast(`Max ${GLASS_MAX} glasses reached`)
     return
   }
-
-  if (boost.tone === "boost-coral") {
-    openWinsPage(event)
-    return
+  kp.addWater(1)
+  spawnWaterDrops(hydrationCard.value, 15)
+  miniConfetti(event.currentTarget)
+  const next = Math.min(GLASS_MAX, kp.daily.waterGlasses)
+  if (next > GLASS_GOAL) {
+    showMealToast(`Bonus glass! ${next} logged`)
+  } else {
+    showMealToast(`Great! ${next} / ${GLASS_GOAL} glasses`)
   }
-
-  if (boost.tone === "boost-violet") {
-    openStatsPage(event)
-    return
-  }
-
-  safeRipple(event)
 }
 
-function playNow(event) {
-  ripple(event)
+// Resets the daily glass count back to zero.
+function resetGlasses() {
+  const current = kp.daily.waterGlasses
+  if (current <= 0) return
+  kp.addWater(-current)
+  showMealToast("Glasses reset")
+}
+
+// Starts a selected game with a launch animation.
+function launchTile(launchKey) {
   fireConfetti()
-  router.push({ path: "/kids-game-zone", query: { game: "bubble" } })
+  startGameLaunch(launchKey)
 }
 
-function handleMealPlannerClick(event) {
-  ripple(event)
-  router.push("/kids-meals")
-}
-
+// Cleans up timers, listeners, animation frames, and active ribbons before leaving the page.
 onBeforeUnmount(() => {
+  stopLiveClock()
+
+  if (typeof window !== "undefined" && motionMediaListener) {
+    window.matchMedia("(prefers-reduced-motion: reduce)").removeEventListener("change", motionMediaListener)
+    navigator.connection?.removeEventListener?.("change", motionMediaListener)
+    motionMediaListener = null
+  }
+
+  if (typeof document !== "undefined" && visibilityListener) {
+    document.removeEventListener("visibilitychange", visibilityListener)
+    visibilityListener = null
+  }
+
   if (ribbonFrameId) {
     window.cancelAnimationFrame(ribbonFrameId)
     ribbonFrameId = 0
+  }
+
+  if (mealToastTimer) {
+    window.clearTimeout(mealToastTimer)
+    mealToastTimer = 0
   }
 
   for (const ribbon of activeRibbons) {
@@ -703,8 +899,10 @@ onBeforeUnmount(() => {
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap");
 
+/* Local reset for this dashboard component */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Main dashboard wrapper and light mode design tokens */
 .kids-html-dashboard {
   --coral: #FF6058;
   --sky: #3B9EFF;
@@ -734,10 +932,11 @@ onBeforeUnmount(() => {
   color: var(--ink);
   overflow-x: hidden;
   min-height: 100vh;
-  padding-bottom: 88px;
+  padding-bottom: 78px;
   position: relative;
 }
 
+/* Dark mode design tokens */
 .kids-html-dashboard.dark-mode {
   --ink: #F7F8FF;
   --ink2: #C3C7EA;
@@ -757,6 +956,7 @@ onBeforeUnmount(() => {
   --hero-glow-3: rgba(155, 114, 255, 0.24);
 }
 
+/* Fixed ambient background glow */
 .kids-html-dashboard::before {
   content: "";
   position: fixed;
@@ -775,12 +975,325 @@ onBeforeUnmount(() => {
   to { background-position: 5% 5%, 95% 95%, 55% 98%; }
 }
 
+/* === KIDS SKY (day / night) === */
+.kids-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.sky-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #ffe6c2 0%, #ffd1b5 22%, #c8e6ff 60%, #e8f4ff 100%);
+  transition: background 1.1s ease, opacity 1.1s ease;
+}
+
+.dark-mode .sky-gradient {
+  background: linear-gradient(180deg, #05071c 0%, #0e1037 32%, #1a1855 62%, #2a1a6b 100%);
+}
+
+.sky-aurora {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 18% 16%, rgba(255, 209, 102, 0.5), transparent 42%),
+    radial-gradient(ellipse at 78% 14%, rgba(255, 150, 100, 0.32), transparent 38%),
+    radial-gradient(ellipse at 50% 78%, rgba(108, 217, 255, 0.28), transparent 45%);
+  transition: background 1s ease;
+}
+
+.dark-mode .sky-aurora {
+  background:
+    radial-gradient(ellipse at 22% 14%, rgba(108, 75, 255, 0.5), transparent 45%),
+    radial-gradient(ellipse at 80% 22%, rgba(58, 200, 255, 0.3), transparent 42%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 95, 162, 0.18), transparent 48%);
+}
+
+.celestial {
+  position: absolute;
+  width: clamp(150px, 18vw, 240px);
+  height: clamp(150px, 18vw, 240px);
+  right: 6%;
+  transition: top 1.4s cubic-bezier(0.34, 1.1, 0.64, 1), opacity 0.9s ease;
+}
+
+.sun-body {
+  top: -180px;
+  opacity: 0;
+}
+
+.kids-html-dashboard:not(.dark-mode) .sun-body {
+  top: 6%;
+  opacity: 1;
+}
+
+.sun-core,
+.moon-core {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.sun-core {
+  background: radial-gradient(circle at 35% 35%, #fffae3, #ffd166 50%, #ff9a3e 100%);
+  box-shadow: 0 0 80px rgba(255, 209, 102, 0.55), inset 0 0 18px rgba(255, 255, 255, 0.5);
+  animation: kidsSunPulse 4.5s ease-in-out infinite alternate;
+}
+
+.sun-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 209, 102, 0.45) 30%, transparent 70%);
+  filter: blur(18px);
+  animation: kidsSunSpin 24s linear infinite;
+}
+
+.sun-ring {
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 209, 102, 0.35);
+  animation: kidsSunSpin 40s linear infinite reverse;
+}
+
+@keyframes kidsSunPulse {
+  from { transform: scale(1); filter: brightness(1); }
+  to   { transform: scale(1.04); filter: brightness(1.1); }
+}
+
+@keyframes kidsSunSpin {
+  to { transform: rotate(360deg); }
+}
+
+.moon-body {
+  top: -200px;
+  opacity: 0;
+}
+
+.dark-mode .moon-body {
+  top: 6%;
+  opacity: 1;
+}
+
+.moon-core {
+  background: radial-gradient(circle at 30% 28%, #fdfdff, #c8cbf8 65%, #6c4bff 100%);
+  box-shadow: 0 0 90px rgba(155, 134, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.35);
+  animation: kidsMoonGlow 5s ease-in-out infinite alternate;
+}
+
+.moon-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155, 134, 255, 0.42) 30%, transparent 70%);
+  filter: blur(22px);
+}
+
+.crater {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(108, 75, 255, 0.55), rgba(50, 30, 110, 0.85));
+  box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.crater-1 { width: 18%; height: 18%; top: 25%; left: 30%; }
+.crater-2 { width: 12%; height: 12%; top: 55%; left: 55%; }
+.crater-3 { width: 9%;  height: 9%;  top: 38%; left: 60%; }
+
+@keyframes kidsMoonGlow {
+  from { transform: scale(1); filter: brightness(1); }
+  to   { transform: scale(1.03); filter: brightness(1.12); }
+}
+
+.sky-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
+.dark-mode .sky-stars { opacity: 1; }
+
+.sky-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
+  animation: kidsStarTwinkle 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes kidsStarTwinkle {
+  from { opacity: 0.25; transform: scale(0.8); }
+  to   { opacity: 1;    transform: scale(1.3); }
+}
+
+.sky-shoot {
+  position: absolute;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 60%, #fff 80%, rgba(255, 255, 255, 0));
+  border-radius: 999px;
+  opacity: 0;
+  transform: rotate(-22deg);
+  animation: kidsShoot 9s linear infinite;
+}
+
+@keyframes kidsShoot {
+  0%   { opacity: 0; transform: translate(-20px, 0) rotate(-22deg); }
+  6%   { opacity: 1; }
+  12%  { opacity: 0; transform: translate(240px, 90px) rotate(-22deg); }
+  100% { opacity: 0; transform: translate(240px, 90px) rotate(-22deg); }
+}
+
+.sky-clouds {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1s ease, filter 1s ease;
+}
+
+.dark-mode .sky-clouds { opacity: 0.18; filter: blur(1.5px); }
+
+.sky-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  filter: blur(0.4px);
+  box-shadow:
+    20px -8px 0 0 rgba(255, 255, 255, 0.9),
+    40px 5px 0 -3px rgba(255, 255, 255, 0.85),
+    -18px 6px 0 -4px rgba(255, 255, 255, 0.8);
+}
+
+.sky-cloud-1 { width: 120px; height: 30px; top: 14%; left: 6%;  animation: kidsCloudDrift 42s linear infinite; }
+.sky-cloud-2 { width: 86px;  height: 22px; top: 24%; left: 28%; animation: kidsCloudDrift 56s linear infinite reverse; animation-delay: -8s; }
+.sky-cloud-3 { width: 110px; height: 28px; top: 10%; left: 52%; animation: kidsCloudDrift 48s linear infinite; animation-delay: -16s; }
+.sky-cloud-4 { width: 76px;  height: 20px; top: 36%; left: 12%; animation: kidsCloudDrift 64s linear infinite reverse; animation-delay: -22s; }
+
+@keyframes kidsCloudDrift {
+  from { transform: translateX(-12vw); }
+  to   { transform: translateX(115vw); }
+}
+
+.sky-hills {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 22vh;
+  min-height: 140px;
+  opacity: 0.85;
+  transition: opacity 0.8s ease;
+}
+
+.hill-back  { fill: rgba(180, 200, 230, 0.7); transition: fill 0.8s ease; }
+.hill-front { fill: rgba(125, 155, 210, 0.85); transition: fill 0.8s ease; }
+
+.dark-mode .hill-back  { fill: rgba(36, 36, 88, 0.85); }
+.dark-mode .hill-front { fill: rgba(14, 14, 42, 0.96); }
+
+.dash-blobs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  mix-blend-mode: screen;
+}
+
+.blob-a {
+  width: 320px; height: 320px;
+  left: -80px; top: 12%;
+  background: radial-gradient(circle, rgba(59, 158, 255, 0.45), rgba(59, 158, 255, 0) 70%);
+  animation: blobDriftA 18s ease-in-out infinite alternate;
+}
+
+.blob-b {
+  width: 380px; height: 380px;
+  right: -110px; top: 35%;
+  background: radial-gradient(circle, rgba(155, 114, 255, 0.4), rgba(155, 114, 255, 0) 70%);
+  animation: blobDriftB 22s ease-in-out infinite alternate;
+}
+
+.blob-c {
+  width: 260px; height: 260px;
+  left: 30%; bottom: -100px;
+  background: radial-gradient(circle, rgba(44, 201, 122, 0.4), rgba(44, 201, 122, 0) 70%);
+  animation: blobDriftC 20s ease-in-out infinite alternate;
+}
+
+.blob-d {
+  width: 240px; height: 240px;
+  right: 18%; top: 4%;
+  background: radial-gradient(circle, rgba(255, 176, 32, 0.36), rgba(255, 176, 32, 0) 70%);
+  animation: blobDriftD 24s ease-in-out infinite alternate;
+}
+
+.dark-mode .blob { opacity: 0.45; }
+
+@keyframes blobDriftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(40px, 30px, 0) scale(1.08); }
+}
+
+@keyframes blobDriftB {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-50px, -40px, 0) scale(1.1); }
+}
+
+@keyframes blobDriftC {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(60px, -50px, 0) scale(1.12); }
+}
+
+@keyframes blobDriftD {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-30px, 50px, 0) scale(1.06); }
+}
+
+.dash-sparkles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.spark {
+  position: absolute;
+  font-size: 16px;
+  opacity: 0.35;
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.18));
+}
+
+.spark-a { left: 8%;  top: 22%; animation: sparkDrift 9s ease-in-out infinite; }
+.spark-b { right: 12%; top: 40%; animation: sparkDrift 11s ease-in-out 1.4s infinite; }
+.spark-c { left: 42%; bottom: 16%; animation: sparkDrift 12s ease-in-out 0.7s infinite; }
+.spark-d { right: 30%; bottom: 28%; animation: sparkDrift 10.5s ease-in-out 2s infinite; }
+
+@keyframes sparkDrift {
+  0%, 100% { transform: translateY(0) rotate(0); opacity: 0.18; }
+  50% { transform: translateY(-14px) rotate(15deg); opacity: 0.6; }
+}
+
 .dash {
   position: relative;
   z-index: 1;
-  max-width: 980px;
+  max-width: min(900px, 100%);
   margin: 0 auto;
-  padding: 20px 16px 40px;
+  padding: clamp(14px, 3vw, 16px) clamp(12px, 3.5vw, 14px) clamp(28px, 5vw, 34px);
 }
 
 .header {
@@ -788,9 +1301,9 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   background: var(--surface);
-  border-radius: 26px;
-  padding: 18px 22px;
-  margin-bottom: 18px;
+  border-radius: 22px;
+  padding: 15px 18px;
+  margin-bottom: 14px;
   box-shadow: var(--card-shadow);
   border: 1.5px solid var(--border);
   animation: headerDrop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -834,13 +1347,18 @@ onBeforeUnmount(() => {
   z-index: 1;
 }
 
-.avatar-zone { position: relative; cursor: pointer; flex-shrink: 0; }
+.avatar-zone {
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  animation: avatarBreathe 4.6s ease-in-out infinite;
+}
 
 .avatar {
-  width: 58px;
-  height: 58px;
+  width: 52px;
+  height: 52px;
   background: linear-gradient(145deg, #FFE4C8, #FFCBA4);
-  border-radius: 18px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -850,10 +1368,15 @@ onBeforeUnmount(() => {
 
 .avatar:hover { transform: rotate(-8deg) scale(1.1); }
 
+@keyframes avatarBreathe {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-3px) rotate(1.2deg); }
+}
+
 .orbit-ring {
   position: absolute;
-  inset: -8px;
-  border-radius: 26px;
+  inset: -7px;
+  border-radius: 22px;
   border: 2px dashed rgba(255, 176, 32, 0.35);
   animation: orbitSpin 6s linear infinite;
 }
@@ -872,7 +1395,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 6px var(--amber);
 }
 
-.header-text { flex: 1; margin-left: 14px; }
+.header-text { flex: 1; margin-left: 11px; }
 
 .greeting-chip {
   display: inline-flex;
@@ -906,7 +1429,7 @@ onBeforeUnmount(() => {
 
 .header-text h1 {
   font-family: "Baloo 2", cursive;
-  font-size: 24px;
+  font-size: clamp(18px, 2.8vw, 21px);
   font-weight: 800;
   color: var(--ink);
   line-height: 1.1;
@@ -916,40 +1439,37 @@ onBeforeUnmount(() => {
 @keyframes textReveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0% 0 0); } }
 
 .header-text h1 em { font-style: normal; color: var(--coral); }
-.header-sub { font-size: 13px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+.header-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
 
-.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+.header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 460px;
+}
 
-.parent-dash-link {
-  text-decoration: none;
-  background: linear-gradient(135deg, rgba(44, 201, 122, 0.2), rgba(59, 158, 255, 0.16));
-  border: 1.5px solid rgba(44, 140, 112, 0.32);
+.main-site-link {
+  background: linear-gradient(135deg, rgba(44, 201, 122, 0.16), rgba(30, 200, 200, 0.14));
+  border: 1.5px solid rgba(44, 201, 122, 0.22);
   border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 12px;
+  padding: 6px 10px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--ink);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 6px 16px rgba(34, 112, 94, 0.12);
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(44, 201, 122, 0.14);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, filter 0.25s;
 }
 
-.parent-dash-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(34, 112, 94, 0.18);
-}
-
-.parent-door-svg {
-  width: 15px;
-  height: 15px;
-}
-
-.dark-mode .parent-dash-link {
-  background: linear-gradient(135deg, rgba(44, 201, 122, 0.22), rgba(99, 155, 255, 0.16));
-  border-color: rgba(130, 206, 174, 0.35);
-  color: #f1f6ff;
+.main-site-link:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 22px rgba(44, 201, 122, 0.2);
+  filter: brightness(1.02);
 }
 
 .theme-toggle {
@@ -978,12 +1498,13 @@ onBeforeUnmount(() => {
   color: #F8FAFF;
 }
 
-.date-tag {
+.date-tag,
+.time-tag {
   background: var(--bg);
   border: 1.5px solid var(--border);
   border-radius: 20px;
-  padding: 5px 12px;
-  font-size: 12px;
+  padding: 4px 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--ink2);
   display: flex;
@@ -994,113 +1515,247 @@ onBeforeUnmount(() => {
 .streak-tag {
   background: linear-gradient(135deg, #FFF8E8, #FFEEC8);
   border: 1.5px solid #FFD980;
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 12px;
-  font-weight: 700;
+  border-radius: 15px;
+  width: 38px;
+  height: 38px;
   color: #A06800;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
-  animation: streakPop 3s ease-in-out infinite 3s;
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
   border-style: solid;
 }
 
-@keyframes streakPop {
-  0%, 94%, 100% { transform: scale(1); }
-  96% { transform: scale(1.12) rotate(-4deg); }
-  98% { transform: scale(1.12) rotate(4deg); }
-}
-
-.streak-tag:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(255, 176, 32, 0.3); }
+.streak-tag:hover { box-shadow: 0 4px 14px rgba(255, 176, 32, 0.3); filter: brightness(1.03); }
 .flame-icon { animation: flameDance 0.35s ease-in-out infinite alternate; }
 @keyframes flameDance { from { transform: scaleY(1) rotate(-4deg); } to { transform: scaleY(1.15) rotate(4deg); } }
+
+.meal-day-panel {
+  margin-bottom: 12px;
+  padding: 11px 12px 10px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(255, 176, 32, 0.26);
+  background:
+    linear-gradient(165deg, rgba(255, 253, 248, 0.98) 0%, rgba(255, 251, 242, 0.96) 38%, rgba(242, 246, 255, 0.55) 100%);
+  box-shadow:
+    0 10px 32px rgba(255, 149, 92, 0.09),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.meal-day-head {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(24, 25, 43, 0.07);
+}
+
+.meal-day-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.meal-day-svg :deep(svg) {
+  width: 20px;
+  height: 20px;
+  color: #e89400;
+  flex-shrink: 0;
+}
+
+.meal-day-title {
+  font-family: "Baloo 2", cursive;
+  font-size: clamp(14px, 3.6vw, 15px);
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.meal-day-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 3px 0 0;
+  line-height: 1.35;
+}
 
 .boost-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 8px;
 }
 
 .boost-pill {
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 22px;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: 14px;
   border: 1.5px solid var(--border);
   background: var(--surface);
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 4px 14px rgba(24, 25, 43, 0.06);
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   animation: floatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.boost-pill:nth-child(2) { animation-delay: 0.1s; }
-.boost-pill:nth-child(3) { animation-delay: 0.2s; }
+.boost-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, transparent 48%);
+  opacity: 0.75;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.boost-pill:active {
+  transform: none;
+}
+
+.boost-strip .boost-pill:nth-child(2) { animation-delay: 0.08s; }
+.boost-strip .boost-pill:nth-child(3) { animation-delay: 0.16s; }
 
 @keyframes floatIn {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.boost-pill::after {
-  content: "";
-  position: absolute;
-  inset: auto -10% -55% auto;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  filter: blur(6px);
+.boost-icon,
+.boost-copy,
+.boost-action {
+  position: relative;
+  z-index: 1;
 }
 
 .boost-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 2px 8px rgba(24, 25, 43, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
   backdrop-filter: blur(8px);
+}
+
+.boost-copy {
+  width: 100%;
+  min-width: 0;
 }
 
 .boost-label {
   font-family: "Baloo 2", cursive;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 800;
   line-height: 1;
+  text-align: center;
 }
 
 .boost-sub {
-  font-size: 11px;
-  color: rgba(24, 25, 43, 0.68);
-  font-weight: 700;
-  margin-top: 4px;
+  font-size: 9px;
+  color: rgba(24, 25, 43, 0.62);
+  font-weight: 600;
+  margin-top: 2px;
+  text-align: center;
+  line-height: 1.3;
 }
 
-.boost-pill strong {
-  margin-left: auto;
-  font-size: 13px;
+.boost-action {
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 8px;
   font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(24, 25, 43, 0.1);
+  color: rgba(24, 25, 43, 0.72);
+}
+
+.boost-pill--done {
+  border-color: rgba(44, 201, 122, 0.42);
+  box-shadow:
+    0 4px 18px rgba(44, 201, 122, 0.14),
+    inset 0 0 0 1px rgba(44, 201, 122, 0.06);
+}
+
+.boost-pill--done .boost-action {
+  background: rgba(44, 201, 122, 0.2);
+  border-color: rgba(44, 201, 122, 0.38);
+  color: #065c34;
+}
+
+.boost-pill--done .boost-sub {
+  color: rgba(6, 92, 52, 0.78);
+  font-weight: 700;
+}
+
+.meal-toast {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  min-width: min(320px, calc(100vw - 32px));
+  text-align: center;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(44, 201, 122, 0.96), rgba(118, 233, 171, 0.96));
+  border: 1.5px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 18px 34px rgba(44, 201, 122, 0.28);
+  font-family: "Baloo 2", cursive;
+  font-size: 18px;
+  font-weight: 800;
+  color: #08361b;
+  pointer-events: none;
+}
+
+.meal-toast-enter-active,
+.meal-toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.meal-toast-enter-from,
+.meal-toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px) scale(0.98);
+}
+
+.meal-check-emoji {
+  font-size: 15px;
+  line-height: 1;
 }
 
 .boost-coral {
-  background: linear-gradient(135deg, rgba(255, 96, 88, 0.18), rgba(255, 176, 32, 0.16), rgba(255, 255, 255, 0.84));
+  background: linear-gradient(155deg, #fffbf7 0%, #fff0e8 36%, #ffd8ca 100%);
+  border-color: rgba(255, 107, 84, 0.38);
 }
 
 .boost-sky {
-  background: linear-gradient(135deg, rgba(59, 158, 255, 0.18), rgba(30, 200, 200, 0.14), rgba(255, 255, 255, 0.84));
+  background: linear-gradient(155deg, #f7fbff 0%, #ebf5fc 38%, #dbeefa 100%);
+  border-color: rgba(59, 158, 255, 0.4);
 }
 
 .boost-violet {
-  background: linear-gradient(135deg, rgba(155, 114, 255, 0.18), rgba(255, 126, 179, 0.14), rgba(255, 255, 255, 0.84));
+  background: linear-gradient(155deg, #fbfaff 0%, #f2ebff 40%, #e6dcf9 100%);
+  border-color: rgba(139, 92, 246, 0.34);
 }
 
 .stats-row {
@@ -1217,138 +1872,287 @@ onBeforeUnmount(() => {
 .sc-mood::before { background: var(--mint); }
 .stat-card:hover::before { transform: scale(2.5); opacity: 0.09; }
 
-.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 11px; }
 
 .section-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.3px;
   color: var(--muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
-.mission-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 243, 241, 0.98));
-  border-radius: 26px;
-  padding: 22px;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
+.games-tiles {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 246, 255, 0.98));
+  border-radius: 18px;
+  padding: 13px 14px;
+  border: 1.5px solid var(--border);
   box-shadow: var(--card-shadow);
-  animation: missionReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
-  border: 1.5px solid var(--border);
-  transition: box-shadow 0.3s;
+  animation: floatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 
-@keyframes missionReveal {
-  from { transform: translateX(-30px) rotate(-2deg); opacity: 0; }
-  to { transform: translateX(0) rotate(0deg); opacity: 1; }
+.game-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
 }
 
-.mission-card:hover { box-shadow: var(--card-shadow-hover); }
-
-.mission-card::before {
-  content: "";
-  position: absolute;
-  top: -60%;
-  left: -60%;
-  width: 50%;
-  height: 220%;
-  background: linear-gradient(90deg, transparent, rgba(255, 96, 88, 0.06), transparent);
-  transform: skewX(-15deg) translateX(-100%);
-  transition: none;
+@media (min-width: 560px) {
+  .game-tile-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-.mission-card:hover::before {
-  transform: skewX(-15deg) translateX(400%);
-  transition: transform 0.7s ease;
-}
-
-.mission-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-
-.mission-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: linear-gradient(145deg, #FFF0EE, #FFDFDD);
+.game-tile {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  animation: iconWobble 3s ease-in-out infinite 1s;
-}
-
-@keyframes iconWobble {
-  0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-6deg); }
-  75% { transform: rotate(6deg); }
-}
-
-.mission-title { font-family: "Baloo 2", cursive; font-size: 20px; font-weight: 800; color: var(--ink); }
-.mission-desc { font-size: 13px; color: var(--muted); font-weight: 500; margin-bottom: 16px; line-height: 1.5; }
-
-.tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
-
-.tag {
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  padding: 5px 11px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--ink2);
-  display: flex;
-  align-items: center;
   gap: 5px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, border-color 0.25s, background 0.25s;
 }
 
-.tag:hover { background: var(--ink); color: white; border-color: var(--ink); transform: translateY(-3px) scale(1.06); }
-.tag:hover :deep(svg) { color: white; }
+.game-tile:active {
+  transform: none;
+}
 
-.play-btn {
-  width: 100%;
-  padding: 13px;
-  background: linear-gradient(135deg, var(--coral), #FF8C66);
-  color: white;
-  border: none;
-  border-radius: 16px;
+@media (hover: hover) and (pointer: fine) {
+  .game-tile:hover {
+    transform: translateY(-2px);
+    border-color: rgba(115, 131, 255, 0.32);
+    box-shadow: 0 8px 20px rgba(60, 80, 180, 0.12);
+  }
+}
+
+.game-tile-emoji {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  background: linear-gradient(145deg, #FFFFFF, #F2F1FF);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 10px rgba(70, 92, 200, 0.1);
+  flex-shrink: 0;
+}
+
+.game-tile-copy {
+  flex: 0 1 auto;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  text-align: center;
+}
+
+.game-tile-copy strong {
   font-family: "Baloo 2", cursive;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 5px 18px rgba(255, 96, 88, 0.38);
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
 }
 
-.play-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(255, 96, 88, 0.45); }
-.play-btn:hover .button-svg:last-child :deep(svg) { transform: translateX(4px); }
-.play-btn:active { transform: scale(0.97); }
+.game-tile-copy span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+}
 
-.play-btn::after {
-  content: "";
-  position: absolute;
+.game-tile-arrow {
+  font-family: "Baloo 2", cursive;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--muted);
+  transition: transform 0.25s ease, color 0.25s ease;
+  line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .game-tile:hover .game-tile-arrow {
+    transform: translateX(4px);
+    color: var(--ink);
+  }
+}
+
+.game-tile.tile-bubble {
+  background: linear-gradient(145deg, rgba(59, 158, 255, 0.1), rgba(255, 255, 255, 0.95));
+  border-color: rgba(59, 158, 255, 0.22);
+}
+
+.game-tile.tile-explorer {
+  background: linear-gradient(145deg, rgba(44, 201, 122, 0.12), rgba(255, 255, 255, 0.95));
+  border-color: rgba(44, 201, 122, 0.22);
+}
+
+.game-tile.tile-humit {
+  background: linear-gradient(145deg, rgba(155, 114, 255, 0.14), rgba(79, 209, 255, 0.12));
+  border-color: rgba(124, 92, 255, 0.28);
+}
+
+.game-tile.tile-smash {
+  background: linear-gradient(145deg, rgba(255, 96, 88, 0.1), rgba(255, 248, 245, 0.95));
+  border-color: rgba(255, 96, 88, 0.22);
+}
+
+.dark-mode .games-tiles {
+  background: linear-gradient(145deg, rgba(20, 24, 50, 0.96), rgba(14, 18, 40, 0.96));
+  backdrop-filter: blur(18px);
+}
+
+.dark-mode .game-tile {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(143, 154, 227, 0.22);
+}
+
+.dark-mode .game-tile.tile-bubble {
+  background: linear-gradient(145deg, rgba(28, 56, 100, 0.7), rgba(16, 20, 44, 0.85));
+}
+
+.dark-mode .game-tile.tile-explorer {
+  background: linear-gradient(145deg, rgba(20, 60, 44, 0.72), rgba(14, 22, 36, 0.88));
+}
+
+.dark-mode .game-tile.tile-humit {
+  background: linear-gradient(145deg, rgba(90, 70, 160, 0.72), rgba(28, 90, 120, 0.82));
+  border-color: rgba(160, 190, 255, 0.35);
+}
+
+.dark-mode .game-tile.tile-smash {
+  background: linear-gradient(145deg, rgba(82, 26, 42, 0.7), rgba(20, 16, 36, 0.88));
+}
+
+.dark-mode .game-tile-emoji {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 14px rgba(3, 7, 23, 0.45);
+}
+
+.launch-screen {
+  position: fixed;
   inset: 0;
-  border-radius: 16px;
-  box-shadow: 0 0 0 0 rgba(255, 96, 88, 0.5);
-  animation: btnRing 2s ease-out infinite;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(255, 176, 32, 0.18), transparent 32%),
+    radial-gradient(circle at bottom, rgba(59, 158, 255, 0.22), transparent 40%),
+    rgba(8, 12, 32, 0.5);
+  backdrop-filter: blur(10px);
 }
 
-@keyframes btnRing {
-  0% { box-shadow: 0 0 0 0 rgba(255, 96, 88, 0.4); }
-  70% { box-shadow: 0 0 0 12px rgba(255, 96, 88, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 96, 88, 0); }
+.launch-card {
+  min-width: min(360px, calc(100vw - 32px));
+  max-width: 420px;
+  padding: 28px 32px;
+  border-radius: 32px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(155deg, rgba(48, 36, 110, 0.96), rgba(22, 26, 64, 0.96));
+  box-shadow: 0 30px 80px rgba(8, 10, 32, 0.45);
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.launch-screen.tone-bubble .launch-card {
+  background: linear-gradient(155deg, rgba(50, 102, 200, 0.96), rgba(34, 56, 130, 0.96));
+}
+.launch-screen.tone-explorer .launch-card {
+  background: linear-gradient(155deg, rgba(28, 130, 90, 0.96), rgba(22, 70, 56, 0.96));
+}
+.launch-screen.tone-smash .launch-card {
+  background: linear-gradient(155deg, rgba(196, 60, 110, 0.96), rgba(110, 26, 78, 0.96));
+}
+.launch-screen.tone-humit .launch-card {
+  background: linear-gradient(155deg, rgba(124, 92, 255, 0.96), rgba(40, 160, 210, 0.96));
+}
+.launch-screen.tone-games .launch-card {
+  background: linear-gradient(155deg, rgba(225, 132, 56, 0.96), rgba(160, 48, 110, 0.96));
+}
+
+.launch-icon-wrap {
+  width: 86px;
+  height: 86px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: launchPulse 0.85s ease-in-out infinite alternate;
+}
+
+.launch-emoji {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.launch-title {
+  font-family: "Baloo 2", cursive;
+  font-size: 26px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.launch-sub {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(232, 237, 255, 0.86);
+}
+
+.launch-loader {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.launch-loader span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  animation: launchDot 1.1s ease-in-out infinite;
+}
+
+.launch-loader span:nth-child(2) { animation-delay: 0.18s; }
+.launch-loader span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes launchPulse {
+  from { transform: scale(1); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 26px rgba(59, 158, 255, 0.22); }
+  to { transform: scale(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 18px 36px rgba(255, 176, 32, 0.28); }
+}
+
+@keyframes launchDot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+.launch-screen-enter-active,
+.launch-screen-leave-active {
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.launch-screen-enter-from,
+.launch-screen-leave-to {
+  opacity: 0;
+}
+
+.launch-screen-enter-from .launch-card,
+.launch-screen-leave-to .launch-card {
+  transform: translateY(20px) scale(0.94);
 }
 
 .wins-card {
@@ -1683,8 +2487,8 @@ onBeforeUnmount(() => {
 
 .hydration-card {
   background: linear-gradient(145deg, #EDFFF6, #D8FFED);
-  border-radius: 26px;
-  padding: 22px;
+  border-radius: 20px;
+  padding: 17px;
   border: 1.5px solid rgba(44, 201, 122, 0.2);
   box-shadow: var(--card-shadow);
   position: relative;
@@ -1706,14 +2510,51 @@ onBeforeUnmount(() => {
 @keyframes hydRipple { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
 
 .section-green { color: var(--mint); }
-.hydration-title { font-family: "Baloo 2", cursive; font-size: 18px; font-weight: 800; color: #0A4A28; margin-bottom: 3px; }
-.hydration-sub { font-size: 12px; color: #3A8060; font-weight: 500; margin-bottom: 14px; }
-.drop-grid { display: flex; gap: 7px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hydration-title { font-family: "Baloo 2", cursive; font-size: 16px; font-weight: 800; color: #0A4A28; margin-bottom: 3px; }
+.hydration-sub { font-size: 11px; color: #3A8060; font-weight: 500; margin-bottom: 11px; }
+
+.hyd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+
+.sip-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(59, 158, 255, 0.16), rgba(44, 201, 122, 0.18));
+  border: 1.5px solid rgba(44, 201, 122, 0.28);
+  color: #0A4A28;
+  font-family: "Baloo 2", cursive;
+  font-weight: 800;
+  font-size: 12px;
+  box-shadow: 0 3px 10px rgba(44, 201, 122, 0.16);
+}
+
+.sip-counter-emoji { font-size: 12px; line-height: 1; }
+.sip-counter-num { font-variant-numeric: tabular-nums; min-width: 14px; text-align: center; }
+
+.drop-grid { display: flex; gap: 6px; flex-wrap: wrap; position: relative; z-index: 1; }
+.drop-emoji {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 2px rgba(11, 60, 36, 0.35));
+}
 
 .drop-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   border: 1.5px solid rgba(44, 201, 122, 0.2);
   background: white;
   cursor: pointer;
@@ -1729,15 +2570,23 @@ onBeforeUnmount(() => {
 .drop-btn.filled { background: linear-gradient(135deg, #60EBAC, var(--mint)); border-color: transparent; }
 .drop-btn.filled .drop-svg :deep(svg) { color: white; }
 
+.hyd-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
+}
+
 .log-sip-btn {
-  width: 100%;
-  margin-top: 10px;
-  padding: 9px;
+  flex: 1 1 auto;
+  padding: 7px;
   background: white;
   border: 2px dashed rgba(44, 201, 122, 0.4);
-  border-radius: 13px;
+  border-radius: 11px;
   font-family: "Baloo 2", cursive;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--mint);
   cursor: pointer;
@@ -1746,8 +2595,6 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 6px;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  z-index: 1;
 }
 
 .log-sip-btn:hover {
@@ -1758,6 +2605,39 @@ onBeforeUnmount(() => {
 }
 
 .log-sip-btn:hover .button-svg :deep(svg) { transform: scale(1.4) rotate(20deg); }
+
+.reset-glass-btn {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border-radius: 11px;
+  border: 1.5px solid rgba(255, 96, 88, 0.34);
+  background: rgba(255, 96, 88, 0.08);
+  color: #B7271F;
+  font-family: "Baloo 2", cursive;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, background 0.25s, opacity 0.2s;
+}
+
+.reset-glass-btn:hover {
+  background: rgba(255, 96, 88, 0.16);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(255, 96, 88, 0.22);
+}
+
+.reset-glass-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dark-mode .reset-glass-btn {
+  background: rgba(255, 96, 88, 0.18);
+  border-color: rgba(255, 126, 113, 0.42);
+  color: #FFD7D2;
+}
 
 .nav-bar {
   position: fixed;
@@ -1828,6 +2708,7 @@ onBeforeUnmount(() => {
   z-index: 9999;
   overflow: hidden;
   perspective: 1200px;
+  contain: layout paint;
 }
 
 .water-fall-layer {
@@ -1836,6 +2717,7 @@ onBeforeUnmount(() => {
   pointer-events: none;
   z-index: 9500;
   overflow: hidden;
+  contain: layout paint;
 }
 
 .fall-drop {
@@ -1958,11 +2840,11 @@ onBeforeUnmount(() => {
 @keyframes ripOut { to { transform: scale(4); opacity: 0; } }
 
 .svg-holder { display: inline-flex; }
-.avatar-svg :deep(svg) { width: 30px; height: 30px; color: #D97A00; }
-.mini-svg :deep(svg) { width: 13px; height: 13px; }
+.avatar-svg :deep(svg) { width: 26px; height: 26px; color: #D97A00; }
+.mini-svg :deep(svg) { width: 12px; height: 12px; }
 .stat-svg :deep(svg) { width: 20px; height: 20px; }
 .section-svg :deep(svg),
-.tag-svg :deep(svg) { width: 11px; height: 11px; }
+.tag-svg :deep(svg) { width: 10px; height: 10px; }
 .mission-svg :deep(svg) { width: 24px; height: 24px; color: var(--coral); }
 .button-svg :deep(svg) { width: 16px; height: 16px; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .win-svg :deep(svg) { width: 19px; height: 19px; }
@@ -1970,7 +2852,7 @@ onBeforeUnmount(() => {
 .link-svg :deep(svg) { width: 12px; height: 12px; }
 .game-svg :deep(svg) { width: 24px; height: 24px; color: var(--gc); }
 .star-svg :deep(svg) { width: 14px; height: 14px; }
-.drop-svg :deep(svg) { width: 16px; height: 16px; transition: color 0.3s; }
+.drop-svg :deep(svg) { width: 14px; height: 14px; transition: color 0.3s; }
 .nav-svg :deep(svg) {
   width: 20px;
   height: 20px;
@@ -1997,7 +2879,8 @@ onBeforeUnmount(() => {
   color: var(--ink2);
 }
 
-.dark-mode .date-tag {
+.dark-mode .date-tag,
+.dark-mode .time-tag {
   background: rgba(255, 255, 255, 0.04);
   color: var(--ink2);
 }
@@ -2006,6 +2889,54 @@ onBeforeUnmount(() => {
   background: linear-gradient(135deg, rgba(255, 176, 32, 0.18), rgba(255, 126, 179, 0.18));
   border-color: rgba(255, 176, 32, 0.3);
   color: #FFD98E;
+}
+
+.dark-mode .meal-day-panel {
+  border-color: rgba(255, 184, 108, 0.16);
+  background: linear-gradient(165deg, rgba(26, 30, 52, 0.96) 0%, rgba(18, 22, 44, 0.94) 55%, rgba(22, 26, 56, 0.92) 100%);
+  box-shadow:
+    0 14px 42px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .meal-day-head {
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+}
+
+.dark-mode .meal-day-svg :deep(svg) {
+  color: #ffd98e;
+}
+
+.dark-mode .meal-day-sub {
+  color: var(--muted);
+}
+
+.dark-mode .boost-pill::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+  opacity: 1;
+}
+
+.dark-mode .boost-icon {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.dark-mode .boost-action {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(236, 240, 255, 0.88);
+}
+
+.dark-mode .boost-pill--done .boost-action {
+  background: rgba(44, 201, 122, 0.22);
+  border-color: rgba(96, 235, 172, 0.38);
+  color: #b8ffd9;
+}
+
+.dark-mode .boost-pill--done .boost-sub {
+  color: rgba(152, 242, 191, 0.92);
 }
 
 .dark-mode .boost-pill,
@@ -2028,8 +2959,20 @@ onBeforeUnmount(() => {
   background: linear-gradient(145deg, rgba(52, 29, 90, 0.95), rgba(73, 32, 73, 0.92));
 }
 
-.dark-mode .boost-pill strong,
+.dark-mode .meal-toast {
+  background: linear-gradient(135deg, rgba(11, 87, 53, 0.98), rgba(28, 143, 91, 0.96));
+  border-color: rgba(96, 235, 172, 0.22);
+  color: #d7ffe8;
+}
+
+.dark-mode .main-site-link {
+  background: linear-gradient(135deg, rgba(20, 94, 58, 0.9), rgba(16, 79, 79, 0.88));
+  border-color: rgba(96, 235, 172, 0.22);
+  color: #e7fff1;
+}
+
 .dark-mode .boost-label,
+.dark-mode .meal-day-title,
 .dark-mode .stat-value,
 .dark-mode .mission-title,
 .dark-mode .win-title,
@@ -2160,6 +3103,13 @@ onBeforeUnmount(() => {
   color: #D7FFE8;
 }
 
+.dark-mode .sip-counter {
+  background: linear-gradient(135deg, rgba(59, 158, 255, 0.22), rgba(44, 201, 122, 0.24));
+  border-color: rgba(96, 235, 172, 0.32);
+  color: #E7FFF1;
+  box-shadow: 0 6px 18px rgba(3, 24, 14, 0.32);
+}
+
 .dark-mode .drop-btn,
 .dark-mode .star-btn,
 .dark-mode .log-sip-btn {
@@ -2203,14 +3153,202 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.14);
 }
 
+/* Lite / reduced-motion & Save-Data: drop heavy decorations & blur cost */
+.kids-html-dashboard--lite .dash-blobs,
+.kids-html-dashboard--lite .dash-sparkles {
+  display: none !important;
+}
+
+.kids-html-dashboard--lite .blob {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sky-cloud {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .spark {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .avatar-zone {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .orbit-ring {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sun-core,
+.kids-html-dashboard--lite .sun-halo,
+.kids-html-dashboard--lite .sun-ring,
+.kids-html-dashboard--lite .moon-core,
+.kids-html-dashboard--lite .moon-halo {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sky-star {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .sky-shoot {
+  animation: none !important;
+}
+
+.kids-html-dashboard--lite .fall-drop {
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+.kids-html-dashboard--lite .header,
+.kids-html-dashboard--lite .boost-pill,
+.kids-html-dashboard--lite .games-tiles,
+.kids-html-dashboard--lite .hydration-card {
+  backdrop-filter: none !important;
+}
+
 @media (max-width: 740px) {
   .boost-strip { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: 1fr 1fr; }
-  .main-grid, .bottom-row, .games-row { grid-template-columns: 1fr; }
+  .main-grid, .bottom-row, .games-row { grid-template-columns: 1fr; gap: 10px; }
   .meal-float { display: none; }
   .meal-banner { flex-direction: column; gap: 14px; align-items: flex-start; }
   .nav-bar { width: calc(100% - 32px); justify-content: space-around; }
   .header { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
-  .header-right { width: 100%; align-items: flex-start; }
+  .header-right { width: 100%; max-width: none; justify-content: flex-start; }
+}
+
+:global(.conf-piece) {
+  position: absolute;
+  border-radius: 2px;
+  animation: confFall linear forwards;
+  opacity: 0;
+  pointer-events: none;
+}
+
+:global(.cele-ribbon) {
+  --ribbon-start: #FF7A72;
+  --ribbon-end: #FFB96B;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 999px 999px 20px 20px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 18px 22px rgba(16, 24, 40, 0.2));
+  pointer-events: none;
+}
+
+:global(.cele-ribbon::before) {
+  content: "";
+  position: absolute;
+  inset: 0 0 16px;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, var(--ribbon-start), var(--ribbon-end)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+    inset 4px 0 9px rgba(255, 255, 255, 0.18),
+    inset -5px 0 12px rgba(15, 23, 42, 0.16);
+}
+
+:global(.cele-ribbon::after) {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 52%;
+  height: 22px;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(135deg, transparent 48%, rgba(255, 255, 255, 0.1) 49%, rgba(255, 255, 255, 0.1) 51%, transparent 52%),
+    linear-gradient(135deg, var(--ribbon-start), var(--ribbon-end));
+  clip-path: polygon(0 0, 100% 0, 70% 100%, 50% 68%, 30% 100%);
+  filter: brightness(1.02);
+}
+
+:global(.cele-ribbon > span) {
+  display: none;
+}
+
+:global(.rip) {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripOut 0.6s ease-out forwards;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+:global(#confetti-layer) {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+  perspective: 1200px;
+  contain: layout paint;
+}
+.kids-html-dashboard {
+  --kids-font-scale: var(--hk-font-scale, 1);
+}
+.header-text h1 {
+  font-size: calc(28px * var(--kids-font-scale));
+}
+
+.header-sub {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.main-site-link,
+.date-tag,
+.time-tag,
+.streak-tag {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.meal-day-title {
+  font-size: calc(24px * var(--kids-font-scale));
+}
+
+.meal-day-sub {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.boost-label {
+  font-size: calc(16px * var(--kids-font-scale));
+}
+
+.boost-sub {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.boost-action {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.section-label {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.game-tile-copy strong {
+  font-size: calc(17px * var(--kids-font-scale));
+}
+
+.game-tile-copy span {
+  font-size: calc(13px * var(--kids-font-scale));
+}
+
+.hydration-title {
+  font-size: calc(24px * var(--kids-font-scale));
+}
+
+.hydration-sub {
+  font-size: calc(14px * var(--kids-font-scale));
+}
+
+.log-sip-btn,
+.reset-glass-btn {
+  font-size: calc(14px * var(--kids-font-scale));
 }
 </style>

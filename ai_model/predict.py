@@ -102,7 +102,7 @@ class FoodHealthPredictor:
             value = nutrients.get(col)
 
             if value is None:
-                value = np.nan
+                value = 0
 
             values.append(value)
 
