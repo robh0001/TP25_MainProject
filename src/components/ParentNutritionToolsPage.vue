@@ -18,96 +18,16 @@
 <template>
   <div class="nutrition-page">
     <!-- Decorative background image and overlay layers -->
-    <div class="page-bg" aria-hidden="true">
+    <div class="dashboard-page-bg" aria-hidden="true">
       <img
-        class="page-bg__img"
-        src="https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=2400&q=90"
+        class="dashboard-page-bg__img"
+        src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=2400&q=90"
         alt=""
         aria-hidden="true"
       />
-      <div class="page-bg__overlay"></div>
-      <div class="page-bg__grain"></div>
+      <div class="dashboard-page-bg__overlay"></div>
+      <div class="dashboard-page-bg__grain"></div>
     </div>
-
-    <!-- Page header with logo, navigation, and dashboard actions -->
-    <header class="header" :class="{ scrolled: isScrolled }" aria-label="HealthyKids nutrition header">
-      <div class="header-inner">
-        <!-- HealthyKids logo link -->
-        <RouterLink
-          to="/"
-          class="logo"
-          aria-label="Go to HealthyKids home page"
-          data-hover-read-text="Go to HealthyKids home page"
-        >
-          <div class="logo-icon" aria-hidden="true">
-            <svg viewBox="0 0 36 36" fill="none" focusable="false">
-              <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5" />
-              <path
-                d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
-          <span>HealthyKids</span>
-        </RouterLink>
-
-        <!-- Main navigation links -->
-        <nav class="nav" aria-label="Nutrition page navigation">
-          <RouterLink to="/" class="nav-a" data-hover-read-text="Go to home page">
-            Home
-          </RouterLink>
-
-          <RouterLink to="/parent-dashboard" class="nav-a" data-hover-read-text="Go to parent dashboard">
-            Dashboard
-          </RouterLink>
-
-          <RouterLink
-            to="/parent-nutrition-tools"
-            class="nav-a"
-            aria-current="page"
-            data-hover-read-text="Current page. Nutrition."
-          >
-            Nutrition
-          </RouterLink>
-
-          <RouterLink to="/statistics" class="nav-a" data-hover-read-text="Go to statistics page">
-            Statistics
-          </RouterLink>
-
-          <RouterLink to="/young-person-dashboard" class="nav-a" data-hover-read-text="Go to kids view">
-            Kids view
-          </RouterLink>
-        </nav>
-
-        <!-- Header call-to-action links -->
-        <div class="nav-cta">
-          <RouterLink
-            to="/parent-quiz"
-            class="nav-link"
-            data-hover-read-text="Retake the parent quiz"
-          >
-            Retake quiz
-          </RouterLink>
-
-          <RouterLink
-            to="/parent-dashboard"
-            class="nav-btn"
-            data-hover-read-text="Back to dashboard"
-          >
-            Back to dashboard
-            <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12">
-              <path
-                d="M2 6h8M7 3l3 3-3 3"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </RouterLink>
-        </div>
-      </div>
-    </header>
 
     <!-- Main nutrition page content -->
     <main
@@ -115,7 +35,63 @@
       class="page-main"
       aria-labelledby="nutrition-page-title"
       aria-describedby="nutrition-page-description"
-    >
+    > 
+    <!-- Website journey step bar -->
+      <nav
+          class="dashboard-journey"
+          aria-label="HealthyKids website journey"
+          data-hover-read-text="Website journey. Create profile, guided plan, daily activities, four week plan, nutrition, stats, kids dashboard."
+        >
+          <RouterLink
+            to="/parent-entry"
+            class="dashboard-journey-item dashboard-journey-item--complete"
+            aria-label="Step 1 complete. Create profile."
+          >
+            <span class="dashboard-journey-badge">1</span>
+            <span class="dashboard-journey-label">Get Started </span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-quiz"
+            class="dashboard-journey-item dashboard-journey-item--complete"
+            aria-label="Step 2 complete. Guided plan."
+          >
+            <span class="dashboard-journey-badge">2</span>
+            <span class="dashboard-journey-label">Build Profile</span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-dashboard"
+            class="dashboard-journey-item dashboard-journey-item--complete"
+            aria-label="Step 3 complete. Daily activities."
+          >
+            <span class="dashboard-journey-badge">3</span>
+            <span class="dashboard-journey-label">Today's plan</span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-roadmap"
+            class="dashboard-journey-item dashboard-journey-item--complete"
+            aria-label="Step 4 complete. Four week roadmap."
+          >
+            <span class="dashboard-journey-badge">4</span>
+            <span class="dashboard-journey-label">4-week roadmap</span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-nutrition-tools"
+            class="dashboard-journey-item dashboard-journey-item--active"
+            aria-current="step"
+            aria-label="Step 5 current. Meal ideas."
+          >
+            <span class="dashboard-journey-badge">5</span>
+            <span class="dashboard-journey-label">Meal Ideas</span>
+          </RouterLink>
+        </nav>
       <!-- Hero section with quick filters and food scorer -->
       <section class="hero-card" aria-label="Nutrition tools overview">
         <div class="hero-copy">
@@ -711,7 +687,7 @@ const {
 } = useFoodHealthPredictor()
 
 // Example foods shown before the user scores a food.
-const exampleFoods = ['banana', 'white bread', 'greek yoghurt', 'milo']
+const exampleFoods = ['banana', 'white bread', 'corn chips']
 
 // Quick filter chips shown in the hero section.
 const quickStarts = computed(() => [

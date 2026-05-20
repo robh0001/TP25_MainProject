@@ -18,6 +18,18 @@
 
 <template>
   <div class="stats-page">
+    <!-- Background matching dashboard / roadmap pages -->
+    <div class="stats-page-bg" aria-hidden="true">
+      <img
+        class="stats-page-bg__img"
+        src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=2400&q=90"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="stats-page-bg__overlay"></div>
+      <div class="stats-page-bg__grain"></div>
+    </div>
+
     <!-- Main statistics page content -->
     <main
       id="main-content"

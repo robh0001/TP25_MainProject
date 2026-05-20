@@ -23,7 +23,7 @@
     <div class="quiz-bg" aria-hidden="true">
       <img
         class="quiz-bg__img"
-        src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=90"
+        src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=2400&q=90"
         alt=""
         aria-hidden="true"
       />
@@ -31,42 +31,71 @@
       <div class="quiz-bg__grain"></div>
     </div>
 
-    <!-- Header with HealthyKids logo and parent access link -->
-    <header class="quiz-site-header" aria-label="HealthyKids quiz header">
-      <RouterLink to="/" class="quiz-brand" aria-label="Go to HealthyKids home page">
-        <span class="quiz-brand-icon" aria-hidden="true">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.2" />
-            <path
-              d="M18 9C13.8 12.3 11.5 16.2 12.4 20.4C13.1 23.8 15.5 26.1 18 27.6C20.5 26.1 22.9 23.8 23.6 20.4C24.5 16.2 22.2 12.3 18 9Z"
-              fill="currentColor"
-              opacity="0.9"
-            />
-            <path
-              d="M18 14.2V24.5"
-              stroke="white"
-              stroke-width="1.4"
-              stroke-linecap="round"
-              opacity="0.72"
-            />
-          </svg>
-        </span>
-        <span>HealthyKids</span>
-      </RouterLink>
-
-      <RouterLink to="/parent-entry" class="quiz-header-btn" aria-label="Go back to parent access page">
-        <span aria-hidden="true">&#8592;</span> Parent access
-      </RouterLink>
-    </header>
-
     <!-- Main quiz content -->
     <main class="quiz-main" id="main-content">
-      <section
-        class="quiz-card"
-        id="quiz-form"
-        aria-labelledby="quiz-page-title"
-        aria-describedby="quiz-page-description"
-      >
+      <!-- Website journey step bar -->
+      <nav
+          class="dashboard-journey"
+          aria-label="HealthyKids website journey"
+          data-hover-read-text="Website journey. Create profile, guided plan, daily activities, four week plan, nutrition, stats, kids dashboard."
+        >
+          <RouterLink
+            to="/parent-entry"
+            class="dashboard-journey-item dashboard-journey-item--complete"
+            aria-label="Step 1 complete. Create profile."
+          >
+            <span class="dashboard-journey-badge">1</span>
+            <span class="dashboard-journey-label">Get Started </span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-quiz"
+            class="dashboard-journey-item dashboard-journey-item--active"
+            aria-label="Step 2 complete. Guided plan."
+          >
+            <span class="dashboard-journey-badge">2</span>
+            <span class="dashboard-journey-label">Build Profile</span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-dashboard"
+            class="dashboard-journey-item dashboard-journey-item--complete"
+            aria-label="Step 3 complete. Daily activities."
+          >
+            <span class="dashboard-journey-badge">3</span>
+            <span class="dashboard-journey-label">Today's plan</span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-roadmap"
+            class="dashboard-journey-item "
+            aria-current="step"
+            aria-label="Step 4 current. Four week plan."
+          >
+            <span class="dashboard-journey-badge">4</span>
+            <span class="dashboard-journey-label">4-week roadmap</span>
+            <span class="dashboard-journey-line" aria-hidden="true"></span>
+          </RouterLink>
+  
+          <RouterLink
+            to="/parent-nutrition-tools"
+            class="dashboard-journey-item"
+            aria-label="Step 5. Nutrition."
+          >
+            <span class="dashboard-journey-badge">5</span>
+            <span class="dashboard-journey-label">Meal Ideas</span>
+          </RouterLink>
+        </nav>
+
+        <section
+          class="quiz-card"
+          id="quiz-form"
+          aria-labelledby="quiz-page-title"
+          aria-describedby="quiz-page-description"
+        >
         <!-- Quiz intro, step label, and progress bar -->
         <div class="quiz-intro">
           <p
@@ -224,7 +253,7 @@
               </p>
             </div>
 
-            <div class="quiz-form-group">
+            <div class="quiz-form-group quiz-full-row">
               <label for="confidence">Confidence level</label>
               <select
                 id="confidence"
@@ -240,25 +269,6 @@
               </select>
               <p id="confidence-help" class="quiz-sr-only">
                 Choose the option that best describes how confident you feel.
-              </p>
-            </div>
-
-            <div class="quiz-form-group">
-              <label for="support-style">Preferred guidance style</label>
-              <select
-                id="support-style"
-                v-model="form.supportStyle"
-                data-hover-read-text="Preferred guidance style. Select the kind of support that would help most."
-                :aria-invalid="errorMessage && !form.supportStyle ? 'true' : 'false'"
-                aria-describedby="support-style-help"
-              >
-                <option disabled value="">Choose one</option>
-                <option>Small daily actions</option>
-                <option>Structured weekly plan</option>
-                <option>Low-conflict routine strategies</option>
-              </select>
-              <p id="support-style-help" class="quiz-sr-only">
-                Choose the support style that would be most useful for your family.
               </p>
             </div>
           </div>
@@ -310,16 +320,6 @@
                   <strong aria-hidden="true">
                     {{ form.habits.length ? form.habits.join(', ') : 'None selected' }}
                   </strong>
-                </div>
-
-                <div
-                  role="listitem"
-                  tabindex="0"
-                  :aria-label="`Guidance style: ${form.supportStyle || 'Not selected'}`"
-                  :data-hover-read-text="`Guidance style: ${form.supportStyle || 'Not selected'}`"
-                >
-                  <span aria-hidden="true">Guidance style</span>
-                  <strong aria-hidden="true">{{ form.supportStyle || 'Not selected' }}</strong>
                 </div>
               </div>
             </div>
@@ -435,7 +435,6 @@ const form = reactive({
   habits: Array.isArray(state.habits) ? [...state.habits] : [],
   concerns: Array.isArray(state.concerns) ? [...state.concerns] : [],
   confidence: state.confidence || '',
-  supportStyle: state.supportStyle || '',
 })
 
 // Quiz step labels and descriptions.
@@ -449,7 +448,7 @@ const steps = [
     subtitle: 'Identify which habits need the most support right now.',
   },
   {
-    title: 'Parent worries and support',
+    title: 'Parent Concerns',
     subtitle: 'Capture your concerns and what kind of guidance would help most.',
   },
   {
@@ -474,11 +473,11 @@ const concernOptions = [
   'My child is not active enough',
   'My child prefers screens over outdoor activity',
   'My child snacks too often',
-  'Healthy meals are hard on busy days',
-  'Bedtime feels inconsistent',
-  'Our family routine feels hard to manage',
-  'I am worried about healthy growth or long-term wellbeing',
-  'I am not sure what the right approach is',
+  'My child needs healthier meals',
+  'My child struggles with bedtime',
+  'My child finds routines hard',
+  'My child needs healthier habits',
+  'I need help supporting my child',
 ]
 
 // Current quiz progress and save state.
@@ -497,9 +496,8 @@ const reviewSummaryText = computed(() => {
   const familyCode = form.username || 'Not provided'
   const routine = form.routineType || 'Not selected'
   const priorities = form.habits.length ? form.habits.join(', ') : 'None selected'
-  const guidance = form.supportStyle || 'Not selected'
 
-  return `Summary. Family code: ${familyCode}. Routine: ${routine}. Priority areas: ${priorities}. Guidance style: ${guidance}.`
+  return `Summary. Family code: ${familyCode}. Routine: ${routine}. Priority areas: ${priorities}.`
 })
 
 // Hover-to-read and speech helpers for error feedback.
@@ -533,7 +531,6 @@ const isRetakeMode = computed(() =>
       state.ageRange ||
       state.routineType ||
       state.confidence ||
-      state.supportStyle ||
       state.dailyPlan ||
       state.progressItems ||
       state.recommendations ||
@@ -606,10 +603,6 @@ function validateStep() {
       return false
     }
 
-    if (!form.supportStyle) {
-      setError('Please select the type of support that would help most.')
-      return false
-    }
   }
 
   return true
@@ -765,26 +758,6 @@ function buildTaskPool() {
     trackerItems.push('One-habit focus maintained', 'Visible routine cue used')
   }
 
-  if (form.supportStyle === 'Visual reminders') {
-    tasks.push('Place one visible reminder where the habit needs to happen')
-    trackerItems.push('Visible reminder placed')
-  }
-
-  if (form.supportStyle === 'Low-conflict routine strategies') {
-    tasks.push('Use one calm instruction instead of repeated reminders')
-    trackerItems.push('Calm single instruction used')
-  }
-
-  if (form.supportStyle === 'Small daily actions') {
-    tasks.push('Choose only one non-negotiable healthy task for today')
-    trackerItems.push('One daily action completed')
-  }
-
-  if (form.supportStyle === 'Structured weekly plan') {
-    tasks.push("Review tomorrow's task before the day ends")
-    trackerItems.push('Next day task reviewed')
-  }
-
   if (form.routineType === 'Very busy and hard to manage') {
     tasks.push(
       "Pick the easiest possible version of today's task",
@@ -902,13 +875,6 @@ function createRecommendations() {
     })
   }
 
-  if (form.supportStyle === 'Visual reminders') {
-    recommendations.push({
-      title: 'Reminder strategy',
-      description:
-        'Use visible cues such as snack setup, water bottles, or bedtime reminders to reduce the need for repeated prompting.',
-    })
-  }
 
   if (recommendations.length < 3) {
     recommendations.push(
@@ -965,7 +931,6 @@ function buildPayload() {
     habits: [...form.habits],
     concerns: [...form.concerns],
     confidence: form.confidence,
-    supportStyle: form.supportStyle,
     recommendations: createRecommendations(),
     dailyPlan: buildDailyPlan(taskPool),
     progressItems: buildProgressItems(taskPool),
