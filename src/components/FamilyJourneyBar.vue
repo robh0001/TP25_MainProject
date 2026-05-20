@@ -1,7 +1,7 @@
 <!--
   FamilyJourneyBar.vue
 
-  This component creates the reusable HealthyKids journey progress bar shown across
+  This component creates the reusable HelthyKidz journey progress bar shown across
   the parent flow pages.
 
   Purpose:
@@ -24,7 +24,7 @@
 <template>
     <nav
       class="dashboard-journey"
-      aria-label="HealthyKids website journey"
+      aria-label="HelthyKidz website journey"
       data-hover-read-text="Website journey. Get started, build profile, today's plan, four week roadmap, meal ideas."
     >
       <!-- Loop through each journey step and render it as either an open link or a locked button -->

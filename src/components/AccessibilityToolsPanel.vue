@@ -1,7 +1,7 @@
 <!--
   AccessibilityTools.vue
 
-  Floating accessibility widget for HealthyKids.
+  Floating accessibility widget for HelthyKidz.
 
   Main features:
   - Opens and closes an accessibility tools panel.

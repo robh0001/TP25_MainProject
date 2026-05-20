@@ -1,7 +1,7 @@
 <!--
   KidsDashboardPage.vue
 
-  Creates the HealthyKids kids dashboard page. Children can open games, log meals,
+  Creates the HelthyKidz kids dashboard page. Children can open games, log meals,
   track water, switch between day and night themes, and see playful animations.
 
   Store and composable requirements:

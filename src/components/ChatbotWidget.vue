@@ -1,7 +1,7 @@
 <!--
   ChatbotWidget.vue
 
-  Floating Healthy Buddy chatbot for the HealthyKids website.
+  Floating Healthy Buddy chatbot for the HelthyKidz website.
 
   Main features:
   - Shows a draggable chatbot button.
@@ -151,7 +151,7 @@
       type="button"
       class="chatbot-toggle"
       :class="{ active: isOpen, 'chatbot-toggle--kids': isKidsRoute && !isOpen }"
-      aria-label="Open HealthyKids assistant"
+      aria-label="Open HelthyKidz assistant"
       @pointerdown="startDrag"
       @click="handleToggleClick"
     >

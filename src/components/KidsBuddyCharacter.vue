@@ -1,7 +1,7 @@
 <!--
   KidsBuddyCharacter.vue
 
-  Decorative inline SVG mascot for HealthyKids.
+  Decorative inline SVG mascot for HelthyKidz.
 
   Main features:
   - Shows a fruit-inspired cartoon character.
