@@ -44,7 +44,7 @@ import MainNavBar from './components/MainNavBar.vue'
 const route = useRoute()
 
 const routesWithoutMainNav = [
-  '/kids-view',
+  '/kids-dashboard',
   '/kids-game-zone'
 ]
 
