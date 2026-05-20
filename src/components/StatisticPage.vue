@@ -1,7 +1,7 @@
 <!--
   StatisticsPage.vue
 
-  Creates the HealthyKids statistics page. It shows child health insights for weight,
+  Creates the HelthyKidz statistics page. It shows child health insights for weight,
   activity, sleep, and long-term trends using data from the insights API.
 
   API requirement:
@@ -692,7 +692,7 @@ function bmiNoteFor(item) {
     underweight: 'Children here may benefit from nutritional support. A GP can give personalised guidance.',
     normal:      'Great news - these kids are in a healthy weight range. Keeping current routines going is the key.',
     overweight:  `${item.value}% of ${trendLabel.value.toLowerCase()} fall here. Small lifestyle changes can help reverse this trend.`,
-    obese:       `This is the highest-risk category. HealthyKids routines are built to support families with gradual, lasting changes.`,
+    obese:       `This is the highest-risk category. HelthyKidz routines are built to support families with gradual, lasting changes.`,
   }
   return map[item.key] || `${item.value}% of ${trendLabel.value.toLowerCase()} are in this category.`
 }

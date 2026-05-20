@@ -1,7 +1,7 @@
 <!--
   ParentEntryPage.vue
 
-  Parent entry page for HealthyKids.
+  Parent entry page for HelthyKidz.
 
   Main features:
   - Shows the brand header and back home link.
@@ -41,8 +41,8 @@
     </div>
 
     <!-- Header -->
-    <header class="entry-site-header" aria-label="HealthyKids site header">
-      <!-- HealthyKids brand link that returns users to the home page -->
+    <header class="entry-site-header" aria-label="HelthyKidz site header">
+      <!-- HelthyKidz brand link that returns users to the home page -->
     </header>
     <!-- Main -->
     <main class="entry-main" id="main-content">

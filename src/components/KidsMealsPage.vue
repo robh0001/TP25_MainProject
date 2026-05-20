@@ -1,7 +1,7 @@
 <!--
   KidsMealsPage.vue
 
-  Creates the HealthyKids kids meals page. Children can check off meals,
+  Creates the HelthyKidz kids meals page. Children can check off meals,
   complete rainbow food goals, and update meal progress through playful taps.
 
   Store requirement:

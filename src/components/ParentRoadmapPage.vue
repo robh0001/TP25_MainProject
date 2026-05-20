@@ -1,7 +1,7 @@
 <!--
   ParentRoadmapPage.vue
 
-  Creates the HealthyKids 4-week planner page.
+  Creates the HelthyKidz 4-week planner page.
 
   Purpose:
   - Separates the 4-week planner from the parent dashboard.
@@ -626,7 +626,7 @@
   import { useFamilyPlanStore } from '../stores/familyPlanStore'
   import { useDynamicPlan } from '../composables/useDynamicPlan'
   import FamilyJourneyBar from '../components/FamilyJourneyBar.vue'
-  
+
   // Shared family plan store and dynamic plan helpers.
   const { state, savePlan } = useFamilyPlanStore()
   const {

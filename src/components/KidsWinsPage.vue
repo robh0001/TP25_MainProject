@@ -1,7 +1,7 @@
 <!--
   KidsWinsPage.vue
 
-  Creates the HealthyKids kids wins page. Children can tap win cards to earn XP,
+  Creates the HelthyKidz kids wins page. Children can tap win cards to earn XP,
   track challenge progress, and view unlocked badges.
 
   Store requirement:

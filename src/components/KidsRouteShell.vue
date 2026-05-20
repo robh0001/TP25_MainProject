@@ -1,7 +1,7 @@
 <!--
   KidsRouteShell.vue
 
-  Creates the shared layout shell for all HealthyKids kids pages. It provides the topbar,
+  Creates the shared layout shell for all HelthyKidz kids pages. It provides the topbar,
   bottom navigation, theme controls, shared background styling, and game launch overlay.
 
   Component requirement:

@@ -1,7 +1,7 @@
 <!--
   ParentDashboardPage.vue
 
-  Creates the HealthyKids parent dashboard. It loads a saved family plan, shows today's schedule,
+  Creates the HelthyKidz parent dashboard. It loads a saved family plan, shows today's schedule,
   meal actions, movement actions, the 4-week planner, and basic settings.
 
   API requirement:

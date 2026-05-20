@@ -1,7 +1,7 @@
 <!--
   ParentNutritionToolsPage.vue
 
-  Creates the HealthyKids nutrition tools page. Parents can browse recipes, filter meal ideas,
+  Creates the HelthyKidz nutrition tools page. Parents can browse recipes, filter meal ideas,
   open recipe details, and score foods using the food health predictor.
 
   API requirement:

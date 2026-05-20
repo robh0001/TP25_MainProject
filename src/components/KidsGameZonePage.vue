@@ -1,7 +1,7 @@
 <!--
   KidsGamesPage.vue
 
-  Creates the HealthyKids kids games page. Children can choose between different
+  Creates the HelthyKidz kids games page. Children can choose between different
   mini-games, view game instructions, and play the selected game inside the shared kids shell.
 
   Component requirement:

@@ -9,7 +9,7 @@
               <path d="M18 7C11.5 11.5 9.5 17 18 27C26.5 17 24.5 11.5 18 7Z" fill="currentColor" />
             </svg>
           </div>
-          <span class="main-nav-logo-text">HealthyKids</span>
+          <span class="main-nav-logo-text">HelthyKidz</span>
         </RouterLink>
   
         <div class="main-nav-links">

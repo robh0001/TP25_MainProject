@@ -1,7 +1,7 @@
 <!--
   KidsStatsPage.vue
 
-  Creates the HealthyKids kids stats page. Children can interact with steps, water,
+  Creates the HelthyKidz kids stats page. Children can interact with steps, water,
   sleep, mood, weekly rhythm, and summary cards.
 
   Store requirement:

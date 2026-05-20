@@ -1,6 +1,6 @@
 <template>
   <header class="kids-topbar">
-    <RouterLink to="/kids-dashboard" class="brand-link">HealthyKids</RouterLink>
+    <RouterLink to="/kids-dashboard" class="brand-link">HelthyKidz</RouterLink>
   </header>
 </template>
 

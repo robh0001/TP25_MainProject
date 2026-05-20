@@ -1,7 +1,7 @@
 <!--
   ParentQuizPage.vue
 
-  Creates the HealthyKids parent quiz page. Parents answer a short multi-step quiz to create
+  Creates the HelthyKidz parent quiz page. Parents answer a short multi-step quiz to create
   or update a personalised family routine plan.
 
   API requirement:
