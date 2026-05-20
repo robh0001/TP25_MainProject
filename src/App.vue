@@ -45,7 +45,8 @@ const route = useRoute()
 
 const routesWithoutMainNav = [
   '/kids-dashboard',
-  '/kids-game-zone'
+  '/kids-game-zone',
+  '/kids-games',
 ]
 
 const showMainNavBar = computed(() => {
